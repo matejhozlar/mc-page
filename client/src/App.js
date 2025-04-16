@@ -6,8 +6,8 @@ import MobileNav from "./components/MobileNav";
 import OnlinePlayers from "./components/OnlinePlayers";
 import ServerChat from "./components/ServerChat";
 import ApplyToJoin from "./components/ApplyToJoin";
-
-const Home = () => <h1>Welcome to the Server Dashboard</h1>;
+import Rules from "./components/Rules.jsx";
+import Home from "./components/Home.jsx";
 
 function App() {
   return (
@@ -26,6 +26,7 @@ function App() {
             <Route path="/online-players" element={<OnlinePlayers />} />
             <Route path="/server-chat" element={<ServerChat />} />
             <Route path="/apply-to-join" element={<ApplyToJoin />} />
+            <Route path="/rules" element={<Rules />} />
           </Routes>
         </div>
       </div>

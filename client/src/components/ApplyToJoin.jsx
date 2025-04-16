@@ -64,9 +64,6 @@ const ApplyToJoin = () => {
       <h2>Apply to Join Our Server</h2>
 
       {/* Alert/Status Message */}
-      {submissionStatus && (
-        <div className="alert-submit">{submissionStatus}</div>
-      )}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -147,6 +144,11 @@ const ApplyToJoin = () => {
             required
           />
         </div>
+        {submissionStatus && (
+          <div className="alert alert-success alert-submit">
+            {submissionStatus}
+          </div>
+        )}
 
         <button type="submit" className="submit-button">
           Submit Application

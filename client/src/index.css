@@ -139,10 +139,18 @@ body {
     color: #fff;
     text-decoration: none;
     font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s ease;
   }
 
   .mobile-nav-link:hover {
-    text-decoration: underline;
+    background-color: #374151;
+  }
+
+  .mobile-nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--primary-foreground);
   }
 }
 
@@ -449,13 +457,8 @@ body {
 
 /* Alert box for submission status or errors */
 .alert-submit {
-  background-color: #4a4a4a;
-  border: 1px solid #606060;
-  color: #ffae42; /* A warmer accent color */
-  padding: 10px 15px;
-  border-radius: 4px;
-  text-align: center;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
   font-weight: 500;
 }
 
@@ -522,4 +525,140 @@ body {
 .submit-button:hover,
 .submit-button:focus {
   background-color: hsl(90, 44%, 60%); /* Slightly brighter on hover/focus */
+}
+
+.rules-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #1f1f1f; /* Dark background */
+  color: #f1f1f1; /* Light text for contrast */
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.rules-container h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--primary-color, hsl(90, 44%, 48%));
+}
+
+.rules-container h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color, hsl(90, 44%, 48%));
+}
+
+.rules-container ol {
+  margin-left: 1.5rem;
+}
+
+.rules-container li {
+  margin-bottom: 1.25rem;
+  line-height: 1.6;
+}
+
+.rules-container li p {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+.rules-warning {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+@media (max-width: 600px) {
+  .rules-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+  .rules-container h1 {
+    font-size: 1.75rem;
+  }
+  .rules-container h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Home.css */
+
+.home-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 1rem;
+  color: var(--foreground-color);
+  font-family: Arial, sans-serif;
+}
+
+.status {
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.status.online {
+  background-color: #22c55e; /* Green, server is online */
+  color: #fff;
+}
+
+.status.offline {
+  background-color: #ef4444; /* Red, server is offline */
+  color: #fff;
+}
+
+.full-message {
+  background-color: #333;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-top: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.waitlist-form {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.waitlist-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #2b2b2b;
+  color: #f1f1f1;
+}
+
+.waitlist-submit {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 4px;
+  color: var(--primary-foreground);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.waitlist-submit:hover {
+  background-color: hsl(90, 44%, 60%); /* Lighter green */
+}
+
+.submission-status {
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.offline-message {
+  text-align: center;
+  color: #ffae42;
+  font-weight: bold;
 }

@@ -90,7 +90,7 @@ app.get("/api/players", async (req, res) => {
   }
 });
 
-app.post("/api/apply", async (req, res) => {
+app.post("/wait-list", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
   const insertQuery = `
@@ -112,6 +112,26 @@ app.post("/api/apply", async (req, res) => {
   } catch (error) {
     console.error("Error inserting application:", error);
     res.status(500).json({ error: "Error submitting application" });
+  }
+});
+
+app.post("/api/waitlist", async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ error: "Email is required" });
+  }
+
+  try {
+    const insertQuery = `
+        INSERT INTO waitlist_emails (email)
+        VALUES ($1)
+        RETURNING *
+      `;
+    const result = await db.query(insertQuery, [email]);
+    res.json({ success: true, email: result.rows[0] });
+  } catch (error) {
+    console.error("Error inserting waitlist email:", error);
+    res.status(500).json({ error: "Error submitting email" });
   }
 });
 
