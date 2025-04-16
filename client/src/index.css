@@ -79,17 +79,71 @@ body {
   font-size: 16px;
 }
 
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 16rem;
+  padding: 1rem;
+}
+
 /****************************************************
  * Sidebar Container
  ****************************************************/
 .sidebar {
-  /* You can use your variable or pick a dark color from the screenshot */
-  background-color: var(--sidebar-background);
-  border-right: 1px solid var(--sidebar-border);
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 16rem;
   height: 100vh;
+  overflow-y: auto;
+  background-color: var(--sidebar-background);
+  border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
+  z-index: 9999;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3rem;
+    background-color: #111;
+    border-top: 1px solid #333;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 9999;
+  }
+
+  .mobile-nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .mobile-nav-link:hover {
+    text-decoration: underline;
+  }
 }
 
 /****************************************************
@@ -366,4 +420,106 @@ body {
 
 .chat-send-button:hover {
   background-color: #1eab55;
+}
+
+/****************************************************
+ * apply form
+ ****************************************************/
+
+.apply-to-join {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 20px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: #2b2b2b; /* Dark background color for container */
+  color: #f1f1f1;
+  border: 1px solid #444;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Title styling */
+.apply-to-join h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffffff;
+  font-size: 1.8rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Alert box for submission status or errors */
+.alert-submit {
+  background-color: #4a4a4a;
+  border: 1px solid #606060;
+  color: #ffae42; /* A warmer accent color */
+  padding: 10px 15px;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #f1f1f1;
+}
+
+.form-group .required {
+  color: #d9534f; /* or any accent color for required fields */
+}
+
+/* Inputs and textareas */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  color: #f1f1f1;
+  background-color: #3b3b3b;
+  border: 1px solid #555;
+  border-radius: 4px;
+  box-sizing: border-box;
+  outline: none; /* remove the default outline */
+}
+
+/* Adjust focus style */
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group textarea:focus {
+  border: 1px solid #66afe9;
+  box-shadow: 0 0 3px rgba(102, 175, 233, 0.6);
+}
+
+/* Allow textareas to resize vertically only */
+.form-group textarea {
+  resize: vertical;
+}
+
+/* Submit button styling */
+.submit-button {
+  background-color: var(--primary-color); /* Main button color */
+  color: #ffffff;
+  border: none;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* Hover and focus states for the button */
+.submit-button:hover,
+.submit-button:focus {
+  background-color: hsl(90, 44%, 60%); /* Slightly brighter on hover/focus */
 }

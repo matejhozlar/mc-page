@@ -108,7 +108,7 @@ const Sidebar = () => {
             </a>
           </li>
           <li className="nav-item">
-            <a href="#resources" className="nav-link">
+            <Link to="/apply-to-join" className="nav-link">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="nav-icon"
@@ -125,7 +125,7 @@ const Sidebar = () => {
                 <line x1="23" y1="11" x2="17" y2="11"></line>
               </svg>
               Apply to Join
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
             <a href="#rules" className="nav-link">

@@ -2,6 +2,8 @@ import express from "express";
 import { status } from "minecraft-server-util";
 import { Server } from "socket.io";
 import { Rcon } from "rcon-client";
+import pg from "pg";
+import bodyParser from "body-parser";
 import http from "http";
 import env from "dotenv";
 import cors from "cors";
@@ -12,6 +14,18 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+
+const db = new pg.Client({
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_DATABASE,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+
+db.connect();
 
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
@@ -73,6 +87,31 @@ app.get("/api/players", async (req, res) => {
   } catch (error) {
     console.error("Error fetching players:", error);
     res.status(500).json({ error: "Could not fetch players" });
+  }
+});
+
+app.post("/api/apply", async (req, res) => {
+  const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
+
+  const insertQuery = `
+      INSERT INTO applications (mc_name, dc_name, age, how_found, experience, why_join)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `;
+
+  try {
+    const result = await db.query(insertQuery, [
+      mcName,
+      dcName,
+      age,
+      howFound || null,
+      experience || null,
+      whyJoin,
+    ]);
+    res.json({ success: true, application: result.rows[0] });
+  } catch (error) {
+    console.error("Error inserting application:", error);
+    res.status(500).json({ error: "Error submitting application" });
   }
 });
 
