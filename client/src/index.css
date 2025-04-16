@@ -66,6 +66,7 @@
   border-color: var(--border-color);
   margin: 0;
   padding: 0;
+  cursor: url("./assets/cursors/sword.cur") 0 0, auto !important;
 }
 
 body {
@@ -77,6 +78,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   font-size: 16px;
+  cursor: url("./assets/cursors/sword.cur") 0 0, auto;
 }
 
 .app-container {
