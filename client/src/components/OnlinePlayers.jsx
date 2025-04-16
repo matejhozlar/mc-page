@@ -1,8 +1,5 @@
-// client/src/components/OnlinePlayers.jsx
-
 import React, { useState, useEffect } from "react";
 
-// You can customize the avatar URL: For example, size=64 for a 64x64 image and overlay adds hat layers
 const getAvatarUrl = (uuid, size = 64) =>
   `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
 
@@ -10,7 +7,6 @@ const OnlinePlayers = () => {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
 
-  // Function to fetch the online players list
   const fetchPlayers = async () => {
     try {
       const response = await fetch("/api/players", { cache: "no-cache" });
@@ -25,7 +21,6 @@ const OnlinePlayers = () => {
     }
   };
 
-  // Fetch players on component mount and periodically update (every 10 seconds)
   useEffect(() => {
     fetchPlayers();
     const intervalId = setInterval(fetchPlayers, 10000);

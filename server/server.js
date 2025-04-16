@@ -1,5 +1,8 @@
 import express from "express";
 import { status } from "minecraft-server-util";
+import { Server } from "socket.io";
+import { Rcon } from "rcon-client";
+import http from "http";
 import env from "dotenv";
 import cors from "cors";
 
@@ -12,6 +15,44 @@ app.use(cors());
 
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
+
+async function sendChatToMinecraft(message) {
+  try {
+    const rcon = await Rcon.connect({
+      host: process.env.SERVER_IP,
+      port: parseInt(process.env.RCON_PORT) || 25583,
+      password: process.env.RCON_PASSWORD,
+    });
+
+    const response = await rcon.send(`say ${message}`);
+    console.log("RCON response:", response);
+    await rcon.end();
+  } catch (error) {
+    console.error("Error sending RCON command:", error);
+  }
+}
+
+const httpServer = http.createServer(app);
+
+const io = new Server(httpServer, {
+  cors: { origin: "*" },
+});
+
+io.on("connection", (socket) => {
+  console.log(`New socket connected: ${socket.id}`);
+
+  socket.on("sendChatMessage", async (message) => {
+    console.log(`Message received from ${socket.id}: ${message}`);
+
+    io.emit("chatMessage", message);
+
+    await sendChatToMinecraft(message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Socket disconnected: ${socket.id}`);
+  });
+});
 
 app.get("/api/playerCount", async (req, res) => {
   try {
@@ -35,6 +76,6 @@ app.get("/api/players", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

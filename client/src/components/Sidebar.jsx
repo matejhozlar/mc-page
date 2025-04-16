@@ -51,7 +51,7 @@ const Sidebar = () => {
       <nav className="sidebar-nav">
         <ul className="nav-list">
           <li className="nav-item">
-            <a href="#server-chat" className="nav-link">
+            <Link to="/server-chat" className="nav-link">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="nav-icon"
@@ -65,7 +65,7 @@ const Sidebar = () => {
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
               Server Chat
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
             {/* Use Link for Online Players */}
