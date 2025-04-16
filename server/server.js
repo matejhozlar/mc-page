@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.get("/api/playerCount", async (req, res) => {
+app.get("/playerCount", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
 
@@ -79,7 +79,7 @@ app.get("/api/playerCount", async (req, res) => {
   }
 });
 
-app.get("/api/players", async (req, res) => {
+app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const players = response.players.sample || [];
@@ -90,7 +90,7 @@ app.get("/api/players", async (req, res) => {
   }
 });
 
-app.post("/wait-list", async (req, res) => {
+app.post("/apply", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
   const insertQuery = `
@@ -115,7 +115,7 @@ app.post("/wait-list", async (req, res) => {
   }
 });
 
-app.post("/api/waitlist", async (req, res) => {
+app.post("/wait-list", async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
