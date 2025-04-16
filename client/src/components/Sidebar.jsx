@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   const [playerCount, setPlayerCount] = useState(0);
@@ -67,7 +68,8 @@ const Sidebar = () => {
             </a>
           </li>
           <li className="nav-item">
-            <a href="#player-stats" className="nav-link">
+            {/* Use Link for Online Players */}
+            <Link to="/online-players" className="nav-link">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="nav-icon"
@@ -84,7 +86,7 @@ const Sidebar = () => {
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
               Online Players
-            </a>
+            </Link>
           </li>
           <li className="nav-item">
             <a href="#builds" className="nav-link">
@@ -144,7 +146,6 @@ const Sidebar = () => {
               Rules
             </a>
           </li>
-          {/* Add more nav items as needed */}
         </ul>
       </nav>
 
