@@ -6,11 +6,11 @@ const Home = () => {
   const [email, setEmail] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState("");
 
-  const maxPlayers = 30;
+  const maxPlayers = 20;
 
   const fetchPlayerCount = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/playerCount");
+      const response = await fetch("http://localhost:5000/playerCount");
       if (!response.ok) {
         throw new Error("Failed to fetch player count");
       }
