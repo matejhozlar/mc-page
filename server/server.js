@@ -7,7 +7,7 @@ import http from "http";
 import dotenv from "dotenv";
 import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
-import { Rcon } from "rcon-client"; // 👈 Add this
+import { Rcon } from "rcon-client";
 
 dotenv.config();
 
