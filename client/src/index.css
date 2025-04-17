@@ -168,7 +168,6 @@ body {
 .sidebar-logo {
   width: 2.5rem;
   height: 2.5rem;
-  background-color: var(--primary-color); /* same green used for active */
   border-radius: var(--radius);
   display: flex;
   align-items: center;
@@ -389,10 +388,46 @@ body {
 
 /* Individual chat message */
 .chat-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  background-color: #3a3a3a;
   border-radius: 4px;
+  background-color: #3a3a3a;
+  margin-bottom: 0.5rem;
+}
+
+.chat-message .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+}
+
+.chat-message .msg-name {
+  font-weight: 600;
+  color: #f1f1f1;
+}
+
+.chat-message .icon {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 4px;
+}
+
+.sidebar-logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.discord-icon {
+  color: #5865f2;
+}
+
+.web-icon {
+  color: #00bcd4;
 }
 
 /* Message for empty state */
