@@ -124,8 +124,7 @@ const ServerChat = () => {
   return (
     <div className="server-chat container mt-3">
       <div className="alert alert-warning" role="alert">
-        Chat is not fully implemented yet. Only sending messages to the server
-        work.
+        Chat is not fully implemented yet. There might be some display issues.
       </div>
 
       <h2 className="d-flex justify-content-between align-items-center">
