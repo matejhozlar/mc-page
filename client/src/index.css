@@ -12,6 +12,7 @@
 
   --primary-color: hsl(90, 44%, 48%);
   --primary-foreground: hsl(0, 0%, 100%);
+  --primary-color-hover: hsl(90, 44%, 60%);
 
   --secondary-color: hsl(100, 36%, 34%);
   --secondary-foreground: hsl(0, 0%, 100%);
@@ -284,7 +285,7 @@ body {
   justify-content: center;
   gap: var(--spacing-2);
   background-color: #efbf04;
-  color: #fff;
+  color: #fff !important;
   padding: 0.5rem 1rem;
   border-radius: var(--radius);
   text-decoration: none;
@@ -298,6 +299,18 @@ body {
 }
 
 .discord-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fff;
+}
+
+.discord-icon-sidebar {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fff !important;
+}
+
+.discord-icon-chat {
   width: 1.25rem;
   height: 1.25rem;
 }
@@ -464,7 +477,7 @@ body {
 }
 
 .chat-send-button:hover {
-  background-color: #1eab55;
+  background-color: var(--primary-color-hover);
 }
 
 /****************************************************
@@ -561,7 +574,9 @@ body {
 /* Hover and focus states for the button */
 .submit-button:hover,
 .submit-button:focus {
-  background-color: hsl(90, 44%, 60%); /* Slightly brighter on hover/focus */
+  background-color: var(
+    --primary-color-hover
+  ); /* Slightly brighter on hover/focus */
 }
 
 .rules-container {
@@ -686,7 +701,7 @@ body {
 }
 
 .waitlist-submit:hover {
-  background-color: hsl(90, 44%, 60%); /* Lighter green */
+  background-color: var(--primary-color-hover); /* Lighter green */
 }
 
 .submission-status {
@@ -698,4 +713,12 @@ body {
   text-align: center;
   color: #ffae42;
   font-weight: bold;
+}
+
+.btn-success-fix {
+  background-color: var(--primary-color) !important;
+}
+
+.btn-success-fix:hover {
+  background-color: var(--primary-color-hover) !important;
 }

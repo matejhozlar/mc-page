@@ -116,9 +116,14 @@ client.on("messageCreate", (message) => {
 io.on("connection", async (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
-  const history = await fetchDiscordChatHistory(100);
-  console.log("🔥 Sending chatHistory to client:", history.length);
-  socket.emit("chatHistory", history);
+  socket.on("requestChatHistory", async () => {
+    const history = await fetchDiscordChatHistory(100);
+    console.log(
+      "🔥 Sending chatHistory to client via request:",
+      history.length
+    );
+    socket.emit("chatHistory", history);
+  });
 
   socket.on("sendChatMessage", async (message) => {
     const now = Date.now();

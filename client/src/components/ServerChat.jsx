@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
-// eslint-disable-next-line no-unused-vars
-import { FaDiscord, FaGlobe, FaUser } from "react-icons/fa";
+import { FaDiscord, FaGlobe } from "react-icons/fa";
 
 const SERVER_URL = "http://localhost:5000";
 const socket = io(SERVER_URL);
@@ -11,26 +10,56 @@ const ServerChat = () => {
   const [input, setInput] = useState("");
   const [lastSent, setLastSent] = useState(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
+  const chatEndRef = useRef(null);
+  const hasScrolledInitially = useRef(false);
+
+  const scrollToBottom = () => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  };
 
   useEffect(() => {
-    socket.on("chatMessage", (message) => {
-      console.log("🟢 chatMessage received:", JSON.stringify(message));
+    const handleChatMessage = (message) => {
       setMessages((prev) => [...prev, message]);
-    });
+    };
 
-    socket.on("chatHistory", (history) => {
-      console.log(
-        "📜 chatHistory received:",
-        history.map((m, i) => `[${i}]: ${m}`)
-      );
+    const handleChatHistory = (history) => {
       setMessages(history);
-    });
+      setLoading(false);
+      // Scroll once on initial load
+      setTimeout(() => {
+        scrollToBottom();
+        hasScrolledInitially.current = true;
+      }, 0);
+    };
+
+    socket.on("chatMessage", handleChatMessage);
+    socket.on("chatHistory", handleChatHistory);
+
+    if (socket.connected) {
+      socket.emit("requestChatHistory");
+    } else {
+      socket.on("connect", () => {
+        socket.emit("requestChatHistory");
+      });
+    }
 
     return () => {
-      socket.off("chatMessage");
-      socket.off("chatHistory");
+      socket.off("chatMessage", handleChatMessage);
+      socket.off("chatHistory", handleChatHistory);
+      socket.off("connect");
     };
   }, []);
+
+  useEffect(() => {
+    // Only scroll automatically on new messages if enabled and not initial scroll
+    if (autoScrollEnabled && hasScrolledInitially.current) {
+      scrollToBottom();
+    }
+  }, [messages, autoScrollEnabled]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -65,15 +94,12 @@ const ServerChat = () => {
       return { type: "generic", content: String(msg) };
     }
 
-    // 🔧 Strip `[Minecraft-Chat]:` prefix (with optional space)
     msg = msg.replace(/^\[Minecraft-Chat\]:\s*/, "");
 
-    // ✅ Web message
     if (msg.startsWith("[Web]")) {
       return { type: "web", content: msg.replace("[Web] ", "") };
     }
 
-    // ✅ Minecraft message: `<username>` message
     const mcMatch = msg.match(/^`?<(.+?)>`?\s+(.*)$/);
     if (mcMatch) {
       return {
@@ -83,7 +109,6 @@ const ServerChat = () => {
       };
     }
 
-    // ✅ Discord message: [username]: message
     const discordMatch = msg.match(/^\[(.+?)\]:\s*(.*)$/);
     if (discordMatch) {
       return {
@@ -93,7 +118,6 @@ const ServerChat = () => {
       };
     }
 
-    // 🧯 Fallback
     return { type: "generic", content: msg };
   };
 
@@ -104,52 +128,73 @@ const ServerChat = () => {
         work.
       </div>
 
-      <h2>Server Chat</h2>
+      <h2 className="d-flex justify-content-between align-items-center">
+        Server Chat
+        <button
+          className={`btn btn-sm ${
+            autoScrollEnabled
+              ? "btn-success btn-success-fix"
+              : "btn-outline-secondary"
+          }`}
+          onClick={() => setAutoScrollEnabled((prev) => !prev)}
+        >
+          Auto-Scroll: {autoScrollEnabled ? "On" : "Off"}
+        </button>
+      </h2>
 
-      <div className="chat-messages mb-3">
-        {messages.length === 0 ? (
+      <div
+        className="chat-messages mb-3"
+        style={{ maxHeight: "400px", overflowY: "auto" }}
+      >
+        {loading ? (
+          <div className="text-center my-5">
+            <div className="spinner-border text-light" role="status">
+              <span className="visually-hidden">Loading chat...</span>
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="no-messages">No messages yet.</div>
         ) : (
-          messages.map((msg, index) => {
-            const { type, name, content } = getMessageParts(msg);
-            console.log(`🔍 Parsing [${index}]:`, msg); // Add this
-
-            return (
-              <div key={index} className={`chat-message message-${type}`}>
-                {type === "minecraft" && (
-                  <>
-                    <img
-                      src={`https://minotar.net/avatar/${name}/32`}
-                      alt={name}
-                      className="avatar"
-                      onError={(e) => (e.target.style.display = "none")}
-                    />
-                    <strong className="msg-name">{name}</strong> &gt; {content}
-                  </>
-                )}
-
-                {type === "discord" && (
-                  <>
-                    <FaDiscord className="icon discord-icon" />
-                    <strong className="msg-name">{name}</strong> &gt; {content}
-                  </>
-                )}
-
-                {type === "web" && (
-                  <>
-                    <FaGlobe className="icon web-icon" />
-                    <strong className="msg-name">web</strong> &gt; {content}
-                  </>
-                )}
-
-                {type === "generic" && (
-                  <span style={{ fontStyle: "italic", color: "#aaa" }}>
-                    {typeof msg === "string" ? msg : JSON.stringify(msg)}
-                  </span>
-                )}
-              </div>
-            );
-          })
+          <>
+            {messages.map((msg, index) => {
+              const { type, name, content } = getMessageParts(msg);
+              return (
+                <div key={index} className={`chat-message message-${type}`}>
+                  {type === "minecraft" && (
+                    <>
+                      <img
+                        src={`https://minotar.net/avatar/${name}/32`}
+                        alt={name}
+                        className="avatar"
+                        onError={(e) => (e.target.style.display = "none")}
+                      />
+                      <strong className="msg-name">{name}</strong> &gt;{" "}
+                      {content}
+                    </>
+                  )}
+                  {type === "discord" && (
+                    <>
+                      <FaDiscord className="icon discord-icon" />
+                      <strong className="msg-name">{name}</strong> &gt;{" "}
+                      {content}
+                    </>
+                  )}
+                  {type === "web" && (
+                    <>
+                      <FaGlobe className="icon web-icon" />
+                      <strong className="msg-name">web</strong> &gt; {content}
+                    </>
+                  )}
+                  {type === "generic" && (
+                    <span style={{ fontStyle: "italic", color: "#aaa" }}>
+                      {typeof msg === "string" ? msg : JSON.stringify(msg)}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+            <div ref={chatEndRef} />
+          </>
         )}
       </div>
 
@@ -165,6 +210,7 @@ const ServerChat = () => {
           Send
         </button>
       </form>
+
       {cooldownRemaining > 0 && (
         <div className="text-warning mt-2">
           Please wait {cooldownRemaining}s before sending another message.
