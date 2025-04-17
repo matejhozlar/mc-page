@@ -13,6 +13,7 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const messageCooldowns = {};
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,6 +35,41 @@ db.connect();
 
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
+
+async function fetchDiscordChatHistory(limit = 100) {
+  try {
+    const guild = client.guilds.cache.first(); // or fetch by ID
+    const channel = guild.channels.cache.find(
+      (ch) => ch.name === MINECRAFT_CHANNEL_NAME
+    );
+
+    if (!channel || !channel.isTextBased()) {
+      console.log("Channel not found or not text-based.");
+      return [];
+    }
+
+    const fetched = await channel.messages.fetch({ limit });
+    console.log("Fetched messages count:", fetched.size);
+
+    const messagesArray = Array.from(fetched.values())
+      .reverse()
+      .filter((msg) => {
+        if (!msg.author.bot) return true;
+        return (
+          msg.content.startsWith("[Web]") || msg.content.match(/^`<[^<>]+>`/)
+        );
+      })
+      .map((msg) => {
+        const name = msg.member?.displayName || msg.author.username;
+        return `[${name}]: ${msg.content}`;
+      });
+
+    return messagesArray;
+  } catch (err) {
+    console.error("Failed to fetch Discord history:", err);
+    return [];
+  }
+}
 
 // --- RCON to Minecraft ---
 async function sendToMinecraftChat(message) {
@@ -77,14 +113,26 @@ client.on("messageCreate", (message) => {
 });
 
 // --- Web Socket Chat Handling ---
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
   console.log(`Socket connected: ${socket.id}`);
 
+  const history = await fetchDiscordChatHistory(100);
+  console.log("🔥 Sending chatHistory to client:", history.length);
+  socket.emit("chatHistory", history);
+
   socket.on("sendChatMessage", async (message) => {
+    const now = Date.now();
+    const lastSent = messageCooldowns[socket.id] || 0;
+
+    if (now - lastSent < 10000) {
+      console.log(`Cooldown block for socket: ${socket.id}`);
+    }
+
+    messageCooldowns[socket.id] = now;
     console.log(`Web message: ${message}`);
 
     try {
-      const guild = client.guilds.cache.first();
+      const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
       const channel = guild.channels.cache.find(
         (ch) => ch.name === MINECRAFT_CHANNEL_NAME
       );
@@ -92,7 +140,7 @@ io.on("connection", (socket) => {
         await channel.send(`[Web] ${message}`);
       }
 
-      await sendToMinecraftChat(message); // 👈 this sends it into the game
+      await sendToMinecraftChat(message);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -172,8 +220,12 @@ app.post("/wait-list", async (req, res) => {
   }
 });
 
-httpServer.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+client.once("ready", () => {
+  console.log(`Discord bot ready as ${client.user.tag}`);
+
+  httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);

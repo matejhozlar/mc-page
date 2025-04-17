@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom"; // <-- Use NavLink instead of Link
+import { NavLink } from "react-router-dom";
+import logo from "../assets/logo/logo.png";
 
 const Sidebar = () => {
   const [playerCount, setPlayerCount] = useState(0);
@@ -29,9 +30,9 @@ const Sidebar = () => {
       {/* Header Section */}
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <span>CS</span>
+          <img src={logo} alt="Logo" className="sidebar-logo-img" />
         </div>
-        <div className="sidebar-title">Create Server</div>
+        <div className="sidebar-title">Create Rington</div>
       </div>
 
       {/* Server Status Section */}
@@ -49,15 +50,7 @@ const Sidebar = () => {
       <nav className="sidebar-nav">
         <ul className="nav-list">
           <li className="nav-item">
-            <NavLink
-              to="/server-chat"
-              className="nav-link"
-              /* The following can be used if you prefer a custom 'active' class name:
-              className={({ isActive }) =>
-                "nav-link" + (isActive ? " active" : "")
-              }
-              */
-            >
+            <NavLink to="/server-chat" className="nav-link">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="nav-icon"
