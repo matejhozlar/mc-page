@@ -722,3 +722,31 @@ body {
 .btn-success-fix:hover {
   background-color: var(--primary-color-hover) !important;
 }
+
+/* Online players */
+.section-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 1.5rem 0 1rem;
+  gap: 0.5rem;
+}
+
+.online-title {
+  color: #22c55e; /* same green as --primary-color */
+}
+
+.offline-title {
+  color: #ef4444;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.player-lastseen {
+  font-size: 0.85rem;
+  color: #aaa;
+}

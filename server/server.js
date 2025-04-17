@@ -172,10 +172,41 @@ app.get("/playerCount", async (req, res) => {
 app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
-    const players = response.players.sample || [];
-    res.json({ players });
+    const onlinePlayers = response.players.sample || [];
+
+    const onlineUUIDs = onlinePlayers.map((p) => p.id);
+
+    // Update the DB: set current players online
+    for (const player of onlinePlayers) {
+      await db.query(
+        `
+        INSERT INTO users (uuid, name, online, last_seen)
+        VALUES ($1, $2, true, NOW())
+        ON CONFLICT (uuid)
+        DO UPDATE SET name = $2, online = true, last_seen = NOW()
+      `,
+        [player.id, player.name]
+      );
+    }
+
+    // Set anyone not in the current online list to offline
+    await db.query(
+      `
+      UPDATE users SET online = false
+      WHERE uuid NOT IN (${onlineUUIDs.map((_, i) => `$${i + 1}`).join(",")})
+    `,
+      onlineUUIDs
+    );
+
+    // Return all players marked as online
+    const result = await db.query(
+      `SELECT uuid as id, name, online, last_seen FROM users ORDER BY online DESC, name`
+    );
+    res.json({ players: result.rows });
+
+    res.json({ players: result.rows });
   } catch (error) {
-    console.error("Error fetching players:", error);
+    console.error("Error syncing players:", error);
     res.status(500).json({ error: "Could not fetch players" });
   }
 });
