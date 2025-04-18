@@ -11,7 +11,7 @@ const ServerChat = () => {
   const [lastSent, setLastSent] = useState(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(false);
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const chatEndRef = useRef(null);
   const hasScrolledInitially = useRef(false);
 
@@ -94,7 +94,7 @@ const ServerChat = () => {
       return { type: "generic", content: String(msg) };
     }
 
-    msg = msg.replace(/^\[Minecraft-Chat\]:\s*/, "");
+    msg = msg.replace(/^\[Createrington\]:\s*/, "");
 
     if (msg.startsWith("[Web]")) {
       return { type: "web", content: msg.replace("[Web] ", "") };

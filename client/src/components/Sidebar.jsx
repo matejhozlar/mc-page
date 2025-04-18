@@ -4,18 +4,20 @@ import logo from "../assets/logo/logo.png";
 
 const Sidebar = () => {
   const [playerCount, setPlayerCount] = useState(0);
+  const [serverOnline, setServerOnline] = useState(true);
   const maxPlayers = 20;
 
   const fetchPlayerCount = async () => {
     try {
       const response = await fetch("http://localhost:5000/playerCount");
-      if (!response.ok) {
-        throw new Error("Failed to fetch player count");
-      }
+      if (!response.ok) throw new Error("Fetch failed");
       const data = await response.json();
       setPlayerCount(data.count);
+      setServerOnline(true);
     } catch (error) {
       console.error("Error fetching player count:", error);
+      setServerOnline(false);
+      setPlayerCount(0);
     }
   };
 
@@ -29,21 +31,32 @@ const Sidebar = () => {
     <div className="sidebar">
       {/* Header Section */}
       <div className="sidebar-header">
-        <div className="sidebar-logo">
-          <img src={logo} alt="Logo" className="sidebar-logo-img" />
-        </div>
+        <NavLink to="/" className="sidebar-logo-img-btn">
+          <div className="sidebar-logo">
+            <img src={logo} alt="Logo" className="sidebar-logo-img" />
+          </div>
+        </NavLink>
         <div className="sidebar-title">Create Rington</div>
       </div>
 
       {/* Server Status Section */}
       <div className="server-status">
         <div className="status-indicator">
-          <div className="status-dot online"></div>
-          <span className="status-text">Online</span>
+          <div
+            className={`status-dot ${serverOnline ? "online" : "offline"}`}
+          ></div>
+          <span
+            className="status-text"
+            style={{ color: serverOnline ? "#22c55e" : "#ef4444" }}
+          >
+            {serverOnline ? "Online" : "Offline"}
+          </span>
         </div>
-        <div className="player-count">
-          {playerCount} / {maxPlayers} Players
-        </div>
+        {serverOnline ? (
+          <div className="player-count">
+            {playerCount} / {maxPlayers} Players
+          </div>
+        ) : null}
       </div>
 
       {/* Navigation Links */}
