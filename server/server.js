@@ -173,10 +173,9 @@ app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
-
     const onlineUUIDs = onlinePlayers.map((p) => p.id);
 
-    // Update the DB: set current players online
+    // Update current online players
     for (const player of onlinePlayers) {
       await db.query(
         `
@@ -189,21 +188,22 @@ app.get("/players", async (req, res) => {
       );
     }
 
-    // Set anyone not in the current online list to offline
-    await db.query(
-      `
-      UPDATE users SET online = false
-      WHERE uuid NOT IN (${onlineUUIDs.map((_, i) => `$${i + 1}`).join(",")})
-    `,
-      onlineUUIDs
-    );
+    if (onlineUUIDs.length > 0) {
+      await db.query(
+        `
+        UPDATE users SET online = false
+        WHERE uuid NOT IN (${onlineUUIDs.map((_, i) => `$${i + 1}`).join(",")})
+      `,
+        onlineUUIDs
+      );
+    } else {
+      // If no players online, mark all as offline
+      await db.query(`UPDATE users SET online = false`);
+    }
 
-    // Return all players marked as online
     const result = await db.query(
       `SELECT uuid as id, name, online, last_seen FROM users ORDER BY online DESC, name`
     );
-    res.json({ players: result.rows });
-
     res.json({ players: result.rows });
   } catch (error) {
     console.error("Error syncing players:", error);
