@@ -29,6 +29,7 @@ const Home = () => {
     return () => clearInterval(intervalId);
   }, []);
 
+  // eslint-disable-next-line no-unused-vars
   const serverFull = serverOnline && playerCount >= maxPlayers;
 
   const handleEmailSubmit = async (e) => {
@@ -58,45 +59,53 @@ const Home = () => {
   return (
     <div className="home-container">
       <h1>Server Dashboard</h1>
-      {/* Server status indicator */}
+
+      {/* Server status */}
       <div className={`status ${serverOnline ? "online" : "offline"}`}>
         {serverOnline ? "Server Status: ONLINE" : "Server Status: OFFLINE"}
       </div>
+
       {serverOnline && (
-        <p>
-          Current Players: <strong>{playerCount}</strong> / {maxPlayers}
-        </p>
-      )}
-      {serverOnline && serverFull && (
-        <div className="full-message">
-          <h2>Server is currently FULL</h2>
+        <>
           <p>
-            Hey, if this is about a create mod, unless you got invited by any of
-            the current players, then I'm sorry, but we are currently full! I
-            have closed the server for new members. Need at least a week to test
-            the server's performance since there's already 30 of us 🙂 If it's
-            fine, I'll be taking new players later on. Most players will
-            eventually leave, I'm expecting a week at most for some of them, so
-            some more spots will be open soon.
+            Current Players: <strong>{playerCount}</strong> / {maxPlayers}
           </p>
-          <form onSubmit={handleEmailSubmit} className="waitlist-form">
-            <input
-              type="email"
-              placeholder="Your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="waitlist-input"
-              required
-            />
-            <button type="submit" className="waitlist-submit">
-              Submit
-            </button>
-          </form>
-          {submissionStatus && (
-            <p className="submission-status">{submissionStatus}</p>
-          )}
-        </div>
+
+          <div className="full-message">
+            <h2>
+              Server is currently{" "}
+              <span style={{ color: "red" }}>not accepting</span> New Players
+            </h2>
+            <p>
+              Hey, if you are instested in joins our community — unless you were
+              invited by one of the current players, we’re not accepting new
+              members as of now! We’re testing server limits with our current
+              group. If everything looks good, we’ll reopen for new players
+              soon. Most players rotate out within a week, so spots should open
+              up!
+            </p>
+
+            <form onSubmit={handleEmailSubmit} className="waitlist-form">
+              <input
+                type="email"
+                placeholder="Your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="waitlist-input"
+                required
+              />
+              <button type="submit" className="waitlist-submit">
+                Submit
+              </button>
+            </form>
+
+            {submissionStatus && (
+              <p className="submission-status">{submissionStatus}</p>
+            )}
+          </div>
+        </>
       )}
+
       {!serverOnline && (
         <p className="offline-message">
           We cannot reach the server at this moment. Please try again later.
