@@ -486,6 +486,53 @@ body {
   background-color: var(--primary-color-hover);
 }
 
+.mc-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.mc-avatar-wrapper img.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  display: block;
+}
+
+.mc-status-dot {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  border: 2px solid #222;
+  box-shadow: 0 0 0 1px black;
+}
+.mc-status-online {
+  background-color: limegreen;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(0, 255, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
+  }
+}
+.mc-status-offline {
+  background-color: red;
+}
+
 /****************************************************
  * apply form
  ****************************************************/
