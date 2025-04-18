@@ -14,6 +14,7 @@ const ServerChat = () => {
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
   const chatEndRef = useRef(null);
   const hasScrolledInitially = useRef(false);
+  const [playerStatuses, setPlayerStatuses] = useState({});
 
   const scrollToBottom = () => {
     if (chatEndRef.current) {
@@ -23,13 +24,37 @@ const ServerChat = () => {
 
   useEffect(() => {
     const handleChatMessage = (message) => {
+      console.log("Received message:", message);
+
+      // Strip the [Createrington]: prefix if it exists
+      const stripped =
+        typeof message === "string"
+          ? message
+              .trim()
+              .replace(/^\[Createrington\]:\s*/, "")
+              .trim()
+          : "";
+
+      // 1. Skip if message is empty after prefix
+      if (stripped === "") {
+        console.log("Skipped: empty message after [Createrington]:");
+        return;
+      }
+
+      // 2. Skip if it's just a username in angle brackets, possibly with backticks
+      if (/^`?<[^>]+>`?$/.test(stripped)) {
+        console.log("Skipped: Minecraft username-only message");
+        return;
+      }
+
+      // Valid message – add to state
       setMessages((prev) => [...prev, message]);
     };
 
     const handleChatHistory = (history) => {
+      console.log("Chat history:", history);
       setMessages(history);
       setLoading(false);
-      // Scroll once on initial load
       setTimeout(() => {
         scrollToBottom();
         hasScrolledInitially.current = true;
@@ -55,7 +80,29 @@ const ServerChat = () => {
   }, []);
 
   useEffect(() => {
-    // Only scroll automatically on new messages if enabled and not initial scroll
+    const fetchPlayerStatuses = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/players");
+        const data = await res.json();
+        const statuses = {};
+
+        data.players.forEach((player) => {
+          statuses[player.name] = player.online;
+        });
+
+        setPlayerStatuses(statuses);
+      } catch (err) {
+        console.error("Failed to fetch player statuses", err);
+      }
+    };
+
+    fetchPlayerStatuses();
+    const interval = setInterval(fetchPlayerStatuses, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     if (autoScrollEnabled && hasScrolledInitially.current) {
       scrollToBottom();
     }
@@ -161,12 +208,22 @@ const ServerChat = () => {
                 <div key={index} className={`chat-message message-${type}`}>
                   {type === "minecraft" && (
                     <>
-                      <img
-                        src={`https://minotar.net/avatar/${name}/32`}
-                        alt={name}
-                        className="avatar"
-                        onError={(e) => (e.target.style.display = "none")}
-                      />
+                      <div className="mc-avatar-wrapper">
+                        <img
+                          src={`https://minotar.net/avatar/${name}/32`}
+                          alt={name}
+                          className="avatar"
+                          onError={(e) => (e.target.style.display = "none")}
+                        />
+                        <span
+                          className={`mc-status-dot ${
+                            playerStatuses[name]
+                              ? "mc-status-online"
+                              : "mc-status-offline"
+                          }`}
+                          title={playerStatuses[name] ? "Online" : "Offline"}
+                        />
+                      </div>
                       <strong className="msg-name">{name}</strong> &gt;{" "}
                       {content}
                     </>
