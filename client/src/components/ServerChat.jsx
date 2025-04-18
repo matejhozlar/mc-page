@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
 
-const SERVER_URL = "http://localhost:5000";
-const socket = io(SERVER_URL);
+const socket = io();
 
 const ServerChat = () => {
   const [messages, setMessages] = useState([]);
@@ -82,7 +81,7 @@ const ServerChat = () => {
   useEffect(() => {
     const fetchPlayerStatuses = async () => {
       try {
-        const res = await fetch("http://localhost:5000/players");
+        const res = await fetch("/api/players");
         const data = await res.json();
         const statuses = {};
 

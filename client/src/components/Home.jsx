@@ -10,7 +10,7 @@ const Home = () => {
 
   const fetchPlayerCount = async () => {
     try {
-      const response = await fetch("http://localhost:5000/playerCount");
+      const response = await fetch("/api/playerCount");
       if (!response.ok) {
         throw new Error("Failed to fetch player count");
       }
@@ -39,7 +39,7 @@ const Home = () => {
       return;
     }
     try {
-      const response = await fetch("http://localhost:5000/wait-list", {
+      const response = await fetch("/api/wait-list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

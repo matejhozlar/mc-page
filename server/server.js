@@ -12,12 +12,15 @@ import { Rcon } from "rcon-client";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5001;
 const messageCooldowns = {};
 
-app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(cors({ origin: true, credentials: true }));
+
+app.set("trust proxy", 1);
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
@@ -159,7 +162,7 @@ io.on("connection", async (socket) => {
 });
 
 // --- API Routes ---
-app.get("/playerCount", async (req, res) => {
+app.get("/api/playerCount", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     res.json({ count: response.players.online });
@@ -169,7 +172,7 @@ app.get("/playerCount", async (req, res) => {
   }
 });
 
-app.get("/players", async (req, res) => {
+app.get("/api/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
@@ -211,7 +214,7 @@ app.get("/players", async (req, res) => {
   }
 });
 
-app.post("/apply", async (req, res) => {
+app.post("/api/apply", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
   const insertQuery = `
@@ -236,7 +239,7 @@ app.post("/apply", async (req, res) => {
   }
 });
 
-app.post("/wait-list", async (req, res) => {
+app.post("/api/wait-list", async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
