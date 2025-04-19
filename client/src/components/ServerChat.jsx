@@ -32,8 +32,6 @@ const ServerChat = () => {
         ?.trim()
         .replace(/^\[Createrington\]:\s*/, "")
         .trim();
-
-      // skip completely empty messages (no text, no image)
       const isEmpty = (!stripped || /^`?<[^>]+>`?$/.test(stripped)) && !image;
       if (isEmpty) return;
 
@@ -41,7 +39,6 @@ const ServerChat = () => {
     };
 
     const handleChatHistory = (history) => {
-      console.log("Chat history:", history);
       setMessages(history);
       setLoading(false);
       setTimeout(() => {
@@ -82,11 +79,9 @@ const ServerChat = () => {
         const res = await fetch("http://localhost:5000/players");
         const data = await res.json();
         const statuses = {};
-
         data.players.forEach((player) => {
           statuses[player.name] = player.online;
         });
-
         setPlayerStatuses(statuses);
       } catch (err) {
         console.error("Failed to fetch player statuses", err);
@@ -95,7 +90,6 @@ const ServerChat = () => {
 
     fetchPlayerStatuses();
     const interval = setInterval(fetchPlayerStatuses, 30000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -107,7 +101,6 @@ const ServerChat = () => {
 
   const sendMessage = (e) => {
     e.preventDefault();
-
     const now = Date.now();
     const secondsSinceLast = (now - lastSent) / 1000;
 
@@ -145,18 +138,20 @@ const ServerChat = () => {
     }
 
     const msg = rawText.replace(/^\[Createrington\]:\s*/, "").trim();
+    if (!msg) return null;
 
+    // ✅ Skip redundant [Web] prefix in content, only show it in sender tag
     if (msg.startsWith("[Web]")) {
-      return { type: "web", content: msg.replace("[Web] ", ""), image };
+      const cleaned = msg.replace(/^\[Web\]\s*/, "").trim();
+      return { type: "web", name: "web", content: cleaned, image };
     }
 
-    // handle image-only MC messages like `<username>`
     const mcOnlyNameMatch = msg.match(/^`?<(.+?)>`?$/);
     if (mcOnlyNameMatch) {
       return {
         type: "minecraft",
         name: mcOnlyNameMatch[1],
-        content: "", // no text content
+        content: "",
         image,
       };
     }
@@ -173,15 +168,17 @@ const ServerChat = () => {
 
     const discordMatch = msg.match(/^\[(.+?)\]:\s*(.*)$/);
     if (discordMatch) {
+      const authorName = discordMatch[1];
+      const isWebBot = authorName === "WebChatBot";
       return {
-        type: "discord",
-        name: discordMatch[1],
+        type: isWebBot ? "web" : "discord",
+        name: isWebBot ? "web" : authorName,
         content: discordMatch[2],
         image,
       };
     }
 
-    return { type: "generic", content: msg, image };
+    return null;
   };
 
   return (
@@ -196,6 +193,7 @@ const ServerChat = () => {
           <img src={zoomedImage} alt="Zoomed" className="image-zoomed" />
         </div>
       )}
+
       <div className="server-chat container mt-3">
         <div className="alert alert-warning" role="alert">
           Chat is not fully implemented yet. There might be some display issues.
@@ -230,7 +228,10 @@ const ServerChat = () => {
           ) : (
             <>
               {messages.map((msg, index) => {
-                const { type, name, content, image } = getMessageParts(msg);
+                const parts = getMessageParts(msg);
+                if (!parts) return null;
+
+                const { type, name, content, image } = parts;
                 return (
                   <div key={index} className={`chat-message message-${type}`}>
                     {type === "minecraft" && (
@@ -267,11 +268,6 @@ const ServerChat = () => {
                         <FaGlobe className="icon web-icon" />
                         <strong className="msg-name">web</strong> &gt; {content}
                       </>
-                    )}
-                    {type === "generic" && (
-                      <span style={{ fontStyle: "italic", color: "#aaa" }}>
-                        {typeof msg === "string" ? msg : JSON.stringify(msg)}
-                      </span>
                     )}
                     {image && (
                       <div className="chat-image">

@@ -71,13 +71,19 @@ async function fetchDiscordChatHistory(limit = 100) {
     const fetched = await channel.messages.fetch({ limit });
     console.log("Fetched messages count:", fetched.size);
 
+    const webBotId = webChatClient.user?.id;
+
     const messagesArray = Array.from(fetched.values())
       .reverse()
       .filter((msg) => {
+        // Always allow non-bot messages
         if (!msg.author.bot) return true;
-        return (
-          msg.content.startsWith("[Web]") || msg.content.match(/^`<[^<>]+>`/)
-        );
+
+        // Allow bot messages from your web bot
+        if (msg.author.id === webBotId) return true;
+
+        // Also allow valid Minecraft format messages
+        return msg.content.match(/^`<[^<>]+>`/);
       })
       .map((msg) => {
         const name = msg.member?.displayName || msg.author.username;
@@ -107,7 +113,7 @@ async function sendToMinecraftChat(message) {
     );
 
     if (channel && channel.isTextBased()) {
-      await channel.send(`[Web] ${message}`);
+      await channel.send(`${message}`);
     }
   } catch (error) {
     console.error("WebChatBot send error:", error);
@@ -134,16 +140,6 @@ client.once("ready", () => {
 client.on("messageCreate", (message) => {
   if (!message.channel || message.channel.name !== MINECRAFT_CHANNEL_NAME)
     return;
-
-  // ✅ Only ignore obvious loops, allow all messages that include content or images
-  if (
-    message.author.bot &&
-    !message.webhookId &&
-    !message.content.startsWith("[Web]") &&
-    message.attachments.size === 0
-  ) {
-    return;
-  }
 
   const image = message.attachments?.first()?.url || null;
   const displayName = message.member?.displayName || message.author.username;
@@ -184,7 +180,7 @@ io.on("connection", async (socket) => {
 
     // 🔄 FIX: send structured message object
     io.emit("chatMessage", {
-      text: `[Web] ${message}`,
+      text: `${message}`, // or just `message` if you don't want a name
       image: null,
     });
   });
