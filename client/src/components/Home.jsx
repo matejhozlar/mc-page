@@ -73,22 +73,21 @@ const Home = () => {
 
           <div className="full-message">
             <h2>
-              Server is currently{" "}
-              <span style={{ color: "red" }}>not accepting</span> New Players
+              Server is currently <span style={{ color: "red" }}>Closed</span>{" "}
             </h2>
             <p>
-              Hey, if you are instested in joins our community — unless you were
-              invited by one of the current players, we’re not accepting new
-              members as of now! We’re testing server limits with our current
-              group. If everything looks good, we’ll reopen for new players
-              soon. Most players rotate out within a week, so spots should open
-              up!
+              Hey, if you are interested in joining our community — unless you
+              were invited by one of the current players, we’re not accepting
+              new members as of now! We’re testing server limits with our
+              current group. If everything looks good, we’ll reopen for new
+              players soon. Most players rotate out within a week, so spots
+              should open up!
             </p>
 
             <form onSubmit={handleEmailSubmit} className="waitlist-form">
               <input
                 type="email"
-                placeholder="Your email"
+                placeholder="Your email..."
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="waitlist-input"

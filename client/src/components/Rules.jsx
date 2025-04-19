@@ -25,16 +25,16 @@ const Rules = () => {
           <strong>No Cheating or Exploits</strong>
           <p>
             Don't use any mods, hacks, or exploits that give you an unfair
-            advantage. Allowed mods include optifine, minimap (without entity
-            radar), and purely cosmetic mods.
+            advantage. Allowed mods are those, which are already in the modpack,
+            and purely cosmetic mods.
           </p>
         </li>
         <li>
           <strong>Build Responsibly</strong>
           <p>
             Keep a reasonable distance from other players' builds unless you
-            have permission. Avoid excessive redstone contraptions that might
-            cause lag. Clean up floating trees and creeper holes.
+            have permission. Avoid excessive contraptions that might cause lag.
+            Clean up floating trees and creeper holes.
           </p>
         </li>
         <li>

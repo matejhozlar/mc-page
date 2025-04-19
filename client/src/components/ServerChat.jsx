@@ -15,6 +15,7 @@ const ServerChat = () => {
   const chatEndRef = useRef(null);
   const hasScrolledInitially = useRef(false);
   const [playerStatuses, setPlayerStatuses] = useState({});
+  const [zoomedImage, setZoomedImage] = useState(null);
 
   const scrollToBottom = () => {
     if (chatEndRef.current) {
@@ -24,31 +25,19 @@ const ServerChat = () => {
 
   useEffect(() => {
     const handleChatMessage = (message) => {
-      console.log("Received message:", message);
+      const text = typeof message === "string" ? message : message?.text;
+      const image = message?.image || null;
 
-      // Strip the [Createrington]: prefix if it exists
-      const stripped =
-        typeof message === "string"
-          ? message
-              .trim()
-              .replace(/^\[Createrington\]:\s*/, "")
-              .trim()
-          : "";
+      const stripped = text
+        ?.trim()
+        .replace(/^\[Createrington\]:\s*/, "")
+        .trim();
 
-      // 1. Skip if message is empty after prefix
-      if (stripped === "") {
-        console.log("Skipped: empty message after [Createrington]:");
-        return;
-      }
+      // skip completely empty messages (no text, no image)
+      const isEmpty = (!stripped || /^`?<[^>]+>`?$/.test(stripped)) && !image;
+      if (isEmpty) return;
 
-      // 2. Skip if it's just a username in angle brackets, possibly with backticks
-      if (/^`?<[^>]+>`?$/.test(stripped)) {
-        console.log("Skipped: Minecraft username-only message");
-        return;
-      }
-
-      // Valid message – add to state
-      setMessages((prev) => [...prev, message]);
+      setMessages((prev) => [...prev, { text, image }]);
     };
 
     const handleChatHistory = (history) => {
@@ -77,6 +66,14 @@ const ServerChat = () => {
       socket.off("chatHistory", handleChatHistory);
       socket.off("connect");
     };
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") setZoomedImage(null);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   useEffect(() => {
@@ -136,23 +133,41 @@ const ServerChat = () => {
     }
   }, [cooldownRemaining]);
 
-  const getMessageParts = (msg) => {
-    if (typeof msg !== "string") {
-      return { type: "generic", content: String(msg) };
+  const getMessageParts = (msgObj) => {
+    let rawText = "";
+    let image = null;
+
+    if (typeof msgObj === "string") {
+      rawText = msgObj;
+    } else if (typeof msgObj === "object" && msgObj !== null) {
+      rawText = msgObj.text || "";
+      image = msgObj.image || null;
     }
 
-    msg = msg.replace(/^\[Createrington\]:\s*/, "");
+    const msg = rawText.replace(/^\[Createrington\]:\s*/, "").trim();
 
     if (msg.startsWith("[Web]")) {
-      return { type: "web", content: msg.replace("[Web] ", "") };
+      return { type: "web", content: msg.replace("[Web] ", ""), image };
     }
 
-    const mcMatch = msg.match(/^`?<(.+?)>`?\s+(.*)$/);
-    if (mcMatch) {
+    // handle image-only MC messages like `<username>`
+    const mcOnlyNameMatch = msg.match(/^`?<(.+?)>`?$/);
+    if (mcOnlyNameMatch) {
       return {
         type: "minecraft",
-        name: mcMatch[1],
-        content: mcMatch[2],
+        name: mcOnlyNameMatch[1],
+        content: "", // no text content
+        image,
+      };
+    }
+
+    const mcFullMatch = msg.match(/^`?<(.+?)>`?\s+(.*)$/);
+    if (mcFullMatch) {
+      return {
+        type: "minecraft",
+        name: mcFullMatch[1],
+        content: mcFullMatch[2],
+        image,
       };
     }
 
@@ -162,117 +177,140 @@ const ServerChat = () => {
         type: "discord",
         name: discordMatch[1],
         content: discordMatch[2],
+        image,
       };
     }
 
-    return { type: "generic", content: msg };
+    return { type: "generic", content: msg, image };
   };
 
   return (
-    <div className="server-chat container mt-3">
-      <div className="alert alert-warning" role="alert">
-        Chat is not fully implemented yet. There might be some display issues.
-      </div>
-
-      <h2 className="d-flex justify-content-between align-items-center">
-        Server Chat
-        <button
-          className={`btn btn-sm ${
-            autoScrollEnabled
-              ? "btn-success btn-success-fix"
-              : "btn-outline-secondary"
-          }`}
-          onClick={() => setAutoScrollEnabled((prev) => !prev)}
+    <>
+      {zoomedImage && (
+        <div
+          className="image-zoom-overlay"
+          onClick={() => setZoomedImage(null)}
+          onKeyDown={(e) => e.key === "Escape" && setZoomedImage(null)}
+          tabIndex={0}
         >
-          Auto-Scroll: {autoScrollEnabled ? "On" : "Off"}
-        </button>
-      </h2>
-
-      <div
-        className="chat-messages mb-3"
-        style={{ maxHeight: "400px", overflowY: "auto" }}
-      >
-        {loading ? (
-          <div className="text-center my-5">
-            <div className="spinner-border text-light" role="status">
-              <span className="visually-hidden">Loading chat...</span>
-            </div>
-          </div>
-        ) : messages.length === 0 ? (
-          <div className="no-messages">No messages yet.</div>
-        ) : (
-          <>
-            {messages.map((msg, index) => {
-              const { type, name, content } = getMessageParts(msg);
-              return (
-                <div key={index} className={`chat-message message-${type}`}>
-                  {type === "minecraft" && (
-                    <>
-                      <div className="mc-avatar-wrapper">
-                        <img
-                          src={`https://minotar.net/avatar/${name}/32`}
-                          alt={name}
-                          className="avatar"
-                          onError={(e) => (e.target.style.display = "none")}
-                        />
-                        <span
-                          className={`mc-status-dot ${
-                            playerStatuses[name]
-                              ? "mc-status-online"
-                              : "mc-status-offline"
-                          }`}
-                          title={playerStatuses[name] ? "Online" : "Offline"}
-                        />
-                      </div>
-                      <strong className="msg-name">{name}</strong> &gt;{" "}
-                      {content}
-                    </>
-                  )}
-                  {type === "discord" && (
-                    <>
-                      <FaDiscord className="icon discord-icon" />
-                      <strong className="msg-name">{name}</strong> &gt;{" "}
-                      {content}
-                    </>
-                  )}
-                  {type === "web" && (
-                    <>
-                      <FaGlobe className="icon web-icon" />
-                      <strong className="msg-name">web</strong> &gt; {content}
-                    </>
-                  )}
-                  {type === "generic" && (
-                    <span style={{ fontStyle: "italic", color: "#aaa" }}>
-                      {typeof msg === "string" ? msg : JSON.stringify(msg)}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
-            <div ref={chatEndRef} />
-          </>
-        )}
-      </div>
-
-      <form onSubmit={sendMessage} className="chat-form d-flex">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className="chat-input form-control me-2"
-        />
-        <button type="submit" className="chat-send-button btn btn-primary">
-          Send
-        </button>
-      </form>
-
-      {cooldownRemaining > 0 && (
-        <div className="text-warning mt-2">
-          Please wait {cooldownRemaining}s before sending another message.
+          <img src={zoomedImage} alt="Zoomed" className="image-zoomed" />
         </div>
       )}
-    </div>
+      <div className="server-chat container mt-3">
+        <div className="alert alert-warning" role="alert">
+          Chat is not fully implemented yet. There might be some display issues.
+        </div>
+
+        <h2 className="d-flex justify-content-between align-items-center">
+          Server Chat
+          <button
+            className={`btn btn-sm ${
+              autoScrollEnabled
+                ? "btn-success btn-success-fix"
+                : "btn-outline-secondary"
+            }`}
+            onClick={() => setAutoScrollEnabled((prev) => !prev)}
+          >
+            Auto-Scroll: {autoScrollEnabled ? "On" : "Off"}
+          </button>
+        </h2>
+
+        <div
+          className="chat-messages mb-3"
+          style={{ maxHeight: "400px", overflowY: "auto" }}
+        >
+          {loading ? (
+            <div className="text-center my-5">
+              <div className="spinner-border text-light" role="status">
+                <span className="visually-hidden">Loading chat...</span>
+              </div>
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="no-messages">No messages yet.</div>
+          ) : (
+            <>
+              {messages.map((msg, index) => {
+                const { type, name, content, image } = getMessageParts(msg);
+                return (
+                  <div key={index} className={`chat-message message-${type}`}>
+                    {type === "minecraft" && (
+                      <>
+                        <div className="mc-avatar-wrapper">
+                          <img
+                            src={`https://minotar.net/avatar/${name}/32`}
+                            alt={name}
+                            className="avatar"
+                            onError={(e) => (e.target.style.display = "none")}
+                          />
+                          <span
+                            className={`mc-status-dot ${
+                              playerStatuses[name]
+                                ? "mc-status-online"
+                                : "mc-status-offline"
+                            }`}
+                            title={playerStatuses[name] ? "Online" : "Offline"}
+                          />
+                        </div>
+                        <strong className="msg-name">{name}</strong> &gt;{" "}
+                        {content}
+                      </>
+                    )}
+                    {type === "discord" && (
+                      <>
+                        <FaDiscord className="icon discord-icon" />
+                        <strong className="msg-name">{name}</strong> &gt;{" "}
+                        {content}
+                      </>
+                    )}
+                    {type === "web" && (
+                      <>
+                        <FaGlobe className="icon web-icon" />
+                        <strong className="msg-name">web</strong> &gt; {content}
+                      </>
+                    )}
+                    {type === "generic" && (
+                      <span style={{ fontStyle: "italic", color: "#aaa" }}>
+                        {typeof msg === "string" ? msg : JSON.stringify(msg)}
+                      </span>
+                    )}
+                    {image && (
+                      <div className="chat-image">
+                        <img
+                          src={image}
+                          alt="attachment"
+                          className="chat-image-thumb"
+                          onClick={() => setZoomedImage(image)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+              <div ref={chatEndRef} />
+            </>
+          )}
+        </div>
+
+        <form onSubmit={sendMessage} className="chat-form d-flex">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Type your message..."
+            className="chat-input form-control me-2"
+          />
+          <button type="submit" className="chat-send-button btn btn-primary">
+            Send
+          </button>
+        </form>
+
+        {cooldownRemaining > 0 && (
+          <div className="text-warning mt-2">
+            Please wait {cooldownRemaining}s before sending another message.
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
