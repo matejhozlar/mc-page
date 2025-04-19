@@ -61,7 +61,12 @@ async function fetchDiscordChatHistory(limit = 100) {
       })
       .map((msg) => {
         const name = msg.member?.displayName || msg.author.username;
-        return `[${name}]: ${msg.content}`;
+        const image = msg.attachments?.first()?.url || null;
+
+        return {
+          text: `[${name}]: ${msg.content}`,
+          image,
+        };
       });
 
     return messagesArray;
@@ -107,9 +112,10 @@ client.on("messageCreate", (message) => {
     return;
   if (message.author.bot && message.content.startsWith("[Web]")) return;
 
+  const image = message.attachments?.first()?.url || null;
   const displayName = message.member?.displayName || message.author.username;
   const formatted = `[${displayName}]: ${message.content}`;
-  io.emit("chatMessage", formatted);
+  io.emit("chatMessage", { text: formatted, image });
 });
 
 // --- Web Socket Chat Handling ---
