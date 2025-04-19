@@ -9,6 +9,9 @@ import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
 import { Rcon } from "rcon-client";
 
+// New bot instance for sending messages
+import { Client as WebChatClient } from "discord.js";
+
 dotenv.config();
 
 const app = express();
@@ -36,9 +39,26 @@ db.connect();
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
 
+const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
+
+// --- Web Chat Bot ---
+const webChatClient = new WebChatClient({
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
+
+webChatClient.once("ready", () => {
+  console.log(`WebChatBot ready as ${webChatClient.user.tag}`);
+});
+
+webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
+
 async function fetchDiscordChatHistory(limit = 100) {
   try {
-    const guild = client.guilds.cache.first(); // or fetch by ID
+    const guild = client.guilds.cache.first();
     const channel = guild.channels.cache.find(
       (ch) => ch.name === MINECRAFT_CHANNEL_NAME
     );
@@ -76,23 +96,25 @@ async function fetchDiscordChatHistory(limit = 100) {
   }
 }
 
-// --- RCON to Minecraft ---
+// --- WebChatBot to Discord (instead of RCON) ---
 async function sendToMinecraftChat(message) {
   try {
-    const rcon = await Rcon.connect({
-      host: process.env.SERVER_IP,
-      port: parseInt(process.env.RCON_PORT) || 25575,
-      password: process.env.RCON_PASSWORD,
-    });
+    const guild = await webChatClient.guilds.fetch(
+      process.env.DISCORD_GUILD_ID
+    );
+    const channel = guild.channels.cache.find(
+      (ch) => ch.name === MINECRAFT_CHANNEL_NAME
+    );
 
-    await rcon.send(`tellraw @a {"text":"[Web] ${message}","color":"gray"}`);
-    await rcon.end();
+    if (channel && channel.isTextBased()) {
+      await channel.send(`[Web] ${message}`);
+    }
   } catch (error) {
-    console.error("RCON Error:", error);
+    console.error("WebChatBot send error:", error);
   }
 }
 
-// --- Discord Bot ---
+// --- Discord Listener Bot ---
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -101,20 +123,32 @@ const client = new Client({
   ],
 });
 
-const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
-
 client.once("ready", () => {
   console.log(`Discord bot ready as ${client.user.tag}`);
+
+  httpServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
 });
 
 client.on("messageCreate", (message) => {
   if (!message.channel || message.channel.name !== MINECRAFT_CHANNEL_NAME)
     return;
-  if (message.author.bot && message.content.startsWith("[Web]")) return;
+
+  // ✅ Only ignore obvious loops, allow all messages that include content or images
+  if (
+    message.author.bot &&
+    !message.webhookId &&
+    !message.content.startsWith("[Web]") &&
+    message.attachments.size === 0
+  ) {
+    return;
+  }
 
   const image = message.attachments?.first()?.url || null;
   const displayName = message.member?.displayName || message.author.username;
   const formatted = `[${displayName}]: ${message.content}`;
+
   io.emit("chatMessage", { text: formatted, image });
 });
 
@@ -143,20 +177,16 @@ io.on("connection", async (socket) => {
     console.log(`Web message: ${message}`);
 
     try {
-      const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
-      const channel = guild.channels.cache.find(
-        (ch) => ch.name === MINECRAFT_CHANNEL_NAME
-      );
-      if (channel && channel.isTextBased()) {
-        await channel.send(`[Web] ${message}`);
-      }
-
       await sendToMinecraftChat(message);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
 
-    io.emit("chatMessage", `[Web] ${message}`);
+    // 🔄 FIX: send structured message object
+    io.emit("chatMessage", {
+      text: `[Web] ${message}`,
+      image: null,
+    });
   });
 
   socket.on("disconnect", () => {
@@ -181,7 +211,6 @@ app.get("/players", async (req, res) => {
     const onlinePlayers = response.players.sample || [];
     const onlineUUIDs = onlinePlayers.map((p) => p.id);
 
-    // Update current online players
     for (const player of onlinePlayers) {
       await db.query(
         `
@@ -203,7 +232,6 @@ app.get("/players", async (req, res) => {
         onlineUUIDs
       );
     } else {
-      // If no players online, mark all as offline
       await db.query(`UPDATE users SET online = false`);
     }
 
@@ -260,14 +288,6 @@ app.post("/wait-list", async (req, res) => {
     console.error("Error inserting waitlist email:", error);
     res.status(500).json({ error: "Error submitting email" });
   }
-});
-
-client.once("ready", () => {
-  console.log(`Discord bot ready as ${client.user.tag}`);
-
-  httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
