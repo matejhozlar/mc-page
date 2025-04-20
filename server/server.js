@@ -145,6 +145,10 @@ client.on("messageCreate", (message) => {
 
   if (message.author.id === webChatClient.user.id) return;
 
+  const content = message.content?.trim();
+  const hasImage = message.attachments?.size > 0;
+  if (!content && !hasImage) return;
+
   const image = message.attachments?.first()?.url || null;
   const displayName = message.member?.displayName || message.author.username;
   const formatted = `[${displayName}]: ${message.content}`;
