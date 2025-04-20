@@ -342,7 +342,7 @@ const ServerChat = () => {
             placeholder="Type your message..."
             className="chat-input form-control me-2"
           />
-          <div className="custom-file-input-wrapper me-2">
+          <div className="custom-file-input-wrapper d-none d-md-block me-2">
             <label className="btn btn-secondary mb-0">
               Upload Image
               <input
@@ -358,6 +358,19 @@ const ServerChat = () => {
             Send
           </button>
         </form>
+
+        <div className="d-block d-md-none mt-2">
+          <label className="btn btn-secondary w-100">
+            Upload Image
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={(e) => setImageFile(e.target.files[0])}
+              style={{ display: "none" }}
+            />
+          </label>
+        </div>
 
         {cooldownRemaining > 0 && (
           <div className="text-warning mt-2">
