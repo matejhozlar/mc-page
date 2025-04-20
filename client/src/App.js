@@ -9,6 +9,8 @@ import ApplyToJoin from "./components/ApplyToJoin.jsx";
 import Rules from "./components/Rules.jsx";
 import Home from "./components/Home.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
+import FloatingHomeIcon from "./components/FloatingHomeButton.jsx";
 
 function App() {
   const [showLoader, setShowLoader] = useState(() => {
@@ -35,6 +37,8 @@ function App() {
 
           {/* Main content area */}
           <div className="main-content">
+            <FloatingHomeIcon />
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/online-players" element={<OnlinePlayers />} />
