@@ -1,14 +1,17 @@
 // src/components/Home.jsx
 import React, { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import { FaDiscord, FaRocket } from "react-icons/fa";
+import { FaDiscord, FaRocket, FaPaypal } from "react-icons/fa";
 import createPhoto from "../assets/images/create.png";
 import buildPhoto from "../assets/images/build.png";
 import shadersPhoto from "../assets/images/shaders.jpg";
 import storagePhoto from "../assets/images/storage.jpg";
 import smallCog from "../assets/images/small_cog.png";
 import curseForge from "../assets/images/curseforge.png";
+import Logo from "../assets/logo/logo.png";
+import potatoes from "../assets/potatos/potatos.js";
 import "./css/Home.css";
 
 // Define the images array
@@ -39,60 +42,45 @@ const features = [
 
 const modCategories = [
   {
-    title: "🔧 Core Engineering",
+    title: "Exploration & World",
     mods: [
-      ["Create", "The foundation of everything mechanical."],
-      ["Create: Misc & Things", "Extra gadgets to stretch your creativity."],
-      ["Create: Encased", "Compact contraptions with neat casings."],
-      ["Create: Trading Floor", "Automated shopfronts and trade tills."],
-      ["Create: Enchantment Industry", "Magic‑powered automation factories."],
-      ["Create Sifting", "Turn dust into valuable resources with gravity!"],
+      ["Xaero's Minimap", "Navigate easily with detailed maps."],
+      ["Xaero's World Map", "Uncover and explore your world at scale."],
+      ["Nature's Compass", "Locate specific biomes quickly."],
+      ["Farmer's Delight", "Grow, cook, and feast like never before."],
+      ["Aquaculture 2", "Expand fishing with new fish and gear."],
     ],
   },
   {
-    title: "🏗️ Build & Decorate",
+    title: "Utility & QoL",
     mods: [
-      ["Macaw’s Roofs / Fences / Walls", "Architectural details in bulk."],
-      [
-        "Macaw’s Doors / Windows / Trapdoors",
-        "Every opening your heart desires.",
-      ],
-      ["Macaw’s Bridges / Paths / Pavings", "Connect villages in style."],
-      [
-        "Macaw’s Furniture / Lights and Lamps",
-        "Home décor, from chairs to chandeliers.",
-      ],
-      ["FramedBlocks & Chipped", "Endless block variants to express yourself."],
+      ["Inventory Sorter", "Keep your inventory tidy with one click."],
+      ["Just Enough Items (JEI)", "Crafting and recipe lookup made easy."],
+      ["Polymorph", "Handle conflicting recipes gracefully."],
+      ["Mouse Tweaks", "Drag-to-sort and stack items faster."],
+      ["Quick Right-Click", "Boost interactions and productivity."],
+      ["Simple Voice Chat", "Talk with players directly in-game."],
     ],
   },
   {
-    title: "🎨 Visual Enhancement",
+    title: "Building & Decoration",
     mods: [
-      [
-        "BSL Shaders & Complementary Shaders",
-        "Realistic lighting and shadows.",
-      ],
-      ["Iris Shaders", "Seamless Fabric + Shader integration."],
-      ["Sodium / Embeddium Dynamic Lights", "Torch‑level brightness anywhere."],
-      ["ModernFix & Silent Lib", "Under‑the‑hood polish for stability."],
+      ["Chipped", "Customize block variants for decoration."],
+      ["Rechiseled", "Revamp your blocks with endless styles."],
+      ["Macaw's Furniture", "Stylish home interiors made easy."],
+      ["FramedBlocks", "Custom shaped building blocks."],
+      ["Macaw's Roofs", "Add angled roofs to any build."],
+      ["Macaw's Doors", "Beautiful doors in all materials."],
     ],
   },
   {
-    title: "⚙️ Utilities & QoL",
+    title: "Tech & Automation",
     mods: [
-      ["JEI & EMI Loot / Enchanting", "Never forget a recipe or enchantment!"],
-      [
-        "Inventory Sorter & Quick Right‑Click",
-        "Streamline all your inventory hustle.",
-      ],
-      [
-        "Nature’s Compass & Waypoints (Xaero’s)",
-        "Find that mountain, monument, or home base.",
-      ],
-      [
-        "Simple Voice Chat & Discord Integration",
-        "Talk to your friends without leaving the game.",
-      ],
+      ["Create", "Mechanical automation at its finest."],
+      ["Applied Energistics 2", "Store and auto-craft with ME systems."],
+      ["FTB Chunks", "Claim and protect your land."],
+      ["FTB Quests", "Progress and reward system for players."],
+      ["Server Performance", "Keep your server running smooth."],
     ],
   },
 ];
@@ -100,6 +88,11 @@ const modCategories = [
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false);
   const [fullscreenImage, setFullscreenImage] = useState(null);
+  const [showFullModlist, setShowFullModlist] = useState(false);
+  const [modSearch, setModSearch] = useState("");
+  const [potatoMode, setPotatoMode] = useState(false);
+  const [potatoImage, setPotatoImage] = useState(null);
+
   useEffect(() => {
     AOS.init({
       duration: 800,
@@ -262,7 +255,19 @@ export default function Home() {
                 </a>
               )}
               {f.title === "Performance" && (
-                <FaRocket className="rocket-icon" />
+                <FaRocket
+                  className="rocket-icon"
+                  onClick={() => {
+                    const potatoArray = Object.values(potatoes);
+                    const randomPotato =
+                      potatoArray[
+                        Math.floor(Math.random() * potatoArray.length)
+                      ];
+                    setPotatoImage(randomPotato);
+                    setPotatoMode(true);
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
               )}
               {f.title}
             </h3>
@@ -272,25 +277,187 @@ export default function Home() {
       </section>
 
       {/* MOD SHOWCASE */}
-      <section className="mod-showcase" data-aos="fade-up">
-        <h2>Mod Showcase</h2>
-        {modCategories.map((cat, i) => (
-          <div
-            key={cat.title}
-            className="mod-category"
-            data-aos="fade-right"
-            data-aos-delay={i * 150}
+      <section className="modpack-section" data-aos="fade-up">
+        <div className="modpack-header">
+          <img src={Logo} alt="Modpack Logo" />
+          <h2>Modpack</h2>
+        </div>
+        <p>
+          View the full curated list of mods included in our pack. Visit our
+          modpack page on
+          <a
+            href="https://www.curseforge.com/minecraft/modpacks/create-rington"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <h3>{cat.title}</h3>
-            <ul>
-              {cat.mods.map(([name, desc]) => (
-                <li key={name}>
-                  <strong>{name}</strong> — {desc}
-                </li>
+            CurseForge
+          </a>
+          .
+        </p>
+
+        <div className="modpack-categories">
+          {modCategories.map((cat, i) => (
+            <div
+              key={cat.title}
+              className="modpack-category"
+              data-aos="fade-up"
+              data-aos-delay={i * 100}
+            >
+              <h3>{cat.title}</h3>
+              <ul>
+                {cat.mods.map(([name, desc]) => (
+                  <li key={name}>
+                    <strong>{name}</strong> — {desc}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="full-modlist" data-aos="fade-up">
+        <h2>Full Modlist</h2>
+        <button
+          className="home-btn home-btn-primary"
+          onClick={() => setShowFullModlist((prev) => !prev)}
+        >
+          {showFullModlist ? "Hide" : "Show"}
+        </button>
+        {showFullModlist && (
+          <input
+            type="text"
+            placeholder="Search mods..."
+            className="modlist-search"
+            value={modSearch}
+            onChange={(e) => setModSearch(e.target.value)}
+          />
+        )}
+        <div
+          className={`modlist-container ${
+            showFullModlist ? "expanded" : "collapsed"
+          }`}
+        >
+          <ul>
+            {[
+              "AppleSkin",
+              "Applied Energistics 2",
+              "Applied Energistics 2 Wireless Terminals",
+              "Aquaculture 2",
+              "Architectury API",
+              "Athena",
+              "BSL Shaders",
+              "Borderless Window",
+              "Builders' Jetpack Mod",
+              "Carry On",
+              "Chipped",
+              "Chunk Sending",
+              "Clumps",
+              "Collective",
+              "Complementary Shaders - Reimagined",
+              "Complementary Shaders - Unbound",
+              "Connectivity",
+              "Controlling",
+              "Corn Delight[Forge]",
+              "CoroUtil",
+              "Corpse",
+              "Corpse x Curios API Compat",
+              "Create",
+              "Create : Misc & Things",
+              "Create Confectionery",
+              "Create Encased",
+              "Create Sifting",
+              "Create Stuff 'N Additions",
+              "Create: Dragons Plus",
+              "Create: Enchantment Industry",
+              "Create: Garnished",
+              "Create: Oxidized",
+              "Create: Structures Arise",
+              "Create: Trading Floor",
+              "Cupboard",
+              "Curios API",
+              "Discord & Chat Images",
+              "EMI",
+              "EMI Enchanting",
+              "EMI Loot",
+              "FTB Chunks",
+              "FTB Library",
+              "FTB Quests",
+              "FTB Teams",
+              "Farmer's Delight",
+              "FerriteCore",
+              "FramedBlocks",
+              "Freecam",
+              "Fresh Animations,",
+              "Fusion (Connected ATextures)",
+              "Fzzy Config",
+              "GJEB (GammaJustExtremeBright)",
+              "GuideME",
+              "Inventory Sorter",
+              "Iris Shaders",
+              "Jade Addons",
+              "Jade",
+              "Just Enough Items (JEI)",
+              "Kotlin for Forge",
+              "Lootr",
+              "Macaw's Bridges",
+              "Macaw's Doors",
+              "Macaw's Fences and Walls",
+              "Macaw's Furniture",
+              "Macaw's Lights and Lamps",
+              "Macaw's Paintings",
+              "Macaw's Paths and Pavings",
+              "Macaw's Roofs",
+              "Macaw's Stairs",
+              "Macaw's Trapdoors",
+              "Macaw's Windows",
+              "ModernFix",
+              "Mouse Tweaks",
+              "Mysterious Mountain Lib",
+              "Nature's Compass",
+              "Ok Zoomer - It's Zoom!",
+              "Packet Fixer",
+              "Polymorph",
+              "Quick Right-Click",
+              "ReForgedPlay",
+              "Rechiseled",
+              "Rechiseled: Chipped",
+              "Rechiseled: Create",
+              "Reese's Sodium Options",
+              "Resourceful Lib",
+              "Scarecrows' Territory",
+              "Searchables",
+              "Server Performance - Smooth Chunk Save",
+              "Silent Gear",
+              "Silent Lib (silentlib)",
+              "Simple Voice Chat",
+              "Skin Layers 3D",
+              "Sodium",
+              "Sodium Extra",
+              "Sodium/Embeddium Dynamic Lights",
+              "Sodium/Embeddium Options API",
+              "Sophisticated Backpacks",
+              "Sophisticated Core",
+              "Sound Physics Remastered",
+              "Storage Drawers",
+              "SuperMartijn642's Config Lib",
+              "SuperMartijn642's Core Lib",
+              "TxniLib",
+              "What Are They Up To (Watut)",
+              "Xaero's Minimap",
+              "Xaero's World Map",
+              "[EMF] Entity Model Features",
+              "[ETF] Entity Texture Features",
+              "fix GPU memory leak",
+            ]
+              .filter((mod) =>
+                mod.toLowerCase().includes(modSearch.toLowerCase())
+              )
+              .map((mod, i) => (
+                <li key={i}>{mod}</li>
               ))}
-            </ul>
-          </div>
-        ))}
+          </ul>
+        </div>
       </section>
 
       {/* JOIN CTA */}
@@ -298,8 +465,35 @@ export default function Home() {
         <h2>Ready to Create?</h2>
         <p>Apply now to snag one of our limited spots!</p>
         <div className="join-buttons">
-          <a href="/apply" className="btn btn-primary">
+          <NavLink
+            to="/apply-to-join"
+            className="home-btn home-btn-primary nav-apply-join"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="nav-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="8.5" cy="7" r="4" />
+              <line x1="20" y1="8" x2="20" y2="14" />
+              <line x1="23" y1="11" x2="17" y2="11" />
+            </svg>
             Apply to Join
+          </NavLink>
+          <a
+            href="https://www.paypal.com/donate/?hosted_button_id=FXA9DST7GHZ9A"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="home-btn home-btn-donate icon-btn"
+          >
+            <FaPaypal className="paypal-icon" />
+            Donate
           </a>
         </div>
       </section>
@@ -309,6 +503,14 @@ export default function Home() {
           onClick={() => setFullscreenImage(null)}
         >
           <img src={fullscreenImage} alt="Fullscreen" />
+        </div>
+      )}
+      {potatoMode && (
+        <div
+          className="fullscreen-overlay"
+          onClick={() => setPotatoMode(false)}
+        >
+          <img src={potatoImage} alt="Potato Surprise" />
         </div>
       )}
     </div>

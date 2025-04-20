@@ -295,6 +295,39 @@ body {
   font-size: 0.875rem;
 }
 
+.discord-link-donate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  background-color: hsl(0, 84%, 60%);
+  color: #fff !important;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.discord-link-donate img {
+  height: 16px;
+  width: 16px;
+  margin-left: 2px;
+  transform: translateY(1px);
+}
+
+.discord-link-donate:hover {
+  background-color: hsl(0, 84%, 70%);
+}
+
+.paypal {
+  transform: translateY(1px);
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #fff;
+}
+
 .discord-link:hover {
   background-color: #ffdc73;
   text-decoration: none;
@@ -748,6 +781,14 @@ body {
 }
 
 /* Chat */
+.btn-success-fix {
+  background-color: var(--primary-color) !important;
+}
+
+.btn-success-fix:hover {
+  background-color: var(--primary-color-hover) !important;
+}
+
 .chat-image-thumb {
   max-width: 100%;
   max-height: 200px;
@@ -791,4 +832,50 @@ body {
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* waitlist form */
+.waitlist-form {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.waitlist-input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #2b2b2b;
+  color: #f1f1f1;
+}
+
+.waitlist-submit {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 4px;
+  color: var(--primary-foreground);
+  transition: background-color 0.2s ease;
+}
+
+.waitlist-submit:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.submission-status {
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.waitlist-notice {
+  margin-bottom: 10px;
+}
+
+.apply-heading {
+  font-size: 1.75rem;
+  text-align: center;
+  color: var(--foreground-color);
+  margin-bottom: 1rem;
 }

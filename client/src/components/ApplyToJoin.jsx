@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import WaitlistNotice from "./WaitlistNotice";
 
 const ApplyToJoin = () => {
   const [formData, setFormData] = useState({
@@ -61,7 +62,8 @@ const ApplyToJoin = () => {
 
   return (
     <div className="apply-to-join">
-      <h2>Apply to Join Our Server</h2>
+      <WaitlistNotice />
+      <h2 className="apply-heading">Apply to Join Our Server</h2>
 
       {/* Alert/Status Message */}
 
