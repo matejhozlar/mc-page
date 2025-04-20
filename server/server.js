@@ -7,7 +7,9 @@ import http from "http";
 import dotenv from "dotenv";
 import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
-import { Rcon } from "rcon-client";
+import { AttachmentBuilder } from "discord.js";
+import multer from "multer";
+const upload = multer({ storage: multer.memoryStorage() });
 
 // New bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
@@ -140,6 +142,8 @@ client.once("ready", () => {
 client.on("messageCreate", (message) => {
   if (!message.channel || message.channel.name !== MINECRAFT_CHANNEL_NAME)
     return;
+
+  if (message.author.id === webChatClient.user.id) return;
 
   const image = message.attachments?.first()?.url || null;
   const displayName = message.member?.displayName || message.author.username;
@@ -283,6 +287,52 @@ app.post("/wait-list", async (req, res) => {
   } catch (error) {
     console.error("Error inserting waitlist email:", error);
     res.status(500).json({ error: "Error submitting email" });
+  }
+});
+
+//sending images
+
+app.post("/upload-image", upload.single("image"), async (req, res) => {
+  const file = req.file;
+  const messageText = req.body.message || "";
+
+  if (!file) {
+    return res.status(400).json({ error: "No image uploaded" });
+  }
+
+  try {
+    const guild = await webChatClient.guilds.fetch(
+      process.env.DISCORD_GUILD_ID
+    );
+    const channel = guild.channels.cache.find(
+      (ch) => ch.name === MINECRAFT_CHANNEL_NAME
+    );
+
+    if (!channel || !channel.isTextBased()) {
+      return res.status(500).json({ error: "Channel not found" });
+    }
+
+    const attachment = new AttachmentBuilder(file.buffer, {
+      name: file.originalname,
+    });
+
+    const sentMessage = await channel.send({
+      content: messageText,
+      files: [attachment],
+    });
+
+    const sentAttachment = sentMessage.attachments.first();
+    const imageUrl = sentAttachment?.url || null;
+
+    io.emit("chatMessage", {
+      text: messageText,
+      image: imageUrl,
+    });
+
+    return res.json({ success: true, image: imageUrl });
+  } catch (err) {
+    console.error("Failed to send image to Discord:", err);
+    return res.status(500).json({ error: "Failed to send image" });
   }
 });
 
