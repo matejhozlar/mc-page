@@ -9,7 +9,7 @@ const Sidebar = () => {
 
   const fetchPlayerCount = async () => {
     try {
-      const response = await fetch("http://localhost:5000/playerCount");
+      const response = await fetch("/api/playerCount");
       if (!response.ok) throw new Error("Fetch failed");
       const data = await response.json();
       setPlayerCount(data.count);

@@ -9,9 +9,16 @@ import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const reactBuildPath = path.join(__dirname, "..", "client", "build");
+
 const upload = multer({ storage: multer.memoryStorage() });
 
-// New bot instance for sending messages
+// bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
 
 dotenv.config();
@@ -20,9 +27,14 @@ const app = express();
 const port = process.env.PORT || 5000;
 const messageCooldowns = {};
 
-app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.use(express.static(reactBuildPath));
+
+app.use(cors({ origin: true, credentials: true }));
+
+app.set("trust proxy", 1);
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
@@ -81,7 +93,7 @@ async function fetchDiscordChatHistory(limit = 100) {
         // Always allow non-bot messages
         if (!msg.author.bot) return true;
 
-        // Allow bot messages from your web bot
+        // Allow bot messages from web bot
         if (msg.author.id === webBotId) return true;
 
         // Also allow valid Minecraft format messages
@@ -195,7 +207,7 @@ io.on("connection", async (socket) => {
 });
 
 // --- API Routes ---
-app.get("/playerCount", async (req, res) => {
+app.get("/api/playerCount", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     res.json({ count: response.players.online });
@@ -205,7 +217,7 @@ app.get("/playerCount", async (req, res) => {
   }
 });
 
-app.get("/players", async (req, res) => {
+app.get("/api/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
@@ -245,7 +257,7 @@ app.get("/players", async (req, res) => {
   }
 });
 
-app.post("/apply", async (req, res) => {
+app.post("/api/apply", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
   const insertQuery = `
@@ -270,7 +282,7 @@ app.post("/apply", async (req, res) => {
   }
 });
 
-app.post("/wait-list", async (req, res) => {
+app.post("/api/wait-list", async (req, res) => {
   const { email } = req.body;
   if (!email) {
     return res.status(400).json({ error: "Email is required" });
@@ -292,7 +304,7 @@ app.post("/wait-list", async (req, res) => {
 
 //sending images
 
-app.post("/upload-image", upload.single("image"), async (req, res) => {
+app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   const file = req.file;
   const messageText = req.body.message || "";
 
@@ -334,6 +346,10 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
     console.error("Failed to send image to Discord:", err);
     return res.status(500).json({ error: "Failed to send image" });
   }
+});
+
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(reactBuildPath, "index.html"));
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
