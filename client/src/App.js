@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Sidebar from "./components/Sidebar";
-import MobileNav from "./components/MobileNav";
-import OnlinePlayers from "./components/OnlinePlayers";
-import ServerChat from "./components/ServerChat";
-import ApplyToJoin from "./components/ApplyToJoin";
+import Sidebar from "./components/Sidebar.jsx";
+import MobileNav from "./components/MobileNav.jsx";
+import OnlinePlayers from "./components/OnlinePlayers.jsx";
+import ServerChat from "./components/ServerChat.jsx";
+import ApplyToJoin from "./components/ApplyToJoin.jsx";
 import Rules from "./components/Rules.jsx";
 import Home from "./components/Home.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
