@@ -161,7 +161,7 @@ const ServerChat = () => {
 
     const msg = rawText.replace(/^\[Createrington\]:\s*/, "").trim();
 
-    // ✅ If image exists and text is empty — still show it
+    //  If image exists and text is empty — still show it
     if (!msg && image) {
       return {
         type: "web",
