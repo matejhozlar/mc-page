@@ -79,6 +79,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   font-size: 16px;
+  overflow-x: hidden;
+  max-width: 100%;
   cursor: url("./assets/cursors/sword.cur") 0 0, auto;
 }
 
