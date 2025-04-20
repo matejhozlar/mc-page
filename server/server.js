@@ -11,7 +11,7 @@ import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
 const upload = multer({ storage: multer.memoryStorage() });
 
-// New bot instance for sending messages
+// bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
 
 dotenv.config();
@@ -81,7 +81,7 @@ async function fetchDiscordChatHistory(limit = 100) {
         // Always allow non-bot messages
         if (!msg.author.bot) return true;
 
-        // Allow bot messages from your web bot
+        // Allow bot messages from web bot
         if (msg.author.id === webBotId) return true;
 
         // Also allow valid Minecraft format messages
@@ -104,7 +104,7 @@ async function fetchDiscordChatHistory(limit = 100) {
   }
 }
 
-// --- WebChatBot to Discord (instead of RCON) ---
+// --- WebChatBot to Discord  ---
 async function sendToMinecraftChat(message) {
   try {
     const guild = await webChatClient.guilds.fetch(
@@ -182,9 +182,8 @@ io.on("connection", async (socket) => {
       console.error("Failed to send message:", error);
     }
 
-    // 🔄 FIX: send structured message object
     io.emit("chatMessage", {
-      text: `${message}`, // or just `message` if you don't want a name
+      text: `${message}`,
       image: null,
     });
   });
@@ -205,6 +204,7 @@ app.get("/playerCount", async (req, res) => {
   }
 });
 
+// fetching player count
 app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
@@ -245,6 +245,7 @@ app.get("/players", async (req, res) => {
   }
 });
 
+// aply form
 app.post("/apply", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
