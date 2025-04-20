@@ -16,6 +16,8 @@ const ServerChat = () => {
   const hasScrolledInitially = useRef(false);
   const [playerStatuses, setPlayerStatuses] = useState({});
   const [zoomedImage, setZoomedImage] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const scrollToBottom = () => {
     if (chatEndRef.current) {
@@ -28,12 +30,10 @@ const ServerChat = () => {
       const text = typeof message === "string" ? message : message?.text;
       const image = message?.image || null;
 
-      const stripped = text
-        ?.trim()
-        .replace(/^\[Createrington\]:\s*/, "")
-        .trim();
-      const isEmpty = (!stripped || /^`?<[^>]+>`?$/.test(stripped)) && !image;
-      if (isEmpty) return;
+      const hasText = text?.trim().length > 0;
+      const hasImage = Boolean(image);
+
+      if (!hasText && !hasImage) return;
 
       setMessages((prev) => [...prev, { text, image }]);
     };
@@ -99,7 +99,7 @@ const ServerChat = () => {
     }
   }, [messages, autoScrollEnabled]);
 
-  const sendMessage = (e) => {
+  const sendMessage = async (e) => {
     e.preventDefault();
     const now = Date.now();
     const secondsSinceLast = (now - lastSent) / 1000;
@@ -109,11 +109,33 @@ const ServerChat = () => {
       return;
     }
 
-    if (input.trim()) {
-      socket.emit("sendChatMessage", input.trim());
-      setLastSent(now);
-      setCooldownRemaining(0);
-      setInput("");
+    if (!input.trim() && !imageFile) return;
+
+    setLastSent(now);
+    setCooldownRemaining(0);
+
+    try {
+      if (imageFile) {
+        const formData = new FormData();
+        formData.append("image", imageFile);
+        formData.append("message", input.trim());
+
+        await fetch(`${SERVER_URL}/upload-image`, {
+          method: "POST",
+          body: formData,
+        });
+      } else {
+        socket.emit("sendChatMessage", input.trim());
+      }
+    } catch (err) {
+      console.error("Send message error:", err);
+    }
+
+    setInput("");
+    setImageFile(null);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
@@ -133,39 +155,23 @@ const ServerChat = () => {
     if (typeof msgObj === "string") {
       rawText = msgObj;
     } else if (typeof msgObj === "object" && msgObj !== null) {
-      rawText = msgObj.text || "";
+      rawText = msgObj.text ?? "";
       image = msgObj.image || null;
     }
 
     const msg = rawText.replace(/^\[Createrington\]:\s*/, "").trim();
-    if (!msg) return null;
 
-    // ✅ Skip redundant [Web] prefix in content, only show it in sender tag
-    if (msg.startsWith("[Web]")) {
-      const cleaned = msg.replace(/^\[Web\]\s*/, "").trim();
-      return { type: "web", name: "web", content: cleaned, image };
-    }
-
-    const mcOnlyNameMatch = msg.match(/^`?<(.+?)>`?$/);
-    if (mcOnlyNameMatch) {
+    // ✅ If image exists and text is empty — still show it
+    if (!msg && image) {
       return {
-        type: "minecraft",
-        name: mcOnlyNameMatch[1],
+        type: "web",
+        name: "web",
         content: "",
         image,
       };
     }
 
-    const mcFullMatch = msg.match(/^`?<(.+?)>`?\s+(.*)$/);
-    if (mcFullMatch) {
-      return {
-        type: "minecraft",
-        name: mcFullMatch[1],
-        content: mcFullMatch[2],
-        image,
-      };
-    }
-
+    // Discord-style: [Username]: Hello
     const discordMatch = msg.match(/^\[(.+?)\]:\s*(.*)$/);
     if (discordMatch) {
       const authorName = discordMatch[1];
@@ -178,7 +184,35 @@ const ServerChat = () => {
       };
     }
 
-    return null;
+    // Minecraft: <Steve>
+    const mcOnlyNameMatch = msg.match(/^`?<(.+?)>`?$/);
+    if (mcOnlyNameMatch) {
+      return {
+        type: "minecraft",
+        name: mcOnlyNameMatch[1],
+        content: "",
+        image,
+      };
+    }
+
+    // Minecraft full: <Steve> hello
+    const mcFullMatch = msg.match(/^`?<(.+?)>`?\s+(.*)$/);
+    if (mcFullMatch) {
+      return {
+        type: "minecraft",
+        name: mcFullMatch[1],
+        content: mcFullMatch[2],
+        image,
+      };
+    }
+
+    // Fallback: treat as a plain web message
+    return {
+      type: "web",
+      name: "web",
+      content: msg,
+      image,
+    };
   };
 
   return (
@@ -287,6 +321,19 @@ const ServerChat = () => {
           )}
         </div>
 
+        {imageFile && (
+          <div className="mt-2">
+            <strong>Image:</strong> {imageFile.name}
+            <button
+              onClick={() => setImageFile(null)}
+              type="button"
+              className="btn btn-sm btn-link text-danger"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+
         <form onSubmit={sendMessage} className="chat-form d-flex">
           <input
             type="text"
@@ -295,6 +342,18 @@ const ServerChat = () => {
             placeholder="Type your message..."
             className="chat-input form-control me-2"
           />
+          <div className="custom-file-input-wrapper me-2">
+            <label className="btn btn-secondary mb-0">
+              Upload Image
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => setImageFile(e.target.files[0])}
+                style={{ display: "none" }}
+              />
+            </label>
+          </div>
           <button type="submit" className="chat-send-button btn btn-primary">
             Send
           </button>
