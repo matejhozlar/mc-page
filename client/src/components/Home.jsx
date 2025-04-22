@@ -80,7 +80,10 @@ const modCategories = [
       ["Applied Energistics 2", "Store and auto-craft with ME systems."],
       ["FTB Chunks", "Claim and protect your land."],
       ["FTB Quests", "Progress and reward system for players."],
-      ["Server Performance", "Keep your server running smooth."],
+      [
+        "Server Performance",
+        "Our Server is well optimized and ready for new players!",
+      ],
     ],
   },
 ];

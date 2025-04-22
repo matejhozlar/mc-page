@@ -175,7 +175,7 @@ const ServerChat = () => {
     const discordMatch = msg.match(/^\[(.+?)\]:\s*(.*)$/);
     if (discordMatch) {
       const authorName = discordMatch[1];
-      const isWebBot = authorName === "WebChatBot";
+      const isWebBot = authorName === "WebChatBot" || authorName === "Web";
       return {
         type: isWebBot ? "web" : "discord",
         name: isWebBot ? "web" : authorName,
