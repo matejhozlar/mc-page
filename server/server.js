@@ -9,6 +9,7 @@ import cors from "cors";
 import { Client, GatewayIntentBits } from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
 const upload = multer({ storage: multer.memoryStorage() });
 
 // bot instance for sending messages
@@ -131,6 +132,38 @@ const client = new Client({
   ],
 });
 
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+
+  if (interaction.commandName === "token") {
+    const token = uuidv4();
+    const userId = interaction.user.id;
+    const displayName =
+      interaction.member?.displayName || interaction.user.username;
+
+    try {
+      await db.query(
+        `INSERT INTO chat_tokens (token, discord_id, discord_name, expires_at)
+         VALUES ($1, $2, $3, NOW() + interval '30 days')
+         ON CONFLICT (discord_id)
+         DO UPDATE SET token = $1, discord_name = $3, expires_at = NOW() + interval '30 days'`,
+        [token, userId, displayName]
+      );
+
+      await interaction.reply({
+        content: `🔐 Here's your token:\n\`bash${token}\`\n\n✅ It's valid for 30 days.`,
+        ephemeral: true,
+      });
+    } catch (err) {
+      console.error("Token insert/update failed:", err);
+      await interaction.reply({
+        content: "❌ Could not generate token. Please try again later.",
+        ephemeral: true,
+      });
+    }
+  }
+});
+
 client.once("ready", () => {
   console.log(`Discord bot ready as ${client.user.tag}`);
 
@@ -246,6 +279,47 @@ app.get("/players", async (req, res) => {
   } catch (error) {
     console.error("Error syncing players:", error);
     res.status(500).json({ error: "Could not fetch players" });
+  }
+});
+
+// token verification
+app.post("/verify-token", async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ success: false, error: "Missing token" });
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT discord_id, discord_name FROM chat_tokens
+       WHERE token = $1 AND expires_at > NOW()`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(401)
+        .json({ success: false, error: "Token expired or invalid" });
+    }
+
+    const user = result.rows[0];
+
+    // one-time use
+    await db.query(`DELETE FROM chat_tokens WHERE token = $1`, [token]);
+
+    return res.json({
+      success: true,
+      user: {
+        id: user.discord_id,
+        name: user.discord_name,
+      },
+    });
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    return res
+      .status(500)
+      .json({ success: false, error: "Internal server error" });
   }
 });
 
