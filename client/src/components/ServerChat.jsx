@@ -19,9 +19,41 @@ const ServerChat = () => {
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
 
+  // token verification
+  const [verifiedUser, setVerifiedUser] = useState(null);
+  const [tokenInput, setTokenInput] = useState("");
+
   const scrollToBottom = () => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "auto" });
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("chat_token");
+    if (token) {
+      verifyToken(token);
+    }
+  }, []);
+
+  const verifyToken = async (token) => {
+    try {
+      const res = await fetch(`${SERVER_URL}/verify-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setVerifiedUser(data.user);
+        localStorage.setItem("chat_token", token);
+        localStorage.setItem("chat_user_name", data.user.name);
+      } else {
+        localStorage.removeItem("chat_token");
+      }
+    } catch (err) {
+      console.error("Token verification failed", err);
     }
   };
 
@@ -33,9 +65,11 @@ const ServerChat = () => {
       const hasText = text?.trim().length > 0;
       const hasImage = Boolean(image);
 
+      console.log(message);
+
       if (!hasText && !hasImage) return;
 
-      setMessages((prev) => [...prev, { text, image }]);
+      setMessages((prev) => [...prev, message]);
     };
 
     const handleChatHistory = (history) => {
@@ -119,13 +153,18 @@ const ServerChat = () => {
         const formData = new FormData();
         formData.append("image", imageFile);
         formData.append("message", input.trim());
+        formData.append("authorName", localStorage.getItem("chat_user_name"));
 
         await fetch(`${SERVER_URL}/upload-image`, {
           method: "POST",
           body: formData,
         });
       } else {
-        socket.emit("sendChatMessage", input.trim());
+        socket.emit("sendChatMessage", {
+          message: input.trim(),
+          token: localStorage.getItem("chat_token"),
+          authorName: localStorage.getItem("chat_user_name"),
+        });
       }
     } catch (err) {
       console.error("Send message error:", err);
@@ -133,10 +172,7 @@ const ServerChat = () => {
 
     setInput("");
     setImageFile(null);
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   useEffect(() => {
@@ -151,24 +187,29 @@ const ServerChat = () => {
   const getMessageParts = (msgObj) => {
     let rawText = "";
     let image = null;
+    let authorType = "web";
 
     if (typeof msgObj === "string") {
       rawText = msgObj;
     } else if (typeof msgObj === "object" && msgObj !== null) {
       rawText = msgObj.text ?? "";
       image = msgObj.image || null;
+      authorType = msgObj.authorType || "web";
     }
 
     const msg = rawText.replace(/^\[Createrington\]:\s*/, "").trim();
 
-    //  If image exists and text is empty — still show it
-    if (!msg && image) {
-      return {
-        type: "web",
-        name: "web",
-        content: "",
-        image,
-      };
+    // Web message with known format
+    if (authorType === "web") {
+      const webMatch = msg.match(/^<(.+?)>\s*(.*)$/);
+      if (webMatch) {
+        return {
+          type: "web",
+          name: webMatch[1],
+          content: webMatch[1] ? `<${webMatch[1]}> ${webMatch[2]}` : "",
+          image,
+        };
+      }
     }
 
     // Discord-style: [Username]: Hello
@@ -184,18 +225,17 @@ const ServerChat = () => {
       };
     }
 
-    // Minecraft: <Steve>
-    const mcOnlyNameMatch = msg.match(/^`?<(.+?)>`?$/);
-    if (mcOnlyNameMatch) {
+    // Minecraft-style
+    const mcOnlyMatch = msg.match(/^`?<(.+?)>`?$/);
+    if (mcOnlyMatch) {
       return {
         type: "minecraft",
-        name: mcOnlyNameMatch[1],
+        name: mcOnlyMatch[1],
         content: "",
         image,
       };
     }
 
-    // Minecraft full: <Steve> hello
     const mcFullMatch = msg.match(/^`?<(.+?)>`?\s+(.*)$/);
     if (mcFullMatch) {
       return {
@@ -206,7 +246,7 @@ const ServerChat = () => {
       };
     }
 
-    // Fallback: treat as a plain web message
+    // Fallback to web type
     return {
       type: "web",
       name: "web",
@@ -334,30 +374,54 @@ const ServerChat = () => {
           </div>
         )}
 
-        <form onSubmit={sendMessage} className="chat-form d-flex">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="chat-input form-control me-2"
-          />
-          <div className="custom-file-input-wrapper d-none d-md-block me-2">
-            <label className="btn btn-secondary mb-0">
-              Upload Image
+        {!verifiedUser ? (
+          <div className="card p-3 bg-dark border border-warning mt-3">
+            <h5 className="text-warning">🔒 Chat Locked</h5>
+            <p className="text-light mb-2">
+              Paste your Discord token to unlock chat:
+            </p>
+            <div className="d-flex">
               <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={(e) => setImageFile(e.target.files[0])}
-                style={{ display: "none" }}
+                type="text"
+                className="form-control me-2"
+                placeholder="Enter your token..."
+                value={tokenInput}
+                onChange={(e) => setTokenInput(e.target.value)}
               />
-            </label>
+              <button
+                className="btn btn-warning"
+                onClick={() => verifyToken(tokenInput.trim())}
+              >
+                Unlock
+              </button>
+            </div>
           </div>
-          <button type="submit" className="chat-send-button btn btn-primary">
-            Send
-          </button>
-        </form>
+        ) : (
+          <form onSubmit={sendMessage} className="chat-form d-flex">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              className="chat-input form-control me-2"
+            />
+            <div className="custom-file-input-wrapper d-none d-md-block me-2">
+              <label className="btn btn-secondary mb-0">
+                Upload Image
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files[0])}
+                  style={{ display: "none" }}
+                />
+              </label>
+            </div>
+            <button type="submit" className="chat-send-button btn btn-primary">
+              Send
+            </button>
+          </form>
+        )}
 
         <div className="d-block d-md-none mt-2">
           <label className="btn btn-secondary w-100">
