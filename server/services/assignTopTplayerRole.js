@@ -1,7 +1,7 @@
 export async function assignTopPlayerRole(db, discordClient) {
   try {
     const { rows } = await db.query(`
-        SELECT discord_id
+        SELECT discord_id, name, play_time_seconds
         FROM users
         WHERE discord_id IS NOT NULL
         ORDER BY play_time_seconds DESC
@@ -10,36 +10,54 @@ export async function assignTopPlayerRole(db, discordClient) {
 
     if (!rows.length) return;
 
-    const topDiscordId = rows[0].discord_id;
-
+    const {
+      discord_id: topDiscordId,
+      name: topName,
+      play_time_seconds,
+    } = rows[0];
     const guild = await discordClient.guilds.fetch(
       process.env.DISCORD_GUILD_ID
     );
-
     const role = await guild.roles.fetch(
       process.env.DISCORD_TOP_PLAYTIME_ROLE_ID
     );
-
     if (!role) {
       console.error("❌ Top Player role not found.");
       return;
     }
 
-    const members = await guild.members.fetch();
+    // Fetch the top member only
+    const topMember = await guild.members.fetch(topDiscordId);
 
-    for (const member of members.values()) {
-      const hasRole = member.roles.cache.has(role.id);
-      const isTopPlayer = member.id === topDiscordId;
+    // Fetch only members who have the role
+    const roleMembers = role.members;
 
-      if (isTopPlayer && !hasRole) {
-        await member.roles.add(role);
-        console.log(`✅ Gave Top Player role to ${member.user.tag}`);
-      } else if (!isTopPlayer && hasRole) {
+    // Remove role from others
+    for (const member of roleMembers.values()) {
+      if (member.id !== topDiscordId) {
         await member.roles.remove(role);
         console.log(`🗑️ Removed Top Player role from ${member.user.tag}`);
-      } else if (isTopPlayer && hasRole) {
-        console.log(`✅ Top Player role stayed the same, ${member.user.tag}`);
       }
+    }
+
+    // Assign role to top player if not already
+    if (!topMember.roles.cache.has(role.id)) {
+      await topMember.roles.add(role);
+      console.log(`✅ Gave Top Player role to ${topMember.user.tag}`);
+
+      // send announcement
+      const announcementChannel = await guild.channels.fetch(
+        process.env.DISCORD_HALL_OF_FAME_CHANNEL_ID
+      );
+      if (announcementChannel?.isTextBased()) {
+        const hours = Math.floor(play_time_seconds / 3600);
+        const minutes = Math.floor((play_time_seconds % 3600) / 60);
+        await announcementChannel.send(
+          `🎉 <@${topDiscordId}> is now the top player with **${hours}h ${minutes}m** of playtime! 👑`
+        );
+      }
+    } else {
+      console.log(`✅ Top Player role already held by ${topMember.user.tag}`);
     }
   } catch (err) {
     console.error("⚠️ Error assigning top player role:", err.message);

@@ -64,13 +64,6 @@ const webChatClient = new WebChatClient({
 
 webChatClient.once("ready", () => {
   console.log(`WebChatBot ready as ${webChatClient.user.tag}`);
-
-  // assigning top playtime role very hour
-  assignTopPlayerRole(db, webChatClient);
-
-  setInterval(() => {
-    assignTopPlayerRole(db, webChatClient);
-  }, 60 * 60 * 1000);
 });
 
 webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
@@ -230,6 +223,14 @@ client.once("ready", () => {
   httpServer.listen(port, () => {
     console.log(`Server running on port ${port}`);
   });
+
+  // Assign Top Player role once on startup
+  assignTopPlayerRole(db, client);
+
+  // Then every hour
+  setInterval(() => {
+    assignTopPlayerRole(db, client);
+  }, 60 * 1000);
 });
 
 client.on("messageCreate", (message) => {
