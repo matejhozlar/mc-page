@@ -50,7 +50,7 @@ export async function assignTopPlayerRole(db, discordClient) {
         );
         const hours = Math.floor(play_time_seconds / 3600);
         const minutes = Math.floor((play_time_seconds % 3600) / 60);
-        if (channel?.isTextBased()) {
+        if (channel?.isTextBased) {
           await channel.send(
             `🎉 <@${topDiscordId}> has taken the lead as the top player with **${hours}h ${minutes}m** of playtime! 👑`
           );
