@@ -3,21 +3,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const deleteOldCommand = async () => {
-  const commands = await rest.get(
-    Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID)
-  );
-
-  const oldCommand = commands.find((cmd) => cmd.name === "gettoken");
-
-  if (oldCommand) {
-    await rest.delete(
-      Routes.applicationGuildCommand(CLIENT_ID, GUILD_ID, oldCommand.id)
-    );
-    console.log("🗑️ Deleted old /gettoken command");
-  }
-};
-
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
@@ -25,22 +10,31 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const commands = [
   new SlashCommandBuilder()
     .setName("token")
-    .setDescription("Generate a temporary chat token")
-    .toJSON(),
-];
+    .setDescription("Generate a temporary chat token"),
+
+  new SlashCommandBuilder()
+    .setName("link")
+    .setDescription("Link your Minecraft name to your Discord account")
+    .addStringOption((option) =>
+      option
+        .setName("mc_name")
+        .setDescription("Your Minecraft username")
+        .setRequired(true)
+    ),
+].map((cmd) => cmd.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
 
 (async () => {
   try {
-    console.log("📡 Registering slash command in GUILD:", GUILD_ID);
+    console.log("📡 Registering slash commands in GUILD:", GUILD_ID);
     const data = await rest.put(
       Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
       { body: commands }
     );
-    console.log("✅ Command registered:");
-    console.log(data);
+    console.log("✅ Commands registered:");
+    data.forEach((cmd) => console.log(` - /${cmd.name}`));
   } catch (err) {
-    console.error("❌ Failed to register command:", err);
+    console.error("❌ Failed to register commands:", err);
   }
 })();

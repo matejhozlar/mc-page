@@ -10,6 +10,11 @@ import { Client, GatewayIntentBits } from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
+
+//services
+import { startPlaytimeTracking } from "./services/playtimeTracker.js";
+import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 // bot instance for sending messages
@@ -42,12 +47,16 @@ db.connect();
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
 
+// start playtime tracking
+startPlaytimeTracking(db, serverIP, serverPort);
+
 const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
 
 // --- Web Chat Bot ---
 const webChatClient = new WebChatClient({
   intents: [
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
@@ -55,6 +64,13 @@ const webChatClient = new WebChatClient({
 
 webChatClient.once("ready", () => {
   console.log(`WebChatBot ready as ${webChatClient.user.tag}`);
+
+  // assigning top playtime role very hour
+  assignTopPlayerRole(db, webChatClient);
+
+  setInterval(() => {
+    assignTopPlayerRole(db, webChatClient);
+  }, 60 * 60 * 1000);
 });
 
 webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
@@ -162,6 +178,50 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
   }
+
+  if (interaction.commandName === "link") {
+    const mcName = interaction.options.getString("mc_name");
+    const discordId = interaction.user.id;
+
+    try {
+      // First check if Discord ID is already linked to any account
+      const existing = await db.query(
+        `SELECT name FROM users WHERE discord_id = $1`,
+        [discordId]
+      );
+
+      if (existing.rowCount > 0) {
+        return await interaction.reply({
+          content: `❌ You’ve already linked your Discord account to \`${existing.rows[0].name}\`.`,
+          ephemeral: true,
+        });
+      }
+
+      // try to update the specific Minecraft user
+      const result = await db.query(
+        `UPDATE users SET discord_id = $1 WHERE name = $2 AND discord_id IS NULL RETURNING *`,
+        [discordId, mcName]
+      );
+
+      if (result.rowCount === 0) {
+        await interaction.reply({
+          content: "❌ That Minecraft name was not found or is already linked.",
+          ephemeral: true,
+        });
+      } else {
+        await interaction.reply({
+          content: `✅ Successfully linked \`${mcName}\` to your Discord account.`,
+          ephemeral: true,
+        });
+      }
+    } catch (err) {
+      console.error("❌ Failed to link account:", err);
+      await interaction.reply({
+        content: "⚠️ Something went wrong while linking. Try again later.",
+        ephemeral: true,
+      });
+    }
+  }
 });
 
 client.once("ready", () => {
@@ -264,7 +324,7 @@ app.get("/playerCount", async (req, res) => {
   }
 });
 
-// fetching player count
+// fetching online players
 app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
@@ -296,8 +356,10 @@ app.get("/players", async (req, res) => {
     }
 
     const result = await db.query(
-      `SELECT uuid as id, name, online, last_seen FROM users ORDER BY online DESC, name`
+      `SELECT uuid as id, name, online, last_seen, play_time_seconds, session_start
+       FROM users ORDER BY online DESC, name`
     );
+
     res.json({ players: result.rows });
   } catch (error) {
     console.error("Error syncing players:", error);
