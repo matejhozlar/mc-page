@@ -151,7 +151,7 @@ client.on("interactionCreate", async (interaction) => {
       );
 
       await interaction.reply({
-        content: `🔐 Here's your token:\n\`bash${token}\`\n\n✅ It's valid for 30 days.`,
+        content: `Here's your token:\n\`${token}\`\n\n✅ It's valid for 30 days.`,
         ephemeral: true,
       });
     } catch (err) {
@@ -202,27 +202,50 @@ io.on("connection", async (socket) => {
     socket.emit("chatHistory", history);
   });
 
-  socket.on("sendChatMessage", async (message) => {
+  socket.on("sendChatMessage", async (data) => {
+    const { message, token, authorName } = data;
+
     const now = Date.now();
     const lastSent = messageCooldowns[socket.id] || 0;
 
+    if (!message || !token) {
+      console.warn("⛔ Missing message or token from client");
+      return;
+    }
+
     if (now - lastSent < 10000) {
-      console.log(`Cooldown block for socket: ${socket.id}`);
+      console.log(`⏳ Cooldown block for socket: ${socket.id}`);
+      return;
     }
 
     messageCooldowns[socket.id] = now;
-    console.log(`Web message: ${message}`);
 
     try {
-      await sendToMinecraftChat(message);
-    } catch (error) {
-      console.error("Failed to send message:", error);
-    }
+      const result = await db.query(
+        `SELECT discord_name FROM chat_tokens WHERE token = $1 AND expires_at > NOW()`,
+        [token]
+      );
 
-    io.emit("chatMessage", {
-      text: `${message}`,
-      image: null,
-    });
+      if (result.rows.length === 0) {
+        console.warn("⛔ Invalid or expired token");
+        return;
+      }
+
+      const displayName = authorName || result.rows[0].discord_name;
+      const formattedMessage = `<${displayName}> ${message}`;
+
+      console.log(`✅ Authenticated message from ${displayName}: ${message}`);
+
+      await sendToMinecraftChat(formattedMessage);
+
+      io.emit("chatMessage", {
+        text: formattedMessage,
+        image: null,
+        authorType: "web",
+      });
+    } catch (err) {
+      console.error("❌ Error handling chat message:", err);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -305,9 +328,6 @@ app.post("/verify-token", async (req, res) => {
 
     const user = result.rows[0];
 
-    // one-time use
-    await db.query(`DELETE FROM chat_tokens WHERE token = $1`, [token]);
-
     return res.json({
       success: true,
       user: {
@@ -374,6 +394,7 @@ app.post("/wait-list", async (req, res) => {
 app.post("/upload-image", upload.single("image"), async (req, res) => {
   const file = req.file;
   const messageText = req.body.message || "";
+  const authorName = req.body.authorName || "web";
 
   if (!file) {
     return res.status(400).json({ error: "No image uploaded" });
@@ -391,12 +412,14 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
       return res.status(500).json({ error: "Channel not found" });
     }
 
+    const formattedMessage = `<${authorName}> ${messageText}`;
+
     const attachment = new AttachmentBuilder(file.buffer, {
       name: file.originalname,
     });
 
     const sentMessage = await channel.send({
-      content: messageText,
+      content: formattedMessage,
       files: [attachment],
     });
 
@@ -404,8 +427,9 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
     const imageUrl = sentAttachment?.url || null;
 
     io.emit("chatMessage", {
-      text: messageText,
+      text: formattedMessage,
       image: imageUrl,
+      authorType: "web",
     });
 
     return res.json({ success: true, image: imageUrl });
