@@ -230,7 +230,7 @@ client.once("ready", () => {
   // Then every hour
   setInterval(() => {
     assignTopPlayerRole(db, client);
-  }, 60 * 1000);
+  }, 60 * 60 * 1000);
 });
 
 client.on("messageCreate", (message) => {
