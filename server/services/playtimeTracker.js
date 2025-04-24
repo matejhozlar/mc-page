@@ -33,7 +33,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
           SET online = false,
               play_time_seconds = play_time_seconds + EXTRACT(EPOCH FROM (NOW() - session_start)),
               session_start = NULL
-          WHERE online = true AND session_start IS NOT NULL AND uuid NOT IN (${onlineUUIDs
+          WHERE session_start IS NOT NULL AND uuid NOT IN (${onlineUUIDs
             .map((_, i) => `$${i + 1}`)
             .join(",")})
         `,
@@ -45,7 +45,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
           SET online = false,
               play_time_seconds = play_time_seconds + EXTRACT(EPOCH FROM (NOW() - session_start)),
               session_start = NULL
-          WHERE online = true AND session_start IS NOT NULL
+          WHERE session_start IS NOT NULL
         `);
       }
 
