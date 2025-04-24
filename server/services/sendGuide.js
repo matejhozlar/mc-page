@@ -39,7 +39,7 @@ client.once("ready", async () => {
 🕹️ **/playtime** — Check your own playtime  
 🔍 **/playtime <mc_name>** — Check someone else's playtime  
 🏆 **/top-playtime** — See the top 10 players with the most hours  
-🔑 **/token** — Generate a temporary chat token (valid for 30 days)\n
+🔑 **/token** — Generate a temporary chat token for [Createrington](https://create-rington.com/) (valid for 30 days)\n
 💡 Need help? Just type **/** and scroll through available commands!`,
       });
 
