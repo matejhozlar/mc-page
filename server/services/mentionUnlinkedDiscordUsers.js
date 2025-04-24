@@ -39,7 +39,7 @@ client.once("ready", async () => {
     }
 
     const channel = await guild.channels.fetch(
-      process.env.DISCORD_ANNOUNCE_CHANNEL_ID
+      process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID
     );
     const mentionList = Array.from(unlinkedMembers.values())
       .map((member) => `<@${member.id}>`)

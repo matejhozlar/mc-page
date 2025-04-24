@@ -136,6 +136,7 @@ async function sendToMinecraftChat(message) {
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
@@ -230,7 +231,7 @@ client.once("ready", () => {
   // Then every hour
   setInterval(() => {
     assignTopPlayerRole(db, client);
-  }, 60 * 60 * 1000);
+  }, 60 * 1000);
 });
 
 client.on("messageCreate", (message) => {

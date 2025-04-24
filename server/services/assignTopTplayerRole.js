@@ -1,5 +1,3 @@
-let lastTopDiscordId = null; // keeps track between calls
-
 export async function assignTopPlayerRole(db, discordClient) {
   try {
     const { rows } = await db.query(`
@@ -17,22 +15,24 @@ export async function assignTopPlayerRole(db, discordClient) {
       name: topName,
       play_time_seconds,
     } = rows[0];
-
     const guild = await discordClient.guilds.fetch(
       process.env.DISCORD_GUILD_ID
     );
     const role = await guild.roles.fetch(
       process.env.DISCORD_TOP_PLAYTIME_ROLE_ID
     );
-
     if (!role) {
       console.error("❌ Top Player role not found.");
       return;
     }
 
+    // Fetch the top member only
     const topMember = await guild.members.fetch(topDiscordId);
+
+    // Fetch only members who have the role
     const roleMembers = role.members;
 
+    // Remove role from others
     for (const member of roleMembers.values()) {
       if (member.id !== topDiscordId) {
         await member.roles.remove(role);
@@ -40,28 +40,25 @@ export async function assignTopPlayerRole(db, discordClient) {
       }
     }
 
+    // Assign role to top player if not already
     if (!topMember.roles.cache.has(role.id)) {
       await topMember.roles.add(role);
       console.log(`✅ Gave Top Player role to ${topMember.user.tag}`);
 
-      if (lastTopDiscordId !== topDiscordId) {
-        const channel = await guild.channels.fetch(
-          process.env.DISCORD_BOT_ANNOUNCEMENT_CHANNEL_ID
-        );
+      // 📣 Optional: Send announcement
+      const announcementChannel = await guild.channels.fetch(
+        process.env.DISCORD_HALL_OF_FAME_CHANNEL_ID
+      );
+      if (announcementChannel?.isTextBased) {
         const hours = Math.floor(play_time_seconds / 3600);
         const minutes = Math.floor((play_time_seconds % 3600) / 60);
-        if (channel?.isTextBased) {
-          await channel.send(
-            `🎉 <@${topDiscordId}> has taken the lead as the top player with **${hours}h ${minutes}m** of playtime! 👑`
-          );
-        }
+        await announcementChannel.send(
+          `🎉 <@${topDiscordId}> is now the top player with **${hours}h ${minutes}m** of playtime! 👑`
+        );
       }
     } else {
       console.log(`✅ Top Player role already held by ${topMember.user.tag}`);
     }
-
-    // Update the cached ID
-    lastTopDiscordId = topDiscordId;
   } catch (err) {
     console.error("⚠️ Error assigning top player role:", err.message);
   }
