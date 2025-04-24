@@ -448,20 +448,20 @@ app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
-    const onlineUUIDs = onlinePlayers.map((p) => p.id);
 
+    // Insert only new users (do nothing if UUID already exists)
     for (const player of onlinePlayers) {
       await db.query(
         `
-        INSERT INTO users (uuid, name, online, last_seen)
-        VALUES ($1, $2, true, NOW())
-        ON CONFLICT (uuid)
-        DO UPDATE SET name = $2, online = true, last_seen = NOW()
+        INSERT INTO users (uuid, name)
+        VALUES ($1, $2)
+        ON CONFLICT (uuid) DO NOTHING
       `,
         [player.id, player.name]
       );
     }
 
+    // Fetch all player data for the frontend
     const result = await db.query(
       `SELECT uuid as id, name, online, last_seen, play_time_seconds, session_start
        FROM users ORDER BY online DESC, name`
@@ -469,7 +469,7 @@ app.get("/players", async (req, res) => {
 
     res.json({ players: result.rows });
   } catch (error) {
-    console.error("Error syncing players:", error);
+    console.error("Error fetching players:", error);
     res.status(500).json({ error: "Could not fetch players" });
   }
 });

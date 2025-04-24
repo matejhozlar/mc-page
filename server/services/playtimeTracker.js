@@ -31,6 +31,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
           `
           UPDATE users
           SET online = false,
+              last_seen = NOW(),
               play_time_seconds = play_time_seconds + EXTRACT(EPOCH FROM (NOW() - session_start)),
               session_start = NULL
           WHERE session_start IS NOT NULL AND uuid NOT IN (${onlineUUIDs
@@ -43,6 +44,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
         await db.query(`
           UPDATE users
           SET online = false,
+              last_seen = NOW(),
               play_time_seconds = play_time_seconds + EXTRACT(EPOCH FROM (NOW() - session_start)),
               session_start = NULL
           WHERE session_start IS NOT NULL
