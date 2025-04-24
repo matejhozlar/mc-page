@@ -142,6 +142,9 @@ const client = new Client({
   ],
 });
 
+let lastTopPlaytimeUse = 0;
+const TOPPLAYTIME_COOLDOWN = 10 * 60 * 1000;
+
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -218,22 +221,41 @@ client.on("interactionCreate", async (interaction) => {
   }
 
   if (interaction.commandName === "playtime") {
+    const requestedName = interaction.options.getString("mc_name");
     const discordId = interaction.user.id;
 
     try {
-      const existing = await db.query(
-        `SELECT name, play_time_seconds FROM users WHERE discord_id = $1`,
-        [discordId]
-      );
+      let userData;
 
-      if (existing.rowCount === 0) {
-        return await interaction.reply({
-          content: `❌ You don’t have your Minecraft account linked yet. Use **/link <username>** to connect your account.`,
-          ephemeral: true,
-        });
+      if (requestedName) {
+        // Lookup by Minecraft name
+        userData = await db.query(
+          `SELECT name, play_time_seconds FROM users WHERE LOWER(name) = LOWER($1)`,
+          [requestedName]
+        );
+
+        if (userData.rowCount === 0) {
+          return await interaction.reply({
+            content: `❌ No player found with the name \`${requestedName}\`.`,
+            ephemeral: true,
+          });
+        }
+      } else {
+        // Lookup by Discord ID
+        userData = await db.query(
+          `SELECT name, play_time_seconds FROM users WHERE discord_id = $1`,
+          [discordId]
+        );
+
+        if (userData.rowCount === 0) {
+          return await interaction.reply({
+            content: `❌ You don’t have your Minecraft account linked yet. Use **/link <username>** to connect your account.`,
+            ephemeral: true,
+          });
+        }
       }
 
-      const { play_time_seconds, name } = existing.rows[0] || {};
+      const { play_time_seconds, name } = userData.rows[0] || {};
       if (!play_time_seconds) {
         return await interaction.reply({
           content: `⏳ No playtime recorded yet for **${name}**.`,
@@ -253,6 +275,60 @@ client.on("interactionCreate", async (interaction) => {
       return await interaction.reply({
         content:
           "⚠️ Something went wrong while fetching playtime. Please try again later.",
+        ephemeral: true,
+      });
+    }
+  }
+
+  if (interaction.commandName === "top-playtime") {
+    const now = Date.now();
+    const remaining = TOPPLAYTIME_COOLDOWN - (now - lastTopPlaytimeUse);
+
+    if (remaining > 0) {
+      const mins = Math.floor(remaining / 60000);
+      const secs = Math.floor((remaining % 60000) / 1000);
+      return await interaction.reply({
+        content: `⏳ Please wait **${mins}m ${secs}s** before using this command again.`,
+        ephemeral: true,
+      });
+    }
+
+    lastTopPlaytimeUse = now;
+
+    try {
+      const topPlayers = await db.query(
+        `SELECT name, play_time_seconds
+         FROM users
+         WHERE play_time_seconds IS NOT NULL
+         ORDER BY play_time_seconds DESC
+         LIMIT 10`
+      );
+
+      if (topPlayers.rowCount === 0) {
+        return await interaction.reply({
+          content: "📉 No playtime data found yet!",
+          ephemeral: true,
+        });
+      }
+
+      const formattedList = topPlayers.rows
+        .map((player, index) => {
+          const hours = Math.floor(player.play_time_seconds / 3600);
+          const minutes = Math.floor((player.play_time_seconds % 3600) / 60);
+          return `**#${index + 1}** – \`${
+            player.name
+          }\` • 🕒 ${hours}h ${minutes}m`;
+        })
+        .join("\n");
+
+      return await interaction.reply({
+        content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
+        ephemeral: false,
+      });
+    } catch (err) {
+      console.error("❌ Failed to fetch leaderboard:", err);
+      return await interaction.reply({
+        content: "⚠️ Couldn’t load leaderboard. Try again later.",
         ephemeral: true,
       });
     }

@@ -13,7 +13,13 @@ const commands = [
     .setDescription("Check top 10 players"),
   new SlashCommandBuilder()
     .setName("playtime")
-    .setDescription("Check your playtime"),
+    .setDescription("Check your own or another player's playtime")
+    .addStringOption((option) =>
+      option
+        .setName("mc_name")
+        .setDescription("Minecraft username (optional)")
+        .setRequired(false)
+    ),
   new SlashCommandBuilder()
     .setName("token")
     .setDescription("Generate a temporary chat token"),
