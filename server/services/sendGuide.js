@@ -37,7 +37,7 @@ client.once("ready", async () => {
         content: `📚 **Welcome to the Bot Commands Channel!**\n\nHere’s how you can interact with me:\n
 🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account  
 🕹️ **/playtime** — Check your own playtime  
-🔍 **/playtime <username>** — Check someone else's playtime  
+🔍 **/playtime <mc_name>** — Check someone else's playtime  
 🏆 **/top-playtime** — See the top 10 players with the most hours  
 🔑 **/token** — Generate a temporary chat token (valid for 30 days)\n
 💡 Need help? Just type **/** and scroll through available commands!`,
