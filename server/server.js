@@ -462,18 +462,6 @@ app.get("/players", async (req, res) => {
       );
     }
 
-    if (onlineUUIDs.length > 0) {
-      await db.query(
-        `
-        UPDATE users SET online = false
-        WHERE uuid NOT IN (${onlineUUIDs.map((_, i) => `$${i + 1}`).join(",")})
-      `,
-        onlineUUIDs
-      );
-    } else {
-      await db.query(`UPDATE users SET online = false`);
-    }
-
     const result = await db.query(
       `SELECT uuid as id, name, online, last_seen, play_time_seconds, session_start
        FROM users ORDER BY online DESC, name`
