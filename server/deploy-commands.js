@@ -9,6 +9,12 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("top-playtime")
+    .setDescription("Check top 10 players"),
+  new SlashCommandBuilder()
+    .setName("playtime")
+    .setDescription("Check your playtime"),
+  new SlashCommandBuilder()
     .setName("token")
     .setDescription("Generate a temporary chat token"),
 
