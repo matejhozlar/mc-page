@@ -99,7 +99,7 @@ async function main() {
   <p>Best regards,<br />
   <strong>saunhardy</strong><br />
   Server Admin – Createrington<br />
-  <a href="https://create-server.eu/">create-server.eu</a></p>
+  <a href="https://create-rington.com/">create-rington.com</a></p>
 
   <p><img src="cid:createrington-logo" alt="Createrington Logo" style="width: 200px; margin-top: 1rem;" /></p>
 `,
