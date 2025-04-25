@@ -2,29 +2,43 @@ import React, { useState } from "react";
 
 const WaitlistNotice = () => {
   const [email, setEmail] = useState("");
+  const [discordName, setDiscordName] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState("");
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    if (!email) {
-      setSubmissionStatus("Please enter an email.");
+
+    if (!email || !discordName) {
+      setSubmissionStatus(
+        "❗ Please fill out both fields.\nIf you're having trouble, contact admin@create-rington.com"
+      );
       return;
     }
+
     try {
       const response = await fetch("http://localhost:5000/wait-list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, discordName }),
       });
+
+      const data = await response.json(); // <-- important!
+
       if (response.ok) {
-        setSubmissionStatus("Thanks! We'll contact you when spots open up.");
+        setSubmissionStatus("✅ Thanks! We'll contact you when spots open up.");
         setEmail("");
+        setDiscordName("");
       } else {
-        setSubmissionStatus("Error submitting email. Please try again.");
+        setSubmissionStatus(
+          data.error ||
+            "⚠️ Error submitting form. Please try again.\nIf you're having trouble, contact admin@create-rington.com"
+        );
       }
     } catch (error) {
-      console.error("Error submitting email:", error);
-      setSubmissionStatus("Error submitting email. Please try again.");
+      console.error("Error submitting form:", error);
+      setSubmissionStatus(
+        "⚠️ Network error. Please try again later.\nIf you're having trouble, contact admin@create-rington.com"
+      );
     }
   };
 
@@ -49,6 +63,14 @@ const WaitlistNotice = () => {
           placeholder="Your email..."
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="waitlist-input"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Your Discord username (e.g. User#1234)"
+          value={discordName}
+          onChange={(e) => setDiscordName(e.target.value)}
           className="waitlist-input"
           required
         />

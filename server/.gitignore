@@ -1,3 +1,4 @@
 /node_modules
 .env
 /services/.env
+/services/test.js
