@@ -925,8 +925,8 @@ html {
 .waitlist-form {
   margin-top: 1rem;
   display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .waitlist-input {

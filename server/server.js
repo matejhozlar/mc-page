@@ -681,22 +681,67 @@ app.post("/apply", async (req, res) => {
 });
 
 app.post("/wait-list", async (req, res) => {
-  const { email } = req.body;
-  if (!email) {
-    return res.status(400).json({ error: "Email is required" });
+  const { email, discordName } = req.body;
+
+  if (!email || !discordName) {
+    return res.status(400).json({
+      error:
+        "Email and Discord username are required.\nIf you're having trouble, contact admin@create-rington.com",
+    });
+  }
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({
+      error:
+        "Invalid email format.\nIf you're having trouble, contact admin@create-rington.com",
+    });
   }
 
   try {
+    // Check if email already exists
+    const emailExists = await db.query(
+      `SELECT 1 FROM waitlist_emails WHERE LOWER(email) = LOWER($1)`,
+      [email]
+    );
+    if (emailExists.rowCount > 0) {
+      return res.status(409).json({
+        error:
+          "This email is already on the waitlist.\nIf you're having trouble, contact admin@create-rington.com",
+      });
+    }
+
+    // Check if discordName already exists (optional, but recommended)
+    const discordExists = await db.query(
+      `SELECT 1 FROM waitlist_emails WHERE LOWER(discord_name) = LOWER($1)`,
+      [discordName]
+    );
+    if (discordExists.rowCount > 0) {
+      return res.status(409).json({
+        error:
+          "This Discord username is already registered.\nIf you're having trouble, contact admin@create-rington.com",
+      });
+    }
+
+    // Insert new waitlist entry
     const insertQuery = `
-      INSERT INTO waitlist_emails (email)
-      VALUES ($1)
+      INSERT INTO waitlist_emails (email, discord_name)
+      VALUES ($1, $2)
       RETURNING *
     `;
-    const result = await db.query(insertQuery, [email]);
-    res.json({ success: true, email: result.rows[0] });
+    const result = await db.query(insertQuery, [email, discordName]);
+
+    res.json({ success: true, entry: result.rows[0] });
   } catch (error) {
-    console.error("Error inserting waitlist email:", error);
-    res.status(500).json({ error: "Error submitting email" });
+    console.error("Error inserting waitlist entry:", error);
+    res.status(500).json({
+      error:
+        "Error submitting waitlist entry.\nIf you're having trouble, contact admin@create-rington.com",
+    });
   }
 });
 

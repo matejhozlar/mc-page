@@ -1,71 +1,13 @@
-import React, { useState } from "react";
+import React from "react";
 import WaitlistNotice from "./WaitlistNotice";
 
 const ApplyToJoin = () => {
-  const [formData, setFormData] = useState({
-    mcName: "",
-    dcName: "",
-    age: "",
-    howFound: "",
-    experience: "",
-    whyJoin: "",
-  });
-
-  const [submissionStatus, setSubmissionStatus] = useState("");
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Basic validation for required fields
-    if (
-      !formData.mcName ||
-      !formData.dcName ||
-      !formData.age ||
-      !formData.whyJoin
-    ) {
-      setSubmissionStatus("Please fill in all required fields.");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost:5000/apply", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setSubmissionStatus("Application submitted successfully!");
-        setFormData({
-          mcName: "",
-          dcName: "",
-          age: "",
-          howFound: "",
-          experience: "",
-          whyJoin: "",
-        });
-      } else {
-        setSubmissionStatus("Error submitting application.");
-      }
-    } catch (error) {
-      console.error("Error submitting application:", error);
-      setSubmissionStatus("Error submitting application.");
-    }
-  };
-
   return (
     <div className="apply-to-join">
       <WaitlistNotice />
-      <h2 className="apply-heading">Apply to Join Our Server</h2>
 
-      {/* Alert/Status Message */}
+      {/* 
+      <h2 className="apply-heading">Apply to Join Our Server</h2>
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -146,6 +88,7 @@ const ApplyToJoin = () => {
             required
           />
         </div>
+
         {submissionStatus && (
           <div className="alert alert-success alert-submit">
             {submissionStatus}
@@ -156,6 +99,7 @@ const ApplyToJoin = () => {
           Submit Application
         </button>
       </form>
+      */}
     </div>
   );
 };
