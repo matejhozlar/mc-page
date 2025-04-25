@@ -9,6 +9,15 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("register")
+    .setDescription("Register to the Server")
+    .addStringOption((option) =>
+      option
+        .setName("mc_name")
+        .setDescription("Your exact Minecraft username (case doesn't matter)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("top-playtime")
     .setDescription("Check top 10 players"),
   new SlashCommandBuilder()
