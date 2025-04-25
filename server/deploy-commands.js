@@ -9,6 +9,15 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("verify")
+    .setDescription("Verify your token")
+    .addStringOption((option) =>
+      option
+        .setName("token")
+        .setDescription("Verification token from email invite")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("register")
     .setDescription("Register to the Server")
     .addStringOption((option) =>
