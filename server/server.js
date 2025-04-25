@@ -449,7 +449,6 @@ app.get("/players", async (req, res) => {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
 
-    // Insert only new users (do nothing if UUID already exists)
     for (const player of onlinePlayers) {
       await db.query(
         `
@@ -605,6 +604,25 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
   } catch (err) {
     console.error("Failed to send image to Discord:", err);
     return res.status(500).json({ error: "Failed to send image" });
+  }
+});
+
+client.on("guildMemberAdd", async (member) => {
+  const unverifiedRoleId = process.env.DISCORD_UNVERIFIED_ROLE_ID;
+  const verifyChannelId = process.env.DISCORD_VERIFY_CHANNEL_ID;
+
+  try {
+    await member.roles.add(unverifiedRoleId);
+    console.log(`✅ Assigned Unverified role to ${member.user.tag}`);
+
+    const channel = member.guild.channels.cache.get(verifyChannelId);
+    if (channel?.isTextBased()) {
+      channel.send(
+        `👋 Welcome <@${member.user.id}> to the server!\n\n🛡️ To **gain access**, you need to register your **Minecraft username** first.\nPlease type: \`/register <your_mc_name>\`\n(Example: \`/register Notch\`)\n\n⚠️ **Important:**\n- \`mc_name\` means **your exact Minecraft username**, spelled correctly (capitalization doesn't matter, but spelling does).\n- **No random words** or fake names — if the username is wrong, you won't be able to join!\n\n🏰 See you in-game soon!`
+      );
+    }
+  } catch (error) {
+    console.error(`❌ Error assigning role or sending message:`, error);
   }
 });
 

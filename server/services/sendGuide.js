@@ -34,13 +34,7 @@ client.once("ready", async () => {
 
     try {
       await botCommandsChannel.send({
-        content: `📚 **Welcome to the Bot Commands Channel!**\n\nHere’s how you can interact with me:\n
-🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account  
-🕹️ **/playtime** — Check your own playtime  
-🔍 **/playtime <mc_name>** — Check someone else's playtime  
-🏆 **/top-playtime** — See the top 10 players with the most hours  
-🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)\n
-💡 Need help? Just type **/** and scroll through available commands!`,
+        content: `📚 **Welcome to the Bot Commands Channel!**\n\nHere’s how you can interact with me:\n🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n🕹️ **/playtime** — Check your own playtime\n🔍 **/playtime <mc_name>** — Check someone else's playtime\n🏆 **/top-playtime** — See the top 10 players with the most hours\n🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)\n💡 Need help? Just type **/** and scroll through available commands!\n`,
       });
 
       console.log(
