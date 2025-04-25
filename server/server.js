@@ -363,6 +363,19 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
 
+    const verifiedCheck = await db.query(
+      `SELECT * FROM verified_discords WHERE discord_id = $1`,
+      [discordId]
+    );
+
+    if (verifiedCheck.rowCount === 0) {
+      return await interaction.reply({
+        content:
+          "🚫 You haven't verified your token yet. Run `/verify <token>` first.",
+        ephemeral: true,
+      });
+    }
+
     await interaction.reply({
       content: "🔍 Initiating registration sequence...",
       ephemeral: true,
@@ -435,6 +448,10 @@ client.on("interactionCreate", async (interaction) => {
         [uuid, correctName, discordId]
       );
 
+      await db.query(`DELETE FROM verified_discords WHERE discord_id = $1`, [
+        discordId,
+      ]);
+
       await randomDelay();
       await interaction.editReply({
         content: "🛠️ Finalizing your registration...",
@@ -475,6 +492,53 @@ client.on("interactionCreate", async (interaction) => {
           "⚠️ Something went wrong. Please try again later or contact staff.\n💬 A staff member has been notified and will assist you shortly.",
       });
     }
+  }
+
+  if (interaction.commandName === "verify") {
+    const token = interaction.options.getString("token");
+    const discordId = interaction.user.id;
+    const member = interaction.member;
+
+    const hasUnverified = member.roles.cache.has(
+      process.env.DISCORD_UNVERIFIED_ROLE_ID
+    );
+
+    if (!hasUnverified) {
+      return await interaction.reply({
+        content: "❌ You are already verified or not eligible to register.",
+        ephemeral: true,
+      });
+    }
+
+    const result = await db.query(
+      `SELECT * FROM waitlist_emails WHERE token = $1`,
+      [token]
+    );
+
+    if (result.rowCount === 0) {
+      return await interaction.reply({
+        content:
+          "❌ Invalid or expired token.\n📧 If you're stuck, email **admin@create-rington.com** for help.",
+        ephemeral: true,
+      });
+    }
+
+    // Delete the token so it can't be reused
+    await db.query(`DELETE FROM waitlist_emails WHERE token = $1`, [token]);
+
+    // Optionally store verified Discord ID to make /register validation cleaner
+    await db.query(
+      `INSERT INTO verified_discords (discord_id)
+       VALUES ($1)
+       ON CONFLICT (discord_id) DO NOTHING`,
+      [discordId]
+    );
+
+    return await interaction.reply({
+      content:
+        "✅ Token verified! You may now use `/register <mc_name>` to join the server.",
+      ephemeral: true,
+    });
   }
 });
 
@@ -587,6 +651,7 @@ app.get("/playerCount", async (req, res) => {
 });
 
 // fetching online players
+// fetching online players
 app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
@@ -603,10 +668,12 @@ app.get("/players", async (req, res) => {
       );
     }
 
-    // Fetch all player data for the frontend
+    // Fetch all player data for the frontend (excluding players with NULL last_seen)
     const result = await db.query(
       `SELECT uuid as id, name, online, last_seen, play_time_seconds, session_start
-       FROM users ORDER BY online DESC, name`
+       FROM users
+       WHERE last_seen IS NOT NULL
+       ORDER BY online DESC, name`
     );
 
     res.json({ players: result.rows });
@@ -805,8 +872,8 @@ client.on("guildMemberAdd", async (member) => {
 
     const channel = member.guild.channels.cache.get(verifyChannelId);
     if (channel?.isTextBased()) {
-      channel.send(
-        `👋 Welcome <@${member.user.id}> to the server!\n\n🛡️ To **gain access**, you need to register your **Minecraft username** first.\nPlease type: \`/register <your_mc_name>\`\n(Example: \`/register Notch\`)\n\n⚠️ **Important:**\n- \`mc_name\` means **your exact Minecraft username**, spelled correctly (capitalization doesn't matter, but spelling does).\n- **No random words** or fake names — if the username is wrong, you won't be able to join!\n\n🏰 See you in-game soon!`
+      await channel.send(
+        `👋 Welcome <@${member.user.id}> to **Createrington**!\n\n🔑 **First Step:** You must verify your **access token**.\nPlease type: \`/verify <your_token>\`\n\n📬 Your token was sent to your email when you applied to join. Check your inbox (and spam folder)!\n\n⚡ **After verifying**, you can then use: \`/register <your_minecraft_username>\`\n(Example: \`/register Notch\`)\n\n⚠️ **Important:**\n- \`mc_name\` means your exact **Minecraft username** (correct spelling, capitalization doesn't matter).\n- **Fake usernames** or **wrong tokens** will block your access.\n\n🎉 We're excited to have you join us — see you in-game soon!`
       );
     }
   } catch (error) {
