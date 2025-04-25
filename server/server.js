@@ -10,10 +10,13 @@ import { Client, GatewayIntentBits } from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
+import { Rcon } from "rcon-client";
+import fetch from "node-fetch";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
+import { verifyNotifyStaff } from "./services/verifyNotifyStaff.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -67,6 +70,11 @@ webChatClient.once("ready", () => {
 });
 
 webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
+
+function randomDelay(min = 1000, max = 5000) {
+  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 async function fetchDiscordChatHistory(limit = 100) {
   try {
@@ -148,6 +156,7 @@ const TOPPLAYTIME_COOLDOWN = 10 * 60 * 1000;
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
+  // token
   if (interaction.commandName === "token") {
     const token = uuidv4();
     const userId = interaction.user.id;
@@ -176,6 +185,7 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 
+  // link
   if (interaction.commandName === "link") {
     const mcName = interaction.options.getString("mc_name");
     const discordId = interaction.user.id;
@@ -220,6 +230,7 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 
+  // playtime
   if (interaction.commandName === "playtime") {
     const requestedName = interaction.options.getString("mc_name");
     const discordId = interaction.user.id;
@@ -280,6 +291,7 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
 
+  // top-playtime
   if (interaction.commandName === "top-playtime") {
     const now = Date.now();
     const remaining = TOPPLAYTIME_COOLDOWN - (now - lastTopPlaytimeUse);
@@ -330,6 +342,137 @@ client.on("interactionCreate", async (interaction) => {
       return await interaction.reply({
         content: "⚠️ Couldn’t load leaderboard. Try again later.",
         ephemeral: true,
+      });
+    }
+  }
+
+  // register
+  if (interaction.commandName === "register") {
+    const mcName = interaction.options.getString("mc_name");
+    const discordId = interaction.user.id;
+    const member = interaction.member;
+
+    const hasUnverified = member.roles.cache.has(
+      process.env.DISCORD_UNVERIFIED_ROLE_ID
+    );
+
+    if (!hasUnverified) {
+      return await interaction.reply({
+        content: "❌ You are already verified or not eligible to register.",
+        ephemeral: true,
+      });
+    }
+
+    await interaction.reply({
+      content: "🔍 Initiating registration sequence...",
+      ephemeral: true,
+    });
+
+    try {
+      await randomDelay();
+      await interaction.editReply({
+        content: "📡 Checking Minecraft username existence...",
+      });
+
+      const response = await fetch(
+        `https://api.mojang.com/users/profiles/minecraft/${mcName}`
+      );
+      if (!response.ok) {
+        await verifyNotifyStaff(
+          interaction,
+          "Invalid Minecraft username (not found in Mojang API)",
+          mcName
+        );
+        return await interaction.editReply({
+          content: `❌ No Minecraft account found with the name \`${mcName}\`. Please double-check your spelling.\n💬 A staff member has been notified and will assist you shortly.`,
+        });
+      }
+
+      const { id: uuid, name: correctName } = await response.json();
+
+      await randomDelay();
+      await interaction.editReply({
+        content: "🧠 Checking if your account is already registered...",
+      });
+
+      const exists = await db.query("SELECT * FROM users WHERE uuid = $1", [
+        uuid,
+      ]);
+      if (exists.rowCount > 0) {
+        await verifyNotifyStaff(
+          interaction,
+          "UUID already registered",
+          mcName,
+          uuid
+        );
+        return await interaction.editReply({
+          content: `❌ This Minecraft account (\`${correctName}\`) is already registered.\n💬 A staff member has been notified and will assist you shortly.`,
+        });
+      }
+
+      await randomDelay();
+      await interaction.editReply({
+        content: "🔑 Adding you to the whitelist...",
+      });
+
+      const rcon = await Rcon.connect({
+        host: process.env.SERVER_IP,
+        port: parseInt(process.env.RCON_PORT),
+        password: process.env.RCON_PASSWORD,
+      });
+
+      await rcon.send(`whitelist add ${correctName}`);
+      await rcon.end();
+
+      await randomDelay();
+      await interaction.editReply({
+        content: "💾 Saving your information to the database...",
+      });
+
+      await db.query(
+        `INSERT INTO users (uuid, name, discord_id, online, last_seen, session_start)
+         VALUES ($1, $2, $3, false, NULL, NULL)`,
+        [uuid, correctName, discordId]
+      );
+
+      await randomDelay();
+      await interaction.editReply({
+        content: "🛠️ Finalizing your registration...",
+      });
+
+      const guildMember = await interaction.guild.members.fetch(discordId);
+      await guildMember.roles.remove(process.env.DISCORD_UNVERIFIED_ROLE_ID);
+      await guildMember.roles.add(process.env.DISCORD_PLAYER_ROLE_ID);
+
+      const verifyChannel = interaction.guild.channels.cache.get(
+        process.env.DISCORD_VERIFY_CHANNEL_ID
+      );
+      if (verifyChannel?.isTextBased()) {
+        const messages = await verifyChannel.messages.fetch({ limit: 100 });
+        const botMessages = messages.filter(
+          (m) =>
+            m.author.id === client.user.id ||
+            m.author.id === interaction.user.id
+        );
+        await Promise.all(
+          botMessages.map((msg) => msg.delete().catch(() => {}))
+        );
+      }
+
+      await randomDelay();
+      await interaction.editReply({
+        content: `✅ **Done!** You've been successfully registered and whitelisted as \`${correctName}\`. Welcome aboard! 🚂`,
+      });
+    } catch (err) {
+      console.error("❌ Register command failed:", err);
+      await verifyNotifyStaff(
+        interaction,
+        `Unexpected Error: ${err.message}`,
+        mcName
+      );
+      await interaction.editReply({
+        content:
+          "⚠️ Something went wrong. Please try again later or contact staff.\n💬 A staff member has been notified and will assist you shortly.",
       });
     }
   }
