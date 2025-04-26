@@ -17,6 +17,7 @@ import fetch from "node-fetch";
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
 import { verifyNotifyStaff } from "./services/verifyNotifyStaff.js";
+import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
 
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -556,6 +557,12 @@ client.once("ready", () => {
   // setInterval(() => {
   //   assignTopPlayerRole(db, client);
   // }, 60 * 60 * 1000);
+
+  assignPlaytimeRole(db, client, true);
+
+  setInterval(() => {
+    assignPlaytimeRole(db, client, false);
+  }, 60 * 60 * 1000);
 });
 
 client.on("messageCreate", (message) => {
