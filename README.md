@@ -95,14 +95,6 @@ Route	Description
 
 - Chat history syncing
 
-### 📁 Project Structure
-services/
-├── assignPlaytimeRoles.js
-├── assignTopTplayerRole.js
-├── playtimeTracker.js
-├── verifyNotifyStaff.js
-Main server code is in index.js.
-
 🤝 Contributions
 Pull requests and improvements are welcome! Open issues for bugs or feature requests.
 
