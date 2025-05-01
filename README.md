@@ -87,13 +87,13 @@ Route	Description
 ### 💬 Discord Integration
 ### Includes full support for:
 
-#### Slash commands (/register, /verify, /playtime, etc.)
+- Slash commands (/register, /verify, /playtime, etc.)
 
-Auto-role assignment (Unverified ➡ Verified)
+- Auto-role assignment (Unverified ➡ Verified)
 
-Staff notifications for issues
+- Staff notifications for issues
 
-Chat history syncing
+- Chat history syncing
 
 ### 📁 Project Structure
 services/
