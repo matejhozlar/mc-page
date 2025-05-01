@@ -37,7 +37,7 @@ const MobileNav = () => {
         </svg>
         Players
       </NavLink>
-      <NavLink to="/dynmap" className="mobile-nav-link">
+      <a href="http://130.61.235.242:8100/" className="mobile-nav-link">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           className="nav-icon"
@@ -53,7 +53,7 @@ const MobileNav = () => {
           <line x1="16" y1="6" x2="16" y2="22" />
         </svg>
         Map
-      </NavLink>
+      </a>
       <NavLink to="/apply-to-join" className="mobile-nav-link">
         <svg
           xmlns="http://www.w3.org/2000/svg"

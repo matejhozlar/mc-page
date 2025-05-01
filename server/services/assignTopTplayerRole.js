@@ -45,7 +45,6 @@ export async function assignTopPlayerRole(db, discordClient) {
       await topMember.roles.add(role);
       console.log(`✅ Gave Top Player role to ${topMember.user.tag}`);
 
-      // 📣 Optional: Send announcement
       const announcementChannel = await guild.channels.fetch(
         process.env.DISCORD_HALL_OF_FAME_CHANNEL_ID
       );
