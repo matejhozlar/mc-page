@@ -54,23 +54,48 @@ npm install
 #### Create a .env file and set the following:
 ```bash
 env
-PORT=5000
-SERVER_IP=your.minecraft.server.ip
-DB_USER=your_db_user
-DB_HOST=your_db_host
-DB_DATABASE=your_db_name
-DB_PASSWORD=your_db_password
-DB_PORT=5432
-
+# server
+PORT=your_backend_port
+SERVER_IP=your_server_ip
+# database
+DB_USER=your_user
+DB_HOST=your_host
+DB_DATABASE=your_name
+DB_PASSWORD=your_password
+DB_PORT=your_port
+# discord bots
 DISCORD_BOT_TOKEN=your_discord_bot_token
-DISCORD_WEB_CHAT_BOT_TOKEN=your_web_chat_bot_token
 DISCORD_GUILD_ID=your_guild_id
-DISCORD_UNVERIFIED_ROLE_ID=role_id
-DISCORD_PLAYER_ROLE_ID=role_id
-DISCORD_VERIFY_CHANNEL_ID=channel_id
-
-RCON_PORT=25575
+DISCORD_CHAT_CHANNEL_ID=your_channel_id
+DISCORD_WEB_CHAT_BOT_TOKEN=your_discord_bot_token
+DISCORD_CLIENT_ID=your_client_id
+# discord roles
+DISCORD_TOP_PLAYTIME_ROLE_ID=your_role_id
+DISCORD_UNVERIFIED_ROLE_ID=your_role_id
+DISCORD_PLAYER_ROLE_ID=your_role_id
+DISCORD_ADMIN_ROLE_ID=your_role_id
+# playtime discord roles
+DISCORD_STONE_ROLE_ID=your_role_id
+DISCORD_COPPER_ROLE_ID=your_role_id
+DISCORD_IRON_ROLE_ID=your_role_id
+DISCORD_GOLD_ROLE_ID=your_role_id
+DISCORD_DIAMOND_ROLE_ID=your_role_id
+# discord channels
+DISCORD_VERIFY_CHANNEL_ID=your_channel_id
+DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_channel_id
+DISCORD_HALL_OF_FAME_CHANNEL_ID=your_channel_id
+DISCORD_BOT_COMMANDS_CHANNEL_ID=your_channel_id
+# admin
+ADMIN_USER=your_user
+ADMIN_PASSWORD=your_password
+# rcon
+RCON_PORT=your_rcon_port
 RCON_PASSWORD=your_rcon_password
+# email
+EMAIL_PASSWORD=your_email_password
+EMAIL_ADDRESS=your_email
+EMAIL_PORT=your_port
+EMAIL_HOST=your_host
 ```
 ### 4. Run the Server
 ```bash
