@@ -19,6 +19,7 @@ import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
 import { verifyNotifyStaff } from "./services/verifyNotifyStaff.js";
 import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
 
+// image storage
 const upload = multer({ storage: multer.memoryStorage() });
 
 // bot instance for sending messages
@@ -34,11 +35,13 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
+// http server
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
   cors: { origin: "*" },
 });
 
+// DB connection
 const db = new pg.Client({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -48,6 +51,7 @@ const db = new pg.Client({
 });
 db.connect();
 
+// server IP, PORT
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
 
@@ -72,11 +76,13 @@ webChatClient.once("ready", () => {
 
 webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
 
+// helper function for random delay
 function randomDelay(min = 1000, max = 5000) {
   const ms = Math.floor(Math.random() * (max - min + 1)) + min;
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// message history fetch
 async function fetchDiscordChatHistory(limit = 100) {
   try {
     const guild = client.guilds.cache.first();
@@ -154,6 +160,7 @@ const client = new Client({
 let lastTopPlaytimeUse = 0;
 const TOPPLAYTIME_COOLDOWN = 10 * 60 * 1000;
 
+// discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
@@ -565,6 +572,7 @@ client.once("ready", () => {
   }, 60 * 60 * 1000);
 });
 
+// creatin a message
 client.on("messageCreate", (message) => {
   if (!message.channel || message.channel.name !== MINECRAFT_CHANNEL_NAME)
     return;
@@ -657,7 +665,6 @@ app.get("/playerCount", async (req, res) => {
   }
 });
 
-// fetching online players
 // fetching online players
 app.get("/players", async (req, res) => {
   try {
@@ -754,6 +761,7 @@ app.post("/apply", async (req, res) => {
   }
 });
 
+// waitlist form
 app.post("/wait-list", async (req, res) => {
   const { email, discordName } = req.body;
 
@@ -819,8 +827,7 @@ app.post("/wait-list", async (req, res) => {
   }
 });
 
-//sending images
-
+//sending images from WEB
 app.post("/upload-image", upload.single("image"), async (req, res) => {
   const file = req.file;
   const messageText = req.body.message || "";
@@ -869,6 +876,7 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
   }
 });
 
+// auto add unverified role on join
 client.on("guildMemberAdd", async (member) => {
   const unverifiedRoleId = process.env.DISCORD_UNVERIFIED_ROLE_ID;
   const verifyChannelId = process.env.DISCORD_VERIFY_CHANNEL_ID;
