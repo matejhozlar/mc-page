@@ -35,7 +35,7 @@ This Node.js server powers authentication, Discord/Minecraft integration, real-t
 - 📷 **Image Uploads** from Web UI to Discord to MC Server
 - 🧾 **Waitlist & Application System**
 - 📊 **Player List & Live Server Stats**
-- 🛡️ Role assignment automation for Discord
+- 🛡️ **Role assignment automation for Discord**
 
 ---
 
