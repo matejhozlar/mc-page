@@ -29,10 +29,10 @@ This Node.js server powers authentication, Discord/Minecraft integration, real-t
 ## ⚙️ Features
 
 - 🔒 **Secure Token-Based Registration & Verification**
-- 💬 **Two-Way Chat Sync** between Web & Discord
+- 💬 **Two-Way Chat Sync** between Web & Discord & MC Server
 - ⌛ **Playtime Tracking** with Top Player Roles
 - 📝 **Whitelist Registration** via Discord
-- 📷 **Image Uploads** from Web UI to Discord
+- 📷 **Image Uploads** from Web UI to Discord to MC Server
 - 🧾 **Waitlist & Application System**
 - 📊 **Player List & Live Server Stats**
 - 🛡️ Role assignment automation for Discord
@@ -45,17 +45,15 @@ This Node.js server powers authentication, Discord/Minecraft integration, real-t
 ```bash
 git clone https://github.com/matejhozlar/mc-page.git
 cd mc-page
-2. Install Dependencies
-bash
-Copy
-Edit
+```
+### 2. Install Dependencies
+```bash
 npm install
-3. Configure Environment
-Create a .env file and set the following:
-
+```
+### 3. Configure Environment
+#### Create a .env file and set the following:
+```bash
 env
-Copy
-Edit
 PORT=5000
 SERVER_IP=your.minecraft.server.ip
 DB_USER=your_db_user
@@ -73,10 +71,9 @@ DISCORD_VERIFY_CHANNEL_ID=channel_id
 
 RCON_PORT=25575
 RCON_PASSWORD=your_rcon_password
-4. Run the Server
-bash
-Copy
-Edit
+```
+### 4. Run the Server
+```bash
 npm start
 🔌 API Endpoints
 Route	Description
@@ -86,11 +83,11 @@ Route	Description
 /apply	Submit application to join
 /wait-list	Join waitlist via email/Discord
 /upload-image	Upload image to Discord chat
+```
+### 💬 Discord Integration
+### Includes full support for:
 
-💬 Discord Integration
-Includes full support for:
-
-Slash commands (/register, /verify, /playtime, etc.)
+#### Slash commands (/register, /verify, /playtime, etc.)
 
 Auto-role assignment (Unverified ➡ Verified)
 
@@ -98,9 +95,7 @@ Staff notifications for issues
 
 Chat history syncing
 
-📁 Project Structure
-Copy
-Edit
+### 📁 Project Structure
 services/
 ├── assignPlaytimeRoles.js
 ├── assignTopTplayerRole.js
