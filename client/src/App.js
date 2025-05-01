@@ -11,6 +11,7 @@ import Home from "./components/Home.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import FloatingHomeIcon from "./components/FloatingHomeButton.jsx";
+import BlueMapViewer from "./components/BlueMap.jsx";
 
 function App() {
   const [showLoader, setShowLoader] = useState(() => {
@@ -45,6 +46,7 @@ function App() {
               <Route path="/server-chat" element={<ServerChat />} />
               <Route path="/apply-to-join" element={<ApplyToJoin />} />
               <Route path="/rules" element={<Rules />} />
+              <Route path="/blue-map" element={<BlueMapViewer />} />
             </Routes>
           </div>
         </div>

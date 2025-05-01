@@ -22,7 +22,7 @@ const WaitlistNotice = () => {
         body: JSON.stringify({ email, discordName }),
       });
 
-      const data = await response.json(); // <-- important!
+      const data = await response.json();
 
       if (response.ok) {
         setSubmissionStatus("✅ Thanks! We'll contact you when spots open up.");

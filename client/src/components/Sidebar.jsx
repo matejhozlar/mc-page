@@ -101,7 +101,7 @@ const Sidebar = () => {
             </NavLink>
           </li>
           <li className="nav-item">
-            <a href="#builds" className="nav-link">
+            <NavLink to="/blue-map" className="nav-link">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="nav-icon"
@@ -117,7 +117,7 @@ const Sidebar = () => {
                 <line x1="16" y1="6" x2="16" y2="22" />
               </svg>
               Dynmap
-            </a>
+            </NavLink>
           </li>
           <li className="nav-item">
             <NavLink to="/apply-to-join" className="nav-link">
