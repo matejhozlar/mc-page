@@ -565,11 +565,11 @@ client.once("ready", () => {
   //   assignTopPlayerRole(db, client);
   // }, 60 * 60 * 1000);
 
-  assignPlaytimeRole(db, client, true);
+  // assignPlaytimeRole(db, client, true);
 
-  setInterval(() => {
-    assignPlaytimeRole(db, client, false);
-  }, 60 * 60 * 1000);
+  // setInterval(() => {
+  //   assignPlaytimeRole(db, client, false);
+  // }, 60 * 60 * 1000);
 });
 
 // creatin a message
