@@ -79,7 +79,7 @@ npm start
 Route	Description
 /playerCount	Get current online player count
 /players	List tracked players + playtime
-/verify-token	Validate access token
+/verify	Validate access token
 /apply	Submit application to join
 /wait-list	Join waitlist via email/Discord
 /upload-image	Upload image to Discord chat
