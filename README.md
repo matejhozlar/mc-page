@@ -1,4 +1,4 @@
-# 🎮 Create Rington Server Integration
+# Createrington Server Integration
 
 Welcome to the backend codebase for **Create Rington**, a curated Minecraft modded server with rich community interaction through Discord and web services.
 
