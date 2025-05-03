@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+// components
 import Sidebar from "./components/Sidebar.jsx";
 import MobileNav from "./components/MobileNav.jsx";
 import OnlinePlayers from "./components/OnlinePlayers.jsx";
@@ -12,6 +13,9 @@ import LoadingScreen from "./components/LoadingScreen.jsx";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 import FloatingHomeIcon from "./components/FloatingHomeButton.jsx";
 import BlueMapViewer from "./components/BlueMap.jsx";
+import AdminLoginButton from "./components/AdminLoginButton.jsx";
+import Callback from "./components/Callback.jsx";
+import AdminPanel from "./components/AdminPanel.jsx";
 
 function App() {
   const [showLoader, setShowLoader] = useState(() => {
@@ -47,6 +51,9 @@ function App() {
               <Route path="/apply-to-join" element={<ApplyToJoin />} />
               <Route path="/rules" element={<Rules />} />
               <Route path="/blue-map" element={<BlueMapViewer />} />
+              <Route path="/login-admin" element={<AdminLoginButton />} />
+              <Route path="/callback" element={<Callback />} />
+              <Route path="/admin" element={<AdminPanel />} />
             </Routes>
           </div>
         </div>
