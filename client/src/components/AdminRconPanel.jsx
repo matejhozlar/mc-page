@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { usePlayers } from "./AdminPlayerProvider";
 
 const Card = ({ title, children }) => (
   <div
@@ -121,7 +122,8 @@ const AutocompleteInput = ({ value, onChange, placeholder, suggestions }) => {
   );
 };
 
-const AdminRconPanel = ({ onlinePlayers = [] }) => {
+const AdminRconPanel = () => {
+  const { players: onlinePlayers = [] } = usePlayers();
   const [mcName, setMcName] = useState("");
   const [targetPlayer, setTargetPlayer] = useState("");
   const [sayMessage, setSayMessage] = useState("");

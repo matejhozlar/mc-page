@@ -1397,3 +1397,7 @@ html {
     margin-bottom: 0.25rem;
   }
 }
+
+.admin-onlineplayers-avatar-fix {
+  margin-right: 10px;
+}

@@ -1,25 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
+import { usePlayers } from "./AdminPlayerProvider";
 
 const SERVER_URL = "http://localhost:5000";
 const socket = io(SERVER_URL);
 
 const AdminServerChat = () => {
+  const { players: onlinePlayers = [] } = usePlayers();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [lastSent, setLastSent] = useState(0);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [loading, setLoading] = useState(true);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
-  const chatEndRef = useRef(null);
-  const hasScrolledInitially = useRef(false);
-  const [playerStatuses, setPlayerStatuses] = useState({});
   const [zoomedImage, setZoomedImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
-  const fileInputRef = useRef(null);
   const [adminUser, setAdminUser] = useState(null);
+
+  const chatEndRef = useRef(null);
+  const fileInputRef = useRef(null);
   const chatMessagesRef = useRef(null);
+  const hasScrolledInitially = useRef(false);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/me", { credentials: "include" })
@@ -31,12 +33,6 @@ const AdminServerChat = () => {
       });
   }, []);
 
-  const scrollToBottom = () => {
-    if (chatMessagesRef.current) {
-      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
-    }
-  };
-
   useEffect(() => {
     const handleChatMessage = (message) => {
       const text = typeof message === "string" ? message : message?.text;
@@ -44,7 +40,6 @@ const AdminServerChat = () => {
 
       const hasText = text?.trim().length > 0;
       const hasImage = Boolean(image);
-
       if (!hasText && !hasImage) return;
 
       setMessages((prev) => [...prev, message]);
@@ -78,6 +73,21 @@ const AdminServerChat = () => {
   }, []);
 
   useEffect(() => {
+    if (autoScrollEnabled && hasScrolledInitially.current) {
+      scrollToBottom();
+    }
+  }, [messages, autoScrollEnabled]);
+
+  useEffect(() => {
+    if (cooldownRemaining > 0) {
+      const interval = setInterval(() => {
+        setCooldownRemaining((prev) => Math.max(prev - 1, 0));
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [cooldownRemaining]);
+
+  useEffect(() => {
     const handler = (e) => {
       if (e.key === "Escape") setZoomedImage(null);
     };
@@ -85,31 +95,11 @@ const AdminServerChat = () => {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
-  useEffect(() => {
-    const fetchPlayerStatuses = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/players");
-        const data = await res.json();
-        const statuses = {};
-        data.players.forEach((player) => {
-          statuses[player.name] = player.online;
-        });
-        setPlayerStatuses(statuses);
-      } catch (err) {
-        console.error("Failed to fetch player statuses", err);
-      }
-    };
-
-    fetchPlayerStatuses();
-    const interval = setInterval(fetchPlayerStatuses, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    if (autoScrollEnabled && hasScrolledInitially.current) {
-      scrollToBottom();
+  const scrollToBottom = () => {
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
-  }, [messages, autoScrollEnabled]);
+  };
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -152,15 +142,6 @@ const AdminServerChat = () => {
     setImageFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
-
-  useEffect(() => {
-    if (cooldownRemaining > 0) {
-      const interval = setInterval(() => {
-        setCooldownRemaining((prev) => Math.max(prev - 1, 0));
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [cooldownRemaining]);
 
   const getMessageParts = (msgObj) => {
     let rawText = "";
@@ -229,6 +210,9 @@ const AdminServerChat = () => {
     };
   };
 
+  const isPlayerOnline = (name) =>
+    onlinePlayers.some((p) => p.name === name && p.online);
+
   return (
     <>
       {zoomedImage && (
@@ -280,18 +264,19 @@ const AdminServerChat = () => {
                       <>
                         <div className="mc-avatar-wrapper">
                           <img
-                            src={`https://minotar.net/avatar/${name}/32`}
+                            src={`https://minotar.net/avatar/${
+                              name === "DarkLight0690" ? "Steve" : name
+                            }/32`}
                             alt={name}
                             className="avatar"
-                            onError={(e) => (e.target.style.display = "none")}
                           />
                           <span
                             className={`mc-status-dot ${
-                              playerStatuses[name]
+                              isPlayerOnline(name)
                                 ? "mc-status-online"
                                 : "mc-status-offline"
                             }`}
-                            title={playerStatuses[name] ? "Online" : "Offline"}
+                            title={isPlayerOnline(name) ? "Online" : "Offline"}
                           />
                         </div>
                         <strong className="msg-name">{name}</strong> &gt;{" "}

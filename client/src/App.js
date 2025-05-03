@@ -16,6 +16,7 @@ import BlueMapViewer from "./components/BlueMap.jsx";
 import AdminLoginButton from "./components/AdminLoginButton.jsx";
 import Callback from "./components/Callback.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
+import { PlayerProvider } from "./components/AdminPlayerProvider.jsx";
 
 function App() {
   const [showLoader, setShowLoader] = useState(() => {
@@ -53,7 +54,14 @@ function App() {
               <Route path="/blue-map" element={<BlueMapViewer />} />
               <Route path="/login-admin" element={<AdminLoginButton />} />
               <Route path="/callback" element={<Callback />} />
-              <Route path="/admin" element={<AdminPanel />} />
+              <Route
+                path="/admin"
+                element={
+                  <PlayerProvider>
+                    <AdminPanel />
+                  </PlayerProvider>
+                }
+              />
             </Routes>
           </div>
         </div>

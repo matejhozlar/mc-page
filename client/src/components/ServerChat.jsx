@@ -312,10 +312,11 @@ const ServerChat = () => {
                       <>
                         <div className="mc-avatar-wrapper">
                           <img
-                            src={`https://minotar.net/avatar/${name}/32`}
+                            src={`https://minotar.net/avatar/${
+                              name === "DarkLight0690" ? "Steve" : name
+                            }/32`}
                             alt={name}
                             className="avatar"
-                            onError={(e) => (e.target.style.display = "none")}
                           />
                           <span
                             className={`mc-status-dot ${
