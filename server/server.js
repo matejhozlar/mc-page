@@ -632,17 +632,23 @@ io.on("connection", async (socket) => {
     messageCooldowns[socket.id] = now;
 
     try {
-      const result = await db.query(
-        `SELECT discord_name FROM chat_tokens WHERE token = $1 AND expires_at > NOW()`,
-        [token]
-      );
+      let displayName = authorName || "web";
 
-      if (result.rows.length === 0) {
-        console.warn("⛔ Invalid or expired token");
-        return;
+      // If not using the hardcoded admin token, verify it against DB
+      if (token !== "admin") {
+        const result = await db.query(
+          `SELECT discord_name FROM chat_tokens WHERE token = $1 AND expires_at > NOW()`,
+          [token]
+        );
+
+        if (result.rows.length === 0) {
+          console.warn("⛔ Invalid or expired token");
+          return;
+        }
+
+        displayName = authorName || result.rows[0].discord_name;
       }
 
-      const displayName = authorName || result.rows[0].discord_name;
       const formattedMessage = `<${displayName}> ${message}`;
 
       console.log(`✅ Authenticated message from ${displayName}: ${message}`);
@@ -886,6 +892,7 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
   }
 });
 
+// callback for discord login
 const ADMIN_ID = process.env.ADMIN_DISCORD_ID;
 
 app.post("/api/discord/callback", async (req, res) => {
@@ -935,13 +942,48 @@ app.post("/api/discord/callback", async (req, res) => {
   }
 });
 
-app.get("/api/discord/validate", async (req, res) => {
+// validate admin
+app.get("/api/admin/validate", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
   if (discordId !== process.env.ADMIN_DISCORD_ID) {
     return res.status(400).json({ valid: false });
   }
   res.json({ valid: true });
+});
+
+// admin logout
+app.post("/api/admin/logout", (req, res) => {
+  res.clearCookie("admin_session", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
+  });
+  res.status(200).json({ success: true });
+});
+
+// get admin username
+app.get("/api/admin/me", async (req, res) => {
+  const discordId = req.cookies.admin_session;
+
+  if (!discordId || discordId !== process.env.ADMIN_DISCORD_ID) {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const result = await db.query(`SELECT * FROM users WHERE discord_id = $1`, [
+      discordId,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found in database" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("Failed to fetch user data: ", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // auto add unverified role on join
