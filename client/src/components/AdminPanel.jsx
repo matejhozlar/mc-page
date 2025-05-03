@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 // components
 import AdminChat from "./AdminChat.jsx";
 import AdminRconPanel from "./AdminRconPanel.jsx";
+import AdminUsersTable from "./AdminUsersTable.jsx";
 
 const AdminPanel = () => {
   const [allowed, setAllowed] = useState(false);
@@ -132,9 +133,9 @@ const AdminPanel = () => {
           </ul>
         </div>
       )}
-
       {/* More admin tools will go below this */}
       <AdminRconPanel onlinePlayers={onlinePlayers} />
+      <AdminUsersTable />
       <button className="admin-logout-btn" onClick={handleLogout}>
         Logout
       </button>

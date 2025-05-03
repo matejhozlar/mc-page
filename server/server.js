@@ -1023,6 +1023,24 @@ app.post("/api/admin/rcon", async (req, res) => {
   }
 });
 
+// player tabs
+app.get("/api/admin/users", async (req, res) => {
+  const adminId = req.cookies.admin_session;
+  if (adminId !== process.env.ADMIN_DISCORD_ID) {
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const result = await db.query(
+      `SELECT uuid, name, play_time_seconds, last_seen, online FROM users ORDER BY name ASC`
+    );
+    res.json({ users: result.rows });
+  } catch (err) {
+    console.error("Failed to fetch users:", err);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
 // auto add unverified role on join
 client.on("guildMemberAdd", async (member) => {
   const unverifiedRoleId = process.env.DISCORD_UNVERIFIED_ROLE_ID;
