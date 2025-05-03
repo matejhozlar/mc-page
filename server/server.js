@@ -986,6 +986,43 @@ app.get("/api/admin/me", async (req, res) => {
   }
 });
 
+app.post("/api/admin/rcon", async (req, res) => {
+  const { command } = req.body;
+  const adminId = req.cookies.admin_session;
+
+  if (adminId !== process.env.ADMIN_DISCORD_ID) {
+    return res.status(403).json({ success: false, error: "Unauthorized" });
+  }
+
+  try {
+    const userRes = await db.query(
+      `SELECT name FROM users WHERE discord_id = $1`,
+      [adminId]
+    );
+
+    const adminMcName = userRes.rows[0]?.name || "unknown";
+    const rcon = await Rcon.connect({
+      host: process.env.SERVER_IP,
+      port: parseInt(process.env.RCON_PORT),
+      password: process.env.RCON_PASSWORD,
+    });
+
+    const response = await rcon.send(command);
+    await rcon.end();
+
+    // Log the command
+    await db.query(
+      `INSERT INTO rcon_logs (discord_id, mc_name, command) VALUES ($1, $2, $3)`,
+      [adminId, adminMcName, command]
+    );
+
+    return res.json({ success: true, response });
+  } catch (err) {
+    console.error("RCON error:", err);
+    return res.status(500).json({ success: false, error: "RCON failure" });
+  }
+});
+
 // auto add unverified role on join
 client.on("guildMemberAdd", async (member) => {
   const unverifiedRoleId = process.env.DISCORD_UNVERIFIED_ROLE_ID;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 
 // components
 import AdminChat from "./AdminChat.jsx";
+import AdminRconPanel from "./AdminRconPanel.jsx";
 
 const AdminPanel = () => {
   const [allowed, setAllowed] = useState(false);
@@ -9,7 +10,6 @@ const AdminPanel = () => {
   const [user, setUser] = useState(null);
   const [onlinePlayers, setOnlinePlayers] = useState([]);
 
-  // Step 1: Validate session
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/validate", {
       credentials: "include",
@@ -31,7 +31,6 @@ const AdminPanel = () => {
       });
   }, []);
 
-  // Step 2: Fetch user data only if validated
   useEffect(() => {
     if (!allowed) return;
 
@@ -56,16 +55,23 @@ const AdminPanel = () => {
   useEffect(() => {
     if (!allowed) return;
 
-    fetch("http://localhost:5000/players")
-      .then((res) => res.json())
-      .then((data) => {
-        const players = data.players || [];
-        const onlineOnly = players.filter((p) => p.online === true);
-        setOnlinePlayers(onlineOnly);
-      })
-      .catch((err) => {
-        console.error("Failed to fetch online players:", err);
-      });
+    const fetchOnlinePlayers = () => {
+      fetch("http://localhost:5000/players")
+        .then((res) => res.json())
+        .then((data) => {
+          const players = data.players || [];
+          const onlineOnly = players.filter((p) => p.online === true);
+          setOnlinePlayers(onlineOnly);
+        })
+        .catch((err) => {
+          console.error("Failed to fetch online players:", err);
+        });
+    };
+
+    fetchOnlinePlayers();
+    const interval = setInterval(fetchOnlinePlayers, 5000);
+
+    return () => clearInterval(interval);
   }, [allowed]);
 
   const handleLogout = () => {
@@ -78,7 +84,6 @@ const AdminPanel = () => {
     });
   };
 
-  // Wait until all checks are done
   if (!checked || (allowed && !user))
     return (
       <div className="admin-panel-wrapper">
@@ -107,7 +112,7 @@ const AdminPanel = () => {
         </div>
 
         <div className="admin-chat-wrapper">
-          <AdminChat /> {/* Your new admin-only chat component */}
+          <AdminChat />
         </div>
       </div>
       {onlinePlayers.length > 0 && (
@@ -127,10 +132,12 @@ const AdminPanel = () => {
           </ul>
         </div>
       )}
+
+      {/* More admin tools will go below this */}
+      <AdminRconPanel onlinePlayers={onlinePlayers} />
       <button className="admin-logout-btn" onClick={handleLogout}>
         Logout
       </button>
-      {/* More admin tools will go below this */}
     </div>
   );
 };
