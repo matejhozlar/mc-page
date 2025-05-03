@@ -19,6 +19,7 @@ const AdminServerChat = () => {
   const [imageFile, setImageFile] = useState(null);
   const fileInputRef = useRef(null);
   const [adminUser, setAdminUser] = useState(null);
+  const chatMessagesRef = useRef(null);
 
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/me", { credentials: "include" })
@@ -31,8 +32,8 @@ const AdminServerChat = () => {
   }, []);
 
   const scrollToBottom = () => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "auto" });
+    if (chatMessagesRef.current) {
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   };
 
@@ -100,7 +101,7 @@ const AdminServerChat = () => {
     };
 
     fetchPlayerStatuses();
-    const interval = setInterval(fetchPlayerStatuses, 30000);
+    const interval = setInterval(fetchPlayerStatuses, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -254,7 +255,7 @@ const AdminServerChat = () => {
           </button>
         </div>
 
-        <div className="admin-chat-messages">
+        <div className="admin-chat-messages" ref={chatMessagesRef}>
           {loading ? (
             <div className="text-center my-5">
               <div className="spinner-border text-light" role="status">
