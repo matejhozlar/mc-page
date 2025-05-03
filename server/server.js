@@ -12,6 +12,7 @@ import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
+import axios from "axios";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
@@ -30,6 +31,10 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 const messageCooldowns = {};
+
+// cookie parser (admin login)
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -874,6 +879,61 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
     console.error("Failed to send image to Discord:", err);
     return res.status(500).json({ error: "Failed to send image" });
   }
+});
+
+const ADMIN_ID = process.env.ADMIN_DISCORD_ID;
+
+app.post("/api/discord/callback", async (req, res) => {
+  const code = req.body.code;
+
+  try {
+    const tokenRes = await axios.post(
+      "https://discord.com/api/oauth2/token",
+      new URLSearchParams({
+        client_id: process.env.ADMIN_CLIENT_ID,
+        client_secret: process.env.ADMIN_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: process.env.ADMIN_REDIRECT_URI,
+      }),
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      }
+    );
+
+    const accessToken = tokenRes.data.access_token;
+
+    const userRes = await axios.get("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const user = userRes.data;
+
+    const isAdmin = user.id === ADMIN_ID;
+
+    // Don't let unauthorized users in
+    if (!isAdmin) {
+      return res.status(403).json({ error: "Not an admin." });
+    }
+
+    res.json({
+      discord_id: user.id,
+      username: user.username,
+      is_admin: true,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "OAuth error" });
+  }
+});
+
+app.get("/api/discord/validate", async (req, res) => {
+  const discordId = req.headers["discord-id"];
+
+  if (!discordId) return res.status(401).json({ valid: false });
+
+  const isAdmin = discordId === process.env.ADMIN_DISCORD_ID;
+  res.json({ valid: isAdmin });
 });
 
 // auto add unverified role on join
