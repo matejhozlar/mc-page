@@ -20,6 +20,7 @@ import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
 import { verifyNotifyStaff } from "./services/verifyNotifyStaff.js";
 import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
+import { isAdmin } from "./services/admin.js";
 
 // image storage
 const upload = multer({ storage: multer.memoryStorage() });
@@ -955,13 +956,8 @@ app.get("/api/admin/validate", async (req, res) => {
   }
 
   try {
-    const result = await db.query(
-      `SELECT 1 FROM admins WHERE discord_id = $1 LIMIT 1`,
-      [discordId]
-    );
-
-    const isAdmin = result.rowCount > 0;
-    res.json({ valid: isAdmin });
+    const valid = await isAdmin(db, discordId);
+    res.json({ valid });
   } catch (err) {
     console.error("Admin validation error:", err);
     res.status(500).json({ valid: false });
@@ -987,17 +983,11 @@ app.get("/api/admin/me", async (req, res) => {
   }
 
   try {
-    // Check if user is in admins table
-    const adminCheck = await db.query(
-      `SELECT 1 FROM admins WHERE discord_id = $1`,
-      [discordId]
-    );
-
-    if (adminCheck.rowCount === 0) {
+    const isAdminUser = await isAdmin(db, discordId);
+    if (!isAdminUser) {
       return res.status(403).json({ error: "Not an admin" });
     }
 
-    // Then get full user data
     const result = await db.query(`SELECT * FROM users WHERE discord_id = $1`, [
       discordId,
     ]);
@@ -1008,34 +998,29 @@ app.get("/api/admin/me", async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error("Failed to fetch admin user data: ", err);
+    console.error("Failed to fetch admin user data:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// admin rcon messages
 app.post("/api/admin/rcon", async (req, res) => {
   const { command } = req.body;
-  const adminId = req.cookies.admin_session;
+  const discordId = req.cookies.admin_session;
 
-  if (!adminId) {
+  if (!discordId) {
     return res.status(403).json({ success: false, error: "Unauthorized" });
   }
 
   try {
-    // Check if the user is in the admins table
-    const isAdmin = await db.query(
-      `SELECT 1 FROM admins WHERE discord_id = $1`,
-      [adminId]
-    );
-
-    if (isAdmin.rowCount === 0) {
+    const isAdminUser = await isAdmin(db, discordId);
+    if (!isAdminUser) {
       return res.status(403).json({ success: false, error: "Not an admin" });
     }
 
-    // Fetch the admin's Minecraft name
     const userRes = await db.query(
       `SELECT name FROM users WHERE discord_id = $1`,
-      [adminId]
+      [discordId]
     );
 
     const adminMcName = userRes.rows[0]?.name || "unknown";
@@ -1049,10 +1034,9 @@ app.post("/api/admin/rcon", async (req, res) => {
     const response = await rcon.send(command);
     await rcon.end();
 
-    // Log the command
     await db.query(
       `INSERT INTO rcon_logs (discord_id, mc_name, command) VALUES ($1, $2, $3)`,
-      [adminId, adminMcName, command]
+      [discordId, adminMcName, command]
     );
 
     return res.json({ success: true, response });
@@ -1064,20 +1048,15 @@ app.post("/api/admin/rcon", async (req, res) => {
 
 // player tabs
 app.get("/api/admin/users", async (req, res) => {
-  const adminId = req.cookies.admin_session;
+  const discordId = req.cookies.admin_session;
 
-  if (!adminId) {
+  if (!discordId) {
     return res.status(403).json({ error: "Unauthorized" });
   }
 
   try {
-    // Check if the user is an admin
-    const isAdmin = await db.query(
-      `SELECT 1 FROM admins WHERE discord_id = $1`,
-      [adminId]
-    );
-
-    if (isAdmin.rowCount === 0) {
+    const isAdminUser = await isAdmin(db, discordId);
+    if (!isAdminUser) {
       return res.status(403).json({ error: "Not an admin" });
     }
 
