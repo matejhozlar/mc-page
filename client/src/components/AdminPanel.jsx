@@ -123,9 +123,11 @@ const AdminPanel = () => {
             {onlinePlayers.map((player) => (
               <li key={player.id} className="admin-player-item">
                 <img
-                  src={`https://minotar.net/avatar/${player.name}/32`}
+                  src={`https://minotar.net/avatar/${
+                    player.name === "DarkLight0690" ? "Steve" : player.name
+                  }/32`}
                   alt={player.name}
-                  className="admin-player-avatar"
+                  className="avatar admin-onlineplayers-avatar-fix"
                 />
                 <span>{player.name}</span>
               </li>
@@ -134,7 +136,10 @@ const AdminPanel = () => {
         </div>
       )}
       {/* More admin tools will go below this */}
-      <AdminRconPanel onlinePlayers={onlinePlayers} />
+      <div className="admin-rcon-wrapper">
+        <AdminRconPanel />
+      </div>
+
       <AdminUsersTable />
       <button className="admin-logout-btn" onClick={handleLogout}>
         Logout

@@ -893,8 +893,6 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
 });
 
 // callback for discord login
-const ADMIN_ID = process.env.ADMIN_DISCORD_ID;
-
 app.post("/api/discord/callback", async (req, res) => {
   const code = req.body.code;
 
@@ -921,13 +919,19 @@ app.post("/api/discord/callback", async (req, res) => {
 
     const user = userRes.data;
 
-    const isAdmin = user.id === ADMIN_ID;
+    // 🔐 NEW: Check if user.id exists in the admins table
+    const result = await db.query(
+      `SELECT 1 FROM admins WHERE discord_id = $1 LIMIT 1`,
+      [user.id]
+    );
 
-    // Don't let unauthorized users in
+    const isAdmin = result.rowCount > 0;
+
     if (!isAdmin) {
       return res.status(403).json({ error: "Not an admin." });
     }
 
+    // ✅ Set cookie for validated admin
     res.cookie("admin_session", user.id, {
       httpOnly: true,
       secure: true,
@@ -937,7 +941,7 @@ app.post("/api/discord/callback", async (req, res) => {
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error(err);
+    console.error("OAuth or admin check error:", err);
     res.status(500).json({ error: "OAuth error" });
   }
 });
@@ -946,10 +950,22 @@ app.post("/api/discord/callback", async (req, res) => {
 app.get("/api/admin/validate", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
-  if (discordId !== process.env.ADMIN_DISCORD_ID) {
+  if (!discordId) {
     return res.status(400).json({ valid: false });
   }
-  res.json({ valid: true });
+
+  try {
+    const result = await db.query(
+      `SELECT 1 FROM admins WHERE discord_id = $1 LIMIT 1`,
+      [discordId]
+    );
+
+    const isAdmin = result.rowCount > 0;
+    res.json({ valid: isAdmin });
+  } catch (err) {
+    console.error("Admin validation error:", err);
+    res.status(500).json({ valid: false });
+  }
 });
 
 // admin logout
@@ -966,11 +982,22 @@ app.post("/api/admin/logout", (req, res) => {
 app.get("/api/admin/me", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
-  if (!discordId || discordId !== process.env.ADMIN_DISCORD_ID) {
+  if (!discordId) {
     return res.status(403).json({ error: "Unauthorized" });
   }
 
   try {
+    // Check if user is in admins table
+    const adminCheck = await db.query(
+      `SELECT 1 FROM admins WHERE discord_id = $1`,
+      [discordId]
+    );
+
+    if (adminCheck.rowCount === 0) {
+      return res.status(403).json({ error: "Not an admin" });
+    }
+
+    // Then get full user data
     const result = await db.query(`SELECT * FROM users WHERE discord_id = $1`, [
       discordId,
     ]);
@@ -981,7 +1008,7 @@ app.get("/api/admin/me", async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error("Failed to fetch user data: ", err);
+    console.error("Failed to fetch admin user data: ", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -990,17 +1017,29 @@ app.post("/api/admin/rcon", async (req, res) => {
   const { command } = req.body;
   const adminId = req.cookies.admin_session;
 
-  if (adminId !== process.env.ADMIN_DISCORD_ID) {
+  if (!adminId) {
     return res.status(403).json({ success: false, error: "Unauthorized" });
   }
 
   try {
+    // Check if the user is in the admins table
+    const isAdmin = await db.query(
+      `SELECT 1 FROM admins WHERE discord_id = $1`,
+      [adminId]
+    );
+
+    if (isAdmin.rowCount === 0) {
+      return res.status(403).json({ success: false, error: "Not an admin" });
+    }
+
+    // Fetch the admin's Minecraft name
     const userRes = await db.query(
       `SELECT name FROM users WHERE discord_id = $1`,
       [adminId]
     );
 
     const adminMcName = userRes.rows[0]?.name || "unknown";
+
     const rcon = await Rcon.connect({
       host: process.env.SERVER_IP,
       port: parseInt(process.env.RCON_PORT),
@@ -1026,14 +1065,26 @@ app.post("/api/admin/rcon", async (req, res) => {
 // player tabs
 app.get("/api/admin/users", async (req, res) => {
   const adminId = req.cookies.admin_session;
-  if (adminId !== process.env.ADMIN_DISCORD_ID) {
+
+  if (!adminId) {
     return res.status(403).json({ error: "Unauthorized" });
   }
 
   try {
+    // Check if the user is an admin
+    const isAdmin = await db.query(
+      `SELECT 1 FROM admins WHERE discord_id = $1`,
+      [adminId]
+    );
+
+    if (isAdmin.rowCount === 0) {
+      return res.status(403).json({ error: "Not an admin" });
+    }
+
     const result = await db.query(
       `SELECT uuid, name, play_time_seconds, last_seen, online FROM users ORDER BY name ASC`
     );
+
     res.json({ users: result.rows });
   } catch (err) {
     console.error("Failed to fetch users:", err);
