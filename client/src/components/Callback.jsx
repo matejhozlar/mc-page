@@ -8,11 +8,13 @@ const Callback = () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
+      credentials: "include",
     })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Not authorized");
+        return res.json();
+      })
       .then((data) => {
-        localStorage.setItem("discord_id", data.discord_id);
-        localStorage.setItem("is_admin", data.is_admin ? "true" : "false");
         window.history.replaceState({}, document.title, "/admin");
         window.location.href = "/admin";
       })
