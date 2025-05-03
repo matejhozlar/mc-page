@@ -21,18 +21,17 @@ const InputGroup = ({ label, input, action }) => (
   <div
     style={{
       display: "flex",
-      gap: "0.5rem",
-      flexWrap: "wrap",
-      alignItems: "center",
-      marginBottom: "0.75rem",
+      flexDirection: "column",
+      marginBottom: "1rem",
+      width: "100%",
     }}
   >
-    <label style={{ minWidth: "120px", fontWeight: "bold" }}>{label}</label>
-    <div
-      style={{ flex: 1, display: "flex", gap: "0.5rem", position: "relative" }}
-    >
-      {input}
-      {action}
+    <label style={{ fontWeight: "bold", marginBottom: "0.5rem" }}>
+      {label}
+    </label>
+    <div className="input-action-row">
+      <div className="input-wrap">{input}</div>
+      <div className="button-wrap">{action}</div>
     </div>
   </div>
 );
@@ -151,22 +150,10 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
     setOutput(data.response || data.error || "No response");
   };
 
-  const buttonStyle = {
-    height: "42px",
-    width: "140px",
-    fontWeight: "bold",
-    borderRadius: "6px",
-    backgroundColor: "var(--primary-color)",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "0.95rem",
-  };
-
   const playerList = onlinePlayers.map((p) => p.name);
 
   return (
-    <div className="admin-chat-container" style={{ marginTop: "2rem" }}>
+    <div className="admin-commands-container" style={{ marginTop: "2rem" }}>
       <h3 className="admin-chat-title">Admin Commands</h3>
 
       <Card title="Player Controls">
@@ -182,7 +169,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => {
                 sendCommand(`/tp ${mcName} ${targetPlayer}`);
                 setTargetPlayer("");
@@ -199,6 +186,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
             <select
               value={gamemode}
               onChange={(e) => setGamemode(e.target.value)}
+              className="admin-select"
               style={{
                 flex: 1,
                 padding: "0.5rem 0.75rem",
@@ -215,7 +203,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => sendCommand(`/gamemode ${gamemode} ${mcName}`)}
             >
               Set Gamemode
@@ -237,7 +225,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => {
                 sendCommand(`/mute ${mutePlayer}`);
                 setMutePlayer("");
@@ -260,7 +248,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => {
                 sendCommand(`/unmute ${unmutePlayer}`);
                 setUnmutePlayer("");
@@ -276,24 +264,19 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
         <InputGroup
           label="Say Message"
           input={
-            <input
-              type="text"
-              value={sayMessage}
-              onChange={(e) => setSayMessage(e.target.value)}
-              placeholder="Your message"
-              style={{
-                flex: 1,
-                padding: "0.5rem 0.75rem",
-                borderRadius: "6px",
-                border: "none",
-                fontSize: "1rem",
-                height: "42px",
-              }}
-            />
+            <div style={{ flex: 1 }}>
+              <input
+                type="text"
+                value={sayMessage}
+                onChange={(e) => setSayMessage(e.target.value)}
+                placeholder="Your message"
+                className="admin-input"
+              />
+            </div>
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => sendCommand(`/say ${sayMessage}`)}
             >
               Broadcast
@@ -307,6 +290,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
             <select
               value={time}
               onChange={(e) => setTime(e.target.value)}
+              className="admin-select"
               style={{
                 flex: 1,
                 padding: "0.5rem 0.75rem",
@@ -322,7 +306,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => sendCommand(`/time set ${time}`)}
             >
               Set Time
@@ -336,6 +320,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
             <select
               value={weather}
               onChange={(e) => setWeather(e.target.value)}
+              className="admin-select"
               style={{
                 flex: 1,
                 padding: "0.5rem 0.75rem",
@@ -352,7 +337,7 @@ const AdminRconPanel = ({ onlinePlayers = [] }) => {
           }
           action={
             <button
-              style={buttonStyle}
+              className="admin-command-button"
               onClick={() => sendCommand(`/weather ${weather}`)}
             >
               Set Weather

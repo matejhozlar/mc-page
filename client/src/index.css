@@ -1030,6 +1030,7 @@ html {
   color: #fff;
   font-weight: bold;
   border-radius: 10px;
+  margin-top: 10px;
 }
 
 .admin-logout-btn:hover {
@@ -1048,6 +1049,58 @@ html {
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
   min-width: 300px;
+}
+
+.admin-commands-container {
+  padding: 1rem;
+  background-color: var(--card-color);
+  color: var(--card-foreground);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 100%;
+  margin: 2rem auto;
+  box-sizing: border-box;
+}
+
+.admin-command-button {
+  height: 42px;
+  width: 140px;
+  font-weight: bold;
+  border-radius: 6px;
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s ease;
+}
+
+.admin-command-button:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.admin-refresh-button {
+  background-color: var(--primary-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.admin-refresh-button:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.admin-refresh-button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .admin-chat-header {
@@ -1243,4 +1296,104 @@ html {
   margin-right: 0.5rem;
   border-radius: 4px;
   border: 1px solid #444;
+}
+
+.input-action-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: row;
+  width: 100%;
+}
+
+.input-wrap,
+.button-wrap {
+  flex: 1;
+}
+
+.button-wrap {
+  max-width: 160px;
+}
+
+@media (max-width: 600px) {
+  .input-action-row {
+    flex-direction: column;
+  }
+
+  .button-wrap {
+    max-width: 100%;
+  }
+}
+
+.admin-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+.admin-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  border: none;
+  font-size: 1rem;
+  height: 42px;
+  box-sizing: border-box;
+}
+
+/* Admin Users Table */
+/* Responsive table wrapper */
+.admin-users-table-wrapper {
+  overflow-x: auto;
+}
+
+/* Table base styling */
+.responsive-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.responsive-table th,
+.responsive-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #444;
+  text-align: left;
+}
+
+/* Responsive behavior */
+@media (max-width: 768px) {
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table,
+  .responsive-table tbody,
+  .responsive-table tr,
+  .responsive-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .responsive-table tr {
+    margin-bottom: 1.5rem;
+    background-color: #2e2e2e;
+    padding: 1rem;
+    border-radius: 8px;
+  }
+
+  .responsive-table td {
+    padding: 0.5rem 0;
+    border: none;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    color: var(--muted-foreground);
+    margin-bottom: 0.25rem;
+  }
 }
