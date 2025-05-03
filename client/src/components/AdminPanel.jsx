@@ -11,6 +11,9 @@ const AdminPanel = () => {
   const [user, setUser] = useState(null);
   const [onlinePlayers, setOnlinePlayers] = useState([]);
 
+  const getAvatarUrl = (uuid, size = 80) =>
+    `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/validate", {
       credentials: "include",
@@ -98,7 +101,7 @@ const AdminPanel = () => {
       <div className="admin-top-section">
         <div className="admin-player-card">
           <img
-            src={`https://minotar.net/avatar/${user.name}/80`}
+            src={getAvatarUrl(user.uuid, 80)}
             alt={user.name}
             className="admin-skin"
           />
@@ -123,9 +126,7 @@ const AdminPanel = () => {
             {onlinePlayers.map((player) => (
               <li key={player.id} className="admin-player-item">
                 <img
-                  src={`https://minotar.net/avatar/${
-                    player.name === "DarkLight0690" ? "Steve" : player.name
-                  }/32`}
+                  src={getAvatarUrl(player.id, 32)}
                   alt={player.name}
                   className="avatar admin-onlineplayers-avatar-fix"
                 />

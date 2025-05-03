@@ -132,17 +132,19 @@ const AdminRconPanel = () => {
   const [weather, setWeather] = useState("clear");
   const [mutePlayer, setMutePlayer] = useState("");
   const [unmutePlayer, setUnmutePlayer] = useState("");
+  const [banPlayer, setBanPlayer] = useState("");
+  const [unbanPlayer, setUnbanPlayer] = useState("");
   const [output, setOutput] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/me", { credentials: "include" })
+    fetch("/api/admin/me", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setMcName(data.name));
   }, []);
 
   const sendCommand = async (command) => {
     setOutput("Running...");
-    const res = await fetch("http://localhost:5000/api/admin/rcon", {
+    const res = await fetch("/api/admin/rcon", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -215,6 +217,52 @@ const AdminRconPanel = () => {
       </Card>
 
       <Card title="Moderation">
+        <InputGroup
+          label="Ban Player"
+          input={
+            <AutocompleteInput
+              value={banPlayer}
+              onChange={setBanPlayer}
+              placeholder="Player name"
+              suggestions={playerList}
+            />
+          }
+          action={
+            <button
+              className="admin-command-button"
+              onClick={() => {
+                sendCommand(`/ban ${banPlayer}`);
+                setBanPlayer("");
+              }}
+            >
+              Ban
+            </button>
+          }
+        />
+
+        <InputGroup
+          label="Unban Player"
+          input={
+            <AutocompleteInput
+              value={unbanPlayer}
+              onChange={setUnbanPlayer}
+              placeholder="Player name"
+              suggestions={playerList}
+            />
+          }
+          action={
+            <button
+              className="admin-command-button"
+              onClick={() => {
+                sendCommand(`/pardon ${unbanPlayer}`);
+                setUnbanPlayer("");
+              }}
+            >
+              Unban
+            </button>
+          }
+        />
+
         <InputGroup
           label="Mute Player"
           input={

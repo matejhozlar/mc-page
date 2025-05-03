@@ -23,6 +23,14 @@ const AdminServerChat = () => {
   const chatMessagesRef = useRef(null);
   const hasScrolledInitially = useRef(false);
 
+  const getAvatarUrl = (uuid, size = 32) =>
+    `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+
+  const getUuidByName = (name) => {
+    const match = onlinePlayers.find((p) => p.name === name);
+    return match?.id || "8667ba71b85a4004af54457a9734eed7";
+  };
+
   useEffect(() => {
     fetch("http://localhost:5000/api/admin/me", { credentials: "include" })
       .then((res) => res.json())
@@ -264,9 +272,7 @@ const AdminServerChat = () => {
                       <>
                         <div className="mc-avatar-wrapper">
                           <img
-                            src={`https://minotar.net/avatar/${
-                              name === "DarkLight0690" ? "Steve" : name
-                            }/32`}
+                            src={getAvatarUrl(getUuidByName(name))}
                             alt={name}
                             className="avatar"
                           />

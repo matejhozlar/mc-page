@@ -23,6 +23,10 @@ const ServerChat = () => {
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [tokenInput, setTokenInput] = useState("");
 
+  const getPlayerUUID = (name) => {
+    return playerStatuses[name]?.uuid || "Steve";
+  };
+
   const scrollToBottom = () => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "auto" });
@@ -114,7 +118,10 @@ const ServerChat = () => {
         const data = await res.json();
         const statuses = {};
         data.players.forEach((player) => {
-          statuses[player.name] = player.online;
+          statuses[player.name] = {
+            online: player.online,
+            uuid: player.id,
+          };
         });
         setPlayerStatuses(statuses);
       } catch (err) {
@@ -312,9 +319,9 @@ const ServerChat = () => {
                       <>
                         <div className="mc-avatar-wrapper">
                           <img
-                            src={`https://minotar.net/avatar/${
-                              name === "DarkLight0690" ? "Steve" : name
-                            }/32`}
+                            src={`https://crafatar.com/avatars/${getPlayerUUID(
+                              name
+                            )}?size=32&overlay`}
                             alt={name}
                             className="avatar"
                           />
