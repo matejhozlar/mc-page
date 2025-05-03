@@ -2,12 +2,11 @@ import React, { useEffect, useState } from "react";
 
 const AdminPanel = () => {
   const [allowed, setAllowed] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const discordId = localStorage.getItem("discord_id");
-
     fetch("http://localhost:5000/api/discord/validate", {
-      headers: { "discord-id": discordId },
+      credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
@@ -17,9 +16,16 @@ const AdminPanel = () => {
           localStorage.clear();
           window.location.href = "/";
         }
+      })
+      .catch(() => {
+        window.location.href = "/";
+      })
+      .finally(() => {
+        setChecked(true);
       });
   }, []);
 
+  if (!checked) return <p>Loading...</p>;
   if (!allowed) return null;
 
   return (

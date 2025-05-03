@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
 import axios from "axios";
+import cookieParser from "cookie-parser";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
@@ -33,10 +34,14 @@ const port = process.env.PORT || 5000;
 const messageCooldowns = {};
 
 // cookie parser (admin login)
-const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -916,11 +921,14 @@ app.post("/api/discord/callback", async (req, res) => {
       return res.status(403).json({ error: "Not an admin." });
     }
 
-    res.json({
-      discord_id: user.id,
-      username: user.username,
-      is_admin: true,
+    res.cookie("admin_session", user.id, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 1000 * 60 * 60 * 24,
     });
+
+    res.status(200).json({ success: true });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "OAuth error" });
@@ -928,12 +936,12 @@ app.post("/api/discord/callback", async (req, res) => {
 });
 
 app.get("/api/discord/validate", async (req, res) => {
-  const discordId = req.headers["discord-id"];
+  const discordId = req.cookies.admin_session;
 
-  if (!discordId) return res.status(401).json({ valid: false });
-
-  const isAdmin = discordId === process.env.ADMIN_DISCORD_ID;
-  res.json({ valid: isAdmin });
+  if (discordId !== process.env.ADMIN_DISCORD_ID) {
+    return res.status(400).json({ valid: false });
+  }
+  res.json({ valid: true });
 });
 
 // auto add unverified role on join
