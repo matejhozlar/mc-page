@@ -14,13 +14,37 @@ import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
 import axios from "axios";
 import cookieParser from "cookie-parser";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath, pathToFileURL } from "url";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
-import { verifyNotifyStaff } from "./services/verifyNotifyStaff.js";
 import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
 import { isAdmin } from "./services/admin.js";
+
+// Resolve __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load command handlers
+const commandsPath = path.join(__dirname, "discord", "commands");
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
+const commandHandlers = new Map();
+
+for (const file of commandFiles) {
+  const filePath = path.join(commandsPath, file);
+  const commandModule = await import(pathToFileURL(filePath).href);
+
+  if (commandModule.data && typeof commandModule.execute === "function") {
+    commandHandlers.set(commandModule.data.name, commandModule);
+  } else {
+    console.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+  }
+}
 
 // image storage
 const upload = multer({ storage: multer.memoryStorage() });
@@ -168,396 +192,21 @@ const client = new Client({
   ],
 });
 
-let lastTopPlaytimeUse = 0;
-const TOPPLAYTIME_COOLDOWN = 10 * 60 * 1000;
-
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  // token
-  if (interaction.commandName === "token") {
-    const token = uuidv4();
-    const userId = interaction.user.id;
-    const displayName =
-      interaction.member?.displayName || interaction.user.username;
+  const command = commandHandlers.get(interaction.commandName);
+  if (!command) return;
 
-    try {
-      await db.query(
-        `INSERT INTO chat_tokens (token, discord_id, discord_name, expires_at)
-         VALUES ($1, $2, $3, NOW() + interval '30 days')
-         ON CONFLICT (discord_id)
-         DO UPDATE SET token = $1, discord_name = $3, expires_at = NOW() + interval '30 days'`,
-        [token, userId, displayName]
-      );
-
-      await interaction.reply({
-        content: `Here's your token:\n\`${token}\`\n\n✅ It's valid for 30 days.`,
-        ephemeral: true,
-      });
-    } catch (err) {
-      console.error("Token insert/update failed:", err);
-      await interaction.reply({
-        content: "❌ Could not generate token. Please try again later.",
-        ephemeral: true,
-      });
-    }
-  }
-
-  // link
-  if (interaction.commandName === "link") {
-    const mcName = interaction.options.getString("mc_name");
-    const discordId = interaction.user.id;
-
-    try {
-      // First check if Discord ID is already linked to any account
-      const existing = await db.query(
-        `SELECT name FROM users WHERE discord_id = $1`,
-        [discordId]
-      );
-
-      if (existing.rowCount > 0) {
-        return await interaction.reply({
-          content: `❌ You’ve already linked your Discord account to \`${existing.rows[0].name}\`.`,
-          ephemeral: true,
-        });
-      }
-
-      // try to update the specific Minecraft user
-      const result = await db.query(
-        `UPDATE users SET discord_id = $1 WHERE name = $2 AND discord_id IS NULL RETURNING *`,
-        [discordId, mcName]
-      );
-
-      if (result.rowCount === 0) {
-        await interaction.reply({
-          content: "❌ That Minecraft name was not found or is already linked.",
-          ephemeral: true,
-        });
-      } else {
-        await interaction.reply({
-          content: `✅ Successfully linked \`${mcName}\` to your Discord account.`,
-          ephemeral: true,
-        });
-      }
-    } catch (err) {
-      console.error("❌ Failed to link account:", err);
-      await interaction.reply({
-        content: "⚠️ Something went wrong while linking. Try again later.",
-        ephemeral: true,
-      });
-    }
-  }
-
-  // playtime
-  if (interaction.commandName === "playtime") {
-    const requestedName = interaction.options.getString("mc_name");
-    const discordId = interaction.user.id;
-
-    try {
-      let userData;
-
-      if (requestedName) {
-        // Lookup by Minecraft name
-        userData = await db.query(
-          `SELECT name, play_time_seconds FROM users WHERE LOWER(name) = LOWER($1)`,
-          [requestedName]
-        );
-
-        if (userData.rowCount === 0) {
-          return await interaction.reply({
-            content: `❌ No player found with the name \`${requestedName}\`.`,
-            ephemeral: true,
-          });
-        }
-      } else {
-        // Lookup by Discord ID
-        userData = await db.query(
-          `SELECT name, play_time_seconds FROM users WHERE discord_id = $1`,
-          [discordId]
-        );
-
-        if (userData.rowCount === 0) {
-          return await interaction.reply({
-            content: `❌ You don’t have your Minecraft account linked yet. Use **/link <username>** to connect your account.`,
-            ephemeral: true,
-          });
-        }
-      }
-
-      const { play_time_seconds, name } = userData.rows[0] || {};
-      if (!play_time_seconds) {
-        return await interaction.reply({
-          content: `⏳ No playtime recorded yet for **${name}**.`,
-          ephemeral: true,
-        });
-      }
-
-      const hours = Math.floor(play_time_seconds / 3600);
-      const minutes = Math.floor((play_time_seconds % 3600) / 60);
-
-      return await interaction.reply({
-        content: `🕹️ **${name}** has played for **${hours}h ${minutes}m** in total.`,
-        ephemeral: true,
-      });
-    } catch (err) {
-      console.error("❌ Failed to fetch playtime:", err);
-      return await interaction.reply({
-        content:
-          "⚠️ Something went wrong while fetching playtime. Please try again later.",
-        ephemeral: true,
-      });
-    }
-  }
-
-  // top-playtime
-  if (interaction.commandName === "top-playtime") {
-    const now = Date.now();
-    const remaining = TOPPLAYTIME_COOLDOWN - (now - lastTopPlaytimeUse);
-
-    if (remaining > 0) {
-      const mins = Math.floor(remaining / 60000);
-      const secs = Math.floor((remaining % 60000) / 1000);
-      return await interaction.reply({
-        content: `⏳ Please wait **${mins}m ${secs}s** before using this command again.`,
-        ephemeral: true,
-      });
-    }
-
-    lastTopPlaytimeUse = now;
-
-    try {
-      const topPlayers = await db.query(
-        `SELECT name, play_time_seconds
-         FROM users
-         WHERE play_time_seconds IS NOT NULL
-         ORDER BY play_time_seconds DESC
-         LIMIT 10`
-      );
-
-      if (topPlayers.rowCount === 0) {
-        return await interaction.reply({
-          content: "📉 No playtime data found yet!",
-          ephemeral: true,
-        });
-      }
-
-      const formattedList = topPlayers.rows
-        .map((player, index) => {
-          const hours = Math.floor(player.play_time_seconds / 3600);
-          const minutes = Math.floor((player.play_time_seconds % 3600) / 60);
-          return `**#${index + 1}** – \`${
-            player.name
-          }\` • 🕒 ${hours}h ${minutes}m`;
-        })
-        .join("\n");
-
-      return await interaction.reply({
-        content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
-        ephemeral: false,
-      });
-    } catch (err) {
-      console.error("❌ Failed to fetch leaderboard:", err);
-      return await interaction.reply({
-        content: "⚠️ Couldn’t load leaderboard. Try again later.",
-        ephemeral: true,
-      });
-    }
-  }
-
-  // register
-  if (interaction.commandName === "register") {
-    const mcName = interaction.options.getString("mc_name");
-    const discordId = interaction.user.id;
-    const member = interaction.member;
-
-    const hasUnverified = member.roles.cache.has(
-      process.env.DISCORD_UNVERIFIED_ROLE_ID
+  try {
+    await command.execute(interaction, db);
+  } catch (error) {
+    console.error(
+      `❌ Error executing command ${interaction.commandName}:`,
+      error
     );
-
-    if (!hasUnverified) {
-      return await interaction.reply({
-        content: "❌ You are already verified or not eligible to register.",
-        ephemeral: true,
-      });
-    }
-
-    const verifiedCheck = await db.query(
-      `SELECT * FROM verified_discords WHERE discord_id = $1`,
-      [discordId]
-    );
-
-    if (verifiedCheck.rowCount === 0) {
-      return await interaction.reply({
-        content:
-          "🚫 You haven't verified your token yet. Run `/verify <token>` first.",
-        ephemeral: true,
-      });
-    }
-
-    await interaction.reply({
-      content: "🔍 Initiating registration sequence...",
-      ephemeral: true,
-    });
-
-    try {
-      await randomDelay();
-      await interaction.editReply({
-        content: "📡 Checking Minecraft username existence...",
-      });
-
-      const response = await fetch(
-        `https://api.mojang.com/users/profiles/minecraft/${mcName}`
-      );
-      if (!response.ok) {
-        await verifyNotifyStaff(
-          interaction,
-          "Invalid Minecraft username (not found in Mojang API)",
-          mcName
-        );
-        return await interaction.editReply({
-          content: `❌ No Minecraft account found with the name \`${mcName}\`. Please double-check your spelling.\n💬 A staff member has been notified and will assist you shortly.`,
-        });
-      }
-
-      const { id: uuid, name: correctName } = await response.json();
-
-      await randomDelay();
-      await interaction.editReply({
-        content: "🧠 Checking if your account is already registered...",
-      });
-
-      const exists = await db.query("SELECT * FROM users WHERE uuid = $1", [
-        uuid,
-      ]);
-      if (exists.rowCount > 0) {
-        await verifyNotifyStaff(
-          interaction,
-          "UUID already registered",
-          mcName,
-          uuid
-        );
-        return await interaction.editReply({
-          content: `❌ This Minecraft account (\`${correctName}\`) is already registered.\n💬 A staff member has been notified and will assist you shortly.`,
-        });
-      }
-
-      await randomDelay();
-      await interaction.editReply({
-        content: "🔑 Adding you to the whitelist...",
-      });
-
-      const rcon = await Rcon.connect({
-        host: process.env.SERVER_IP,
-        port: parseInt(process.env.RCON_PORT),
-        password: process.env.RCON_PASSWORD,
-      });
-
-      await rcon.send(`whitelist add ${correctName}`);
-      await rcon.end();
-
-      await randomDelay();
-      await interaction.editReply({
-        content: "💾 Saving your information to the database...",
-      });
-
-      await db.query(
-        `INSERT INTO users (uuid, name, discord_id, online, last_seen, session_start)
-         VALUES ($1, $2, $3, false, NULL, NULL)`,
-        [uuid, correctName, discordId]
-      );
-
-      await db.query(`DELETE FROM verified_discords WHERE discord_id = $1`, [
-        discordId,
-      ]);
-
-      await randomDelay();
-      await interaction.editReply({
-        content: "🛠️ Finalizing your registration...",
-      });
-
-      const guildMember = await interaction.guild.members.fetch(discordId);
-      await guildMember.roles.remove(process.env.DISCORD_UNVERIFIED_ROLE_ID);
-      await guildMember.roles.add(process.env.DISCORD_PLAYER_ROLE_ID);
-
-      const verifyChannel = interaction.guild.channels.cache.get(
-        process.env.DISCORD_VERIFY_CHANNEL_ID
-      );
-      if (verifyChannel?.isTextBased()) {
-        const messages = await verifyChannel.messages.fetch({ limit: 100 });
-        const botMessages = messages.filter(
-          (m) =>
-            m.author.id === client.user.id ||
-            m.author.id === interaction.user.id
-        );
-        await Promise.all(
-          botMessages.map((msg) => msg.delete().catch(() => {}))
-        );
-      }
-
-      await randomDelay();
-      await interaction.editReply({
-        content: `✅ **Done!** You've been successfully registered and whitelisted as \`${correctName}\`. Welcome aboard! 🚂`,
-      });
-    } catch (err) {
-      console.error("❌ Register command failed:", err);
-      await verifyNotifyStaff(
-        interaction,
-        `Unexpected Error: ${err.message}`,
-        mcName
-      );
-      await interaction.editReply({
-        content:
-          "⚠️ Something went wrong. Please try again later or contact staff.\n💬 A staff member has been notified and will assist you shortly.",
-      });
-    }
-  }
-
-  if (interaction.commandName === "verify") {
-    const token = interaction.options.getString("token");
-    const discordId = interaction.user.id;
-    const member = interaction.member;
-
-    const hasUnverified = member.roles.cache.has(
-      process.env.DISCORD_UNVERIFIED_ROLE_ID
-    );
-
-    if (!hasUnverified) {
-      return await interaction.reply({
-        content: "❌ You are already verified or not eligible to register.",
-        ephemeral: true,
-      });
-    }
-
-    const result = await db.query(
-      `SELECT * FROM waitlist_emails WHERE token = $1`,
-      [token]
-    );
-
-    if (result.rowCount === 0) {
-      return await interaction.reply({
-        content:
-          "❌ Invalid or expired token.\n📧 If you're stuck, email **admin@create-rington.com** for help.",
-        ephemeral: true,
-      });
-    }
-
-    // Delete the token so it can't be reused
-    await db.query(`DELETE FROM waitlist_emails WHERE token = $1`, [token]);
-
-    // Optionally store verified Discord ID to make /register validation cleaner
-    await db.query(
-      `INSERT INTO verified_discords (discord_id)
-       VALUES ($1)
-       ON CONFLICT (discord_id) DO NOTHING`,
-      [discordId]
-    );
-
-    return await interaction.reply({
-      content:
-        "✅ Token verified! You may now use `/register <mc_name>` to join the server.",
-      ephemeral: true,
-    });
+    await interaction.reply({ content: "❌ Command failed.", ephemeral: true });
   }
 });
 

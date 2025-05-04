@@ -1,0 +1,34 @@
+import { SlashCommandBuilder } from "discord.js";
+import { v4 as uuidv4 } from "uuid";
+
+export const data = new SlashCommandBuilder()
+  .setName("token")
+  .setDescription("Generate a temporary chat token");
+
+export async function execute(interaction, db) {
+  const token = uuidv4();
+  const userId = interaction.user.id;
+  const displayName =
+    interaction.member?.displayName || interaction.user.username;
+
+  try {
+    await db.query(
+      `INSERT INTO chat_tokens (token, discord_id, discord_name, expires_at)
+       VALUES ($1, $2, $3, NOW() + interval '30 days')
+       ON CONFLICT (discord_id)
+       DO UPDATE SET token = $1, discord_name = $3, expires_at = NOW() + interval '30 days'`,
+      [token, userId, displayName]
+    );
+
+    await interaction.reply({
+      content: `Here's your token:\n\`${token}\`\n\n✅ It's valid for 30 days.`,
+      ephemeral: true,
+    });
+  } catch (err) {
+    console.error("Token insert/update failed:", err);
+    await interaction.reply({
+      content: "❌ Could not generate token. Please try again later.",
+      ephemeral: true,
+    });
+  }
+}
