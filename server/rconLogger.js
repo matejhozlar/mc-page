@@ -4,14 +4,13 @@ import path from "path";
 import fs from "fs";
 
 const logDir = "logs";
-
 const today = new Date().toISOString().split("T")[0];
 const datedDir = path.join(logDir, today);
 
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
 if (!fs.existsSync(datedDir)) fs.mkdirSync(datedDir);
 
-const logger = winston.createLogger({
+const rconLogger = winston.createLogger({
   level: "info",
   format: winston.format.combine(
     winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
@@ -22,27 +21,13 @@ const logger = winston.createLogger({
   transports: [
     new DailyRotateFile({
       dirname: datedDir,
-      filename: "server-%DATE%.log",
+      filename: "rcon-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       zippedArchive: false,
       maxSize: "10m",
       maxFiles: "14d",
     }),
-    new DailyRotateFile({
-      dirname: datedDir,
-      filename: "errors-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-      level: "error",
-    }),
-    new winston.transports.Console(),
-  ],
-  exceptionHandlers: [
-    new DailyRotateFile({
-      dirname: datedDir,
-      filename: "exceptions-%DATE%.log",
-      datePattern: "YYYY-MM-DD",
-    }),
   ],
 });
 
-export default logger;
+export default rconLogger;

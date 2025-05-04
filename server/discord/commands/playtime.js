@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import logger from "../../logger.js";
+import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("playtime")
@@ -59,8 +60,8 @@ export async function execute(interaction, db) {
       content: `🕹️ **${name}** has played for **${hours}h ${minutes}m** in total.`,
       ephemeral: true,
     });
-  } catch (err) {
-    logger.error("❌ Failed to fetch playtime:", err);
+  } catch (error) {
+    logger.error(`❌ Failed to fetch playtime: ${logError(error)}`);
     return await interaction.reply({
       content:
         "⚠️ Something went wrong while fetching playtime. Please try again later.",

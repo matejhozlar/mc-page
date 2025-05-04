@@ -5,6 +5,7 @@ import pg from "pg";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../logger.js";
+import logError from "../utils/logError.js";
 
 // Setup DB connection
 const db = new pg.Client({
@@ -115,7 +116,7 @@ async function main() {
     logger.info(`✅ Successfully sent invite to ${email} (${discord_name}).`);
     logger.info(`🔑 Token generated: ${token}`);
   } catch (error) {
-    logger.error("❌ Failed to send invite:", error.message);
+    logger.error(`❌ Failed to send invite: ${logError(error)}`);
   } finally {
     await db.end();
     process.exit(0);

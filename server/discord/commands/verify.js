@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import logger from "../../logger.js";
+import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("verify")
@@ -55,8 +56,8 @@ export async function execute(interaction, db) {
         "✅ Token verified! You may now use `/register <mc_name>` to join the server.",
       ephemeral: true,
     });
-  } catch (err) {
-    logger.error("❌ Verify command failed:", err);
+  } catch (error) {
+    logger.error(`❌ Verify command failed: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong. Please try again later.",
       ephemeral: true,

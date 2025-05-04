@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits, ChannelType } from "discord.js";
 import dotenv from "dotenv";
 import logger from "../logger.js";
+import logError from "../utils/logError.js";
 
 dotenv.config();
 
@@ -40,8 +41,10 @@ client.once("ready", async () => {
       logger.info(
         `✅ Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`
       );
-    } catch (err) {
-      logger.error(`❌ Failed to send guide in ${guild.name}:`, err);
+    } catch (error) {
+      logger.error(
+        `❌ Failed to send guide in ${guild.name}: ${logError(error)}`
+      );
     }
   }
 

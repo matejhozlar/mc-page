@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import logger from "../../logger.js";
+import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("link")
@@ -44,8 +45,8 @@ export async function execute(interaction, db) {
         ephemeral: true,
       });
     }
-  } catch (err) {
-    logger.error("❌ Failed to link account:", err);
+  } catch (error) {
+    logger.error(`❌ Failed to link account: ${logError(error)}`);
     await interaction.reply({
       content: "⚠️ Something went wrong while linking. Try again later.",
       ephemeral: true,

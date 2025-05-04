@@ -1,5 +1,6 @@
 import { Rcon } from "rcon-client";
 import logger from "../logger.jsx";
+import logError from "../utils/logError.js";
 
 async function whitelistPlayer(playerName) {
   try {
@@ -15,8 +16,8 @@ async function whitelistPlayer(playerName) {
     logger.info(`Server response: ${response}`);
 
     rcon.end();
-  } catch (err) {
-    logger.error("Error connecting to RCON:", err);
+  } catch (error) {
+    logger.error(`Error connecting to RCON: ${logError(error)}`);
   }
 }
 

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../../logger.js";
+import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("token")
@@ -25,8 +26,8 @@ export async function execute(interaction, db) {
       content: `Here's your token:\n\`${token}\`\n\n✅ It's valid for 30 days.`,
       ephemeral: true,
     });
-  } catch (err) {
-    logger.error("Token insert/update failed:", err);
+  } catch (error) {
+    logger.error(`Token insert/update failed: ${logError(error)}`);
     await interaction.reply({
       content: "❌ Could not generate token. Please try again later.",
       ephemeral: true,
