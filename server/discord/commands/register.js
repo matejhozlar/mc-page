@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
 import { verifyNotifyStaff } from "../../services/verifyNotifyStaff.js";
+import logger from "../../logger.js";
 
 function randomDelay(min = 1000, max = 5000) {
   const ms = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -149,7 +150,7 @@ export async function execute(interaction, db) {
       content: `✅ **Done!** You've been successfully registered and whitelisted as \`${correctName}\`. Welcome aboard! 🚂`,
     });
   } catch (err) {
-    console.error("❌ Register command failed:", err);
+    logger.error("❌ Register command failed:", err);
     await verifyNotifyStaff(
       interaction,
       `Unexpected Error: ${err.message}`,

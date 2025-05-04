@@ -1,12 +1,10 @@
 // sendEmail.js
-import dotenv from "dotenv";
 import nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 import pg from "pg";
 import path from "path";
 import { fileURLToPath } from "url";
-
-dotenv.config();
+import logger from "../logger.js";
 
 // Setup DB connection
 const db = new pg.Client({
@@ -41,7 +39,7 @@ async function main() {
   const id = process.argv[2];
 
   if (!id) {
-    console.error(
+    logger.error(
       "❌ Error: Please provide an ID.\nUsage: node sendEmail.js <id>"
     );
     process.exit(1);
@@ -54,7 +52,7 @@ async function main() {
     );
 
     if (result.rowCount === 0) {
-      console.error("❌ No waitlist entry found for that ID.");
+      logger.error("❌ No waitlist entry found for that ID.");
       process.exit(1);
     }
 
@@ -114,10 +112,10 @@ async function main() {
 
     await transporter.sendMail(mailOptions);
 
-    console.log(`✅ Successfully sent invite to ${email} (${discord_name}).`);
-    console.log(`🔑 Token generated: ${token}`);
+    logger.info(`✅ Successfully sent invite to ${email} (${discord_name}).`);
+    logger.info(`🔑 Token generated: ${token}`);
   } catch (error) {
-    console.error("❌ Failed to send invite:", error.message);
+    logger.error("❌ Failed to send invite:", error.message);
   } finally {
     await db.end();
     process.exit(0);

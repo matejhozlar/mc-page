@@ -1,6 +1,4 @@
-import dotenv from "dotenv";
-
-dotenv.config();
+import logger from "../logger.js";
 
 const ROLE_TIERS = [
   {
@@ -69,10 +67,10 @@ export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
         tierRoleIds.includes(role.id)
       );
 
-      await member.roles.remove(rolesToRemove).catch(console.error);
-      await member.roles.add(targetTier.id).catch(console.error);
+      await member.roles.remove(rolesToRemove).catch(logger.error);
+      await member.roles.add(targetTier.id).catch(logger.error);
 
-      console.log(
+      logger.info(
         `✅ Assigned ${targetTier.name} role to ${
           user.name
         } (${playtimeHours.toFixed(1)}h)`
@@ -92,6 +90,6 @@ export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
       }
     }
   } catch (error) {
-    console.error("❌ Error assigning playtime roles:", error);
+    logger.error("❌ Error assigning playtime roles:", error);
   }
 }

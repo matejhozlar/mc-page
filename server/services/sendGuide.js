@@ -1,5 +1,6 @@
 import { Client, GatewayIntentBits, ChannelType } from "discord.js";
 import dotenv from "dotenv";
+import logger from "../logger.js";
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ client.once("ready", async () => {
       !botCommandsChannel ||
       botCommandsChannel.type !== ChannelType.GuildText
     ) {
-      console.log(
+      logger.info(
         `⚠️ No valid text channel with ID '${TARGET_CHANNEL_ID}' found in ${guild.name}`
       );
       continue;
@@ -36,11 +37,11 @@ client.once("ready", async () => {
         content: `📚 **Welcome to the Bot Commands Channel!**\n\nHere’s how you can interact with me:\n\n🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n🕹️ **/playtime** — Check your own playtime\n🔍 **/playtime <mc_name>** — Check someone else's playtime\n🏆 **/top-playtime** — See the top 10 players with the most hours\n🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)\n\n---\n\n⛏️ **Playtime Roles** — Level up by playing more on the server!\n\n🪨 **Stone** — 0–20 hours\n🪙 **Copper** — 20–40 hours\n⚙️ **Iron** — 40–60 hours\n🪙 **Gold** — 60–100 hours\n💎 **Diamond** — 100+ hours\n\n👑 **The Sleepless** — Awarded to the player with the most total playtime! (1st place only)\n\nGrind and show off your rank in Discord! 🎮\n\n---\n\n💡 Need help? Just type **/** and scroll through available commands!`,
       });
 
-      console.log(
+      logger.info(
         `✅ Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`
       );
     } catch (err) {
-      console.error(`❌ Failed to send guide in ${guild.name}:`, err);
+      logger.error(`❌ Failed to send guide in ${guild.name}:`, err);
     }
   }
 
