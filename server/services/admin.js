@@ -1,3 +1,5 @@
+import logger from "../logger.js";
+
 export const isAdmin = async (db, discordId) => {
   if (!discordId) return false;
 
@@ -8,7 +10,7 @@ export const isAdmin = async (db, discordId) => {
     );
     return result.rowCount > 0;
   } catch (err) {
-    console.error("Admin check failed:", err);
+    logger.error("Admin check failed:", err);
     return false;
   }
 };

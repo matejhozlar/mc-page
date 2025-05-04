@@ -1,8 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
-import dotenv from "dotenv";
 import pg from "pg";
-
-dotenv.config();
+import logger from "../logger.js";
 
 const db = new pg.Client({
   user: process.env.DB_USER,
@@ -18,7 +16,7 @@ const client = new Client({
 });
 
 client.once("ready", async () => {
-  console.log(`🟢 Logged in as ${client.user.tag}`);
+  logger.info(`🟢 Logged in as ${client.user.tag}`);
 
   try {
     const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
@@ -34,7 +32,7 @@ client.once("ready", async () => {
     );
 
     if (unlinkedMembers.size === 0) {
-      console.log("✅ All members are already linked.");
+      logger.info("✅ All members are already linked.");
       return;
     }
 
@@ -48,9 +46,9 @@ client.once("ready", async () => {
     const message = `📢 The following members are currently **not linked** to a Minecraft account in our system:\n\n${mentionList}\n 🕒 You have **3 days** to let me know if you plan to join or are still interested in playing.\n I'm managing limited player slots, so unlinked accounts may be removed to make space for new players.\n Reach out if you need help linking your account.\n *If you are active and already playing, feel free to ignore this message and sorry for the uneccessary mention.*`;
 
     await channel.send(message);
-    console.log("📨 Sent notification for unlinked members.");
+    logger.info("📨 Sent notification for unlinked members.");
   } catch (err) {
-    console.error("❌ Failed to check and notify:", err);
+    logger.error("❌ Failed to check and notify:", err);
   } finally {
     db.end();
     client.destroy();

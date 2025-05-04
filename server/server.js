@@ -17,6 +17,7 @@ import cookieParser from "cookie-parser";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
+import logger from "./logger.js";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
@@ -42,7 +43,7 @@ for (const file of commandFiles) {
   if (commandModule.data && typeof commandModule.execute === "function") {
     commandHandlers.set(commandModule.data.name, commandModule);
   } else {
-    console.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+    logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
   }
 }
 
@@ -53,6 +54,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 import { Client as WebChatClient } from "discord.js";
 
 dotenv.config();
+logger.info("✅ Environment variables loaded.");
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -85,6 +87,7 @@ const db = new pg.Client({
   port: process.env.DB_PORT,
 });
 db.connect();
+logger.info("📦 Connected to PostgreSQL database.");
 
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;
@@ -106,7 +109,7 @@ const webChatClient = new WebChatClient({
 });
 
 webChatClient.once("ready", () => {
-  console.log(`WebChatBot ready as ${webChatClient.user.tag}`);
+  logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
 });
 
 webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
@@ -126,12 +129,12 @@ async function fetchDiscordChatHistory(limit = 100) {
     );
 
     if (!channel || !channel.isTextBased()) {
-      console.log("Channel not found or not text-based.");
+      logger.info("Channel not found or not text-based.");
       return [];
     }
 
     const fetched = await channel.messages.fetch({ limit });
-    console.log("Fetched messages count:", fetched.size);
+    logger.info("Fetched messages count:", fetched.size);
 
     const webBotId = webChatClient.user?.id;
 
@@ -159,7 +162,7 @@ async function fetchDiscordChatHistory(limit = 100) {
 
     return messagesArray;
   } catch (err) {
-    console.error("Failed to fetch Discord history:", err);
+    logger.error("Failed to fetch Discord history:", err);
     return [];
   }
 }
@@ -178,7 +181,7 @@ async function sendToMinecraftChat(message) {
       await channel.send(`${message}`);
     }
   } catch (error) {
-    console.error("WebChatBot send error:", error);
+    logger.error("WebChatBot send error:", error);
   }
 }
 
@@ -202,7 +205,7 @@ client.on("interactionCreate", async (interaction) => {
   try {
     await command.execute(interaction, db);
   } catch (error) {
-    console.error(
+    logger.error(
       `❌ Error executing command ${interaction.commandName}:`,
       error
     );
@@ -211,10 +214,10 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.once("ready", () => {
-  console.log(`Discord bot ready as ${client.user.tag}`);
+  logger.info(`Discord bot ready as ${client.user.tag}`);
 
   httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    logger.info(`Server running on port ${port}`);
   });
 
   // // Assign Top Player role once on startup
@@ -252,11 +255,11 @@ client.on("messageCreate", (message) => {
 
 // --- Web Socket Chat Handling ---
 io.on("connection", async (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
+  logger.info(`Socket connected: ${socket.id}`);
 
   socket.on("requestChatHistory", async () => {
     const history = await fetchDiscordChatHistory(100);
-    console.log(
+    logger.info(
       "🔥 Sending chatHistory to client via request:",
       history.length
     );
@@ -270,12 +273,12 @@ io.on("connection", async (socket) => {
     const lastSent = messageCooldowns[socket.id] || 0;
 
     if (!message || !token) {
-      console.warn("⛔ Missing message or token from client");
+      logger.warn("⛔ Missing message or token from client");
       return;
     }
 
     if (now - lastSent < 10000) {
-      console.log(`⏳ Cooldown block for socket: ${socket.id}`);
+      logger.info(`⏳ Cooldown block for socket: ${socket.id}`);
       return;
     }
 
@@ -292,7 +295,7 @@ io.on("connection", async (socket) => {
         );
 
         if (result.rows.length === 0) {
-          console.warn("⛔ Invalid or expired token");
+          logger.warn("⛔ Invalid or expired token");
           return;
         }
 
@@ -301,7 +304,7 @@ io.on("connection", async (socket) => {
 
       const formattedMessage = `<${displayName}> ${message}`;
 
-      console.log(`✅ Authenticated message from ${displayName}: ${message}`);
+      logger.info(`✅ Authenticated message from ${displayName}: ${message}`);
 
       await sendToMinecraftChat(formattedMessage);
 
@@ -311,12 +314,12 @@ io.on("connection", async (socket) => {
         authorType: "web",
       });
     } catch (err) {
-      console.error("❌ Error handling chat message:", err);
+      logger.error("❌ Error handling chat message:", err);
     }
   });
 
   socket.on("disconnect", () => {
-    console.log(`Socket disconnected: ${socket.id}`);
+    logger.info(`Socket disconnected: ${socket.id}`);
   });
 });
 
@@ -326,7 +329,7 @@ app.get("/playerCount", async (req, res) => {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     res.json({ count: response.players.online });
   } catch (error) {
-    console.error("Error querying server:", error);
+    logger.error("Error querying server:", error);
     res.status(500).json({ error: "Failed to fetch player count" });
   }
 });
@@ -358,7 +361,7 @@ app.get("/players", async (req, res) => {
 
     res.json({ players: result.rows });
   } catch (error) {
-    console.error("Error fetching players:", error);
+    logger.error("Error fetching players:", error);
     res.status(500).json({ error: "Could not fetch players" });
   }
 });
@@ -394,7 +397,7 @@ app.post("/verify-token", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Token verification failed:", err);
+    logger.error("Token verification failed:", err);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
@@ -422,7 +425,7 @@ app.post("/apply", async (req, res) => {
     ]);
     res.json({ success: true, application: result.rows[0] });
   } catch (error) {
-    console.error("Error inserting application:", error);
+    logger.error("Error inserting application:", error);
     res.status(500).json({ error: "Error submitting application" });
   }
 });
@@ -485,7 +488,7 @@ app.post("/wait-list", async (req, res) => {
 
     res.json({ success: true, entry: result.rows[0] });
   } catch (error) {
-    console.error("Error inserting waitlist entry:", error);
+    logger.error("Error inserting waitlist entry:", error);
     res.status(500).json({
       error:
         "Error submitting waitlist entry.\nIf you're having trouble, contact admin@create-rington.com",
@@ -537,7 +540,7 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
 
     return res.json({ success: true, image: imageUrl });
   } catch (err) {
-    console.error("Failed to send image to Discord:", err);
+    logger.error("Failed to send image to Discord:", err);
     return res.status(500).json({ error: "Failed to send image" });
   }
 });
@@ -591,7 +594,7 @@ app.post("/api/discord/callback", async (req, res) => {
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("OAuth or admin check error:", err);
+    logger.error("OAuth or admin check error:", err);
     res.status(500).json({ error: "OAuth error" });
   }
 });
@@ -608,7 +611,7 @@ app.get("/api/admin/validate", async (req, res) => {
     const valid = await isAdmin(db, discordId);
     res.json({ valid });
   } catch (err) {
-    console.error("Admin validation error:", err);
+    logger.error("Admin validation error:", err);
     res.status(500).json({ valid: false });
   }
 });
@@ -647,7 +650,7 @@ app.get("/api/admin/me", async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (err) {
-    console.error("Failed to fetch admin user data:", err);
+    logger.error("Failed to fetch admin user data:", err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -690,7 +693,7 @@ app.post("/api/admin/rcon", async (req, res) => {
 
     return res.json({ success: true, response });
   } catch (err) {
-    console.error("RCON error:", err);
+    logger.error("RCON error:", err);
     return res.status(500).json({ success: false, error: "RCON failure" });
   }
 });
@@ -715,7 +718,7 @@ app.get("/api/admin/users", async (req, res) => {
 
     res.json({ users: result.rows });
   } catch (err) {
-    console.error("Failed to fetch users:", err);
+    logger.error("Failed to fetch users:", err);
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -727,7 +730,7 @@ client.on("guildMemberAdd", async (member) => {
 
   try {
     await member.roles.add(unverifiedRoleId);
-    console.log(`✅ Assigned Unverified role to ${member.user.tag}`);
+    logger.info(`✅ Assigned Unverified role to ${member.user.tag}`);
 
     const channel = member.guild.channels.cache.get(verifyChannelId);
     if (channel?.isTextBased()) {
@@ -736,8 +739,22 @@ client.on("guildMemberAdd", async (member) => {
       );
     }
   } catch (error) {
-    console.error(`❌ Error assigning role or sending message:`, error);
+    logger.error(`❌ Error assigning role or sending message:`, error);
   }
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
+
+process.on("SIGINT", async () => {
+  logger.info("🧹 Gracefully shutting down...");
+  try {
+    await db.end();
+    httpServer.close(() => {
+      logger.info("✅ Server closed. Exiting...");
+      process.exit(0);
+    });
+  } catch (err) {
+    logger.error("❌ Error during shutdown:", err);
+    process.exit(1);
+  }
+});

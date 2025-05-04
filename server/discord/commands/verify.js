@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
+import logger from "../../logger.js";
 
 export const data = new SlashCommandBuilder()
   .setName("verify")
@@ -55,7 +56,7 @@ export async function execute(interaction, db) {
       ephemeral: true,
     });
   } catch (err) {
-    console.error("❌ Verify command failed:", err);
+    logger.error("❌ Verify command failed:", err);
     return await interaction.reply({
       content: "⚠️ Something went wrong. Please try again later.",
       ephemeral: true,

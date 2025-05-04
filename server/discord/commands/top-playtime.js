@@ -1,4 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
+import logger from "../../logger.js";
 
 let lastTopPlaytimeUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;
@@ -53,7 +54,7 @@ export async function execute(interaction, db) {
       ephemeral: false,
     });
   } catch (err) {
-    console.error("❌ Failed to fetch leaderboard:", err);
+    logger.error("❌ Failed to fetch leaderboard:", err);
     return await interaction.reply({
       content: "⚠️ Couldn’t load leaderboard. Try again later.",
       ephemeral: true,
