@@ -1,5 +1,6 @@
 import { status } from "minecraft-server-util";
 import logger from "../logger.js";
+import logError from "../utils/logError.js";
 
 export function startPlaytimeTracking(db, serverIP, serverPort) {
   async function syncPlayersInBackground() {
@@ -52,9 +53,15 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
         `);
       }
 
-      logger.info(`[✓] Synced playtime @ ${new Date().toISOString()}`);
+      if (onlinePlayers.length > 0) {
+        logger.info(
+          `✅ Synced ${
+            onlinePlayers.length
+          } online player(s) @ ${new Date().toISOString()}`
+        );
+      }
     } catch (error) {
-      logger.error("[✘] Background playtime sync failed:", error.message);
+      logger.error(`❌ Background playtime sync failed: ${logError(error)}`);
     }
   }
 

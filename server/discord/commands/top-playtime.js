@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import logger from "../../logger.js";
+import logError from "../../utils/logError.js";
 
 let lastTopPlaytimeUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;
@@ -53,8 +54,8 @@ export async function execute(interaction, db) {
       content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
       ephemeral: false,
     });
-  } catch (err) {
-    logger.error("❌ Failed to fetch leaderboard:", err);
+  } catch (error) {
+    logger.error(`❌ Failed to fetch leaderboard: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Couldn’t load leaderboard. Try again later.",
       ephemeral: true,

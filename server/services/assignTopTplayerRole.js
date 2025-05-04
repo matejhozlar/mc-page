@@ -60,7 +60,7 @@ export async function assignTopPlayerRole(db, discordClient) {
     } else {
       logger.info(`✅ Top Player role already held by ${topMember.user.tag}`);
     }
-  } catch (err) {
-    logger.error("⚠️ Error assigning top player role:", err.message);
+  } catch (error) {
+    logger.error(`⚠️ Error assigning top player role: ${logError(error)}`);
   }
 }

@@ -3,6 +3,7 @@ import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
 import { verifyNotifyStaff } from "../../services/verifyNotifyStaff.js";
 import logger from "../../logger.js";
+import logError from "../../utils/logError.js";
 
 function randomDelay(min = 1000, max = 5000) {
   const ms = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -149,8 +150,8 @@ export async function execute(interaction, db) {
     await interaction.editReply({
       content: `✅ **Done!** You've been successfully registered and whitelisted as \`${correctName}\`. Welcome aboard! 🚂`,
     });
-  } catch (err) {
-    logger.error("❌ Register command failed:", err);
+  } catch (error) {
+    logger.error(`❌ Register command failed: ${logError(error)}`);
     await verifyNotifyStaff(
       interaction,
       `Unexpected Error: ${err.message}`,

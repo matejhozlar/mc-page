@@ -123,7 +123,7 @@ const AutocompleteInput = ({ value, onChange, placeholder, suggestions }) => {
 };
 
 const AdminRconPanel = () => {
-  const { players: onlinePlayers = [] } = usePlayers();
+  const { players = [] } = usePlayers();
   const [mcName, setMcName] = useState("");
   const [targetPlayer, setTargetPlayer] = useState("");
   const [sayMessage, setSayMessage] = useState("");
@@ -153,6 +153,8 @@ const AdminRconPanel = () => {
     const data = await res.json();
     setOutput(data.response || data.error || "No response");
   };
+
+  const onlinePlayers = players.filter((p) => p.online);
 
   const playerList = onlinePlayers.map((p) => p.name);
 

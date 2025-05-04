@@ -18,12 +18,16 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import logger from "./logger.js";
+import rconLogger from "./rconLogger.js";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
 import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
 import { isAdmin } from "./services/admin.js";
+
+// utils
+import logError from "./utils/logError.js";
 
 // Resolve __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +50,7 @@ for (const file of commandFiles) {
     logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
   }
 }
+logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
 
 // image storage
 const upload = multer({ storage: multer.memoryStorage() });
@@ -95,6 +100,7 @@ const serverPort = 26980;
 
 // start playtime tracking
 startPlaytimeTracking(db, serverIP, serverPort);
+logger.info("🕒 Started playtime tracking.");
 
 const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
 
@@ -111,8 +117,17 @@ const webChatClient = new WebChatClient({
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
 });
+logger.info("🧾 Summary:");
+logger.info(`   Port: ${port}`);
+logger.info(`   DB: ${process.env.DB_HOST}/${process.env.DB_DATABASE}`);
+logger.info(`   Discord Guild ID: ${process.env.DISCORD_GUILD_ID}`);
+logger.info(`   Minecraft Server: ${serverIP}:${serverPort}`);
 
-webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
+try {
+  await webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
+} catch (error) {
+  logger.error(`❌ Failed to login WebChatBot: ${logError(error)}`);
+}
 
 // helper function for random delay
 function randomDelay(min = 1000, max = 5000) {
@@ -134,7 +149,7 @@ async function fetchDiscordChatHistory(limit = 100) {
     }
 
     const fetched = await channel.messages.fetch({ limit });
-    logger.info("Fetched messages count:", fetched.size);
+    logger.info(`Fetched messages count: ${fetched.size}`);
 
     const webBotId = webChatClient.user?.id;
 
@@ -161,8 +176,8 @@ async function fetchDiscordChatHistory(limit = 100) {
       });
 
     return messagesArray;
-  } catch (err) {
-    logger.error("Failed to fetch Discord history:", err);
+  } catch (error) {
+    logger.error(`❌ Failed to fetch Discord history: ${logError(error)}`);
     return [];
   }
 }
@@ -181,7 +196,7 @@ async function sendToMinecraftChat(message) {
       await channel.send(`${message}`);
     }
   } catch (error) {
-    logger.error("WebChatBot send error:", error);
+    logger.error(`WebChatBot send error: ${logError(error)}`);
   }
 }
 
@@ -200,14 +215,22 @@ client.on("interactionCreate", async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   const command = commandHandlers.get(interaction.commandName);
-  if (!command) return;
+  if (!command) {
+    logger.warn(`⚠️ Unknown command received: /${interaction.commandName}`);
+    return;
+  }
+
+  logger.info(
+    `📩 ${interaction.user.tag} (${interaction.user.id}) ran /${interaction.commandName}`
+  );
 
   try {
     await command.execute(interaction, db);
   } catch (error) {
     logger.error(
-      `❌ Error executing command ${interaction.commandName}:`,
-      error
+      `❌ Error executing command ${interaction.commandName}: ${logError(
+        error
+      )}`
     );
     await interaction.reply({ content: "❌ Command failed.", ephemeral: true });
   }
@@ -216,6 +239,7 @@ client.on("interactionCreate", async (interaction) => {
 client.once("ready", () => {
   logger.info(`Discord bot ready as ${client.user.tag}`);
 
+  logger.info("🚀 Server initialization complete. Awaiting connections...");
   httpServer.listen(port, () => {
     logger.info(`Server running on port ${port}`);
   });
@@ -260,8 +284,7 @@ io.on("connection", async (socket) => {
   socket.on("requestChatHistory", async () => {
     const history = await fetchDiscordChatHistory(100);
     logger.info(
-      "🔥 Sending chatHistory to client via request:",
-      history.length
+      `🔥 Sending chatHistory to client via request: ${history.length}`
     );
     socket.emit("chatHistory", history);
   });
@@ -313,8 +336,8 @@ io.on("connection", async (socket) => {
         image: null,
         authorType: "web",
       });
-    } catch (err) {
-      logger.error("❌ Error handling chat message:", err);
+    } catch (error) {
+      logger.error(`❌ Error handling chat message: ${logError(error)}`);
     }
   });
 
@@ -324,34 +347,58 @@ io.on("connection", async (socket) => {
 });
 
 // --- API Routes ---
+let lastLoggedPlayerCount = null;
+
 app.get("/playerCount", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
-    res.json({ count: response.players.online });
+    const count = response.players.online;
+
+    // Only log when the count has changed
+    if (count !== lastLoggedPlayerCount) {
+      logger.info(
+        `📊 Player count changed: ${count} online at ${serverIP}:${serverPort}`
+      );
+      lastLoggedPlayerCount = count;
+    }
+
+    res.json({ count });
   } catch (error) {
-    logger.error("Error querying server:", error);
-    res.status(500).json({ error: "Failed to fetch player count" });
+    logger.error(`Error querying server: ${logError(error)}`);
+    res.status(500).json({ err: "Failed to fetch player count" });
   }
 });
 
 // fetching online players
+let lastPlayerCount = null;
+
 app.get("/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
 
-    for (const player of onlinePlayers) {
-      await db.query(
-        `
-        INSERT INTO users (uuid, name)
-        VALUES ($1, $2)
-        ON CONFLICT (uuid) DO NOTHING
-      `,
-        [player.id, player.name]
+    if (onlinePlayers.length !== lastPlayerCount) {
+      logger.info(
+        `🎮 ${onlinePlayers.length} players fetched from Minecraft server.`
       );
+      lastPlayerCount = onlinePlayers.length;
     }
 
-    // Fetch all player data for the frontend (excluding players with NULL last_seen)
+    for (const player of onlinePlayers) {
+      try {
+        await db.query(
+          `INSERT INTO users (uuid, name) VALUES ($1, $2)
+           ON CONFLICT (uuid) DO NOTHING`,
+          [player.id, player.name]
+        );
+        // logger.debug(`↪️ Inserted or skipped player: ${player.name}`);
+      } catch (error) {
+        logger.warn(
+          `⚠️ Failed to insert player ${player.name}: ${logError(error)}`
+        );
+      }
+    }
+
     const result = await db.query(
       `SELECT uuid as id, name, online, last_seen, play_time_seconds, session_start
        FROM users
@@ -361,7 +408,9 @@ app.get("/players", async (req, res) => {
 
     res.json({ players: result.rows });
   } catch (error) {
-    logger.error("Error fetching players:", error);
+    logger.error(
+      `❌ Error fetching or processing player list: ${logError(error)}`
+    );
     res.status(500).json({ error: "Could not fetch players" });
   }
 });
@@ -369,8 +418,10 @@ app.get("/players", async (req, res) => {
 // token verification
 app.post("/verify-token", async (req, res) => {
   const { token } = req.body;
+  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
   if (!token) {
+    logger.warn(`⚠️ Token verification attempt with missing token from ${ip}`);
     return res.status(400).json({ success: false, error: "Missing token" });
   }
 
@@ -382,12 +433,16 @@ app.post("/verify-token", async (req, res) => {
     );
 
     if (result.rows.length === 0) {
+      logger.warn(`⛔ Invalid or expired token attempt from ${ip}`);
       return res
         .status(401)
         .json({ success: false, error: "Token expired or invalid" });
     }
 
     const user = result.rows[0];
+    logger.info(
+      `✅ Token verified for Discord user: ${user.discord_name} (${user.discord_id}) from ${ip}`
+    );
 
     return res.json({
       success: true,
@@ -396,8 +451,8 @@ app.post("/verify-token", async (req, res) => {
         name: user.discord_name,
       },
     });
-  } catch (err) {
-    logger.error("Token verification failed:", err);
+  } catch (error) {
+    logger.error(`❌ Token verification failed from ${ip}: ${logError(error)}`);
     return res
       .status(500)
       .json({ success: false, error: "Internal server error" });
@@ -407,6 +462,10 @@ app.post("/verify-token", async (req, res) => {
 // aply form
 app.post("/apply", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
+
+  logger.info(
+    `📨 Application received — MC: ${mcName}, DC: ${dcName}, Age: ${age}`
+  );
 
   const insertQuery = `
     INSERT INTO applications (mc_name, dc_name, age, how_found, experience, why_join)
@@ -423,9 +482,14 @@ app.post("/apply", async (req, res) => {
       experience || null,
       whyJoin,
     ]);
+    logger.info(`✅ Application inserted for ${mcName} (${dcName})`);
     res.json({ success: true, application: result.rows[0] });
   } catch (error) {
-    logger.error("Error inserting application:", error);
+    logger.error(
+      `❌ Failed to insert application — MC: ${mcName}, DC: ${dcName}: ${logError(
+        error
+      )}`
+    );
     res.status(500).json({ error: "Error submitting application" });
   }
 });
@@ -434,7 +498,10 @@ app.post("/apply", async (req, res) => {
 app.post("/wait-list", async (req, res) => {
   const { email, discordName } = req.body;
 
+  logger.info(`📥 Waitlist submission attempt: ${email} / ${discordName}`);
+
   if (!email || !discordName) {
+    logger.warn(`❌ Missing email or Discord name in waitlist form.`);
     return res.status(400).json({
       error:
         "Email and Discord username are required.\nIf you're having trouble, contact admin@create-rington.com",
@@ -447,6 +514,7 @@ app.post("/wait-list", async (req, res) => {
   };
 
   if (!isValidEmail(email)) {
+    logger.warn(`❌ Invalid email format: ${email}`);
     return res.status(400).json({
       error:
         "Invalid email format.\nIf you're having trouble, contact admin@create-rington.com",
@@ -460,6 +528,7 @@ app.post("/wait-list", async (req, res) => {
       [email]
     );
     if (emailExists.rowCount > 0) {
+      logger.warn(`⚠️ Duplicate email on waitlist: ${email}`);
       return res.status(409).json({
         error:
           "This email is already on the waitlist.\nIf you're having trouble, contact admin@create-rington.com",
@@ -472,6 +541,7 @@ app.post("/wait-list", async (req, res) => {
       [discordName]
     );
     if (discordExists.rowCount > 0) {
+      logger.warn(`⚠️ Duplicate Discord name on waitlist: ${discordName}`);
       return res.status(409).json({
         error:
           "This Discord username is already registered.\nIf you're having trouble, contact admin@create-rington.com",
@@ -486,9 +556,12 @@ app.post("/wait-list", async (req, res) => {
     `;
     const result = await db.query(insertQuery, [email, discordName]);
 
+    logger.info(`✅ Waitlist entry added: ${email} (${discordName})`);
     res.json({ success: true, entry: result.rows[0] });
   } catch (error) {
-    logger.error("Error inserting waitlist entry:", error);
+    logger.error(
+      `❌ Failed to insert waitlist entry for ${email}: ${logError(error)}`
+    );
     res.status(500).json({
       error:
         "Error submitting waitlist entry.\nIf you're having trouble, contact admin@create-rington.com",
@@ -503,8 +576,15 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
   const authorName = req.body.authorName || "web";
 
   if (!file) {
+    logger.warn(
+      `❌ Image upload attempt failed — no file received from ${authorName}`
+    );
     return res.status(400).json({ error: "No image uploaded" });
   }
+
+  logger.info(
+    `📷 Received image upload from ${authorName}: ${file.originalname} (${file.mimetype}, ${file.size} bytes)`
+  );
 
   try {
     const guild = await webChatClient.guilds.fetch(
@@ -515,6 +595,9 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
     );
 
     if (!channel || !channel.isTextBased()) {
+      logger.error(
+        "❌ Image upload failed: Discord channel not found or not text-based"
+      );
       return res.status(500).json({ error: "Channel not found" });
     }
 
@@ -532,6 +615,10 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
     const sentAttachment = sentMessage.attachments.first();
     const imageUrl = sentAttachment?.url || null;
 
+    logger.info(
+      `✅ Image uploaded and sent by ${authorName} — Discord URL: ${imageUrl}`
+    );
+
     io.emit("chatMessage", {
       text: formattedMessage,
       image: imageUrl,
@@ -539,8 +626,12 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
     });
 
     return res.json({ success: true, image: imageUrl });
-  } catch (err) {
-    logger.error("Failed to send image to Discord:", err);
+  } catch (error) {
+    logger.error(
+      `❌ Failed to send image to Discord from ${authorName}: ${logError(
+        error
+      )}`
+    );
     return res.status(500).json({ error: "Failed to send image" });
   }
 });
@@ -548,6 +639,7 @@ app.post("/upload-image", upload.single("image"), async (req, res) => {
 // callback for discord login
 app.post("/api/discord/callback", async (req, res) => {
   const code = req.body.code;
+  logger.info(`🔐 Received Discord OAuth callback with code: ${code}`);
 
   try {
     const tokenRes = await axios.post(
@@ -565,14 +657,16 @@ app.post("/api/discord/callback", async (req, res) => {
     );
 
     const accessToken = tokenRes.data.access_token;
+    logger.info("✅ OAuth token exchange successful.");
 
     const userRes = await axios.get("https://discord.com/api/users/@me", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     const user = userRes.data;
+    logger.info(`👤 Fetched Discord user: ${user.username} (${user.id})`);
 
-    // 🔐 NEW: Check if user.id exists in the admins table
+    // Check if user.id exists in the admins table
     const result = await db.query(
       `SELECT 1 FROM admins WHERE discord_id = $1 LIMIT 1`,
       [user.id]
@@ -584,7 +678,7 @@ app.post("/api/discord/callback", async (req, res) => {
       return res.status(403).json({ error: "Not an admin." });
     }
 
-    // ✅ Set cookie for validated admin
+    // Set cookie for validated admin
     res.cookie("admin_session", user.id, {
       httpOnly: true,
       secure: true,
@@ -592,9 +686,10 @@ app.post("/api/discord/callback", async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24,
     });
 
+    logger.info(`🔓 Admin session started for ${user.username} (${user.id})`);
     res.status(200).json({ success: true });
-  } catch (err) {
-    logger.error("OAuth or admin check error:", err);
+  } catch (error) {
+    logger.error(`OAuth or admin check error: ${logError(error)}`);
     res.status(500).json({ error: "OAuth error" });
   }
 });
@@ -604,20 +699,25 @@ app.get("/api/admin/validate", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
   if (!discordId) {
+    logger.warn("🔍 Admin validate request without session.");
     return res.status(400).json({ valid: false });
   }
 
   try {
     const valid = await isAdmin(db, discordId);
+    logger.info(`🛂 Admin validate check: ${discordId} => ${valid}`);
     res.json({ valid });
-  } catch (err) {
-    logger.error("Admin validation error:", err);
+  } catch (error) {
+    logger.error(`❌ Admin validation error: ${logError(error)}`);
     res.status(500).json({ valid: false });
   }
 });
 
 // admin logout
 app.post("/api/admin/logout", (req, res) => {
+  const discordId = req.cookies.admin_session;
+  logger.info(`🚪 Admin logout requested for: ${discordId || "unknown"}`);
+
   res.clearCookie("admin_session", {
     httpOnly: true,
     secure: true,
@@ -631,12 +731,14 @@ app.get("/api/admin/me", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
   if (!discordId) {
+    logger.warn("👤 /me requested without session.");
     return res.status(403).json({ error: "Unauthorized" });
   }
 
   try {
     const isAdminUser = await isAdmin(db, discordId);
     if (!isAdminUser) {
+      logger.warn(`⛔ Non-admin attempted /me: ${discordId}`);
       return res.status(403).json({ error: "Not an admin" });
     }
 
@@ -645,12 +747,14 @@ app.get("/api/admin/me", async (req, res) => {
     ]);
 
     if (result.rows.length === 0) {
+      logger.warn(`❓ Admin user not found in users table: ${discordId}`);
       return res.status(404).json({ error: "User not found in database" });
     }
 
+    logger.info(`📥 Admin /me data sent for: ${discordId}`);
     res.json(result.rows[0]);
-  } catch (err) {
-    logger.error("Failed to fetch admin user data:", err);
+  } catch (error) {
+    logger.error(`Failed to fetch admin user data: ${logError(error)}`);
     res.status(500).json({ error: "Internal server error" });
   }
 });
@@ -661,12 +765,14 @@ app.post("/api/admin/rcon", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
   if (!discordId) {
+    rconLogger.warn("⛔ RCON request denied: no session cookie");
     return res.status(403).json({ success: false, error: "Unauthorized" });
   }
 
   try {
     const isAdminUser = await isAdmin(db, discordId);
     if (!isAdminUser) {
+      rconLogger.warn(`⛔ RCON access denied for non-admin: ${discordId}`);
       return res.status(403).json({ success: false, error: "Not an admin" });
     }
 
@@ -676,6 +782,10 @@ app.post("/api/admin/rcon", async (req, res) => {
     );
 
     const adminMcName = userRes.rows[0]?.name || "unknown";
+
+    rconLogger.info(
+      `🔐 RCON command received from ${adminMcName} (${discordId}): ${command}`
+    );
 
     const rcon = await Rcon.connect({
       host: process.env.SERVER_IP,
@@ -691,9 +801,12 @@ app.post("/api/admin/rcon", async (req, res) => {
       [discordId, adminMcName, command]
     );
 
+    rconLogger.info(`✅ RCON command executed successfully: ${command}`);
     return res.json({ success: true, response });
-  } catch (err) {
-    logger.error("RCON error:", err);
+  } catch (error) {
+    rconLogger.error(
+      `❌ RCON execution failed for ${discordId}: ${logError(error)}`
+    );
     return res.status(500).json({ success: false, error: "RCON failure" });
   }
 });
@@ -703,12 +816,16 @@ app.get("/api/admin/users", async (req, res) => {
   const discordId = req.cookies.admin_session;
 
   if (!discordId) {
+    logger.warn("⛔ Attempt to access /admin/users without session cookie");
     return res.status(403).json({ error: "Unauthorized" });
   }
 
   try {
     const isAdminUser = await isAdmin(db, discordId);
     if (!isAdminUser) {
+      logger.warn(
+        `⛔ Unauthorized /admin/users access attempt by ${discordId}`
+      );
       return res.status(403).json({ error: "Not an admin" });
     }
 
@@ -716,9 +833,10 @@ app.get("/api/admin/users", async (req, res) => {
       `SELECT uuid, name, play_time_seconds, last_seen, online FROM users ORDER BY name ASC`
     );
 
+    logger.info(`📊 Admin ${discordId} fetched user list.`);
     res.json({ users: result.rows });
-  } catch (err) {
-    logger.error("Failed to fetch users:", err);
+  } catch (error) {
+    logger.error(`Failed to fetch users: ${logError(error)}`);
     res.status(500).json({ error: "Database error" });
   }
 });
@@ -739,11 +857,20 @@ client.on("guildMemberAdd", async (member) => {
       );
     }
   } catch (error) {
-    logger.error(`❌ Error assigning role or sending message:`, error);
+    logger.error(
+      `❌ Error assigning role or sending message: ${logError(error)}`
+    );
   }
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
+
+app.use((error, req, res, next) => {
+  logger.error(
+    `Unhandled Express error at ${req.method} ${req.url}: ${logError(error)}`
+  );
+  res.status(500).json({ error: "Internal server error" });
+});
 
 process.on("SIGINT", async () => {
   logger.info("🧹 Gracefully shutting down...");
@@ -753,8 +880,12 @@ process.on("SIGINT", async () => {
       logger.info("✅ Server closed. Exiting...");
       process.exit(0);
     });
-  } catch (err) {
-    logger.error("❌ Error during shutdown:", err);
+  } catch (error) {
+    logger.error(`❌ Error during shutdown: ${logError(error)}`);
     process.exit(1);
   }
+});
+
+process.on("unhandledRejection", (reason) => {
+  logger.error(`🧨 Unhandled promise rejection: ${logError(reason)}`);
 });

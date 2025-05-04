@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import pg from "pg";
 import logger from "../logger.js";
+import logError from "../utils/logError.js";
 
 const db = new pg.Client({
   user: process.env.DB_USER,
@@ -47,8 +48,8 @@ client.once("ready", async () => {
 
     await channel.send(message);
     logger.info("📨 Sent notification for unlinked members.");
-  } catch (err) {
-    logger.error("❌ Failed to check and notify:", err);
+  } catch (error) {
+    logger.error(`❌ Failed to check and notify: ${logError(error)}`);
   } finally {
     db.end();
     client.destroy();
