@@ -6,6 +6,9 @@ import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../logger.js";
 import logError from "../utils/logError.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 // Setup DB connection
 const db = new pg.Client({

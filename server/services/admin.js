@@ -1,5 +1,8 @@
 import logger from "../logger.js";
 import logError from "../utils/logError.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const isAdmin = async (db, discordId) => {
   if (!discordId) return false;
