@@ -60,7 +60,7 @@ const AdminPanel = () => {
     if (!allowed) return;
 
     const fetchOnlinePlayers = () => {
-      fetch("http://localhost:5000/players")
+      fetch("http://localhost:5000/api/players")
         .then((res) => res.json())
         .then((data) => {
           const players = data.players || [];

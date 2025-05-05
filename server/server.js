@@ -350,7 +350,7 @@ io.on("connection", async (socket) => {
 // --- API Routes ---
 let lastLoggedPlayerCount = null;
 
-app.get("/playerCount", async (req, res) => {
+app.get("/api/playerCount", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const count = response.players.online;
@@ -373,7 +373,7 @@ app.get("/playerCount", async (req, res) => {
 // fetching online players
 let lastPlayerCount = null;
 
-app.get("/players", async (req, res) => {
+app.get("/api/players", async (req, res) => {
   try {
     const response = await status(serverIP, serverPort, { timeout: 5000 });
     const onlinePlayers = response.players.sample || [];
@@ -392,7 +392,6 @@ app.get("/players", async (req, res) => {
            ON CONFLICT (uuid) DO NOTHING`,
           [player.id, player.name]
         );
-        // logger.debug(`↪️ Inserted or skipped player: ${player.name}`);
       } catch (error) {
         logger.warn(
           `⚠️ Failed to insert player ${player.name}: ${logError(error)}`
@@ -417,7 +416,7 @@ app.get("/players", async (req, res) => {
 });
 
 // token verification
-app.post("/verify-token", async (req, res) => {
+app.post("/api/verify-token", async (req, res) => {
   const { token } = req.body;
   const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
@@ -461,7 +460,7 @@ app.post("/verify-token", async (req, res) => {
 });
 
 // aply form
-app.post("/apply", async (req, res) => {
+app.post("/api/apply", async (req, res) => {
   const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
   logger.info(
@@ -496,7 +495,7 @@ app.post("/apply", async (req, res) => {
 });
 
 // waitlist form
-app.post("/wait-list", async (req, res) => {
+app.post("/api/wait-list", async (req, res) => {
   const { email, discordName } = req.body;
 
   logger.info(`📥 Waitlist submission attempt: ${email} / ${discordName}`);
@@ -572,7 +571,7 @@ app.post("/wait-list", async (req, res) => {
 });
 
 //sending images from WEB
-app.post("/upload-image", upload.single("image"), async (req, res) => {
+app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   const file = req.file;
   const messageText = req.body.message || "";
   const authorName = req.body.authorName || "web";
