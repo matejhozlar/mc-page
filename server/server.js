@@ -885,6 +885,7 @@ process.on("SIGINT", async () => {
   logger.info("🧹 Gracefully shutting down...");
   try {
     await db.end();
+    io.close();
     httpServer.close(() => {
       logger.info("✅ Server closed. Exiting...");
       process.exit(0);
