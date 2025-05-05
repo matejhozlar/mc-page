@@ -32,7 +32,7 @@ const AdminServerChat = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/me", { credentials: "include" })
+    fetch("/api/admin/me", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         if (data && data.name) {
@@ -131,7 +131,7 @@ const AdminServerChat = () => {
         formData.append("message", input.trim());
         formData.append("authorName", adminUser?.name || "admin");
 
-        await fetch("http://localhost:5000/api/upload-image", {
+        await fetch("/api/upload-image", {
           method: "POST",
           body: formData,
         });

@@ -4,7 +4,7 @@ const Callback = () => {
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
-    fetch("http://localhost:5000/api/discord/callback", {
+    fetch("/api/discord/callback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
