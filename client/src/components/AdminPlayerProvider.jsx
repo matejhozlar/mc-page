@@ -10,7 +10,7 @@ export const PlayerProvider = ({ children }) => {
   useEffect(() => {
     const fetchPlayers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/players");
+        const res = await fetch("/api/players");
         const data = await res.json();
         setPlayers(data.players || []);
       } catch (err) {

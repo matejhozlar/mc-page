@@ -10,7 +10,7 @@ const AdminUsersTable = () => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
-    fetch("http://localhost:5000/api/admin/users", { credentials: "include" })
+    fetch("/api/admin/users", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         setUsers(data.users || []);

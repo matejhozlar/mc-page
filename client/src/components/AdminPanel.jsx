@@ -15,7 +15,7 @@ const AdminPanel = () => {
     `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/validate", {
+    fetch("/api/admin/validate", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -38,7 +38,7 @@ const AdminPanel = () => {
   useEffect(() => {
     if (!allowed) return;
 
-    fetch("http://localhost:5000/api/admin/me", {
+    fetch("/api/admin/me", {
       credentials: "include",
     })
       .then((res) => res.json())
@@ -60,7 +60,7 @@ const AdminPanel = () => {
     if (!allowed) return;
 
     const fetchOnlinePlayers = () => {
-      fetch("http://localhost:5000/api/players")
+      fetch("/api/players")
         .then((res) => res.json())
         .then((data) => {
           const players = data.players || [];
@@ -79,7 +79,7 @@ const AdminPanel = () => {
   }, [allowed]);
 
   const handleLogout = () => {
-    fetch("http://localhost:5000/api/admin/logout", {
+    fetch("/api/admin/logout", {
       method: "POST",
       credentials: "include",
     }).then(() => {

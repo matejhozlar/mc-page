@@ -9,7 +9,7 @@ const OnlinePlayers = () => {
 
   const fetchPlayers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/players", {
+      const response = await fetch("/api/players", {
         cache: "no-cache",
       });
       if (!response.ok) {

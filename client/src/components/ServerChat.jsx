@@ -42,7 +42,7 @@ const ServerChat = () => {
 
   const verifyToken = async (token) => {
     try {
-      const res = await fetch("http://localhost:5000/api/verify-token", {
+      const res = await fetch("/api/verify-token", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
@@ -114,7 +114,7 @@ const ServerChat = () => {
   useEffect(() => {
     const fetchPlayerStatuses = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/players");
+        const res = await fetch("/api/players");
         const data = await res.json();
         const statuses = {};
         data.players.forEach((player) => {
@@ -162,7 +162,7 @@ const ServerChat = () => {
         formData.append("message", input.trim());
         formData.append("authorName", localStorage.getItem("chat_user_name"));
 
-        await fetch("http://localhost:5000/api/upload-image", {
+        await fetch("/api/upload-image", {
           method: "POST",
           body: formData,
         });
