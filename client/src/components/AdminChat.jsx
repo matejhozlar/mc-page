@@ -131,7 +131,7 @@ const AdminServerChat = () => {
         formData.append("message", input.trim());
         formData.append("authorName", adminUser?.name || "admin");
 
-        await fetch(`${SERVER_URL}/upload-image`, {
+        await fetch("http://localhost:5000/api/upload-image", {
           method: "POST",
           body: formData,
         });

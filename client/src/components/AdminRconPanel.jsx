@@ -202,9 +202,13 @@ const AdminRconPanel = () => {
   }, []);
 
   useEffect(() => {
-    if (mcName) {
+    if (!mcName) return;
+
+    const timeout = setTimeout(() => {
       checkVanishStatus();
-    }
+    }, 60000);
+
+    return () => clearTimeout(timeout);
   }, [mcName, players, checkVanishStatus]);
 
   const sendCommand = async (command) => {
