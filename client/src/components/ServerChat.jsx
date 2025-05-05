@@ -327,11 +327,15 @@ const ServerChat = () => {
                           />
                           <span
                             className={`mc-status-dot ${
-                              playerStatuses[name]
+                              playerStatuses[name]?.online
                                 ? "mc-status-online"
                                 : "mc-status-offline"
                             }`}
-                            title={playerStatuses[name] ? "Online" : "Offline"}
+                            title={
+                              playerStatuses[name]?.online
+                                ? "Online"
+                                : "Offline"
+                            }
                           />
                         </div>
                         <strong className="msg-name">{name}</strong> &gt;{" "}
