@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export async function verifyNotifyStaff(
   interaction,
   reason,

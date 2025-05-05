@@ -1,6 +1,9 @@
 import { SlashCommandBuilder } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 let lastTopPlaytimeUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;

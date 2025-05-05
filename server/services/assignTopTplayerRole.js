@@ -1,4 +1,7 @@
 import logger from "../logger.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export async function assignTopPlayerRole(db, discordClient) {
   try {

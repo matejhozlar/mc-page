@@ -4,6 +4,9 @@ import fetch from "node-fetch";
 import { verifyNotifyStaff } from "../../services/verifyNotifyStaff.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 function randomDelay(min = 1000, max = 5000) {
   const ms = Math.floor(Math.random() * (max - min + 1)) + min;
