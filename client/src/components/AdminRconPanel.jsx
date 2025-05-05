@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { usePlayers } from "./AdminPlayerProvider";
 
 const Card = ({ title, children }) => (
@@ -128,6 +128,8 @@ const AdminRconPanel = () => {
   const [targetPlayer, setTargetPlayer] = useState("");
   const [sayMessage, setSayMessage] = useState("");
   const [gamemode, setGamemode] = useState("creative");
+  const [isVanished, setIsVanished] = useState(null);
+  const [checkingVanish, setCheckingVanish] = useState(false);
   const [time, setTime] = useState("day");
   const [weather, setWeather] = useState("clear");
   const [mutePlayer, setMutePlayer] = useState("");
@@ -136,11 +138,74 @@ const AdminRconPanel = () => {
   const [unbanPlayer, setUnbanPlayer] = useState("");
   const [output, setOutput] = useState("");
 
+  const toggleVanish = async () => {
+    const res = await fetch("/api/admin/rcon", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command: `/v toggle ${mcName}` }),
+    });
+    const data = await res.json();
+    setOutput(data.response || data.error || "No response");
+
+    setTimeout(async () => {
+      const getRes = await fetch("/api/admin/rcon", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ command: `/v get ${mcName}` }),
+      });
+      const getData = await getRes.json();
+      const resultText = getData.response || "";
+
+      if (/no player found/i.test(resultText)) {
+        setOutput("⚠️ Could not determine vanish state (player not found).");
+        return;
+      }
+
+      const isCurrentlyVanished = /\bcurrently vanished\b/i.test(resultText);
+      setIsVanished(isCurrentlyVanished);
+    }, 2000);
+  };
+
+  const checkVanishStatus = useCallback(async () => {
+    setCheckingVanish(true);
+    const res = await fetch("/api/admin/rcon", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command: `/v get ${mcName}` }),
+    });
+    const data = await res.json();
+    const responseText = data.response || "";
+    const isVanished = /\bcurrently vanished\b/i.test(responseText);
+    setIsVanished(isVanished);
+    setCheckingVanish(false);
+  }, [mcName]);
+
   useEffect(() => {
     fetch("/api/admin/me", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setMcName(data.name));
   }, []);
+
+  useEffect(() => {
+    if (mcName) {
+      checkVanishStatus();
+    }
+  }, [mcName, checkVanishStatus]);
+
+  useEffect(() => {
+    fetch("/api/admin/me", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => setMcName(data.name));
+  }, []);
+
+  useEffect(() => {
+    if (mcName) {
+      checkVanishStatus();
+    }
+  }, [mcName, players, checkVanishStatus]);
 
   const sendCommand = async (command) => {
     setOutput("Running...");
@@ -163,6 +228,27 @@ const AdminRconPanel = () => {
       <h3 className="admin-chat-title">Admin Commands</h3>
 
       <Card title="Player Controls">
+        <InputGroup
+          label="Vanish"
+          input={
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={!!isVanished}
+                  disabled={checkingVanish}
+                  onChange={toggleVanish}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span style={{ marginLeft: "0.75rem" }}>
+                {checkingVanish ? "Checking..." : isVanished ? "ON" : "OFF"}
+              </span>
+            </div>
+          }
+          action={<></>}
+        />
+
         <InputGroup
           label="Teleport"
           input={
