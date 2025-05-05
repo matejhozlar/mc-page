@@ -783,9 +783,13 @@ app.post("/api/admin/rcon", async (req, res) => {
 
     const adminMcName = userRes.rows[0]?.name || "unknown";
 
-    rconLogger.info(
-      `🔐 RCON command received from ${adminMcName} (${discordId}): ${command}`
-    );
+    const isSilentCommand = /^\/v get\b/i.test(command);
+
+    if (!isSilentCommand) {
+      rconLogger.info(
+        `🔐 RCON command received from ${adminMcName} (${discordId}): ${command}`
+      );
+    }
 
     const rcon = await Rcon.connect({
       host: process.env.SERVER_IP,
@@ -796,12 +800,15 @@ app.post("/api/admin/rcon", async (req, res) => {
     const response = await rcon.send(command);
     await rcon.end();
 
-    await db.query(
-      `INSERT INTO rcon_logs (discord_id, mc_name, command) VALUES ($1, $2, $3)`,
-      [discordId, adminMcName, command]
-    );
+    if (!isSilentCommand) {
+      await db.query(
+        `INSERT INTO rcon_logs (discord_id, mc_name, command) VALUES ($1, $2, $3)`,
+        [discordId, adminMcName, command]
+      );
 
-    rconLogger.info(`✅ RCON command executed successfully: ${command}`);
+      rconLogger.info(`✅ RCON command executed successfully: ${command}`);
+    }
+
     return res.json({ success: true, response });
   } catch (error) {
     rconLogger.error(
