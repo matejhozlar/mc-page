@@ -849,6 +849,89 @@ app.get("/api/admin/users", async (req, res) => {
   }
 });
 
+// vanish status for admin
+app.get("/api/admin/vanish-status", async (req, res) => {
+  const discordId = req.cookies.admin_session;
+
+  if (!discordId) {
+    logger.warn("⛔ /vanish-status requested without session.");
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const isAdminUser = await isAdmin(db, discordId);
+    if (!isAdminUser) {
+      logger.warn(`⛔ Non-admin attempted vanish status check: ${discordId}`);
+      return res.status(403).json({ error: "Not an admin" });
+    }
+
+    const result = await db.query(
+      `SELECT vanished FROM admins WHERE discord_id = $1 LIMIT 1`,
+      [discordId]
+    );
+
+    if (result.rows.length === 0) {
+      logger.warn(`❓ Admin not found in DB: ${discordId}`);
+      return res.status(404).json({ error: "Admin not found" });
+    }
+
+    res.json({ vanished: result.rows[0].vanished });
+  } catch (error) {
+    logger.error(`❌ Failed to fetch vanish status: ${logError(error)}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// vanish status update
+app.post("/api/admin/vanish-status", async (req, res) => {
+  const discordId = req.cookies.admin_session;
+  const { name, vanished } = req.body;
+
+  if (!discordId) {
+    logger.warn("⛔ /vanish-status update attempted without session.");
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  if (typeof vanished !== "boolean") {
+    return res.status(400).json({ error: "Invalid vanish value" });
+  }
+
+  try {
+    const isAdminUser = await isAdmin(db, discordId);
+    if (!isAdminUser) {
+      logger.warn(`⛔ Non-admin tried to update vanish: ${discordId}`);
+      return res.status(403).json({ error: "Not an admin" });
+    }
+
+    const rcon = await Rcon.connect({
+      host: process.env.SERVER_IP,
+      port: parseInt(process.env.RCON_PORT),
+      password: process.env.RCON_PASSWORD,
+    });
+
+    const response = await rcon.send(`/v get ${name}`);
+    await rcon.end();
+
+    if (/no player found/i.test(response)) {
+      logger.warn(`⛔ Player ${name} not online — vanish not updated.`);
+      return res
+        .status(400)
+        .json({ error: "Player must be online to update vanish status." });
+    }
+
+    await db.query(`UPDATE admins SET vanished = $1 WHERE discord_id = $2`, [
+      vanished,
+      discordId,
+    ]);
+
+    logger.info(`🟢 Vanish status updated: ${name} → ${vanished}`);
+    res.json({ success: true });
+  } catch (error) {
+    logger.error(`❌ Failed to update vanish status: ${logError(error)}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 // auto add unverified role on join
 client.on("guildMemberAdd", async (member) => {
   const unverifiedRoleId = process.env.DISCORD_UNVERIFIED_ROLE_ID;
