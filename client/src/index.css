@@ -1459,3 +1459,7 @@ input:checked + .slider:before {
     display: none !important;
   }
 }
+
+.nav-link[href="/rules"] .nav-icon {
+  margin-left: -2px;
+}
