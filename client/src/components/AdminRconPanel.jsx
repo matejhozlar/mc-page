@@ -1,6 +1,137 @@
 import React, { useState, useEffect, useRef } from "react";
 import { usePlayers } from "./AdminPlayerProvider";
 
+const CustomDropdown = ({ value, onChange, options }) => {
+  const [showOptions, setShowOptions] = useState(false);
+  const ref = useRef();
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (!ref.current?.contains(e.target)) setShowOptions(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ flex: 1, position: "relative" }}>
+      <div
+        onClick={() => setShowOptions(!showOptions)}
+        style={{
+          width: "100%",
+          padding: "0.5rem 0.75rem",
+          borderRadius: "6px",
+          border: "none",
+          fontSize: "1rem",
+          height: "42px",
+          backgroundColor: "#fff",
+          color: "#1a1a1a",
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {value.charAt(0).toUpperCase() + value.slice(1)}
+        <span style={{ marginLeft: "0.5rem" }}>▾</span>
+      </div>
+
+      {showOptions && (
+        <ul
+          style={{
+            position: "absolute",
+            top: "44px",
+            left: 0,
+            right: 0,
+            background: "#2f2f2f",
+            border: "1px solid #444",
+            borderRadius: "6px",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+            zIndex: 10000,
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+          }}
+        >
+          {options.map((opt) => (
+            <li
+              key={opt}
+              onClick={() => {
+                onChange(opt);
+                setShowOptions(false);
+              }}
+              style={{
+                padding: "0.5rem 0.75rem",
+                cursor: "pointer",
+                borderBottom: "1px solid #444",
+                color: "#fff",
+                backgroundColor:
+                  opt === value ? "var(--primary-color)" : "transparent",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--primary-color)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }}
+            >
+              {opt.charAt(0).toUpperCase() + opt.slice(1)}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+const renderLog = (log) => {
+  const isError = log.includes("⚠️") || log.includes("❌");
+  const isSuccess = log.includes("✅");
+  const isRunning = log.includes("⏳") || log.includes("Running...");
+
+  const borderColor = isError
+    ? "#e74c3c"
+    : isSuccess
+    ? "#2ecc71"
+    : isRunning
+    ? "#f1c40f"
+    : "#888";
+
+  const bgColor = isError
+    ? "#3a1f1f"
+    : isSuccess
+    ? "#1f3a2a"
+    : isRunning
+    ? "#3a3a1f"
+    : "#2b2b2b";
+
+  const textColor = isError
+    ? "#f5bcbc"
+    : isSuccess
+    ? "#bfffcf"
+    : isRunning
+    ? "#fff3bf"
+    : "#ddd";
+
+  return (
+    <div
+      style={{
+        marginBottom: "0.5rem",
+        fontFamily: "monospace",
+        fontSize: "0.875rem",
+        padding: "0.5rem 0.75rem",
+        borderLeft: `4px solid ${borderColor}`,
+        backgroundColor: bgColor,
+        borderRadius: "6px",
+        color: textColor,
+        whiteSpace: "pre-wrap",
+      }}
+    >
+      {log}
+    </div>
+  );
+};
+
 const Card = ({ title, children }) => (
   <div
     style={{
@@ -136,8 +267,25 @@ const AdminRconPanel = () => {
   const [banPlayer, setBanPlayer] = useState("");
   const [unbanPlayer, setUnbanPlayer] = useState("");
   const [output, setOutput] = useState("");
+  const [consoleOpen, setConsoleOpen] = useState(false);
+  const [consoleLogs, setConsoleLogs] = useState([]);
+  const consoleEndRef = useRef(null);
+
+  const appendLog = (message) => {
+    setConsoleOpen(true);
+    setConsoleLogs((logs) => [...logs.slice(-49), message]);
+  };
+
+  useEffect(() => {
+    if (consoleOpen && consoleEndRef.current) {
+      setTimeout(() => {
+        consoleEndRef.current.scrollIntoView({ behavior: "auto" });
+      }, 0);
+    }
+  }, [consoleLogs, consoleOpen]);
 
   const toggleVanish = async () => {
+    appendLog("⏳ Checking vanish status...");
     setOutput("⏳ Checking vanish status...");
 
     try {
@@ -154,15 +302,18 @@ const AdminRconPanel = () => {
         checkData.error ||
         ""
       ).toLowerCase();
-      console.log("[VANISH] /v get response:", checkText);
 
       if (/no player (was )?found/i.test(checkText)) {
+        appendLog(
+          "⚠️ You must be online in Minecraft to use the vanish toggle."
+        );
         setOutput(
           "⚠️ You must be online in Minecraft to use the vanish toggle."
         );
         return;
       }
 
+      appendLog("⏳ Sending vanish toggle...");
       setOutput("⏳ Sending vanish toggle...");
       const toggleRes = await fetch("/api/admin/rcon", {
         method: "POST",
@@ -188,15 +339,16 @@ const AdminRconPanel = () => {
 
       const verifyData = await verifyRes.json();
       const verifyText = (verifyData.response || "").toLowerCase();
-      console.log("[VANISH] /v get verify response:", verifyText);
 
       if (/no player (was )?found/i.test(verifyText)) {
+        appendLog("⚠️ Could not verify vanish state. You might be offline.");
         setOutput("⚠️ Could not verify vanish state. You might be offline.");
         return;
       }
 
       const newStatus = verifyText.includes("currently vanished");
       setIsVanished(newStatus);
+      appendLog(`✅ Vanish ${newStatus ? "enabled" : "disabled"}.`);
       setOutput(`✅ Vanish ${newStatus ? "enabled" : "disabled"}.`);
 
       await fetch("/api/admin/vanish-status", {
@@ -207,6 +359,7 @@ const AdminRconPanel = () => {
       });
     } catch (err) {
       console.error("Toggle vanish failed:", err);
+      appendLog("❌ Unexpected error occurred.");
       setOutput("❌ Unexpected error occurred.");
     }
   };
@@ -236,6 +389,7 @@ const AdminRconPanel = () => {
   }, []);
 
   const sendCommand = async (command) => {
+    appendLog("Running...");
     setOutput("Running...");
     const res = await fetch("/api/admin/rcon", {
       method: "POST",
@@ -244,6 +398,7 @@ const AdminRconPanel = () => {
       body: JSON.stringify({ command }),
     });
     const data = await res.json();
+    appendLog(data.response || data.error || "No response");
     setOutput(data.response || data.error || "No response");
   };
 
@@ -306,23 +461,11 @@ const AdminRconPanel = () => {
         <InputGroup
           label="Gamemode"
           input={
-            <select
+            <CustomDropdown
               value={gamemode}
-              onChange={(e) => setGamemode(e.target.value)}
-              className="admin-select"
-              style={{
-                flex: 1,
-                padding: "0.5rem 0.75rem",
-                borderRadius: "6px",
-                border: "none",
-                fontSize: "1rem",
-                height: "42px",
-              }}
-            >
-              <option value="creative">Creative</option>
-              <option value="survival">Survival</option>
-              <option value="spectator">Spectator</option>
-            </select>
+              onChange={setGamemode}
+              options={["creative", "survival", "spectator"]}
+            />
           }
           action={
             <button
@@ -456,22 +599,11 @@ const AdminRconPanel = () => {
         <InputGroup
           label="Set Time"
           input={
-            <select
+            <CustomDropdown
               value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="admin-select"
-              style={{
-                flex: 1,
-                padding: "0.5rem 0.75rem",
-                borderRadius: "6px",
-                border: "none",
-                fontSize: "1rem",
-                height: "42px",
-              }}
-            >
-              <option value="day">Day</option>
-              <option value="night">Night</option>
-            </select>
+              onChange={setTime}
+              options={["day", "night"]}
+            />
           }
           action={
             <button
@@ -486,23 +618,11 @@ const AdminRconPanel = () => {
         <InputGroup
           label="Set Weather"
           input={
-            <select
+            <CustomDropdown
               value={weather}
-              onChange={(e) => setWeather(e.target.value)}
-              className="admin-select"
-              style={{
-                flex: 1,
-                padding: "0.5rem 0.75rem",
-                borderRadius: "6px",
-                border: "none",
-                fontSize: "1rem",
-                height: "42px",
-              }}
-            >
-              <option value="clear">Clear</option>
-              <option value="rain">Rain</option>
-              <option value="thunder">Thunder</option>
-            </select>
+              onChange={setWeather}
+              options={["clear", "rain", "thunder"]}
+            />
           }
           action={
             <button
@@ -518,6 +638,59 @@ const AdminRconPanel = () => {
       <pre className="admin-chat-status" style={{ marginTop: "1rem" }}>
         {output}
       </pre>
+
+      <div
+        className="admin-console"
+        style={{
+          position: "fixed",
+          bottom: 0,
+          right: 0,
+          width: consoleOpen ? "420px" : "260px",
+          height: consoleOpen ? "420px" : "36px",
+
+          marginBottom: 0,
+          paddingBottom: 0,
+          boxSizing: "border-box",
+
+          background: "#1a1a1a",
+          color: "#fff",
+          fontSize: "0.875rem",
+          zIndex: 10000,
+          borderTopLeftRadius: "8px",
+          border: "1px solid #333",
+          boxShadow: consoleOpen ? "0 0 10px rgba(0,0,0,0.5)" : "none",
+          overflow: "hidden",
+          transition: "all 0.3s ease-in-out",
+        }}
+      >
+        <div
+          onClick={() => setConsoleOpen(!consoleOpen)}
+          style={{
+            padding: "0.25rem 0.5rem",
+            cursor: "pointer",
+            background: "#333",
+            fontWeight: "bold",
+            borderBottom: "1px solid #444",
+          }}
+        >
+          {consoleOpen ? "▾ Admin Console" : "Console ▸"}
+        </div>
+        {consoleOpen && (
+          <div
+            style={{
+              padding: "0.5rem",
+              overflowY: "auto",
+              height: "calc(100% - 32px)",
+              scrollbarWidth: "thin",
+            }}
+          >
+            {consoleLogs.map((log, idx) => (
+              <React.Fragment key={idx}>{renderLog(log)}</React.Fragment>
+            ))}
+            <div ref={consoleEndRef} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };
