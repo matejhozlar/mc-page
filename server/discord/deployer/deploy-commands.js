@@ -9,6 +9,9 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("list")
+    .setDescription("Show currently online players on the Minecraft server"),
+  new SlashCommandBuilder()
     .setName("verify")
     .setDescription("Verify your token")
     .addStringOption((option) =>
