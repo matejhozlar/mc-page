@@ -1453,3 +1453,9 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+@media (max-width: 768px) {
+  .admin-console {
+    display: none !important;
+  }
+}
