@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { usePlayers } from "./AdminPlayerProvider";
+const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
 const SERVER_URL = "http://localhost:5000";
 const socket = io(SERVER_URL);
@@ -27,8 +28,10 @@ const AdminServerChat = () => {
     `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
 
   const getUuidByName = (name) => {
-    const match = onlinePlayers.find((p) => p.name === name);
-    return match?.id || "8667ba71b85a4004af54457a9734eed7";
+    const match = onlinePlayers.find(
+      (p) => p.name.toLowerCase() === name.toLowerCase()
+    );
+    return match?.id || STEVE_UUID;
   };
 
   useEffect(() => {
@@ -275,6 +278,14 @@ const AdminServerChat = () => {
                             src={getAvatarUrl(getUuidByName(name))}
                             alt={name}
                             className="avatar"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = `https://minotar.net/avatar/${name}/32.png`;
+                              e.target.onerror = () => {
+                                e.target.onerror = null;
+                                e.target.src = getAvatarUrl(STEVE_UUID);
+                              };
+                            }}
                           />
                           <span
                             className={`mc-status-dot ${
