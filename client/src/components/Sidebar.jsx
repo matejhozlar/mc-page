@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import logo from "../assets/logo/logo.png";
 import { FaPaypal } from "react-icons/fa";
+import { FiHome } from "react-icons/fi";
 
 const Sidebar = () => {
   const [playerCount, setPlayerCount] = useState(0);
@@ -63,6 +64,12 @@ const Sidebar = () => {
       {/* Navigation Links */}
       <nav className="sidebar-nav">
         <ul className="nav-list">
+          <li className="nav-item">
+            <NavLink to="/" className="nav-link">
+              <FiHome className="nav-icon" />
+              Home
+            </NavLink>
+          </li>
           <li className="nav-item">
             <NavLink to="/server-chat" className="nav-link">
               <svg
