@@ -191,6 +191,11 @@
   justify-content: center;
 }
 
+.autoclickerIcon {
+  width: 50px;
+  height: 40px;
+}
+
 .shop-grid,
 .inventory-grid {
   display: grid;
@@ -245,8 +250,6 @@
   text-align: center;
   font-size: 0.75rem;
   color: #888;
-  margin-top: 1rem;
-  padding: 0.5rem;
 }
 
 .materialPopup {

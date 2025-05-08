@@ -1,4 +1,10 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from "react";
 import * as THREE from "three";
 import { SkinViewer } from "skinview3d";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -22,6 +28,8 @@ const ClickerGame = () => {
   const [inventory, setInventory] = useState(["hand"]);
   const [materials, setMaterials] = useState({});
   const [lastDrop, setLastDrop] = useState(null);
+  const [autoClickLevel, setAutoClickLevel] = useState(0);
+  const isUserClickingRef = useRef(false);
 
   const toolCosts = {
     wooden: 100,
@@ -32,6 +40,18 @@ const ClickerGame = () => {
     diamond: 200000,
     netherite: 1000000,
   };
+
+  const autoClickerUpgrades = useMemo(
+    () => [
+      { rate: 0.5, cost: { cobble_stone: 200, copper_ingot: 1 } },
+      { rate: 1.0, cost: { cobble_stone: 500, copper_ingot: 3 } },
+      { rate: 2.0, cost: { cobble_stone: 1000, iron_ingot: 10 } },
+      { rate: 3.5, cost: { cobble_stone: 2000, gold_ingot: 5 } },
+      { rate: 5.0, cost: { cobble_stone: 5000, diamond: 2 } },
+      { rate: 7.5, cost: { cobble_stone: 10000, netherite_ingot: 1 } },
+    ],
+    []
+  );
 
   const toolMaterialCosts = {
     stone: { cobble_stone: 100 },
@@ -148,10 +168,148 @@ const ClickerGame = () => {
   }, [allowed]);
 
   useEffect(() => {
+    if (!user) return;
+
+    fetch("/api/game-data", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data) return;
+        setPoints(data.points);
+        setTool(data.tool);
+        setInventory(data.inventory);
+        setMaterials(data.materials);
+        setAutoClickLevel(data.auto_click_level);
+      })
+      .catch((err) => console.error("Failed to fetch game data", err));
+  }, [user]);
+
+  useEffect(() => {
     if (user?.name) {
       setSkinUrl(`https://mc-heads.net/skin/${user.name}`);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (autoClickLevel === 0) return;
+    if (!stoneOverlayRef.current || destroyTextures.current.length < 10) return;
+
+    const rate = autoClickerUpgrades[autoClickLevel - 1].rate;
+    let localStage = 0;
+
+    const interval = setInterval(() => {
+      const overlay = stoneOverlayRef.current;
+      const viewer = viewerRef.current;
+
+      if (!overlay || !viewer) return;
+
+      // Trigger animation
+      const arm = viewer.playerObject.getObjectByName("rightArm");
+      if (!isUserClickingRef.current && arm && !isAnimatingRef.current) {
+        isAnimatingRef.current = true;
+        const originalRotation = arm.rotation.x;
+        const swingAmount = -Math.PI / 3;
+        const duration = 300;
+        const startTime = performance.now();
+
+        const animate = (time) => {
+          const elapsed = time - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const swing = swingAmount * Math.sin(progress * Math.PI);
+          arm.rotation.x = originalRotation + swing;
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            arm.rotation.x = originalRotation;
+            isAnimatingRef.current = false;
+          }
+        };
+
+        requestAnimationFrame(animate);
+      }
+
+      // Apply breaking texture
+      if (localStage <= 9) {
+        overlay.material.map = destroyTextures.current[localStage];
+        overlay.material.opacity = 1;
+        overlay.material.needsUpdate = true;
+        localStage += 1;
+
+        // Award points per click
+        const valuePerClick = {
+          hand: 0.5,
+          wooden: 1,
+          stone: 2,
+          copper: 4,
+          iron: 8,
+          gold: 16,
+          diamond: 32,
+          netherite: 64,
+        };
+        const earned = valuePerClick[tool] || 0;
+        setPoints((prev) => prev + earned);
+      }
+
+      // If block breaks
+      if (localStage === 10) {
+        overlay.material.map = null;
+        overlay.material.opacity = 0;
+        overlay.material.needsUpdate = true;
+        localStage = 0;
+
+        // Drop material
+        const drops = materialDrops[tool] || [];
+        const rand = Math.random();
+        let cumulative = 0;
+        for (const drop of drops) {
+          cumulative += drop.chance;
+          if (rand <= cumulative) {
+            setMaterials((prev) => ({
+              ...prev,
+              [drop.name]: (prev[drop.name] || 0) + 1,
+            }));
+
+            setLastDrop((prev) => {
+              if (prev?.name === drop.name) {
+                clearTimeout(prev.timeoutId);
+                const newTimeoutId = setTimeout(() => setLastDrop(null), 2500);
+                return {
+                  ...prev,
+                  count: prev.count + 1,
+                  timeoutId: newTimeoutId,
+                };
+              } else {
+                const newTimeoutId = setTimeout(() => setLastDrop(null), 2500);
+                return { name: drop.name, count: 1, timeoutId: newTimeoutId };
+              }
+            });
+            break;
+          }
+        }
+      }
+    }, 1000 / rate);
+
+    return () => clearInterval(interval);
+  }, [autoClickLevel, tool, autoClickerUpgrades, materialDrops]);
+
+  const nextUpgrade = autoClickerUpgrades[autoClickLevel];
+
+  const handleAutoclickerUpgrade = () => {
+    const cost = nextUpgrade?.cost || {};
+    const hasEnough = Object.entries(cost).every(
+      ([mat, amt]) => (materials[mat] || 0) >= amt
+    );
+    if (!hasEnough) return;
+
+    setMaterials((prev) => {
+      const updated = { ...prev };
+      for (const [mat, amt] of Object.entries(cost)) {
+        updated[mat] -= amt;
+      }
+      return updated;
+    });
+    setAutoClickLevel((lvl) => lvl + 1);
+  };
 
   useEffect(() => {
     if (!viewerRef.current || tool === "hand") return;
@@ -223,6 +381,7 @@ const ClickerGame = () => {
     viewer.renderer.toneMapping = THREE.NoToneMapping;
     viewer.renderer.outputEncoding = THREE.sRGBEncoding;
     viewer.camera.position.set(20, 10, 50);
+    viewer.controls.target.set(5, 0, 0);
     viewer.controls.enableZoom = false;
     viewer.controls.enableRotate = false;
     viewerRef.current = viewer;
@@ -386,6 +545,10 @@ const ClickerGame = () => {
         const obj = intersect.object;
 
         if (obj.name === "stoneBlock" || obj.name === "stoneOverlay") {
+          isUserClickingRef.current = true;
+          setTimeout(() => {
+            isUserClickingRef.current = false;
+          }, 150);
           triggerHitAnimation();
           breakStone();
 
@@ -531,6 +694,49 @@ const ClickerGame = () => {
     };
   }, [lastDrop]);
 
+  const saveTimeoutRef = useRef(null);
+
+  const saveProgress = useCallback(() => {
+    if (!user) return;
+
+    const payload = {
+      points,
+      tool,
+      inventory,
+      materials,
+      auto_click_level: autoClickLevel ?? 0,
+    };
+
+    fetch("/api/game-data", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch((err) => {
+      console.error("Failed to save progress", err);
+    });
+  }, [user, points, tool, inventory, materials, autoClickLevel]);
+
+  const scheduleSave = useCallback(() => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(saveProgress, 2000);
+  }, [saveProgress]);
+
+  useEffect(() => {
+    scheduleSave();
+  }, [points, tool, inventory, materials, autoClickLevel, scheduleSave]);
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveProgress();
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [points, tool, inventory, materials, autoClickLevel, saveProgress]);
+
   if (!checked || (allowed && !user)) {
     return (
       <div className="admin-panel-wrapper">
@@ -551,6 +757,52 @@ const ClickerGame = () => {
             <div className={styles["shop-grid"]}>
               {shop.length > 0 ? shop : <p>All tools purchased!</p>}
             </div>
+          </div>
+          <div className={styles.shopSection}>
+            <h4>Upgrades</h4>
+            {nextUpgrade ? (
+              <button
+                onClick={handleAutoclickerUpgrade}
+                className={styles.shopItem}
+              >
+                <div className={styles.pickaxeWrapper}>
+                  <img
+                    src="/assets/clickerGame/models/images/autoclicker.png"
+                    alt="Autoclicker"
+                    className={`${styles.pickaxeIcon} ${styles.autoclickerIcon}`}
+                  />
+                </div>
+                <div className={styles.itemPrice}>
+                  Autoclicker Lv. {autoClickLevel + 1}
+                </div>
+                <div className={styles.materialCostList}>
+                  {Object.entries(nextUpgrade.cost).map(([mat, amt]) => {
+                    const current = materials[mat] || 0;
+                    const insufficient = current < amt;
+                    return (
+                      <div key={mat} className={styles.materialCost}>
+                        <img
+                          src={`/assets/clickerGame/materials/${mat}.png`}
+                          alt={mat}
+                          className={styles.materialIcon}
+                        />
+                        <span
+                          className={
+                            insufficient
+                              ? styles.materialCountInsufficient
+                              : styles.materialCount
+                          }
+                        >
+                          {current} / {amt}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </button>
+            ) : (
+              <p>Maxed Out!</p>
+            )}
           </div>
         </div>
 
