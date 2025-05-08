@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import * as THREE from "three";
 import { SkinViewer } from "skinview3d";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import styles from "./css/clickerGame.module.css";
 
 const ClickerGame = () => {
   const canvasRef = useRef(null);
@@ -11,31 +12,222 @@ const ClickerGame = () => {
   const destroyTextures = useRef([]);
   const isAnimatingRef = useRef(false);
   const breakStageRef = useRef(0);
-  const skinUrl = "https://mc-heads.net/skin/saunhardy";
+  const [allowed, setAllowed] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [user, setUser] = useState(null);
+  const [skinUrl, setSkinUrl] = useState(null);
+  const [points, setPoints] = useState(0);
+  const [tool, setTool] = useState("hand");
+  const [pickaxeModel] = useState(null);
+  const [inventory, setInventory] = useState(["hand"]);
+  const [materials, setMaterials] = useState({});
+  const [lastDrop, setLastDrop] = useState(null);
+
+  const toolCosts = {
+    wooden: 100,
+    stone: 500,
+    copper: 2500,
+    iron: 10000,
+    gold: 50000,
+    diamond: 200000,
+    netherite: 1000000,
+  };
+
+  const toolMaterialCosts = {
+    stone: { cobble_stone: 100 },
+    copper: { cobble_stone: 200, copper_ingot: 25 },
+    iron: { cobble_stone: 300, copper_ingot: 40, iron_ingot: 25 },
+    gold: {
+      cobble_stone: 500,
+      copper_ingot: 75,
+      iron_ingot: 50,
+      gold_ingot: 20,
+    },
+    diamond: {
+      cobble_stone: 700,
+      copper_ingot: 100,
+      iron_ingot: 75,
+      gold_ingot: 50,
+      diamond: 10,
+    },
+    netherite: {
+      cobble_stone: 1000,
+      copper_ingot: 150,
+      iron_ingot: 100,
+      gold_ingot: 75,
+      diamond: 25,
+      netherite_ingot: 5,
+    },
+  };
+
+  const materialDrops = useMemo(
+    () => ({
+      wooden: [{ name: "cobble_stone", chance: 1 }],
+      stone: [
+        { name: "cobble_stone", chance: 0.99 },
+        { name: "copper_ingot", chance: 0.01 },
+      ],
+      copper: [
+        { name: "cobble_stone", chance: 0.975 },
+        { name: "copper_ingot", chance: 0.015 },
+        { name: "iron_ingot", chance: 0.01 },
+      ],
+      iron: [
+        { name: "cobble_stone", chance: 0.95 },
+        { name: "copper_ingot", chance: 0.02 },
+        { name: "iron_ingot", chance: 0.015 },
+        { name: "gold_ingot", chance: 0.01 },
+      ],
+      gold: [
+        { name: "cobble_stone", chance: 0.92 },
+        { name: "copper_ingot", chance: 0.03 },
+        { name: "iron_ingot", chance: 0.02 },
+        { name: "gold_ingot", chance: 0.02 },
+        { name: "diamond", chance: 0.01 },
+      ],
+      diamond: [
+        { name: "cobble_stone", chance: 0.88 },
+        { name: "copper_ingot", chance: 0.035 },
+        { name: "iron_ingot", chance: 0.03 },
+        { name: "gold_ingot", chance: 0.03 },
+        { name: "diamond", chance: 0.02 },
+        { name: "netherite_ingot", chance: 0.005 },
+      ],
+      netherite: [
+        { name: "cobble_stone", chance: 0.85 },
+        { name: "copper_ingot", chance: 0.04 },
+        { name: "iron_ingot", chance: 0.035 },
+        { name: "gold_ingot", chance: 0.035 },
+        { name: "diamond", chance: 0.025 },
+        { name: "netherite_ingot", chance: 0.01 },
+      ],
+    }),
+    []
+  );
+
+  const materialNames = {
+    cobble_stone: "Cobblestone",
+    copper_ingot: "Copper Ingot",
+    iron_ingot: "Iron Ingot",
+    gold_ingot: "Gold Ingot",
+    diamond: "Diamond",
+    netherite_ingot: "Netherite Ingot",
+  };
+
+  useEffect(() => {
+    fetch("/api/user/validate", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.valid) setAllowed(true);
+        else {
+          localStorage.clear();
+          window.location.href = "/";
+        }
+      })
+      .catch(() => {
+        window.location.href = "/";
+      })
+      .finally(() => setChecked(true));
+  }, []);
+
+  useEffect(() => {
+    if (!allowed) return;
+    fetch("/api/user/me", { credentials: "include" })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.name) setUser(data);
+        else {
+          localStorage.clear();
+          window.location.href = "/";
+        }
+      })
+      .catch(() => {
+        localStorage.clear();
+        window.location.href = "/";
+      });
+  }, [allowed]);
+
+  useEffect(() => {
+    if (user?.name) {
+      setSkinUrl(`https://mc-heads.net/skin/${user.name}`);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (!viewerRef.current || tool === "hand") return;
+
+    const loader = new GLTFLoader();
+    const url = `/assets/clickerGame/models/brightened/${tool}_pickaxe_bright.glb`;
+
+    loader.load(
+      url,
+      (gltf) => {
+        const model = gltf.scene;
+        model.name = "tool";
+        model.scale.set(1, 1, 1);
+        model.position.set(-1, -12, 3);
+        model.rotation.y = Math.PI;
+        model.rotation.x = Math.PI / 6;
+
+        model.traverse((child) => {
+          if (child.isMesh && child.material.map) {
+            const map = child.material.map;
+            map.encoding = THREE.sRGBEncoding;
+            map.needsUpdate = true;
+            map.magFilter = THREE.NearestFilter;
+            map.minFilter = THREE.NearestFilter;
+            map.generateMipmaps = false;
+
+            child.material.dispose();
+            child.material = new THREE.MeshBasicMaterial({
+              map,
+              transparent: true,
+            });
+          }
+        });
+
+        const rightArm =
+          viewerRef.current.playerObject.getObjectByName("rightArm");
+        if (rightArm) {
+          // Remove previous pickaxe model manually
+          const old = rightArm.children.find((child) => child.name === "tool");
+          if (old) {
+            rightArm.remove(old);
+          }
+
+          rightArm.add(model);
+          // No need to update React state — it causes rerender + flicker
+          pickaxeModel &&
+            pickaxeModel.traverse((obj) => {
+              if (typeof obj.dispose === "function") {
+                obj.dispose();
+              }
+            });
+        }
+      },
+      undefined,
+      (err) => console.error(`Failed to load ${tool} pickaxe`, err)
+    );
+  }, [tool, pickaxeModel]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !skinUrl) return;
 
-    // initialize viewer
     const viewer = new SkinViewer({
       canvas,
-      width: 600,
-      height: 600,
+      width: 300,
+      height: 300,
       skin: skinUrl,
     });
-
-    // ── [ NEW ] disable toneMapping + output in sRGB so our pickaxe isn't dark ──
     viewer.renderer.toneMapping = THREE.NoToneMapping;
     viewer.renderer.outputEncoding = THREE.sRGBEncoding;
-
-    viewer.camera.position.set(0, 10, 100);
+    viewer.camera.position.set(20, 10, 50);
     viewer.controls.enableZoom = false;
     viewer.controls.enableRotate = false;
     viewerRef.current = viewer;
     viewer.playerObject.rotation.y = Math.PI / 2;
 
-    // idle anim
     const tryEnableIdle = () => {
       if (viewer.animations?.idle) {
         viewer.animation = viewer.animations.idle();
@@ -45,82 +237,55 @@ const ClickerGame = () => {
     };
     tryEnableIdle();
 
-    // load break-overlay textures
     const textureLoader = new THREE.TextureLoader();
     for (let i = 0; i <= 9; i++) {
-      destroyTextures.current[i] = textureLoader.load(
+      const tex = textureLoader.load(
         `/assets/clickerGame/destroy/destroy_stage_${i}.png`
       );
+      tex.magFilter = THREE.NearestFilter;
+      tex.minFilter = THREE.NearestFilter;
+      tex.generateMipmaps = false;
+      destroyTextures.current[i] = tex;
     }
 
-    // load stone block + overlay
-    textureLoader.load(
-      "/assets/clickerGame/textures/stone.png",
-      (stoneTexture) => {
-        const geometry = new THREE.BoxGeometry(10, 10, 1);
-        const stoneMaterial = new THREE.MeshBasicMaterial({
-          map: stoneTexture,
-        });
-        const stoneMesh = new THREE.Mesh(geometry, stoneMaterial);
-        stoneMesh.position.set(12, -12, 0);
-        stoneMesh.name = "stoneBlock";
-        viewer.scene.add(stoneMesh);
-        stoneBaseRef.current = stoneMesh;
+    textureLoader.load("/assets/clickerGame/textures/stone.png", (texture) => {
+      texture.magFilter = THREE.NearestFilter;
+      texture.minFilter = THREE.NearestFilter;
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
 
-        const overlayMaterial = new THREE.MeshBasicMaterial({
-          map: null,
-          transparent: true,
-          opacity: 0,
-          depthTest: false,
-        });
-        const overlayMesh = new THREE.Mesh(geometry, overlayMaterial);
-        overlayMesh.position.set(12, -12, 0.01);
-        overlayMesh.name = "stoneOverlay";
-        viewer.scene.add(overlayMesh);
-        stoneOverlayRef.current = overlayMesh;
-      }
-    );
+      const stoneMaterials = Array(6).fill(
+        new THREE.MeshBasicMaterial({ map: texture })
+      );
 
-    // Auto-attach pickaxe once viewer is ready
-    const loader = new GLTFLoader();
-    loader.load(
-      "/assets/clickerGame/models/wooden_pickaxe.glb",
-      (gltf) => {
-        const model = gltf.scene;
-        model.name = "tool";
-        model.scale.set(1, 1, 1);
-        model.position.set(-1, -12, 3);
-        model.rotation.y = Math.PI;
-        model.rotation.x = Math.PI / 6;
+      const stoneGeometry = new THREE.BoxGeometry(10, 10, 10);
+      const stoneMesh = new THREE.Mesh(stoneGeometry, stoneMaterials);
+      stoneMesh.position.set(10.5, -12, 0);
 
-        // ── [ UPDATED ] mark sRGB + nearest for each map ──
-        model.traverse((child) => {
-          if (child.isMesh && child.material.map) {
-            const oldMap = child.material.map;
-            // decode as sRGB (gamma) so it stays bright
-            oldMap.encoding = THREE.sRGBEncoding;
-            oldMap.needsUpdate = true;
-            // nearest‐neighbor so pixels don’t blur/darken
-            oldMap.magFilter = THREE.NearestFilter;
-            oldMap.minFilter = THREE.NearestFilter;
-            oldMap.generateMipmaps = false;
+      stoneMesh.name = "stoneBlock";
+      viewer.scene.add(stoneMesh);
+      stoneBaseRef.current = stoneMesh;
 
-            child.material.dispose();
-            child.material = new THREE.MeshBasicMaterial({
-              map: oldMap,
-              transparent: true,
-            });
-          }
-        });
+      // Create overlay block slightly larger
+      const overlayMaterial = new THREE.MeshBasicMaterial({
+        map: null,
+        transparent: true,
+        opacity: 0,
+        depthTest: false,
+      });
 
-        const rightArm = viewer.playerObject.getObjectByName("rightArm");
-        if (rightArm) rightArm.add(model);
-      },
-      undefined,
-      (error) => console.error("GLB failed to load", error)
-    );
+      const overlayMesh = new THREE.Mesh(
+        stoneGeometry.clone(),
+        overlayMaterial
+      );
+      overlayMesh.scale.multiplyScalar(1.01);
+      overlayMesh.position.set(10.5, -12, 0.01);
+      overlayMesh.name = "stoneOverlay";
 
-    // hit animation
+      viewer.scene.add(overlayMesh);
+      stoneOverlayRef.current = overlayMesh;
+    });
+
     const triggerHitAnimation = () => {
       if (!viewer || isAnimatingRef.current) return;
       const arm = viewer.playerObject.getObjectByName("rightArm");
@@ -149,11 +314,41 @@ const ClickerGame = () => {
       requestAnimationFrame(animate);
     };
 
-    // stone breaking overlay
     const breakStone = () => {
       const overlay = stoneOverlayRef.current;
       const stage = breakStageRef.current;
       if (!overlay || destroyTextures.current.length < 10) return;
+
+      const tryDropMaterial = () => {
+        const drops = materialDrops[tool] || [];
+        const rand = Math.random();
+        let cumulative = 0;
+        for (const drop of drops) {
+          cumulative += drop.chance;
+          if (rand <= cumulative) {
+            setMaterials((prev) => ({
+              ...prev,
+              [drop.name]: (prev[drop.name] || 0) + 1,
+            }));
+
+            setLastDrop((prev) => {
+              if (prev?.name === drop.name) {
+                clearTimeout(prev.timeoutId);
+                const newTimeoutId = setTimeout(() => setLastDrop(null), 2500);
+                return {
+                  ...prev,
+                  count: prev.count + 1,
+                  timeoutId: newTimeoutId,
+                };
+              } else {
+                const newTimeoutId = setTimeout(() => setLastDrop(null), 2500);
+                return { name: drop.name, count: 1, timeoutId: newTimeoutId };
+              }
+            });
+            break;
+          }
+        }
+      };
 
       if (stage <= 9) {
         overlay.material.map = destroyTextures.current[stage];
@@ -168,11 +363,13 @@ const ClickerGame = () => {
           overlay.material.opacity = 0;
           overlay.material.needsUpdate = true;
           breakStageRef.current = 0;
+
+          // Drop item now that block resets
+          tryDropMaterial();
         }, 200);
       }
     };
 
-    // clicking logic
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const onClick = (event) => {
@@ -187,9 +384,28 @@ const ClickerGame = () => {
       );
       for (const intersect of intersects) {
         const obj = intersect.object;
+
         if (obj.name === "stoneBlock" || obj.name === "stoneOverlay") {
           triggerHitAnimation();
           breakStone();
+
+          let earned = 0;
+          if (tool === "hand") {
+            if (Math.random() < 0.5) earned = 1;
+          } else {
+            const values = {
+              wooden: 1,
+              stone: 2,
+              copper: 4,
+              iron: 8,
+              gold: 16,
+              diamond: 32,
+              netherite: 64,
+            };
+            earned = values[tool] || 0;
+          }
+
+          if (earned > 0) setPoints((prev) => prev + earned);
           break;
         }
       }
@@ -200,13 +416,225 @@ const ClickerGame = () => {
       viewer.dispose();
       canvas.removeEventListener("click", onClick);
     };
-  }, [skinUrl]);
+  }, [skinUrl, tool, materialDrops]);
+
+  const handleUpgrade = (newTool) => {
+    const cost = toolCosts[newTool];
+    const materialCost = toolMaterialCosts[newTool] || {};
+    const toolOrder = Object.keys(toolCosts);
+    const currentTier = toolOrder.indexOf(tool);
+    const newTier = toolOrder.indexOf(newTool);
+
+    const hasEnoughMaterials = Object.entries(materialCost).every(
+      ([mat, amt]) => (materials[mat] || 0) >= amt
+    );
+
+    if (points >= cost && newTier > currentTier && hasEnoughMaterials) {
+      setMaterials((prev) => {
+        const updated = { ...prev };
+        for (const [mat, amt] of Object.entries(materialCost)) {
+          updated[mat] -= amt;
+        }
+        return updated;
+      });
+
+      setPoints((prev) => prev - cost);
+      setTool(newTool);
+      setInventory((prev) => [...prev, newTool]);
+    } else {
+      console.warn("Insufficient materials or points.");
+    }
+  };
+
+  useEffect(() => {
+    if (!lastDrop) return;
+
+    const timeout = setTimeout(() => {
+      setLastDrop(null);
+    }, 2500);
+
+    return () => clearTimeout(timeout);
+  }, [lastDrop]);
+
+  const toolOrder = Object.keys(toolCosts);
+
+  const shop = toolOrder
+    .filter((name) => !inventory.includes(name))
+    .map((name, index) => {
+      const cost = toolCosts[name];
+      const materialCost = toolMaterialCosts[name] || {};
+      const toolIndex = toolOrder.indexOf(name);
+      const currentTier = toolOrder.indexOf(tool);
+      const unlocked = toolIndex <= currentTier + 1;
+      const filename = name === "gold" ? "golden" : name;
+
+      return (
+        <button
+          key={name}
+          disabled={!unlocked || points < cost}
+          onClick={() => unlocked && handleUpgrade(name)}
+          className={styles.shopItem}
+        >
+          <div className={styles.pickaxeWrapper}>
+            <img
+              src={`/assets/clickerGame/models/images/${filename}_pick.png`}
+              alt={`${name} pickaxe`}
+              className={styles.pickaxeIcon}
+            />
+            {!unlocked && (
+              <img
+                src="/assets/clickerGame/models/images/lock_locked.png"
+                alt="Locked"
+                className={styles.lockCentered}
+              />
+            )}
+          </div>
+          <div className={styles.itemPrice}>
+            {unlocked ? `${cost} pts` : `????`}
+          </div>
+          {unlocked && Object.keys(materialCost).length > 0 && (
+            <div className={styles.materialCostList}>
+              {Object.entries(materialCost).map(([mat, amt]) => {
+                const current = materials[mat] || 0;
+                const insufficient = current < amt;
+
+                return (
+                  <div key={mat} className={styles.materialCost}>
+                    <img
+                      src={`/assets/clickerGame/materials/${mat}.png`}
+                      alt={mat}
+                      className={styles.materialIcon}
+                    />
+                    <span
+                      className={
+                        insufficient
+                          ? styles.materialCountInsufficient
+                          : styles.materialCount
+                      }
+                    >
+                      {current} / {amt}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </button>
+      );
+    });
+
+  useEffect(() => {
+    return () => {
+      if (lastDrop?.timeoutId) {
+        clearTimeout(lastDrop.timeoutId);
+      }
+    };
+  }, [lastDrop]);
+
+  if (!checked || (allowed && !user)) {
+    return (
+      <div className="admin-panel-wrapper">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!allowed) return null;
 
   return (
-    <div id="character-card" style={{ textAlign: "center", padding: 20 }}>
-      <h2>Tool Viewer</h2>
-      <canvas ref={canvasRef} style={{ border: "1px solid #ccc" }} />
-    </div>
+    <>
+      <div className={styles["clicker-game-container"]}>
+        <div className={`${styles["clicker-sidebar"]} ${styles.shop}`}>
+          <h3>Shop</h3>
+          <div className={styles["shop-section"]}>
+            <h4>Tools</h4>
+            <div className={styles["shop-grid"]}>
+              {shop.length > 0 ? shop : <p>All tools purchased!</p>}
+            </div>
+          </div>
+        </div>
+
+        <div className={styles["clicker-main"]}>
+          <div className={styles["status-bar"]}>
+            <span>Points: {points}</span>
+            <span>Current Tool: {tool}</span>
+          </div>
+          <div style={{ position: "relative" }}>
+            <canvas ref={canvasRef} className={styles["clicker-canvas"]} />
+            {lastDrop && (
+              <div className={styles.materialPopup}>
+                <img
+                  src={`/assets/clickerGame/materials/${lastDrop.name}.png`}
+                  alt={lastDrop.name}
+                />
+                <span>
+                  {lastDrop.count}x{" "}
+                  {materialNames[lastDrop.name] || lastDrop.name}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className={`${styles["clicker-sidebar"]} ${styles.inventory}`}>
+          <h3>Inventory</h3>
+
+          <div className={styles["shop-section"]}>
+            <h4>Tools</h4>
+            <div className={styles["shop-grid"]}>
+              {inventory
+                .filter((item) => item !== "hand")
+                .map((item, i) => {
+                  const filename = item === "gold" ? "golden" : item;
+                  return (
+                    <div
+                      key={i}
+                      className={`${styles.shopItem} ${
+                        item === tool ? styles.equipped : ""
+                      }`}
+                    >
+                      <div className={styles.pickaxeWrapper}>
+                        <img
+                          src={`/assets/clickerGame/models/images/${filename}_pick.png`}
+                          alt={`${item} pickaxe`}
+                          className={styles.pickaxeIcon}
+                        />
+                      </div>
+                      <div className={styles.itemPrice}>
+                        {item.charAt(0).toUpperCase() + item.slice(1)} Pickaxe
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+          <div className={styles["shop-section"]}>
+            <h4>Materials</h4>
+            <div className={styles["inventory-grid"]}>
+              {Object.entries(materials).map(([mat, count]) =>
+                count > 0 ? (
+                  <div key={mat} className={styles.inventoryItem}>
+                    <img
+                      src={`/assets/clickerGame/materials/${mat}.png`}
+                      alt={mat}
+                    />
+                    {materialNames[mat] || mat} x{count}
+                  </div>
+                ) : null
+              )}
+            </div>
+          </div>
+        </div>
+
+        <footer className={styles.disclaimer}>
+          <em>
+            NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED
+            WITH MOJANG OR MICROSOFT.
+          </em>
+        </footer>
+      </div>
+    </>
   );
 };
 
