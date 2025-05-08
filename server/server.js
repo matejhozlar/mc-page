@@ -637,7 +637,109 @@ app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   }
 });
 
-// callback for discord login
+// callback for discord game
+app.post("/api/discord/callback-game", async (req, res) => {
+  const code = req.body.code;
+  logger.info(`🎮 Received Discord login code for game: ${code}`);
+
+  try {
+    const tokenRes = await axios.post(
+      "https://discord.com/api/oauth2/token",
+      new URLSearchParams({
+        client_id: process.env.DISCORD_LOGIN_CLIENT_ID,
+        client_secret: process.env.DISCORD_LOGIN_CLIENT_SECRET,
+        grant_type: "authorization_code",
+        code,
+        redirect_uri: process.env.DISCORD_LOGIN_REDIRECT_URI,
+      }),
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    );
+
+    const accessToken = tokenRes.data.access_token;
+
+    const userRes = await axios.get("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const discordUser = userRes.data;
+    const discordId = discordUser.id;
+
+    const dbUser = await db.query(
+      `SELECT * FROM users WHERE discord_id = $1 LIMIT 1`,
+      [discordId]
+    );
+
+    if (dbUser.rowCount === 0) {
+      return res.status(403).json({ error: "Not a registered user." });
+    }
+
+    logger.info(`User id: ${discordId}`);
+
+    res.cookie("user_session", discordId, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 1000 * 60 * 60 * 24,
+    });
+
+    logger.info(`🎉 Game session started for user: ${discordUser.username}`);
+    res.status(200).json({ success: true, discordId });
+  } catch (error) {
+    logger.error(`❌ Game login failed: ${logError(error)}`);
+    res.status(500).json({ error: "OAuth error" });
+  }
+});
+
+// validate user login
+app.get("/api/user/validate", async (req, res) => {
+  const id = req.cookies.user_session;
+
+  if (!id) {
+    return res.status(401).json({ valid: false });
+  }
+
+  const result = await db.query(
+    `SELECT name, discord_id FROM users WHERE discord_id = $1`,
+    [id]
+  );
+
+  if (result.rowCount === 0) {
+    return res.status(401).json({ valid: false });
+  }
+
+  const user = result.rows[0];
+  res.json({ valid: true, ...user });
+});
+
+// user me
+app.get("/api/user/me", async (req, res) => {
+  const id = req.cookies.user_session;
+  logger.error(`User id: ${id}`);
+
+  if (!id) {
+    logger.warn("👤 /user/me requested without session.");
+    return res.status(403).json({ error: "Unauthorized" });
+  }
+
+  try {
+    const result = await db.query(`SELECT * FROM users WHERE discord_id = $1`, [
+      id,
+    ]);
+
+    if (result.rows.length === 0) {
+      logger.warn(`❓ User not found in users table: ${id}`);
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    logger.info(`📥 /user/me data sent for: ${id}`);
+    res.json(result.rows[0]);
+  } catch (error) {
+    logger.error(`Failed to fetch user data: ${logError(error)}`);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// callback for admin discord login
 app.post("/api/discord/callback", async (req, res) => {
   const code = req.body.code;
   logger.info(`🔐 Received Discord OAuth callback with code: ${code}`);
