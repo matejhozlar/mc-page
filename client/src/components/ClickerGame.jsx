@@ -30,6 +30,8 @@ const ClickerGame = () => {
   const [lastDrop, setLastDrop] = useState(null);
   const [autoClickLevel, setAutoClickLevel] = useState(0);
   const isUserClickingRef = useRef(false);
+  const [autoclickerReady, setAutoclickerReady] = useState(false);
+  const [autoclickerFullyReady, setAutoclickerFullyReady] = useState(false);
 
   const toolCosts = {
     wooden: 100,
@@ -179,6 +181,7 @@ const ClickerGame = () => {
         setInventory(data.inventory);
         setMaterials(data.materials);
         setAutoClickLevel(data.auto_click_level);
+        console.log(data.auto_click_level);
       })
       .catch((err) => console.error("Failed to fetch game data", err));
   }, [user]);
@@ -190,8 +193,31 @@ const ClickerGame = () => {
   }, [user]);
 
   useEffect(() => {
+    const checkReady = () => {
+      const overlayReady = !!stoneOverlayRef.current;
+      const viewerReady = !!viewerRef.current;
+      const texturesReady =
+        destroyTextures.current.filter(Boolean).length === 10;
+
+      if (overlayReady && viewerReady && texturesReady && autoClickLevel > 0) {
+        setAutoclickerFullyReady(true);
+      } else {
+        setTimeout(checkReady, 100);
+      }
+    };
+
+    checkReady();
+  }, [autoClickLevel]);
+
+  useEffect(() => {
+    if (!autoclickerFullyReady) return;
     if (autoClickLevel === 0) return;
-    if (!stoneOverlayRef.current || destroyTextures.current.length < 10) return;
+    if (
+      !stoneOverlayRef.current ||
+      destroyTextures.current.length < 10 ||
+      !autoclickerReady
+    )
+      return;
 
     const rate = autoClickerUpgrades[autoClickLevel - 1].rate;
     let localStage = 0;
@@ -202,9 +228,25 @@ const ClickerGame = () => {
 
       if (!overlay || !viewer) return;
 
-      // Trigger animation
+      const valuePerClick = {
+        hand: 0.5,
+        wooden: 1,
+        stone: 2,
+        copper: 4,
+        iron: 8,
+        gold: 16,
+        diamond: 32,
+        netherite: 64,
+      };
+
+      if (isUserClickingRef.current) {
+        const earned = valuePerClick[tool] || 0;
+        setPoints((prev) => prev + earned);
+        return;
+      }
+
       const arm = viewer.playerObject.getObjectByName("rightArm");
-      if (!isUserClickingRef.current && arm && !isAnimatingRef.current) {
+      if (arm && !isAnimatingRef.current) {
         isAnimatingRef.current = true;
         const originalRotation = arm.rotation.x;
         const swingAmount = -Math.PI / 3;
@@ -228,29 +270,16 @@ const ClickerGame = () => {
         requestAnimationFrame(animate);
       }
 
-      // Apply breaking texture
       if (localStage <= 9) {
         overlay.material.map = destroyTextures.current[localStage];
         overlay.material.opacity = 1;
         overlay.material.needsUpdate = true;
         localStage += 1;
 
-        // Award points per click
-        const valuePerClick = {
-          hand: 0.5,
-          wooden: 1,
-          stone: 2,
-          copper: 4,
-          iron: 8,
-          gold: 16,
-          diamond: 32,
-          netherite: 64,
-        };
         const earned = valuePerClick[tool] || 0;
         setPoints((prev) => prev + earned);
       }
 
-      // If block breaks
       if (localStage === 10) {
         overlay.material.map = null;
         overlay.material.opacity = 0;
@@ -290,7 +319,14 @@ const ClickerGame = () => {
     }, 1000 / rate);
 
     return () => clearInterval(interval);
-  }, [autoClickLevel, tool, autoClickerUpgrades, materialDrops]);
+  }, [
+    autoClickLevel,
+    tool,
+    autoClickerUpgrades,
+    materialDrops,
+    autoclickerReady,
+    autoclickerFullyReady,
+  ]);
 
   const nextUpgrade = autoClickerUpgrades[autoClickLevel];
 
@@ -308,7 +344,19 @@ const ClickerGame = () => {
       }
       return updated;
     });
-    setAutoClickLevel((lvl) => lvl + 1);
+
+    const newLevel = autoClickLevel + 1;
+    setAutoClickLevel(newLevel);
+
+    saveProgress({
+      points,
+      tool,
+      inventory,
+      materials: Object.fromEntries(
+        Object.entries(materials).map(([k, v]) => [k, v - (cost[k] || 0)])
+      ),
+      auto_click_level: newLevel,
+    });
   };
 
   useEffect(() => {
@@ -399,7 +447,12 @@ const ClickerGame = () => {
     const textureLoader = new THREE.TextureLoader();
     for (let i = 0; i <= 9; i++) {
       const tex = textureLoader.load(
-        `/assets/clickerGame/destroy/destroy_stage_${i}.png`
+        `/assets/clickerGame/destroy/destroy_stage_${i}.png`,
+        () => {
+          if (destroyTextures.current.filter(Boolean).length === 10) {
+            setAutoclickerReady(true);
+          }
+        }
       );
       tex.magFilter = THREE.NearestFilter;
       tex.minFilter = THREE.NearestFilter;
@@ -696,26 +749,29 @@ const ClickerGame = () => {
 
   const saveTimeoutRef = useRef(null);
 
-  const saveProgress = useCallback(() => {
-    if (!user) return;
+  const saveProgress = useCallback(
+    (override = null) => {
+      if (!user) return;
 
-    const payload = {
-      points,
-      tool,
-      inventory,
-      materials,
-      auto_click_level: autoClickLevel ?? 0,
-    };
+      const payload = override || {
+        points,
+        tool,
+        inventory,
+        materials,
+        auto_click_level: autoClickLevel ?? 0,
+      };
 
-    fetch("/api/game-data", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }).catch((err) => {
-      console.error("Failed to save progress", err);
-    });
-  }, [user, points, tool, inventory, materials, autoClickLevel]);
+      fetch("/api/game-data", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }).catch((err) => {
+        console.error("Failed to save progress", err);
+      });
+    },
+    [user, points, tool, inventory, materials, autoClickLevel]
+  );
 
   const scheduleSave = useCallback(() => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);

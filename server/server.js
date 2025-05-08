@@ -1058,14 +1058,14 @@ app.post("/api/game-data", async (req, res) => {
   const discordId = req.cookies.user_session;
   if (!discordId) return res.status(401).json({ error: "Unauthorized" });
 
-  const { points, tool, inventory, materials, autoClickLevel = 0 } = req.body;
+  const { points, tool, inventory, materials, auto_click_level } = req.body;
 
   if (
     typeof points !== "number" ||
     typeof tool !== "string" ||
     !Array.isArray(inventory) ||
     typeof materials !== "object" ||
-    typeof autoClickLevel !== "number"
+    typeof auto_click_level !== "number"
   ) {
     return res.status(400).json({ error: "Invalid game data" });
   }
@@ -1082,7 +1082,7 @@ app.post("/api/game-data", async (req, res) => {
          materials = EXCLUDED.materials,
          auto_click_level = EXCLUDED.auto_click_level,
          updated_at = now()`,
-      [discordId, points, tool, inventory, materials, autoClickLevel]
+      [discordId, points, tool, inventory, materials, auto_click_level]
     );
 
     return res.json({ success: true });
