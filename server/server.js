@@ -673,8 +673,6 @@ app.post("/api/discord/callback-game", async (req, res) => {
       return res.status(403).json({ error: "Not a registered user." });
     }
 
-    logger.info(`User id: ${discordId}`);
-
     res.cookie("user_session", discordId, {
       httpOnly: true,
       secure: true,
@@ -714,7 +712,6 @@ app.get("/api/user/validate", async (req, res) => {
 // user me
 app.get("/api/user/me", async (req, res) => {
   const id = req.cookies.user_session;
-  logger.error(`User id: ${id}`);
 
   if (!id) {
     logger.warn("👤 /user/me requested without session.");
