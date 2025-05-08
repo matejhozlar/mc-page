@@ -9,7 +9,6 @@ if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
 function createSafeDailyRotateTransport(options) {
   const transport = new DailyRotateFile(options);
 
-  // Patch the log function to ensure the folder exists before each log
   const originalLog = transport.log.bind(transport);
 
   transport.log = (info, next) => {
@@ -21,7 +20,6 @@ function createSafeDailyRotateTransport(options) {
       fs.mkdirSync(folderPath, { recursive: true });
     }
 
-    // Replace %DATE% in filename
     transport.filename = path.join(
       date,
       path.basename(options.filename.replace("%DATE%", date))
