@@ -1034,6 +1034,67 @@ app.post("/api/admin/vanish-status", async (req, res) => {
   }
 });
 
+// clickerGame get game data
+app.get("/api/game-data", async (req, res) => {
+  const discordId = req.cookies.user_session;
+  if (!discordId) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const result = await db.query(
+      `SELECT * FROM clicker_game_data WHERE discord_id = $1`,
+      [discordId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.json(null);
+    }
+
+    return res.json(result.rows[0]);
+  } catch (error) {
+    logger.error(`❌ Failed to fetch game data: ${logError(error)}`);
+    return res.status(500).json({ error: "Failed to load game data" });
+  }
+});
+
+// clickerGame post game data
+app.post("/api/game-data", async (req, res) => {
+  const discordId = req.cookies.user_session;
+  if (!discordId) return res.status(401).json({ error: "Unauthorized" });
+
+  const { points, tool, inventory, materials, autoClickLevel = 0 } = req.body;
+
+  if (
+    typeof points !== "number" ||
+    typeof tool !== "string" ||
+    !Array.isArray(inventory) ||
+    typeof materials !== "object" ||
+    typeof autoClickLevel !== "number"
+  ) {
+    return res.status(400).json({ error: "Invalid game data" });
+  }
+
+  try {
+    await db.query(
+      `INSERT INTO clicker_game_data (discord_id, points, tool, inventory, materials, auto_click_level)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       ON CONFLICT (discord_id)
+       DO UPDATE SET
+         points = EXCLUDED.points,
+         tool = EXCLUDED.tool,
+         inventory = EXCLUDED.inventory,
+         materials = EXCLUDED.materials,
+         auto_click_level = EXCLUDED.auto_click_level,
+         updated_at = now()`,
+      [discordId, points, tool, inventory, materials, autoClickLevel]
+    );
+
+    return res.json({ success: true });
+  } catch (error) {
+    logger.error(`❌ Failed to save game data: ${logError(error)}`);
+    return res.status(500).json({ error: "Failed to save game data" });
+  }
+});
+
 // auto add unverified role on join
 client.on("guildMemberAdd", async (member) => {
   const unverifiedRoleId = process.env.DISCORD_UNVERIFIED_ROLE_ID;
