@@ -257,6 +257,7 @@ const AdminRconPanel = () => {
   const { players = [] } = usePlayers();
   const [mcName, setMcName] = useState("");
   const [targetPlayer, setTargetPlayer] = useState("");
+  const [tpHerePlayer, setTpHerePlayer] = useState("");
   const [sayMessage, setSayMessage] = useState("");
   const [gamemode, setGamemode] = useState("creative");
   const [isVanished, setIsVanished] = useState(null);
@@ -454,6 +455,29 @@ const AdminRconPanel = () => {
               }}
             >
               Teleport
+            </button>
+          }
+        />
+
+        <InputGroup
+          label="Teleport Here"
+          input={
+            <AutocompleteInput
+              value={tpHerePlayer}
+              onChange={setTpHerePlayer}
+              placeholder="Player name"
+              suggestions={playerList}
+            />
+          }
+          action={
+            <button
+              className="admin-command-button"
+              onClick={() => {
+                sendCommand(`/tp ${tpHerePlayer} ${mcName}`);
+                setTargetPlayer("");
+              }}
+            >
+              Teleport Here
             </button>
           }
         />
