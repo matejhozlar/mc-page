@@ -17,7 +17,7 @@ import AdminLoginButton from "./components/AdminLoginButton.jsx";
 import Callback from "./components/Callback.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
 import { PlayerProvider } from "./components/AdminPlayerProvider.jsx";
-import ClickerGame from "./components/ClickerGame.jsx";
+import ClickerGame from "./components/clickerGame/ClickerGame.jsx";
 import DiscordLoginButton from "./components/DiscordLoginButton.jsx";
 import CallbackGame from "./components/CallbackGame.jsx";
 
