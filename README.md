@@ -120,8 +120,7 @@ Route	Description
 
 - Chat history syncing
 
-🤝 Contributions
-Pull requests and improvements are welcome! Open issues for bugs or feature requests.
+This project is fan-made, not affiliated with Mojang or Microsoft. All original Minecraft assets must be supplied by the end-user
 
 📧 Contact
 📮 Email: admin@create-rington.com
