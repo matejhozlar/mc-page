@@ -7,28 +7,19 @@ const logDir = "logs";
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
 
 function createSafeDailyRotateTransport(options) {
-  const transport = new DailyRotateFile(options);
+  const now = new Date();
+  const date = now.toISOString().split("T")[0];
+  const datedDir = path.join(options.dirname || "", date);
 
-  const originalLog = transport.log.bind(transport);
+  if (!fs.existsSync(datedDir)) {
+    fs.mkdirSync(datedDir, { recursive: true });
+  }
 
-  transport.log = (info, next) => {
-    const now = new Date();
-    const date = now.toISOString().split("T")[0];
-    const folderPath = path.join(options.dirname || "", date);
-
-    if (!fs.existsSync(folderPath)) {
-      fs.mkdirSync(folderPath, { recursive: true });
-    }
-
-    transport.filename = path.join(
-      date,
-      path.basename(options.filename.replace("%DATE%", date))
-    );
-
-    return originalLog(info, next);
-  };
-
-  return transport;
+  return new DailyRotateFile({
+    ...options,
+    dirname: datedDir,
+    filename: path.basename(options.filename),
+  });
 }
 
 const logger = winston.createLogger({
@@ -42,7 +33,7 @@ const logger = winston.createLogger({
   transports: [
     createSafeDailyRotateTransport({
       dirname: logDir,
-      filename: "%DATE%/server.log",
+      filename: "server-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       zippedArchive: false,
       maxSize: "10m",
@@ -50,7 +41,7 @@ const logger = winston.createLogger({
     }),
     createSafeDailyRotateTransport({
       dirname: logDir,
-      filename: "%DATE%/errors.log",
+      filename: "errors-%DATE%.log",
       datePattern: "YYYY-MM-DD",
       level: "error",
     }),
@@ -59,7 +50,7 @@ const logger = winston.createLogger({
   exceptionHandlers: [
     createSafeDailyRotateTransport({
       dirname: logDir,
-      filename: "%DATE%/exceptions.log",
+      filename: "exceptions-%DATE%.log",
       datePattern: "YYYY-MM-DD",
     }),
   ],

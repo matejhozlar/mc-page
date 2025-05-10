@@ -35,24 +35,24 @@ client.once("ready", async () => {
 
     try {
       await botCommandsChannel.send({
-        content: `📚 **Welcome to the Bot Commands Channel!**\n\n
-Here’s how you can interact with me:\n\n
-🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n
-🕹️ **/playtime** — Check your own playtime\n
-🔍 **/playtime <mc_name>** — Check someone else's playtime\n
-🏆 **/top-playtime** — See the top 10 players with the most hours\n
-🧍 **/list** — Show who’s currently online on the Minecraft server\n
-🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)\n\n
----\n\n
+        content: `📚 **Welcome to the Bot Commands Channel!**\n
+Here’s how you can interact with me:\n
+🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account
+🕹️ **/playtime** — Check your own playtime
+🔍 **/playtime <mc_name>** — Check someone else's playtime
+🏆 **/top-playtime** — See the top 10 players with the most hours
+🧍 **/list** — Show who’s currently online on the Minecraft server
+🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)\n
+---\n
 ⛏️ **Playtime Roles** — Level up by playing more on the server!\n
-🪨 **Stone** — 0–20 hours\n
-🥉 **Copper** — 20–40 hours\n
-⛓️ **Iron** — 40–60 hours\n
-🥇 **Gold** — 60–100 hours\n
+🪨 **Stone** — 0–20 hours
+🥉 **Copper** — 20–40 hours
+⛓️ **Iron** — 40–60 hours
+🥇 **Gold** — 60–100 hours
 💎 **Diamond** — 100+ hours\n
 👑 **The Sleepless** — Awarded to the player with the most total playtime! (1st place only)\n
-Grind and show off your rank in Discord! 🎮\n\n
----\n\n
+Grind and show off your rank in Discord! 🎮\n
+---\n
 💡 Need help? Just type **/** and scroll through available commands!`,
       });
 
