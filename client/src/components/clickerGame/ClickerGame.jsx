@@ -1,14 +1,18 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as THREE from "three";
 import { SkinViewer } from "skinview3d";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import styles from "./css/clickerGame.module.css";
+import styles from "../css/clickerGame.module.css";
+import {
+  toolCosts,
+  toolMaterialCosts,
+  materialDrops,
+  materialNames,
+  autoClickerUpgrades,
+  toolOrder,
+  valuePerClick,
+} from "./data/toolData";
+import { SMELTING_RECIPES } from "./data/furnaceData";
 
 const ClickerGame = () => {
   const canvasRef = useRef(null);
@@ -32,108 +36,36 @@ const ClickerGame = () => {
   const isUserClickingRef = useRef(false);
   const [autoclickerReady, setAutoclickerReady] = useState(false);
   const [autoclickerFullyReady, setAutoclickerFullyReady] = useState(false);
+  const [shopTab, setShopTab] = useState("tools");
+  const [inventoryTab, setInventoryTab] = useState("tools");
+  const [furnaceLevel, setFurnaceLevel] = useState(0);
+  const [smeltingQueue, setSmeltingQueue] = useState([]);
+  const [coalReserve, setCoalReserve] = useState(0);
+  const [smeltAmounts, setSmeltAmounts] = useState({});
+  const [smeltingProgress, setSmeltingProgress] = useState(0);
 
-  const toolCosts = {
-    wooden: 100,
-    stone: 500,
-    copper: 2500,
-    iron: 10000,
-    gold: 50000,
-    diamond: 200000,
-    netherite: 1000000,
-  };
+  // const smeltAll = (oreName) => {
+  //   if (!SMELTING_RECIPES[oreName] || !materials[oreName]) return;
+  //   const count = materials[oreName];
+  //   setSmeltingQueue((prev) => [...prev, ...Array(count).fill(oreName)]);
+  // };
 
-  const autoClickerUpgrades = useMemo(
-    () => [
-      { rate: 0.5, cost: { cobble_stone: 200, copper_ingot: 1 } },
-      { rate: 1.0, cost: { cobble_stone: 500, copper_ingot: 3 } },
-      { rate: 2.0, cost: { cobble_stone: 1000, iron_ingot: 10 } },
-      { rate: 3.5, cost: { cobble_stone: 2000, gold_ingot: 5 } },
-      { rate: 5.0, cost: { cobble_stone: 5000, diamond: 2 } },
-      { rate: 7.5, cost: { cobble_stone: 10000, netherite_ingot: 1 } },
-    ],
-    []
-  );
+  const upgradeFurnace = () => {
+    if (furnaceLevel >= 8) return;
+    const cobbleCost = 20 + furnaceLevel * 10;
+    const coalCost = 1 + Math.floor(furnaceLevel / 2);
 
-  const toolMaterialCosts = {
-    stone: { cobble_stone: 100 },
-    copper: { cobble_stone: 200, copper_ingot: 25 },
-    iron: { cobble_stone: 300, copper_ingot: 40, iron_ingot: 25 },
-    gold: {
-      cobble_stone: 500,
-      copper_ingot: 75,
-      iron_ingot: 50,
-      gold_ingot: 20,
-    },
-    diamond: {
-      cobble_stone: 700,
-      copper_ingot: 100,
-      iron_ingot: 75,
-      gold_ingot: 50,
-      diamond: 10,
-    },
-    netherite: {
-      cobble_stone: 1000,
-      copper_ingot: 150,
-      iron_ingot: 100,
-      gold_ingot: 75,
-      diamond: 25,
-      netherite_ingot: 5,
-    },
-  };
-
-  const materialDrops = useMemo(
-    () => ({
-      wooden: [{ name: "cobble_stone", chance: 1 }],
-      stone: [
-        { name: "cobble_stone", chance: 0.99 },
-        { name: "copper_ingot", chance: 0.01 },
-      ],
-      copper: [
-        { name: "cobble_stone", chance: 0.975 },
-        { name: "copper_ingot", chance: 0.015 },
-        { name: "iron_ingot", chance: 0.01 },
-      ],
-      iron: [
-        { name: "cobble_stone", chance: 0.95 },
-        { name: "copper_ingot", chance: 0.02 },
-        { name: "iron_ingot", chance: 0.015 },
-        { name: "gold_ingot", chance: 0.01 },
-      ],
-      gold: [
-        { name: "cobble_stone", chance: 0.92 },
-        { name: "copper_ingot", chance: 0.03 },
-        { name: "iron_ingot", chance: 0.02 },
-        { name: "gold_ingot", chance: 0.02 },
-        { name: "diamond", chance: 0.01 },
-      ],
-      diamond: [
-        { name: "cobble_stone", chance: 0.88 },
-        { name: "copper_ingot", chance: 0.035 },
-        { name: "iron_ingot", chance: 0.03 },
-        { name: "gold_ingot", chance: 0.03 },
-        { name: "diamond", chance: 0.02 },
-        { name: "netherite_ingot", chance: 0.005 },
-      ],
-      netherite: [
-        { name: "cobble_stone", chance: 0.85 },
-        { name: "copper_ingot", chance: 0.04 },
-        { name: "iron_ingot", chance: 0.035 },
-        { name: "gold_ingot", chance: 0.035 },
-        { name: "diamond", chance: 0.025 },
-        { name: "netherite_ingot", chance: 0.01 },
-      ],
-    }),
-    []
-  );
-
-  const materialNames = {
-    cobble_stone: "Cobblestone",
-    copper_ingot: "Copper Ingot",
-    iron_ingot: "Iron Ingot",
-    gold_ingot: "Gold Ingot",
-    diamond: "Diamond",
-    netherite_ingot: "Netherite Ingot",
+    if (
+      (materials.cobble_stone || 0) >= cobbleCost &&
+      (materials.coal || 0) >= coalCost
+    ) {
+      setMaterials((prev) => ({
+        ...prev,
+        cobble_stone: prev.cobble_stone - cobbleCost,
+        coal: prev.coal - coalCost,
+      }));
+      setFurnaceLevel((prev) => prev + 1);
+    }
   };
 
   useEffect(() => {
@@ -181,7 +113,6 @@ const ClickerGame = () => {
         setInventory(data.inventory);
         setMaterials(data.materials);
         setAutoClickLevel(data.auto_click_level);
-        console.log(data.auto_click_level);
       })
       .catch((err) => console.error("Failed to fetch game data", err));
   }, [user]);
@@ -210,6 +141,55 @@ const ClickerGame = () => {
   }, [autoClickLevel]);
 
   useEffect(() => {
+    if (furnaceLevel === 0 || smeltingQueue.length === 0 || coalReserve < 0.25)
+      return;
+
+    const smeltRate = 5000 / furnaceLevel;
+    let progress = 0;
+    const increment = 100 / (smeltRate / 100); // update every 100ms
+
+    const progressInterval = setInterval(() => {
+      progress += increment;
+      if (progress > 100) progress = 100;
+      setSmeltingProgress(progress);
+    }, 100);
+
+    const smeltInterval = setInterval(() => {
+      progress = 0;
+      setSmeltingProgress(0);
+
+      setSmeltingQueue((prevQueue) => {
+        if (prevQueue.length === 0) return prevQueue;
+
+        const [ore, ...rest] = prevQueue;
+        const recipe = SMELTING_RECIPES[ore];
+        if (!recipe) return rest;
+
+        const hasEnoughOre = (materials[ore] || 0) >= recipe.inputAmount;
+        const hasEnoughCoal = coalReserve >= 0.25;
+
+        if (!hasEnoughOre || !hasEnoughCoal) return prevQueue;
+
+        // Perform smelt
+        setMaterials((prev) => ({
+          ...prev,
+          [ore]: prev[ore] - recipe.inputAmount,
+          [recipe.output]: (prev[recipe.output] || 0) + recipe.amount,
+        }));
+        setCoalReserve((prev) => prev - 0.25);
+
+        return rest;
+      });
+    }, smeltRate);
+
+    return () => {
+      clearInterval(smeltInterval);
+      clearInterval(progressInterval);
+      setSmeltingProgress(0);
+    };
+  }, [furnaceLevel, smeltingQueue.length, coalReserve, materials]);
+
+  useEffect(() => {
     if (!autoclickerFullyReady) return;
     if (autoClickLevel === 0) return;
     if (
@@ -227,17 +207,6 @@ const ClickerGame = () => {
       const viewer = viewerRef.current;
 
       if (!overlay || !viewer) return;
-
-      const valuePerClick = {
-        hand: 0.5,
-        wooden: 1,
-        stone: 2,
-        copper: 4,
-        iron: 8,
-        gold: 16,
-        diamond: 32,
-        netherite: 64,
-      };
 
       if (isUserClickingRef.current) {
         const earned = valuePerClick[tool] || 0;
@@ -319,14 +288,7 @@ const ClickerGame = () => {
     }, 1000 / rate);
 
     return () => clearInterval(interval);
-  }, [
-    autoClickLevel,
-    tool,
-    autoClickerUpgrades,
-    materialDrops,
-    autoclickerReady,
-    autoclickerFullyReady,
-  ]);
+  }, [autoClickLevel, tool, autoclickerReady, autoclickerFullyReady]);
 
   const nextUpgrade = autoClickerUpgrades[autoClickLevel];
 
@@ -632,20 +594,22 @@ const ClickerGame = () => {
       viewer.dispose();
       canvas.removeEventListener("click", onClick);
     };
-  }, [skinUrl, tool, materialDrops]);
+  }, [skinUrl, tool]);
 
   const handleUpgrade = (newTool) => {
     const cost = toolCosts[newTool];
     const materialCost = toolMaterialCosts[newTool] || {};
-    const toolOrder = Object.keys(toolCosts);
-    const currentTier = toolOrder.indexOf(tool);
+
+    const currentMaxTier = Math.max(
+      ...inventory.map((item) => toolOrder.indexOf(item))
+    );
     const newTier = toolOrder.indexOf(newTool);
 
     const hasEnoughMaterials = Object.entries(materialCost).every(
       ([mat, amt]) => (materials[mat] || 0) >= amt
     );
 
-    if (points >= cost && newTier > currentTier && hasEnoughMaterials) {
+    if (points >= cost && newTier > currentMaxTier && hasEnoughMaterials) {
       setMaterials((prev) => {
         const updated = { ...prev };
         for (const [mat, amt] of Object.entries(materialCost)) {
@@ -658,7 +622,7 @@ const ClickerGame = () => {
       setTool(newTool);
       setInventory((prev) => [...prev, newTool]);
     } else {
-      console.warn("Insufficient materials or points.");
+      console.warn("Insufficient materials, points, or tool not unlocked.");
     }
   };
 
@@ -672,16 +636,16 @@ const ClickerGame = () => {
     return () => clearTimeout(timeout);
   }, [lastDrop]);
 
-  const toolOrder = Object.keys(toolCosts);
-
   const shop = toolOrder
     .filter((name) => !inventory.includes(name))
     .map((name, index) => {
       const cost = toolCosts[name];
       const materialCost = toolMaterialCosts[name] || {};
       const toolIndex = toolOrder.indexOf(name);
-      const currentTier = toolOrder.indexOf(tool);
-      const unlocked = toolIndex <= currentTier + 1;
+      const maxInventoryTier = Math.max(
+        ...inventory.map((i) => toolOrder.indexOf(i))
+      );
+      const unlocked = toolIndex <= maxInventoryTier + 1;
       const filename = name === "gold" ? "golden" : name;
 
       return (
@@ -806,67 +770,98 @@ const ClickerGame = () => {
   return (
     <>
       <div className={styles["clicker-game-container"]}>
+        {/* === SHOP SIDEBAR === */}
         <div className={`${styles["clicker-sidebar"]} ${styles.shop}`}>
           <h3>Shop</h3>
-          <div className={styles["shop-section"]}>
-            <h4>Tools</h4>
-            <div className={styles["shop-grid"]}>
-              {shop.length > 0 ? shop : <p>All tools purchased!</p>}
+          <div className={styles.tabSwitchBox}>
+            <button
+              className={styles.tabArrow}
+              onClick={() =>
+                setShopTab((prev) =>
+                  prev === "upgrades" ? "tools" : "upgrades"
+                )
+              }
+            >
+              ◀
+            </button>
+            <div className={styles.tabLabelText}>
+              {shopTab.charAt(0).toUpperCase() + shopTab.slice(1)}
             </div>
+            <button
+              className={styles.tabArrow}
+              onClick={() =>
+                setShopTab((prev) => (prev === "tools" ? "upgrades" : "tools"))
+              }
+            >
+              ▶
+            </button>
           </div>
-          <div className={styles.shopSection}>
-            <h4>Upgrades</h4>
-            {nextUpgrade ? (
-              <button
-                onClick={handleAutoclickerUpgrade}
-                className={styles.shopItem}
-              >
-                <div className={styles.pickaxeWrapper}>
-                  <img
-                    src="/assets/clickerGame/models/images/autoclicker.png"
-                    alt="Autoclicker"
-                    className={`${styles.pickaxeIcon} ${styles.autoclickerIcon}`}
-                  />
-                </div>
-                <div className={styles.itemPrice}>
-                  Autoclicker Lv. {autoClickLevel + 1}
-                </div>
-                <div className={styles.materialCostList}>
-                  {Object.entries(nextUpgrade.cost).map(([mat, amt]) => {
-                    const current = materials[mat] || 0;
-                    const insufficient = current < amt;
-                    return (
-                      <div key={mat} className={styles.materialCost}>
-                        <img
-                          src={`/assets/clickerGame/materials/${mat}.png`}
-                          alt={mat}
-                          className={styles.materialIcon}
-                        />
-                        <span
-                          className={
-                            insufficient
-                              ? styles.materialCountInsufficient
-                              : styles.materialCount
-                          }
-                        >
-                          {current} / {amt}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </button>
-            ) : (
-              <p>Maxed Out!</p>
-            )}
-          </div>
+
+          {/* Dynamic shop content */}
+          {shopTab === "tools" ? (
+            <div className={styles["shop-section"]}>
+              <div className={styles["shop-grid"]}>
+                {shop.length > 0 ? shop : <p>All tools purchased!</p>}
+              </div>
+            </div>
+          ) : (
+            <div className={styles.shopSection}>
+              {nextUpgrade ? (
+                <button
+                  onClick={handleAutoclickerUpgrade}
+                  className={styles.shopItem}
+                >
+                  <div className={styles.pickaxeWrapper}>
+                    <img
+                      src="/assets/clickerGame/models/images/autoclicker.png"
+                      alt="Autoclicker"
+                      className={`${styles.pickaxeIcon} ${styles.autoclickerIcon}`}
+                    />
+                  </div>
+                  <div className={styles.itemPrice}>
+                    Autoclicker Lv. {autoClickLevel + 1}
+                  </div>
+                  <div className={styles.materialCostList}>
+                    {Object.entries(nextUpgrade.cost).map(([mat, amt]) => {
+                      const current = materials[mat] || 0;
+                      const insufficient = current < amt;
+                      return (
+                        <div key={mat} className={styles.materialCost}>
+                          <img
+                            src={`/assets/clickerGame/materials/${mat}.png`}
+                            alt={mat}
+                            className={styles.materialIcon}
+                          />
+                          <span
+                            className={
+                              insufficient
+                                ? styles.materialCountInsufficient
+                                : styles.materialCount
+                            }
+                          >
+                            {current} / {amt}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </button>
+              ) : (
+                <p>Maxed Out!</p>
+              )}
+            </div>
+          )}
         </div>
 
+        {/* === MAIN GAME === */}
         <div className={styles["clicker-main"]}>
+          {/* Status Bar */}
           <div className={styles["status-bar"]}>
             <span>Points: {points}</span>
             <span>Current Tool: {tool}</span>
           </div>
+
+          {/* Canvas & Drop Popup */}
           <div style={{ position: "relative" }}>
             <canvas ref={canvasRef} className={styles["clicker-canvas"]} />
             {lastDrop && (
@@ -882,59 +877,386 @@ const ClickerGame = () => {
               </div>
             )}
           </div>
-        </div>
 
-        <div className={`${styles["clicker-sidebar"]} ${styles.inventory}`}>
-          <h3>Inventory</h3>
+          {/* === WORKBENCHES SECTION === */}
+          <div className={styles.workbenchesRow}>
+            <div className={styles.workbenchesContainer}>
+              <h3>Workbenches</h3>
 
-          <div className={styles["shop-section"]}>
-            <h4>Tools</h4>
-            <div className={styles["shop-grid"]}>
-              {inventory
-                .filter((item) => item !== "hand")
-                .map((item, i) => {
-                  const filename = item === "gold" ? "golden" : item;
-                  return (
-                    <div
-                      key={i}
-                      className={`${styles.shopItem} ${
-                        item === tool ? styles.equipped : ""
-                      }`}
-                    >
-                      <div className={styles.pickaxeWrapper}>
+              <div className={styles.furnaceSection}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "6px",
+                  }}
+                >
+                  <h4>Furnace</h4>
+                  <p style={{ fontSize: "13px", color: "#bbb" }}>
+                    Level: {furnaceLevel} / 8
+                  </p>
+                </div>
+
+                {furnaceLevel === 0 ? (
+                  <button
+                    onClick={upgradeFurnace}
+                    disabled={
+                      (materials.cobble_stone || 0) < 20 ||
+                      (materials.coal || 0) < 1
+                    }
+                    className={styles.shopItem}
+                    style={{ marginBottom: "16px" }}
+                  >
+                    <div>Upgrade Furnace</div>
+                    <div className={styles.materialCostList}>
+                      <div className={styles.materialCost}>
                         <img
-                          src={`/assets/clickerGame/models/images/${filename}_pick.png`}
-                          alt={`${item} pickaxe`}
-                          className={styles.pickaxeIcon}
+                          src={`/assets/clickerGame/materials/cobble_stone.png`}
+                          alt="Cobble"
+                          className={styles.materialIcon}
                         />
+                        <span
+                          className={
+                            (materials.cobble_stone || 0) < 20
+                              ? styles.materialCountInsufficient
+                              : styles.materialCount
+                          }
+                        >
+                          {materials.cobble_stone || 0} / 20
+                        </span>
                       </div>
-                      <div className={styles.itemPrice}>
-                        {item.charAt(0).toUpperCase() + item.slice(1)} Pickaxe
+                      <div className={styles.materialCost}>
+                        <img
+                          src={`/assets/clickerGame/materials/coal.png`}
+                          alt="Coal"
+                          className={styles.materialIcon}
+                        />
+                        <span
+                          className={
+                            (materials.coal || 0) < 1
+                              ? styles.materialCountInsufficient
+                              : styles.materialCount
+                          }
+                        >
+                          {materials.coal || 0} / 1
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-            </div>
-          </div>
+                  </button>
+                ) : (
+                  <>
+                    {furnaceLevel < 8 && (
+                      <button
+                        onClick={upgradeFurnace}
+                        disabled={
+                          (materials.cobble_stone || 0) <
+                            20 + furnaceLevel * 10 ||
+                          (materials.coal || 0) <
+                            1 + Math.floor(furnaceLevel / 2)
+                        }
+                        className={styles.shopItem}
+                        style={{ marginBottom: "16px" }}
+                      >
+                        <div>Upgrade Furnace</div>
+                        <div className={styles.materialCostList}>
+                          <div className={styles.materialCost}>
+                            <img
+                              src={`/assets/clickerGame/materials/cobble_stone.png`}
+                              alt="Cobble"
+                              className={styles.materialIcon}
+                            />
+                            <span
+                              className={
+                                (materials.cobble_stone || 0) <
+                                20 + furnaceLevel * 10
+                                  ? styles.materialCountInsufficient
+                                  : styles.materialCount
+                              }
+                            >
+                              {materials.cobble_stone || 0} /{" "}
+                              {20 + furnaceLevel * 10}
+                            </span>
+                          </div>
+                          <div className={styles.materialCost}>
+                            <img
+                              src={`/assets/clickerGame/materials/coal.png`}
+                              alt="Coal"
+                              className={styles.materialIcon}
+                            />
+                            <span
+                              className={
+                                (materials.coal || 0) <
+                                1 + Math.floor(furnaceLevel / 2)
+                                  ? styles.materialCountInsufficient
+                                  : styles.materialCount
+                              }
+                            >
+                              {materials.coal || 0} /{" "}
+                              {1 + Math.floor(furnaceLevel / 2)}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        gap: "12px",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <p style={{ fontSize: "13px", color: "#bbb", margin: 0 }}>
+                        Coal Reserve: {coalReserve.toFixed(1)} 🔥
+                      </p>
+                      <button
+                        onClick={() => {
+                          if ((materials.coal || 0) >= 1) {
+                            setMaterials((prev) => ({
+                              ...prev,
+                              coal: prev.coal - 1,
+                            }));
+                            setCoalReserve((prev) => prev + 2);
+                          }
+                        }}
+                        disabled={(materials.coal || 0) < 1}
+                        className={styles.refillButton}
+                      >
+                        + Add Coal (x1)
+                      </button>
+                    </div>
 
-          <div className={styles["shop-section"]}>
-            <h4>Materials</h4>
-            <div className={styles["inventory-grid"]}>
-              {Object.entries(materials).map(([mat, count]) =>
-                count > 0 ? (
-                  <div key={mat} className={styles.inventoryItem}>
+                    <div className={styles.smeltList}>
+                      {Object.keys(SMELTING_RECIPES).map((ore) => {
+                        const count = materials[ore] || 0;
+                        if (count === 0) return null;
+
+                        const recipe = SMELTING_RECIPES[ore];
+                        const inputAmount = recipe?.inputAmount || 1;
+                        const inQueue = smeltingQueue.filter(
+                          (item) => item === ore
+                        ).length;
+                        const availableOre = count - inQueue;
+                        const maxAmount = Math.min(
+                          Math.floor(availableOre / inputAmount),
+                          Math.floor(coalReserve / 0.25)
+                        );
+                        const selectedAmount = Math.min(
+                          smeltAmounts[ore] || 0,
+                          maxAmount
+                        );
+                        const coalCost = selectedAmount * 0.25;
+                        const canSmelt =
+                          selectedAmount > 0 && coalReserve >= coalCost;
+                        const formatCount = (num) => {
+                          if (num > 9999) return "9999+";
+                          return num.toString().padStart(4, " ");
+                        };
+
+                        return (
+                          <div key={ore} className={styles.smeltItem}>
+                            <div
+                              className={styles.smeltItemLeft}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                                minWidth: "80px",
+                              }}
+                            >
+                              <img
+                                src={`/assets/clickerGame/materials/${ore}.png`}
+                                alt={ore}
+                                className={styles.materialIcon}
+                              />
+                              <span className={styles.smeltItemCount}>
+                                {formatCount(count)}
+                              </span>
+                            </div>
+
+                            <input
+                              type="range"
+                              min={0}
+                              max={Math.max(1, maxAmount)}
+                              value={selectedAmount}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value, 10);
+                                setSmeltAmounts((prev) => ({
+                                  ...prev,
+                                  [ore]: value,
+                                }));
+                              }}
+                              className={styles.smeltSlider}
+                              disabled={maxAmount === 0}
+                            />
+
+                            <div className={styles.smeltSliderLabel}>
+                              <span>{selectedAmount}</span>
+                              <img
+                                src="/assets/clickerGame/materials/coal.png"
+                                alt="Coal"
+                                className={styles.materialIcon}
+                              />
+                              <span
+                                style={{
+                                  fontSize: "13px",
+                                  fontWeight: 500,
+                                  color:
+                                    coalReserve >= coalCost
+                                      ? "#ccc"
+                                      : "#e74c3c",
+                                }}
+                              >
+                                {coalCost.toFixed(1)}
+                              </span>
+                            </div>
+
+                            <button
+                              onClick={() => {
+                                const requiredOre =
+                                  selectedAmount * inputAmount;
+                                const requiredCoal = selectedAmount * 0.25;
+
+                                if (
+                                  (materials[ore] || 0) >= requiredOre &&
+                                  coalReserve >= requiredCoal
+                                ) {
+                                  setSmeltingQueue((prev) => [
+                                    ...prev,
+                                    ...Array(selectedAmount).fill(ore),
+                                  ]);
+                                  setMaterials((prev) => ({
+                                    ...prev,
+                                    [ore]: prev[ore] - requiredOre,
+                                  }));
+                                  setSmeltAmounts((prev) => ({
+                                    ...prev,
+                                    [ore]: 0,
+                                  }));
+                                }
+                              }}
+                              disabled={!canSmelt}
+                              className={styles.shopItem}
+                            >
+                              Smelt
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {furnaceLevel > 0 && smeltingQueue.length > 0 && (
+                <div className={styles.progressBarWrapper}>
+                  <div className={styles.progressLabel}>
                     <img
-                      src={`/assets/clickerGame/materials/${mat}.png`}
-                      alt={mat}
+                      src={`/assets/clickerGame/materials/${smeltingQueue[0]}.png`}
+                      alt={smeltingQueue[0]}
+                      className={styles.materialIcon}
+                      style={{ marginRight: "6px", verticalAlign: "middle" }}
                     />
-                    {materialNames[mat] || mat} x{count}
+                    Smelting {materialNames[smeltingQueue[0]]} (
+                    {smeltingQueue.length} left)
                   </div>
-                ) : null
+                  <div className={styles.progressBar}>
+                    <div
+                      className={styles.progressFill}
+                      style={{ width: `${smeltingProgress}%` }}
+                    ></div>
+                  </div>
+                </div>
               )}
             </div>
           </div>
         </div>
 
+        {/* === INVENTORY SIDEBAR === */}
+        <div className={`${styles["clicker-sidebar"]} ${styles.inventory}`}>
+          <h3>Inventory</h3>
+          <div className={styles.tabSwitchBox}>
+            <button
+              className={styles.tabArrow}
+              onClick={() =>
+                setInventoryTab((prev) =>
+                  prev === "materials" ? "tools" : "materials"
+                )
+              }
+            >
+              ◀
+            </button>
+            <div className={styles.tabLabelText}>
+              {inventoryTab.charAt(0).toUpperCase() + inventoryTab.slice(1)}
+            </div>
+            <button
+              className={styles.tabArrow}
+              onClick={() =>
+                setInventoryTab((prev) =>
+                  prev === "tools" ? "materials" : "tools"
+                )
+              }
+            >
+              ▶
+            </button>
+          </div>
+
+          {/* Inventory content */}
+          {inventoryTab === "tools" ? (
+            <div className={styles["shop-section"]}>
+              <div className={styles["shop-grid"]}>
+                {inventory
+                  .filter((item) => item !== "hand")
+                  .map((item, i) => {
+                    const filename = item === "gold" ? "golden" : item;
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => setTool(item)}
+                        className={`${styles.shopItem} ${
+                          item === tool ? styles.equipped : ""
+                        }`}
+                        style={{
+                          cursor: item !== tool ? "pointer" : "default",
+                        }}
+                      >
+                        <div className={styles.pickaxeWrapper}>
+                          <img
+                            src={`/assets/clickerGame/models/images/${filename}_pick.png`}
+                            alt={`${item} pickaxe`}
+                            className={styles.pickaxeIcon}
+                          />
+                        </div>
+                        <div className={styles.itemPrice}>
+                          {item.charAt(0).toUpperCase() + item.slice(1)} Pickaxe
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          ) : (
+            <div className={styles["shop-section"]}>
+              <div className={styles["inventory-grid"]}>
+                {Object.entries(materials).map(([mat, count]) =>
+                  count > 0 ? (
+                    <div key={mat} className={styles.inventoryItem}>
+                      <img
+                        src={`/assets/clickerGame/materials/${mat}.png`}
+                        alt={mat}
+                      />
+                      {materialNames[mat] || mat} x{count}
+                    </div>
+                  ) : null
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
         <footer className={styles.disclaimer}>
           <em>
             NOT AN OFFICIAL MINECRAFT PRODUCT. NOT APPROVED BY OR ASSOCIATED
