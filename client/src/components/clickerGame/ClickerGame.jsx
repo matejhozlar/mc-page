@@ -43,12 +43,7 @@ const ClickerGame = () => {
   const [coalReserve, setCoalReserve] = useState(0);
   const [smeltAmounts, setSmeltAmounts] = useState({});
   const [smeltingProgress, setSmeltingProgress] = useState(0);
-
-  // const smeltAll = (oreName) => {
-  //   if (!SMELTING_RECIPES[oreName] || !materials[oreName]) return;
-  //   const count = materials[oreName];
-  //   setSmeltingQueue((prev) => [...prev, ...Array(count).fill(oreName)]);
-  // };
+  const [offlineSmelted, setOfflineSmelted] = useState(null);
 
   const upgradeFurnace = () => {
     if (furnaceLevel >= 8) return;
@@ -103,18 +98,25 @@ const ClickerGame = () => {
 
   useEffect(() => {
     if (!user) return;
-
     fetch("/api/game-data", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         if (!data) return;
         setPoints(data.points);
         setTool(data.tool);
-        setInventory(data.inventory);
+        setInventory(data.inventory || ["hand"]);
         setMaterials(data.materials);
         setAutoClickLevel(data.auto_click_level);
-      })
-      .catch((err) => console.error("Failed to fetch game data", err));
+
+        setFurnaceLevel(data.furnace_level);
+        setCoalReserve(data.coal_reserve);
+        setSmeltingQueue(data.smelting_queue || []);
+        setSmeltAmounts(data.smelt_amounts || {});
+
+        if (data.offline_smelted && Object.keys(data.offline_smelted).length) {
+          setOfflineSmelted(data.offline_smelted);
+        }
+      });
   }, [user]);
 
   useEffect(() => {
@@ -141,12 +143,16 @@ const ClickerGame = () => {
   }, [autoClickLevel]);
 
   useEffect(() => {
-    if (furnaceLevel === 0 || smeltingQueue.length === 0 || coalReserve < 0.25)
+    if (
+      furnaceLevel === 0 ||
+      !(smeltingQueue?.length > 0) ||
+      coalReserve < 0.25
+    )
       return;
 
     const smeltRate = 5000 / furnaceLevel;
     let progress = 0;
-    const increment = 100 / (smeltRate / 100); // update every 100ms
+    const increment = 100 / (smeltRate / 100);
 
     const progressInterval = setInterval(() => {
       progress += increment;
@@ -187,7 +193,7 @@ const ClickerGame = () => {
       clearInterval(progressInterval);
       setSmeltingProgress(0);
     };
-  }, [furnaceLevel, smeltingQueue.length, coalReserve, materials]);
+  }, [furnaceLevel, smeltingQueue, coalReserve, materials]);
 
   useEffect(() => {
     if (!autoclickerFullyReady) return;
@@ -309,16 +315,6 @@ const ClickerGame = () => {
 
     const newLevel = autoClickLevel + 1;
     setAutoClickLevel(newLevel);
-
-    saveProgress({
-      points,
-      tool,
-      inventory,
-      materials: Object.fromEntries(
-        Object.entries(materials).map(([k, v]) => [k, v - (cost[k] || 0)])
-      ),
-      auto_click_level: newLevel,
-    });
   };
 
   useEffect(() => {
@@ -637,7 +633,7 @@ const ClickerGame = () => {
   }, [lastDrop]);
 
   const shop = toolOrder
-    .filter((name) => !inventory.includes(name))
+    .filter((name) => !inventory?.includes(name))
     .map((name, index) => {
       const cost = toolCosts[name];
       const materialCost = toolMaterialCosts[name] || {};
@@ -711,8 +707,6 @@ const ClickerGame = () => {
     };
   }, [lastDrop]);
 
-  const saveTimeoutRef = useRef(null);
-
   const saveProgress = useCallback(
     (override = null) => {
       if (!user) return;
@@ -722,7 +716,11 @@ const ClickerGame = () => {
         tool,
         inventory,
         materials,
-        auto_click_level: autoClickLevel ?? 0,
+        auto_click_level: autoClickLevel,
+        furnace_level: furnaceLevel,
+        coal_reserve: coalReserve,
+        smelting_queue: smeltingQueue,
+        smelt_amounts: smeltAmounts,
       };
 
       fetch("/api/game-data", {
@@ -730,32 +728,88 @@ const ClickerGame = () => {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
-      }).catch((err) => {
-        console.error("Failed to save progress", err);
-      });
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Save failed");
+          return res.json();
+        })
+        .then((json) => {
+          if (!json.success) console.warn("Server rejected save:", json);
+        })
+        .catch((err) => {
+          console.error("Failed to save progress", err);
+        });
     },
-    [user, points, tool, inventory, materials, autoClickLevel]
+    [
+      user,
+      points,
+      tool,
+      inventory,
+      materials,
+      autoClickLevel,
+      furnaceLevel,
+      coalReserve,
+      smeltingQueue,
+      smeltAmounts,
+    ]
   );
 
-  const scheduleSave = useCallback(() => {
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(saveProgress, 2000);
-  }, [saveProgress]);
-
   useEffect(() => {
-    scheduleSave();
-  }, [points, tool, inventory, materials, autoClickLevel, scheduleSave]);
+    const handler = setTimeout(() => {
+      saveProgress();
+    }, 2000);
+    return () => clearTimeout(handler);
+  }, [
+    points,
+    tool,
+    inventory,
+    materials,
+    autoClickLevel,
+    furnaceLevel,
+    coalReserve,
+    smeltingQueue,
+    smeltAmounts,
+    saveProgress,
+  ]);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
-      saveProgress();
+      // properly send JSON
+      fetch("/api/game-data", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          points,
+          tool,
+          inventory,
+          materials,
+          auto_click_level: autoClickLevel,
+          furnace_level: furnaceLevel,
+          coal_reserve: coalReserve,
+          smelting_queue: smeltingQueue,
+          smelt_amounts: smeltAmounts,
+        }),
+      });
+
+      navigator.sendBeacon("/api/game-logout");
     };
 
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [points, tool, inventory, materials, autoClickLevel, saveProgress]);
+  }, [
+    points,
+    tool,
+    inventory,
+    materials,
+    autoClickLevel,
+    furnaceLevel,
+    coalReserve,
+    smeltingQueue,
+    smeltAmounts,
+  ]);
 
   if (!checked || (allowed && !user)) {
     return (
@@ -769,6 +823,22 @@ const ClickerGame = () => {
 
   return (
     <>
+      {offlineSmelted && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2>Welcome back!</h2>
+            <p>You smelted while you were away:</p>
+            <ul>
+              {Object.entries(offlineSmelted).map(([mat, count]) => (
+                <li key={mat}>
+                  {count} × {materialNames[mat] || mat}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => setOfflineSmelted(null)}>Got it!</button>
+          </div>
+        </div>
+      )}
       <div className={styles["clicker-game-container"]}>
         {/* === SHOP SIDEBAR === */}
         <div className={`${styles["clicker-sidebar"]} ${styles.shop}`}>
@@ -1038,9 +1108,10 @@ const ClickerGame = () => {
                         const inQueue = smeltingQueue.filter(
                           (item) => item === ore
                         ).length;
-                        const availableOre = count - inQueue;
+                        const availableOre =
+                          (materials[ore] || 0) - inQueue * recipe.inputAmount;
                         const maxAmount = Math.min(
-                          Math.floor(availableOre / inputAmount),
+                          Math.floor(availableOre / recipe.inputAmount),
                           Math.floor(coalReserve / 0.25)
                         );
                         const selectedAmount = Math.min(
@@ -1127,10 +1198,6 @@ const ClickerGame = () => {
                                     ...prev,
                                     ...Array(selectedAmount).fill(ore),
                                   ]);
-                                  setMaterials((prev) => ({
-                                    ...prev,
-                                    [ore]: prev[ore] - requiredOre,
-                                  }));
                                   setSmeltAmounts((prev) => ({
                                     ...prev,
                                     [ore]: 0,

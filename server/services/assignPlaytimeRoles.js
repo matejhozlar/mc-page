@@ -32,8 +32,32 @@ const ROLE_TIERS = [
   {
     name: "Diamond",
     minHours: 100,
-    maxHours: Infinity,
+    maxHours: 200,
     id: process.env.DISCORD_DIAMOND_ROLE_ID,
+  },
+  {
+    name: "Crimson",
+    minHours: 200,
+    maxHours: 300,
+    id: process.env.DISCORD_CRIMSON_ROLE_ID,
+  },
+  {
+    name: "Silver",
+    minHours: 300,
+    maxHours: 400,
+    id: process.env.DISCORD_SILVER_ROLE_ID,
+  },
+  {
+    name: "Electrum",
+    minHours: 400,
+    maxHours: 1000,
+    id: process.env.DISCORD_ELECTRUM_ROLE_ID,
+  },
+  {
+    name: "Tyrian",
+    minHours: 1000,
+    maxHours: Infinity,
+    id: process.env.DISCORD_TYRIAN_ROLE_ID,
   },
 ];
 

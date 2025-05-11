@@ -663,61 +663,33 @@
   font-family: monospace;
 }
 
-.popupOverlay {
+.modalOverlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-
-.popupContainer {
-  background: #1e1e1e;
-  padding: 24px 32px;
-  border-radius: 12px;
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 0 10px #000;
-}
-
-.popupContent {
-  margin: 16px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.popupItem {
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 16px;
-  color: #fff;
   justify-content: center;
+  z-index: 9999;
 }
-
-.popupItem img {
-  width: 32px;
-  height: 32px;
-}
-
-.popupClose {
-  margin-top: 12px;
-  padding: 8px 16px;
+.modalContent {
   background: #333;
   color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  width: 100%;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  max-width: 90%;
 }
-
-.popupClose:hover {
-  background: #444;
+.modalContent ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+.modalContent button {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
 }
