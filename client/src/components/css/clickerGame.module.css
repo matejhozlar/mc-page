@@ -61,7 +61,6 @@
   padding: 10px;
   text-align: center;
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
-  cursor: pointer;
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
 }
 
@@ -125,20 +124,19 @@
   padding: 20px;
   width: 320px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  max-height: 85vh;
+  max-height: 90vh;
+  height: 90vh;
   overflow-y: auto;
   backdrop-filter: blur(6px);
   border: 1px solid #3a3a3a;
   display: flex;
   flex-direction: column;
-  gap: 16px;
 }
 
 .inventory h3 {
   font-size: 22px;
   border-bottom: 1px solid #444;
   padding-bottom: 10px;
-  margin-bottom: 0 !important;
 }
 
 .inventory-grid {
@@ -169,7 +167,6 @@
   background: #313131;
   transform: translateY(-2px);
   border-color: #666;
-  cursor: pointer;
 }
 
 .inventoryItem img {
@@ -181,8 +178,12 @@
 
 .inventoryItem.equipped {
   border-color: #2ecc71;
-  background-color: #264d3c;
   color: #2ecc71;
+}
+
+.shop {
+  max-height: 90vh;
+  height: 90vh;
 }
 
 .shopItem,
@@ -226,27 +227,54 @@
 @media (max-width: 768px) {
   .clicker-game-container {
     flex-direction: column;
-    align-items: center;
-    padding: 16px;
+    align-items: stretch;
+    padding: 12px;
+    gap: 24px;
   }
 
   .clicker-sidebar,
   .inventory {
-    width: 90%;
+    width: 100%;
     max-height: none;
+    height: auto;
   }
 
   .clicker-main {
     width: 100%;
+    max-width: 100%;
+    align-items: center;
   }
 
   .status-bar {
-    justify-content: space-around;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .clicker-canvas {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1; /* Keeps it square on all screens */
+    max-width: 100%;
   }
 
   .shop-grid,
   .inventory-grid {
     grid-template-columns: 1fr 1fr;
+  }
+
+  .shopItem,
+  .inventoryItem {
+    min-height: 100px;
+    padding: 8px;
+  }
+
+  .tabSwitchBox {
+    flex-direction: row;
+    padding: 6px 10px;
+    gap: 8px;
   }
 }
 
@@ -311,7 +339,6 @@
   position: absolute;
   width: 20px;
   height: 20px;
-  pointer-events: none;
 }
 
 .lockOverlay {
@@ -320,7 +347,6 @@
   right: 0;
   width: 16px;
   height: 16px;
-  pointer-events: none;
 }
 
 .materialCostList {
@@ -352,4 +378,346 @@
 .materialCountInsufficient {
   font-weight: 500;
   color: #e74c3c;
+}
+
+.tabHeader {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  justify-content: center;
+}
+
+.tabHeader button {
+  padding: 0.4rem 0.8rem;
+  background: #1e1e1e;
+  color: white;
+  border: 1px solid #444;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.tabHeader button:hover {
+  background: #2e2e2e;
+}
+
+.activeTab {
+  background: #4a4a4a;
+  font-weight: bold;
+  border-color: #777;
+}
+
+.tabSwitchBox {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1f1f1f;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  border: 1px solid #444;
+}
+
+.tabArrow {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #ccc;
+  width: 28px;
+}
+
+.tabArrow:hover {
+  color: white;
+}
+
+.tabLabelText {
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.equipped {
+  border-color: #2ecc71 !important;
+  color: #2ecc71;
+  box-shadow: 0 0 6px rgba(46, 204, 113, 0.5) !important;
+}
+
+/* === WORKBENCHES (under canvas) === */
+.workbenchesRow {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 28px;
+}
+
+.workbenchesContainer {
+  width: 100%;
+  max-width: 900px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 12px;
+  padding: 14px 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.workbenchesContainer h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #3a3a3a;
+}
+
+.furnaceSection h4 {
+  font-size: 15px;
+  margin-bottom: 4px;
+  color: #ccc;
+}
+
+.furnaceSection p {
+  font-size: 13px;
+  margin: 2px 0;
+  color: #bbb;
+}
+
+.shopItem {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #fff !important;
+  min-height: unset;
+  height: auto;
+}
+
+.shopItem button {
+  color: #fff !important;
+}
+
+.smeltList {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.smeltItem {
+  background: #242424;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.smeltItem button {
+  font-size: 13px;
+  padding: 4px 8px;
+  color: #fff !important;
+  background: #3a3a3a;
+  border: 1px solid #555;
+  border-radius: 6px;
+}
+
+.smeltItem button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .workbenchesContainer {
+    width: 100%;
+  }
+
+  .smeltItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .smeltItem button {
+    width: 100%;
+  }
+}
+
+.smeltSlider {
+  width: 100%;
+  margin-top: 8px;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: #444;
+  outline: none;
+  margin-bottom: 6px;
+}
+
+.smeltSlider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2ecc71;
+}
+
+.smeltSlider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #2ecc71;
+}
+
+.smeltSliderLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 13px;
+  color: #ccc;
+  margin-bottom: 6px;
+}
+
+.refillButton {
+  background: #3a3a3a;
+  border: 1px solid #555;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 6px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.refillButton:hover:not(:disabled) {
+  background: #4a4a4a;
+  transform: translateY(-1px);
+  cursor: pointer;
+}
+
+.refillButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.furnaceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+
+.coalInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.furnaceLabel {
+  font-size: 13px;
+  color: #bbb;
+}
+
+.furnaceValue {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.progressBarWrapper {
+  margin-top: 12px;
+  padding: 0 12px;
+}
+
+.progressLabel {
+  font-size: 13px;
+  color: #bbb;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.progressBar {
+  width: 100%;
+  height: 10px;
+  background-color: #222;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #ffa726;
+  width: 0%;
+  transition: width 0.2s linear;
+}
+
+.smeltItemCount {
+  display: inline-block;
+  width: 5ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  font-family: monospace;
+}
+
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.popupContainer {
+  background: #1e1e1e;
+  padding: 24px 32px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 0 10px #000;
+}
+
+.popupContent {
+  margin: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popupItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #fff;
+  justify-content: center;
+}
+
+.popupItem img {
+  width: 32px;
+  height: 32px;
+}
+
+.popupClose {
+  margin-top: 12px;
+  padding: 8px 16px;
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.popupClose:hover {
+  background: #444;
 }
