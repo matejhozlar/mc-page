@@ -24,6 +24,32 @@ const AdminServerChat = () => {
   const chatMessagesRef = useRef(null);
   const hasScrolledInitially = useRef(false);
 
+  const transformWaypointToLink = (text) => {
+    return text.replace(
+      /xaero-waypoint:([^:]+):[^:]*:(-?\d+|~):(-?\d+|~):(-?\d+|~):[^:]*:[^:]*:[^:]*:(Internal-[\w-]+)/g,
+      (_, name, x, y, z, dimensionId) => {
+        let world = "world";
+        let badge = '<span style="color: green;">[Overworld]</span>';
+
+        if (dimensionId.includes("nether")) {
+          world = "world_the_nether";
+          badge = '<span style="color: red;">[Nether]</span>';
+        } else if (dimensionId.includes("end")) {
+          world = "world_the_end";
+          badge = '<span style="color: purple;">[The End]</span>';
+        }
+
+        const safeX = x === "~" ? "0" : x;
+        const safeY = y === "~" ? "64" : y;
+        const safeZ = z === "~" ? "0" : z;
+
+        const url = `https://create-rington.com/bluemap/#${world}:${safeX}:${safeY}:${safeZ}:1500:0:0:0:0:perspective`;
+
+        return `${badge} <a href="${url}" target="_blank" rel="noopener noreferrer">${name} (${safeX}, ${safeY}, ${safeZ})</a>`;
+      }
+    );
+  };
+
   const getAvatarUrl = (uuid, size = 32) =>
     `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
 
@@ -208,7 +234,7 @@ const AdminServerChat = () => {
       return {
         type: "minecraft",
         name: mcFullMatch[1],
-        content: mcFullMatch[2],
+        content: transformWaypointToLink(mcFullMatch[2]),
         image,
       };
     }
@@ -297,7 +323,10 @@ const AdminServerChat = () => {
                           />
                         </div>
                         <strong className="msg-name">{name}</strong> &gt;{" "}
-                        {content}
+                        <span
+                          className="msg-content"
+                          dangerouslySetInnerHTML={{ __html: content }}
+                        />
                       </>
                     )}
                     {type === "discord" && (
