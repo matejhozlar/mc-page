@@ -1119,16 +1119,15 @@ app.post("/api/game-data", async (req, res) => {
   const {
     points,
     tool,
-    inventory, // <-- JS array
-    materials, // JS object
+    inventory,
+    materials,
     auto_click_level,
     furnace_level,
     coal_reserve,
-    smelting_queue, // JS array
-    smelt_amounts, // JS object
+    smelting_queue,
+    smelt_amounts,
   } = req.body;
 
-  // Validation...
   if (
     typeof furnace_level !== "number" ||
     typeof coal_reserve !== "number" ||
@@ -1168,13 +1167,13 @@ app.post("/api/game-data", async (req, res) => {
         discordId,
         points,
         tool,
-        inventory, // <-- pass JS array → text[]
-        materialsJson, // jsonb
+        inventory,
+        materialsJson,
         auto_click_level,
         furnace_level,
         coal_reserve,
-        queueJson, // jsonb
-        smeltAmountsJson, // jsonb
+        queueJson,
+        smeltAmountsJson,
       ]
     );
     return res.json({ success: true });
