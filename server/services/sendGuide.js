@@ -35,24 +35,43 @@ client.once("ready", async () => {
 
     try {
       await botCommandsChannel.send({
-        content: `📚 **Welcome to the Bot Commands Channel!**\n
-Here’s how you can interact with me:\n
-🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account
-🕹️ **/playtime** — Check your own playtime
-🔍 **/playtime <mc_name>** — Check someone else's playtime
-🏆 **/top-playtime** — See the top 10 players with the most hours
-🧍 **/list** — Show who’s currently online on the Minecraft server
-🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)\n
----\n
+        content: `📚 **Welcome to the Bot Commands Channel!**
+
+Here’s how you can interact with me:
+🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account  
+🕹️ **/playtime** — Check your own playtime  
+🔍 **/playtime <mc_name>** — Check someone else's playtime  
+🏆 **/top-playtime** — See the top 10 players with the most hours  
+🧍 **/list** — Show who’s currently online on the Minecraft server  
+🔑 **/token** — Generate a temporary chat token for [Createrington](<https://create-rington.com/>) (valid for 30 days)
+
+---
+
 ⛏️ **Playtime Roles** — Level up by playing more on the server!\n
-🪨 **Stone** — 0–20 hours
-🥉 **Copper** — 20–40 hours
-⛓️ **Iron** — 40–60 hours
-🥇 **Gold** — 60–100 hours
-💎 **Diamond** — 100+ hours\n
-👑 **The Sleepless** — Awarded to the player with the most total playtime! (1st place only)\n
-Grind and show off your rank in Discord! 🎮\n
----\n
+🪨 **Stone** — 0–20 hours  
+🥉 **Copper** — 20–40 hours  
+⛓️ **Iron** — 40–60 hours  
+🥇 **Gold** — 60–100 hours  
+💎 **Diamond** — 100–200 hours  
+🟥 **Crimson** — 200–300 hours  
+⚪ **Silver** — 300–400 hours  
+⚡ **Electrum** — 400–1000 hours  
+👑 **Tyrian** — 1000+ hours  
+
+🏆 **The Sleepless** — Awarded to the player with the most total playtime! (1st place only)
+
+Grind and show off your rank in Discord! 🎮
+
+---
+
+🖱️ **New! Try the Server Clicker Game**  
+A fun browser-based clicker game is now live! 
+▶️ Start here: [Createrington/game](<https://create-rington.com/discord-login>)  
+**Make sure to log in with the same Discord account that’s in this server!**  
+🚧 *The game is still in development — expect bugs and lots of new features in upcoming updates!*
+
+---
+
 💡 Need help? Just type **/** and scroll through available commands!`,
       });
 
