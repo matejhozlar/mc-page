@@ -54,6 +54,10 @@ const commands = [
         .setDescription("Your Minecraft username")
         .setRequired(true)
     ),
+  new SlashCommandBuilder()
+    .setName("setup-ticket")
+    .setDescription("Send the ticket creation message (admin only)")
+    .setDefaultMemberPermissions(0),
 ].map((cmd) => cmd.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
