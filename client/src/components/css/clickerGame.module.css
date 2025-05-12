@@ -596,7 +596,6 @@
 .refillButton:hover:not(:disabled) {
   background: #4a4a4a;
   transform: translateY(-1px);
-  cursor: pointer;
 }
 
 .refillButton:disabled {
@@ -691,5 +690,134 @@
 .modalContent button {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  cursor: pointer;
+}
+
+/* === MATERIAL SHOP GRID === */
+.materialShopGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.materialShopItem {
+  background: #1f1f1f;
+  border: 2px solid #3f3f3f;
+  border-radius: 12px;
+  padding: 10px;
+  text-align: center;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.25);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100px;
+  justify-content: center;
+}
+
+.materialShopItem:hover {
+  background: #313131;
+  transform: translateY(-2px);
+  border-color: #5e5e5e;
+}
+
+.materialShopItem img {
+  width: 36px;
+  height: 36px;
+  margin-bottom: 6px;
+  image-rendering: pixelated;
+}
+
+.materialShopItem .materialLabel {
+  font-size: 13px;
+  color: #ddd;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.materialDetails {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.materialDetails input[type="range"] {
+  width: 100%;
+}
+
+.materialDetails .materialTotal {
+  font-size: 13px;
+  color: #bbb;
+}
+
+.materialDetails .buyButton {
+  background: #333;
+  border: 1px solid #555;
+  color: white;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  width: 100%;
+  transition: background 0.2s;
+}
+
+.materialDetails .buyButton:hover:not(:disabled) {
+  background: #444;
+}
+
+.materialDetails .buyButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.materialDetails input[type="range"] {
+  width: 100%;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    to right,
+    #2ecc71 var(--slider-fill, 0%),
+    #444 var(--slider-fill, 0%)
+  );
+  outline: none;
+  margin-bottom: 6px;
+}
+
+.materialDetails input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #2ecc71;
+  position: relative;
+  z-index: 2;
+}
+
+.materialDetails input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #2ecc71;
+  position: relative;
+  z-index: 2;
+}
+
+.disabledItem {
+  opacity: 0.5;
+  transform: none !important;
+  box-shadow: none !important;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.comingSoonText {
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  color: #aaa;
+  margin-top: 6px;
 }

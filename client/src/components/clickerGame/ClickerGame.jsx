@@ -44,6 +44,11 @@ const ClickerGame = () => {
   const [smeltAmounts, setSmeltAmounts] = useState({});
   const [smeltingProgress, setSmeltingProgress] = useState(0);
   const [offlineSmelted, setOfflineSmelted] = useState(null);
+  const [selectedMaterial, setSelectedMaterial] = useState(null);
+  const [materialAmounts, setMaterialAmounts] = useState({});
+  const materialMenuRef = useRef(null);
+
+  const ignoreClickRef = useRef(false);
 
   const upgradeFurnace = () => {
     if (furnaceLevel >= 8) return;
@@ -700,6 +705,35 @@ const ClickerGame = () => {
     });
 
   useEffect(() => {
+    const handleMouseUp = () => {
+      setTimeout(50);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ignoreClickRef.current) return;
+
+      if (
+        materialMenuRef.current &&
+        !materialMenuRef.current.contains(event.target)
+      ) {
+        setSelectedMaterial(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
     return () => {
       if (lastDrop?.timeoutId) {
         clearTimeout(lastDrop.timeoutId);
@@ -755,43 +789,29 @@ const ClickerGame = () => {
   );
 
   useEffect(() => {
-    const handler = setTimeout(() => {
+    const interval = setInterval(() => {
       saveProgress();
-    }, 2000);
-    return () => clearTimeout(handler);
-  }, [
-    points,
-    tool,
-    inventory,
-    materials,
-    autoClickLevel,
-    furnaceLevel,
-    coalReserve,
-    smeltingQueue,
-    smeltAmounts,
-    saveProgress,
-  ]);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [saveProgress]);
 
   useEffect(() => {
     const handleBeforeUnload = () => {
-      // properly send JSON
-      fetch("/api/game-data", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          points,
-          tool,
-          inventory,
-          materials,
-          auto_click_level: autoClickLevel,
-          furnace_level: furnaceLevel,
-          coal_reserve: coalReserve,
-          smelting_queue: smeltingQueue,
-          smelt_amounts: smeltAmounts,
-        }),
+      const payload = JSON.stringify({
+        points,
+        tool,
+        inventory,
+        materials,
+        auto_click_level: autoClickLevel,
+        furnace_level: furnaceLevel,
+        coal_reserve: coalReserve,
+        smelting_queue: smeltingQueue,
+        smelt_amounts: smeltAmounts,
       });
 
+      const blob = new Blob([payload], { type: "application/json" });
+      navigator.sendBeacon("/api/game-data", blob);
       navigator.sendBeacon("/api/game-logout");
     };
 
@@ -847,9 +867,11 @@ const ClickerGame = () => {
             <button
               className={styles.tabArrow}
               onClick={() =>
-                setShopTab((prev) =>
-                  prev === "upgrades" ? "tools" : "upgrades"
-                )
+                setShopTab((prev) => {
+                  const tabs = ["tools", "upgrades", "materials", "loot"];
+                  const currentIndex = tabs.indexOf(prev);
+                  return tabs[(currentIndex + 1) % tabs.length];
+                })
               }
             >
               ◀
@@ -860,7 +882,11 @@ const ClickerGame = () => {
             <button
               className={styles.tabArrow}
               onClick={() =>
-                setShopTab((prev) => (prev === "tools" ? "upgrades" : "tools"))
+                setShopTab((prev) => {
+                  const tabs = ["tools", "upgrades", "materials", "loot"];
+                  const currentIndex = tabs.indexOf(prev);
+                  return tabs[(currentIndex - 1 + tabs.length) % tabs.length];
+                })
               }
             >
               ▶
@@ -872,9 +898,38 @@ const ClickerGame = () => {
             <div className={styles["shop-section"]}>
               <div className={styles["shop-grid"]}>
                 {shop.length > 0 ? shop : <p>All tools purchased!</p>}
+
+                {/* Upcoming pickaxes (grayed out) */}
+                {[
+                  "crimson_iron_pick",
+                  "crimson_steel_pick",
+                  "blaze_gold_pick",
+                  "azure_silver_pick",
+                  "azure_electrum_pick",
+                  "tyrian_pick",
+                ].map((filename) => (
+                  <div
+                    key={filename}
+                    className={`${styles.shopItem} ${styles.disabledItem}`}
+                  >
+                    <div className={styles.pickaxeWrapper}>
+                      <img
+                        src={`/assets/clickerGame/models/images/${filename}.png`}
+                        alt={filename.replace(/_/g, " ")}
+                        className={styles.pickaxeIcon}
+                      />
+                      <img
+                        src="/assets/clickerGame/models/images/lock_locked.png"
+                        alt="Locked"
+                        className={styles.lockCentered}
+                      />
+                    </div>
+                    <div className={styles.comingSoonText}>Coming soon...</div>
+                  </div>
+                ))}
               </div>
             </div>
-          ) : (
+          ) : shopTab === "upgrades" ? (
             <div className={styles.shopSection}>
               {nextUpgrade ? (
                 <button
@@ -920,7 +975,103 @@ const ClickerGame = () => {
                 <p>Maxed Out!</p>
               )}
             </div>
-          )}
+          ) : shopTab === "materials" ? (
+            <div className={styles.materialShopGrid}>
+              {[
+                {
+                  name: "cobble_stone",
+                  label: "Cobblestone",
+                  cost: 20,
+                  max: 100,
+                },
+                { name: "coal", label: "Coal", cost: 50, max: 50 },
+              ].map((mat) => (
+                <div
+                  key={mat.name}
+                  className={styles.materialShopItem}
+                  onClick={() =>
+                    setSelectedMaterial(
+                      selectedMaterial === mat.name ? null : mat.name
+                    )
+                  }
+                >
+                  <img
+                    src={`/assets/clickerGame/materials/${mat.name}.png`}
+                    alt={mat.label}
+                  />
+                  <div className="materialLabel">{mat.label}</div>
+
+                  {selectedMaterial === mat.name && (
+                    <div
+                      ref={materialMenuRef}
+                      className={styles.materialDetails}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="range"
+                        min={1}
+                        max={mat.max}
+                        value={materialAmounts[mat.name] || 1}
+                        onPointerDown={(e) => {
+                          e.stopPropagation();
+                          ignoreClickRef.current = true;
+                        }}
+                        onPointerUp={(e) => {
+                          e.stopPropagation();
+                          requestAnimationFrame(() => {
+                            ignoreClickRef.current = false;
+                          });
+                        }}
+                        onChange={(e) =>
+                          setMaterialAmounts((prev) => ({
+                            ...prev,
+                            [mat.name]: parseInt(e.target.value),
+                          }))
+                        }
+                      />
+
+                      <div className={styles.materialTotal}>
+                        {materialAmounts[mat.name] || 1} × {mat.cost} pts ={" "}
+                        {(materialAmounts[mat.name] || 1) * mat.cost} pts
+                      </div>
+                      <button
+                        disabled={
+                          points < (materialAmounts[mat.name] || 1) * mat.cost
+                        }
+                        onClick={() => {
+                          const amt = materialAmounts[mat.name] || 1;
+                          const cost = amt * mat.cost;
+                          if (points >= cost) {
+                            setPoints((p) => p - cost);
+                            setMaterials((m) => ({
+                              ...m,
+                              [mat.name]: (m[mat.name] || 0) + amt,
+                            }));
+                          }
+                        }}
+                        className={styles.buyButton}
+                      >
+                        Buy {materialAmounts[mat.name] || 1}x
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : shopTab === "loot" ? (
+            <div className={styles.shopSection}>
+              <p
+                style={{
+                  fontSize: "16px",
+                  textAlign: "center",
+                  marginTop: "20px",
+                }}
+              >
+                🧰 Loot Crates - <strong>Coming Soon...</strong>
+              </p>
+            </div>
+          ) : null}
         </div>
 
         {/* === MAIN GAME === */}
