@@ -2,3 +2,4 @@
 .env
 /services/.env
 /logs/
+/services/logs/
