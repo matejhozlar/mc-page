@@ -6,7 +6,14 @@ import bodyParser from "body-parser";
 import http from "http";
 import dotenv from "dotenv";
 import cors from "cors";
-import { Client, GatewayIntentBits } from "discord.js";
+import {
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder,
+  ButtonBuilder,
+  ActionRowBuilder,
+  ButtonStyle,
+} from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
@@ -213,27 +220,377 @@ const client = new Client({
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
+  if (interaction.isChatInputCommand()) {
+    const command = commandHandlers.get(interaction.commandName);
+    if (!command) {
+      logger.warn(`⚠️ Unknown command received: /${interaction.commandName}`);
+      return;
+    }
 
-  const command = commandHandlers.get(interaction.commandName);
-  if (!command) {
-    logger.warn(`⚠️ Unknown command received: /${interaction.commandName}`);
-    return;
+    logger.info(
+      `📩 ${interaction.user.tag} (${interaction.user.id}) ran /${interaction.commandName}`
+    );
+
+    try {
+      await command.execute(interaction, db);
+    } catch (error) {
+      logger.error(
+        `❌ Error executing command ${interaction.commandName}: ${logError(
+          error
+        )}`
+      );
+      await interaction.reply({
+        content: "❌ Command failed.",
+        ephemeral: true,
+      });
+    }
   }
 
-  logger.info(
-    `📩 ${interaction.user.tag} (${interaction.user.id}) ran /${interaction.commandName}`
-  );
+  if (interaction.isButton() && interaction.customId === "create_ticket") {
+    try {
+      const guild = interaction.guild;
+      const user = interaction.user;
 
-  try {
-    await command.execute(interaction, db);
-  } catch (error) {
-    logger.error(
-      `❌ Error executing command ${interaction.commandName}: ${logError(
-        error
-      )}`
+      const existing = await db.query(
+        `SELECT * FROM tickets WHERE discord_id = $1 AND status != 'deleted' LIMIT 1`,
+        [user.id]
+      );
+
+      if (existing.rows.length > 0) {
+        await interaction.reply({
+          content: `❌ You already have a ticket open: <#${existing.rows[0].channel_id}>`,
+          ephemeral: true,
+        });
+        return;
+      }
+
+      const { rows } = await db.query(
+        `SELECT name FROM users WHERE discord_id = $1 LIMIT 1`,
+        [user.id]
+      );
+      const mcName = rows[0]?.name || "Unknown";
+
+      const result = await db.query(
+        `SELECT last_number FROM ticket_counter WHERE id = 1`
+      );
+      let ticketNumber = result.rows[0].last_number + 1;
+
+      const ticketName = `ticket-${ticketNumber.toString().padStart(4, "0")}`;
+
+      await db.query(
+        `UPDATE ticket_counter SET last_number = $1 WHERE id = 1`,
+        [ticketNumber]
+      );
+
+      const ticketChannel = await guild.channels.create({
+        name: ticketName,
+        type: 0,
+        permissionOverwrites: [
+          {
+            id: guild.roles.everyone,
+            deny: ["ViewChannel"],
+          },
+          {
+            id: user.id,
+            allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"],
+          },
+          {
+            id: client.user.id,
+            allow: ["ViewChannel", "SendMessages", "ReadMessageHistory"],
+          },
+        ],
+      });
+
+      await db.query(
+        `INSERT INTO tickets (ticket_number, discord_id, mc_name, channel_id)
+   VALUES ($1, $2, $3, $4)`,
+        [ticketNumber, user.id, mcName, ticketChannel.id]
+      );
+
+      const adminRoleId = process.env.DISCORD_ADMIN_ROLE_ID;
+      const welcomeEmbed = new EmbedBuilder()
+        .setDescription(
+          `👋 Welcome <@${user.id}> (Minecraft: **${mcName}**)\n\nPlease describe your issue in detail and include any screenshots or videos that may help.\n\nSupport will be with you shortly <@&${adminRoleId}>\nTo close this ticket, press the **Close** button below.`
+        )
+        .setColor(0x2f3136)
+        .addFields({
+          name: " ",
+          value: "[Createrington](https://create-rington.com)",
+        });
+
+      const closeButton = new ButtonBuilder()
+        .setCustomId("start_close_ticket")
+        .setLabel("Close")
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji("🔒");
+
+      const row = new ActionRowBuilder().addComponents(closeButton);
+
+      await ticketChannel.send({
+        embeds: [welcomeEmbed],
+        components: [row],
+      });
+
+      await interaction.reply({
+        content: `✅ Your ticket has been created: ${ticketChannel}`,
+        ephemeral: true,
+      });
+    } catch (error) {
+      logger.error(`❌ Failed to create ticket: ${logError(error)}`);
+      await interaction.reply({
+        content: "⚠️ Failed to create ticket. Please try again later.",
+        ephemeral: true,
+      });
+    }
+  }
+  if (interaction.isButton() && interaction.customId === "start_close_ticket") {
+    const confirmRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("confirm_close_ticket")
+        .setLabel("Close")
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId("cancel_close_ticket")
+        .setLabel("Cancel")
+        .setStyle(ButtonStyle.Secondary)
     );
-    await interaction.reply({ content: "❌ Command failed.", ephemeral: true });
+
+    await interaction.deferUpdate();
+    const confirmationMessage = await interaction.channel.send({
+      content: "⚠️ Are you sure you want to close this ticket?",
+      components: [confirmRow],
+    });
+  }
+
+  if (
+    interaction.isButton() &&
+    interaction.customId === "confirm_close_ticket"
+  ) {
+    const user = interaction.user;
+    const channel = interaction.channel;
+
+    try {
+      await interaction.message.delete().catch(console.error);
+
+      const memberId = channel.permissionOverwrites.cache.find(
+        (po) => po.allow.has("ViewChannel") && po.type === 1
+      )?.id;
+
+      const guildMember = await channel.guild.members.fetch(memberId);
+
+      await channel.permissionOverwrites.edit(memberId, {
+        ViewChannel: false,
+      });
+
+      const closedBy = `<@${user.id}>`;
+      const embed = new EmbedBuilder()
+        .setColor("Yellow")
+        .setDescription(`Ticket Closed by ${closedBy}`);
+
+      const adminRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId("ticket_transcript")
+          .setLabel("Transcript")
+          .setEmoji("📄")
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId("reopen_ticket")
+          .setLabel("Open")
+          .setEmoji("🔓")
+          .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId("delete_ticket")
+          .setLabel("Delete")
+          .setStyle(ButtonStyle.Danger)
+      );
+
+      const adminPanelMessage = await interaction.channel.send({
+        embeds: [embed],
+        components: [adminRow],
+      });
+
+      await db.query(
+        `UPDATE tickets SET admin_message_id = $1 WHERE channel_id = $2`,
+        [adminPanelMessage.id, interaction.channel.id]
+      );
+    } catch (err) {
+      logger.error(`❌ Failed to close ticket: ${logError(err)}`);
+      await interaction.reply({
+        content: "❌ Failed to close ticket.",
+        ephemeral: true,
+      });
+    }
+  }
+
+  if (
+    interaction.isButton() &&
+    interaction.customId === "cancel_close_ticket"
+  ) {
+    await interaction.message.delete().catch(console.error);
+  }
+  if (interaction.isButton() && interaction.customId === "reopen_ticket") {
+    const channelId = interaction.channel.id;
+
+    const result = await db.query(
+      `SELECT discord_id, admin_message_id FROM tickets WHERE channel_id = $1 LIMIT 1`,
+      [channelId]
+    );
+
+    const adminMessageId = result.rows[0]?.admin_message_id;
+
+    if (adminMessageId) {
+      const msg = await interaction.channel.messages
+        .fetch(adminMessageId)
+        .catch(() => null);
+      if (msg) await msg.delete().catch(() => null);
+    }
+
+    try {
+      const result = await db.query(
+        `SELECT discord_id FROM tickets WHERE channel_id = $1 LIMIT 1`,
+        [channelId]
+      );
+
+      const originalUserId = result.rows[0]?.discord_id;
+
+      if (originalUserId) {
+        await interaction.channel.permissionOverwrites.edit(originalUserId, {
+          ViewChannel: true,
+          SendMessages: true,
+          ReadMessageHistory: true,
+        });
+
+        await db.query(
+          `UPDATE tickets SET status = 'open', updated_at = NOW() WHERE channel_id = $1`,
+          [channelId]
+        );
+
+        await interaction.deferUpdate();
+        const reopenedEmbed = new EmbedBuilder()
+          .setColor(0x57f287)
+          .setDescription(
+            `✅ Ticket has been reopened for <@${originalUserId}>`
+          );
+
+        await interaction.channel.send({
+          embeds: [reopenedEmbed],
+        });
+      } else {
+        await interaction.reply({
+          content: "❌ Could not find original ticket owner in the database.",
+          ephemeral: true,
+        });
+      }
+    } catch (error) {
+      logger.error(`❌ Failed to reopen ticket: ${logError(error)}`);
+      await interaction.reply({
+        content: "⚠️ Something went wrong while reopening the ticket.",
+        ephemeral: true,
+      });
+    }
+  }
+
+  if (interaction.isButton() && interaction.customId === "delete_ticket") {
+    await interaction.deferUpdate();
+
+    const channelId = interaction.channel.id;
+
+    const embed = new EmbedBuilder()
+      .setDescription("Ticket will be deleted in a few seconds")
+      .setColor(0xed4245);
+
+    await interaction.channel.send({ embeds: [embed] });
+
+    await db.query(
+      `UPDATE tickets SET status = 'deleted', updated_at = NOW() WHERE channel_id = $1`,
+      [channelId]
+    );
+
+    setTimeout(() => {
+      interaction.channel.delete().catch(console.error);
+    }, 5000);
+  }
+
+  if (interaction.isButton() && interaction.customId === "ticket_transcript") {
+    try {
+      await interaction.deferUpdate();
+
+      const channelId = interaction.channel.id;
+      const transcriptChannelId = process.env.DISCORD_TRANSCRIPT_CHANNEL_ID;
+      const guild = interaction.guild;
+
+      const messages = await interaction.channel.messages.fetch({ limit: 100 });
+      const sorted = messages.reverse();
+      const contentBody = sorted
+        .filter((m) => !m.author.bot)
+        .map(
+          (m) =>
+            `[${m.createdAt.toISOString()}] ${m.author.tag}: ${
+              m.content || "[Embed/Attachment]"
+            }`
+        )
+        .join("\n");
+
+      const ticketResult = await db.query(
+        `SELECT t.*, u.name AS mc_name 
+       FROM tickets t 
+       LEFT JOIN users u ON t.discord_id = u.discord_id 
+       WHERE t.channel_id = $1 LIMIT 1`,
+        [channelId]
+      );
+
+      const ticket = ticketResult.rows[0];
+      const member = await guild.members
+        .fetch(ticket.discord_id)
+        .catch(() => null);
+      const displayName =
+        member?.displayName || `Unknown (${ticket.discord_id})`;
+
+      const transcriptHeader = `Ticket Transcript - ${
+        interaction.channel.name
+      }\n\nDiscord User: ${displayName} (${
+        ticket.discord_id
+      })\nMinecraft Username: ${ticket.mc_name || "Unknown"}\nTicket Number: ${
+        ticket.ticket_number
+      }\nStatus: ${
+        ticket.status
+      }\nCreated At: ${ticket.created_at?.toISOString()}\nUpdated At: ${ticket.updated_at?.toISOString()}\n\n
+------------------------------------------------------------\n\n
+`;
+
+      const fullTranscript = transcriptHeader + contentBody;
+      const buffer = Buffer.from(fullTranscript, "utf-8");
+
+      const transcriptFile = new AttachmentBuilder(buffer, {
+        name: `transcript-${interaction.channel.name}.txt`,
+      });
+
+      const transcriptChannel = guild.channels.cache.get(transcriptChannelId);
+      if (!transcriptChannel || !transcriptChannel.isTextBased()) {
+        logger.warn("❌ Transcript channel not found or not text-based.");
+        return;
+      }
+
+      await transcriptChannel.send({
+        content: `📄 Ticket transcript saved from **${interaction.channel.name}**`,
+        files: [transcriptFile],
+      });
+
+      const transcriptEmbed = new EmbedBuilder()
+        .setColor(0x57f287)
+        .setDescription(
+          `✅ Transcript has been saved to <#${transcriptChannelId}>`
+        );
+
+      await interaction.channel.send({
+        embeds: [transcriptEmbed],
+      });
+    } catch (error) {
+      logger.error(`❌ Failed to save/send transcript: ${logError(error)}`);
+      await interaction.channel.send({
+        content: "⚠️ Failed to generate transcript.",
+      });
+    }
   }
 });
 
