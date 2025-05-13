@@ -29,6 +29,7 @@ import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
 
 // utils
 import logError from "./utils/logError.js";
+import rotatingStatuses from "./utils/rotatingStatuses.js";
 
 // routes
 import playersRoutes from "./routes/players.js";
@@ -129,68 +130,23 @@ const webChatClient = new WebChatClient({
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
 
-  const rotatingStatuses = [
-    "🌐 create-rington.com",
-    "📊 Fetching dashboard...",
-    "📊 Dashboard: Active",
-    "🧠 Analyzing player data...",
-    "🧠 Player data analyzed",
-    "📡 Monitoring sockets...",
-    "📡 WebSocket: Stable",
-    "📁 Modpack v0.1.5a deployed",
-    "⚙️ Monitoring background...",
-    "⚙️ Background tasks: OK",
-    "📂 Monitoring live logs...",
-    "📂 Live logs indexed",
-    "🔗 DB Syncing...",
-    "🔗 DB status: SYNCED",
-    "🚀 Server boot time optimized",
-    "🔍 Monitoring activity logs",
-    "🔒 TLS-secured APIs",
-    "📦 DB status: OK",
-    "🧬 Refreshing UUID cache...",
-    "🧬 UUID cache refreshed",
-    "🛰️ Monitoring latency...",
-    "🛰️ Latency: OK",
-    "🧪 Running integrity checks...",
-    "📈 Usage analytics streaming...",
-    "⏱️ Response time: < 50ms",
-    "📡 SocketIO handshake OK",
-    "🌐 API gateway: Operational",
-    "📤 Pushing client updates...",
-    "📥 Fetching live metrics...",
-    "📶 Server status: ONLINE",
-    "📂 /api/logs tailing...",
-    "🧲 Caching assets...",
-    "🗂️ Query pool initialized",
-    "🧮 Rate limiter: Idle",
-    "⚠️ No anomalies detected",
-    "🔄 Refreshing service state...",
-    "🔧 WebService v2.3 ready",
-    "📑 Packet inspections running",
-    "🔭 Request observer listening...",
-    "📡 Active endpoint monitor",
-    "📉 Zero downtime maintained",
-    "🔃 Session rotation stable",
-  ];
+  // let index = 0;
 
-  let index = 0;
+  // setInterval(() => {
+  //   const status = rotatingStatuses[index++ % rotatingStatuses.length];
 
-  setInterval(() => {
-    const status = rotatingStatuses[index++ % rotatingStatuses.length];
-
-    webChatClient.user.setPresence({
-      activities: [
-        {
-          type: ActivityType.Custom,
-          name: "custom",
-          state: status,
-        },
-      ],
-      status: "online",
-      afk: false,
-    });
-  }, 60000);
+  //   webChatClient.user.setPresence({
+  //     activities: [
+  //       {
+  //         type: ActivityType.Custom,
+  //         name: "custom",
+  //         state: status,
+  //       },
+  //     ],
+  //     status: "online",
+  //     afk: false,
+  //   });
+  // }, 60000);
 });
 
 logger.info("🧾 Summary:");
