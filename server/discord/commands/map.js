@@ -5,16 +5,13 @@ import {
   ActionRowBuilder,
   ButtonStyle,
 } from "discord.js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
 
 export const data = new SlashCommandBuilder()
-  .setName("ip")
-  .setDescription("Get the Minecraft server IP and connection info");
+  .setName("map")
+  .setDescription("View the live server map for Createrington");
 
 export async function execute(interaction) {
   const userId = interaction.user.id;
@@ -34,31 +31,24 @@ export async function execute(interaction) {
   userCooldowns.set(userId, now);
 
   const embed = new EmbedBuilder()
-    .setTitle("🌐 Createrington Server Info")
+    .setTitle("🗺️ Live Server Map")
+    .setDescription("Explore the Createrington world in real time.")
     .setColor(0x2f3136)
-    .setDescription("Use the IP below to join the Minecraft server.")
-    .addFields(
-      {
-        name: "🖥️ Server IP",
-        value: "`create-rington.mcserv.fun`",
-      },
-      {
-        name: "🎮 Version",
-        value: "Minecraft Java 1.21.1",
-      },
-      {
-        name: "❓ Need Help?",
-        value: `[Open a support ticket](https://discord.com/channels/${interaction.guild.id}/${process.env.DISCORD_TICKET_MESSAGE_CHANNEL_ID})`,
-      }
-    )
-    .setFooter({ text: "See you in-game!" });
+    .setURL("https://create-rington.com/bluemap")
+    .addFields({
+      name: "🌐 Web Map",
+      value: "[Click here to open Bluemap](https://create-rington.com/bluemap)",
+    })
+    .setFooter({
+      text: "Requires JavaScript — works best on desktop browsers.",
+    });
 
-  const connectButton = new ButtonBuilder()
-    .setLabel("Visit Server Site")
+  const button = new ButtonBuilder()
+    .setLabel("Open Map")
     .setStyle(ButtonStyle.Link)
-    .setURL("https://create-rington.com");
+    .setURL("https://create-rington.com/bluemap");
 
-  const row = new ActionRowBuilder().addComponents(connectButton);
+  const row = new ActionRowBuilder().addComponents(button);
 
   await interaction.reply({
     embeds: [embed],

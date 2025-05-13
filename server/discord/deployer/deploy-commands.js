@@ -9,6 +9,9 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("map")
+    .setDescription("View the live server map for Createrington"),
+  new SlashCommandBuilder()
     .setName("ip")
     .setDescription("Get the Createrington IP"),
   new SlashCommandBuilder()
