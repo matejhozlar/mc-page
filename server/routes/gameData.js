@@ -1,6 +1,7 @@
 import express from "express";
 import logger from "../logger.js";
 import logError from "../utils/logError.js";
+import calculateOfflineEarnings from "../utils/calculateOfflineEarnings.js";
 
 export default function gameDataRoutes(db) {
   const router = express.Router();
@@ -74,12 +75,44 @@ export default function gameDataRoutes(db) {
 
       queue = Array.isArray(queue) ? queue : [];
 
+      const earnings = calculateOfflineEarnings({
+        logoutTime: data.last_logout_at,
+        currentTime: now.getTime(),
+        autoClickLevel: data.auto_click_level,
+        offlineEarningsLevel: data.offline_earnings_level,
+        tool: data.tool,
+      });
+
+      if (earnings) {
+        data.points += earnings.points;
+
+        for (const [mat, amt] of Object.entries(earnings.materials)) {
+          materials[mat] = (materials[mat] || 0) + amt;
+        }
+
+        await db.query(
+          `UPDATE clicker_game_data
+     SET points = $1,
+         materials = $2::jsonb,
+         last_logout_at = null
+     WHERE discord_id = $3`,
+          [data.points, JSON.stringify(materials), discordId]
+        );
+
+        data.offline_earned = {
+          points: earnings.points,
+          materials: earnings.materials,
+          minutes: earnings.minutes,
+        };
+      }
+
       return res.json({
         ...data,
         materials,
         coal_reserve,
         smelting_queue: queue,
         offline_smelted: summary,
+        offline_earned: data.offline_earned || null,
       });
     } catch (error) {
       logger.error(`❌ Failed to fetch game data: ${logError(error)}`);
