@@ -41,6 +41,8 @@ import { notifyAdminWaitlist } from "./utils/emailAdminOnWaitlist.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const reactBuildPath = path.join(__dirname, "..", "client", "build");
+
 // Load command handlers
 const commandsPath = path.join(__dirname, "discord", "commands");
 const commandFiles = fs
@@ -70,15 +72,17 @@ dotenv.config();
 logger.info("✅ Environment variables loaded.");
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
 const messageCooldowns = {};
 
 // cookie parser (admin login)
 app.use(cookieParser());
 
+app.use(express.static(reactBuildPath));
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: true,
     credentials: true,
   })
 );
@@ -1579,6 +1583,10 @@ client.on("guildMemberAdd", async (member) => {
       `❌ Error assigning role or sending message: ${logError(error)}`
     );
   }
+});
+
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(reactBuildPath, "index.html"));
 });
 
 client.login(process.env.DISCORD_BOT_TOKEN);
