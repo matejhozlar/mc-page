@@ -672,7 +672,6 @@ io.on("connection", async (socket) => {
     try {
       let displayName = authorName || "web";
 
-      // If not using the hardcoded admin token, verify it against DB
       if (token !== "admin") {
         const result = await db.query(
           `SELECT discord_name FROM chat_tokens WHERE token = $1 AND expires_at > NOW()`,
@@ -883,7 +882,6 @@ app.post("/api/wait-list", async (req, res) => {
   }
 
   try {
-    // Check if email already exists
     const emailExists = await db.query(
       `SELECT 1 FROM waitlist_emails WHERE LOWER(email) = LOWER($1)`,
       [email]
@@ -896,7 +894,6 @@ app.post("/api/wait-list", async (req, res) => {
       });
     }
 
-    // Check if discordName already exists (optional, but recommended)
     const discordExists = await db.query(
       `SELECT 1 FROM waitlist_emails WHERE LOWER(discord_name) = LOWER($1)`,
       [discordName]
@@ -909,7 +906,6 @@ app.post("/api/wait-list", async (req, res) => {
       });
     }
 
-    // Insert new waitlist entry
     const insertQuery = `
       INSERT INTO waitlist_emails (email, discord_name)
       VALUES ($1, $2)
@@ -1127,7 +1123,6 @@ app.post("/api/discord/callback", async (req, res) => {
     const user = userRes.data;
     logger.info(`👤 Fetched Discord user: ${user.username} (${user.id})`);
 
-    // Check if user.id exists in the admins table
     const result = await db.query(
       `SELECT 1 FROM admins WHERE discord_id = $1 LIMIT 1`,
       [user.id]
@@ -1139,7 +1134,6 @@ app.post("/api/discord/callback", async (req, res) => {
       return res.status(403).json({ error: "Not an admin." });
     }
 
-    // Set cookie for validated admin
     res.cookie("admin_session", user.id, {
       httpOnly: true,
       secure: true,
@@ -1499,7 +1493,6 @@ app.post("/api/game-data", async (req, res) => {
     return res.status(400).json({ error: "Invalid game data" });
   }
 
-  // Prepare JSON strings **only** for jsonb columns
   const materialsJson = JSON.stringify(materials);
   const queueJson = JSON.stringify(smelting_queue);
   const smeltAmountsJson = JSON.stringify(smelt_amounts);
