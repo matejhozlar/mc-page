@@ -24,7 +24,6 @@ async function whitelistPlayer(playerName) {
   }
 }
 
-// Get the player name from command-line args
 const playerName = process.argv[2];
 if (!playerName) {
   logger.info("Usage: node whitelist.js <playerName>");

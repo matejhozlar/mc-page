@@ -31,13 +31,10 @@ export async function assignTopPlayerRole(db, discordClient) {
       return;
     }
 
-    // Fetch the top member only
     const topMember = await guild.members.fetch(topDiscordId);
 
-    // Fetch only members who have the role
     const roleMembers = role.members;
 
-    // Remove role from others
     for (const member of roleMembers.values()) {
       if (member.id !== topDiscordId) {
         await member.roles.remove(role);
@@ -45,7 +42,6 @@ export async function assignTopPlayerRole(db, discordClient) {
       }
     }
 
-    // Assign role to top player if not already
     if (!topMember.roles.cache.has(role.id)) {
       await topMember.roles.add(role);
       logger.info(`✅ Gave Top Player role to ${topMember.user.tag}`);

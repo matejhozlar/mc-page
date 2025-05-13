@@ -68,7 +68,6 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
     }
   }
 
-  // Start tracking
   syncPlayersInBackground();
   setInterval(syncPlayersInBackground, 60000);
 }
