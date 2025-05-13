@@ -28,6 +28,7 @@ export default function adminRoutes(db) {
     }
   });
 
+  // --- /api/admin/logout ---
   router.post("/admin/logout", (req, res) => {
     const discordId = req.cookies.admin_session;
     logger.info(`🚪 Admin logout requested for: ${discordId || "unknown"}`);

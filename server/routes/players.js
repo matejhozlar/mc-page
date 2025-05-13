@@ -3,23 +3,29 @@ import { status } from "minecraft-server-util";
 import logError from "../utils/logError.js";
 import logger from "../logger.js";
 
-let lastLoggedPlayerCount = null;
 let lastPlayerCount = null;
 
-export default function playersRoutes(db, serverIP, serverPort) {
+export default function playersRoutes(
+  db,
+  serverIP,
+  serverPort,
+  sharedState = {}
+) {
   const router = express.Router();
 
   // --- /api/playerCount ---
+  const { lastLoggedCount = { value: null } } = sharedState;
+
   router.get("/playerCount", async (req, res) => {
     try {
       const response = await status(serverIP, serverPort, { timeout: 5000 });
       const count = response.players.online;
 
-      if (count !== lastLoggedPlayerCount) {
+      if (count !== lastLoggedCount.value) {
         logger.info(
           `📊 Player count changed: ${count} online at ${serverIP}:${serverPort}`
         );
-        lastLoggedPlayerCount = count;
+        lastLoggedCount.value = count;
       }
 
       res.json({ count });

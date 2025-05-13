@@ -64,9 +64,6 @@ for (const file of commandFiles) {
 }
 logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
 
-// image storage
-const upload = multer({ storage: multer.memoryStorage() });
-
 // bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
 
