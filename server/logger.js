@@ -67,6 +67,10 @@ class DailyFolderLogger {
     this.logger.log({ level, message });
   }
 
+  warn(message) {
+    this.logger.warn(message);
+  }
+
   info(message) {
     this.logger.info(message);
   }
