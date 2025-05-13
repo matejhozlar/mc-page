@@ -35,10 +35,6 @@ export async function execute(interaction) {
     .setDescription("Explore the Createrington world in real time.")
     .setColor(0x2f3136)
     .setURL("https://create-rington.com/bluemap")
-    .addFields({
-      name: "🌐 Web Map",
-      value: "[Click here to open Bluemap](https://create-rington.com/bluemap)",
-    })
     .setFooter({
       text: "Requires JavaScript — works best on desktop browsers.",
     });
