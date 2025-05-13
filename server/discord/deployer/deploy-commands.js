@@ -9,6 +9,9 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("ip")
+    .setDescription("Get the Createrington IP"),
+  new SlashCommandBuilder()
     .setName("list")
     .setDescription("Show currently online players on the Minecraft server"),
   new SlashCommandBuilder()
