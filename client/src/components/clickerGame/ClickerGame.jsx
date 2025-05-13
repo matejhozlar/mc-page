@@ -11,6 +11,7 @@ import {
   autoClickerUpgrades,
   toolOrder,
   valuePerClick,
+  offlineEarningsUpgrades,
 } from "./data/toolData";
 import { SMELTING_RECIPES } from "./data/furnaceData";
 
@@ -43,6 +44,8 @@ const ClickerGame = () => {
   const [coalReserve, setCoalReserve] = useState(0);
   const [smeltAmounts, setSmeltAmounts] = useState({});
   const [smeltingProgress, setSmeltingProgress] = useState(0);
+  const [offlineEarned, setOfflineEarned] = useState(null);
+  const [offlineEarningsLevel, setOfflineEarningsLevel] = useState(0);
   const [offlineSmelted, setOfflineSmelted] = useState(null);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [materialAmounts, setMaterialAmounts] = useState({});
@@ -107,12 +110,15 @@ const ClickerGame = () => {
       .then((res) => res.json())
       .then((data) => {
         if (!data) return;
+        if (data.offline_earned) {
+          setOfflineEarned(data.offline_earned);
+        }
+        setOfflineEarningsLevel(data.offline_earnings_level || 0);
         setPoints(data.points);
         setTool(data.tool);
         setInventory(data.inventory || ["hand"]);
         setMaterials(data.materials);
         setAutoClickLevel(data.auto_click_level);
-
         setFurnaceLevel(data.furnace_level);
         setCoalReserve(data.coal_reserve);
         setSmeltingQueue(data.smelting_queue || []);
@@ -358,14 +364,12 @@ const ClickerGame = () => {
         const rightArm =
           viewerRef.current.playerObject.getObjectByName("rightArm");
         if (rightArm) {
-          // Remove previous pickaxe model manually
           const old = rightArm.children.find((child) => child.name === "tool");
           if (old) {
             rightArm.remove(old);
           }
 
           rightArm.add(model);
-          // No need to update React state — it causes rerender + flicker
           pickaxeModel &&
             pickaxeModel.traverse((obj) => {
               if (typeof obj.dispose === "function") {
@@ -755,6 +759,7 @@ const ClickerGame = () => {
         coal_reserve: coalReserve,
         smelting_queue: smeltingQueue,
         smelt_amounts: smeltAmounts,
+        offline_earnings_level: offlineEarningsLevel,
       };
 
       fetch("/api/game-data", {
@@ -785,6 +790,7 @@ const ClickerGame = () => {
       coalReserve,
       smeltingQueue,
       smeltAmounts,
+      offlineEarningsLevel,
     ]
   );
 
@@ -808,6 +814,7 @@ const ClickerGame = () => {
         coal_reserve: coalReserve,
         smelting_queue: smeltingQueue,
         smelt_amounts: smeltAmounts,
+        offline_earnings_level: offlineEarningsLevel,
       });
 
       const blob = new Blob([payload], { type: "application/json" });
@@ -829,6 +836,7 @@ const ClickerGame = () => {
     coalReserve,
     smeltingQueue,
     smeltAmounts,
+    offlineEarningsLevel,
   ]);
 
   if (!checked || (allowed && !user)) {
@@ -843,6 +851,25 @@ const ClickerGame = () => {
 
   return (
     <>
+      {offlineEarned && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2>Welcome back!</h2>
+            <p>
+              You earned {offlineEarned.points} points while offline for{" "}
+              {offlineEarned.minutes} minutes.
+            </p>
+            <ul>
+              {Object.entries(offlineEarned.materials).map(([mat, amt]) => (
+                <li key={mat}>
+                  {amt} × {materialNames[mat] || mat}
+                </li>
+              ))}
+            </ul>
+            <button onClick={() => setOfflineEarned(null)}>Awesome!</button>
+          </div>
+        </div>
+      )}
       {offlineSmelted && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
@@ -931,6 +958,7 @@ const ClickerGame = () => {
             </div>
           ) : shopTab === "upgrades" ? (
             <div className={styles.shopSection}>
+              {/* Autoclicker Upgrade */}
               {nextUpgrade ? (
                 <button
                   onClick={handleAutoclickerUpgrade}
@@ -972,8 +1000,85 @@ const ClickerGame = () => {
                   </div>
                 </button>
               ) : (
-                <p>Maxed Out!</p>
+                <p>Autoclicker Maxed Out!</p>
               )}
+
+              {/* Offline Earnings Upgrade (always visible, grayed if locked) */}
+              {(() => {
+                const locked = autoClickLevel < 1;
+                const offlineUpgrade =
+                  offlineEarningsUpgrades[offlineEarningsLevel];
+                const canAfford =
+                  offlineUpgrade &&
+                  Object.entries(offlineUpgrade.cost).every(
+                    ([mat, amt]) => (materials[mat] || 0) >= amt
+                  );
+
+                return offlineUpgrade ? (
+                  <button
+                    onClick={() => {
+                      if (locked || !canAfford) return;
+                      setMaterials((prev) => {
+                        const updated = { ...prev };
+                        for (const [mat, amt] of Object.entries(
+                          offlineUpgrade.cost
+                        )) {
+                          updated[mat] -= amt;
+                        }
+                        return updated;
+                      });
+                      setOfflineEarningsLevel((prev) => prev + 1);
+                    }}
+                    className={`${styles.shopItem} ${
+                      locked ? styles.disabledItem : ""
+                    }`}
+                  >
+                    <div className={styles.pickaxeWrapper}>
+                      <img
+                        src="/assets/clickerGame/models/images/moon_clock.png"
+                        alt="Offline Earnings"
+                        className={styles.pickaxeIcon}
+                      />
+                      {locked && (
+                        <img
+                          src="/assets/clickerGame/models/images/lock_locked.png"
+                          alt="Locked"
+                          className={styles.lockCentered}
+                        />
+                      )}
+                    </div>
+                    <div className={styles.itemPrice}>
+                      Offline Clicker Lv. {offlineEarningsLevel + 1}
+                    </div>
+                    <div className={styles.materialCostList}>
+                      {Object.entries(offlineUpgrade.cost).map(([mat, amt]) => {
+                        const current = materials[mat] || 0;
+                        const insufficient = current < amt;
+                        return (
+                          <div key={mat} className={styles.materialCost}>
+                            <img
+                              src={`/assets/clickerGame/materials/${mat}.png`}
+                              alt={mat}
+                              className={styles.materialIcon}
+                            />
+                            <span
+                              className={
+                                insufficient
+                                  ? styles.materialCountInsufficient
+                                  : styles.materialCount
+                              }
+                            >
+                              {current} / {amt}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </button>
+                ) : (
+                  <p>Offline Earnings Maxed!</p>
+                );
+              })()}
             </div>
           ) : shopTab === "materials" ? (
             <div className={styles.materialShopGrid}>
