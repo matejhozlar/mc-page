@@ -12,6 +12,7 @@ import {
   ButtonBuilder,
   ActionRowBuilder,
   ButtonStyle,
+  ActivityType,
 } from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import multer from "multer";
@@ -127,7 +128,51 @@ const webChatClient = new WebChatClient({
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
+
+  const rotatingStatuses = [
+    "🌐 create-rington.com",
+    "📊 Fetching dashboard...",
+    "📊 Dashboard: Active",
+    "🧠 Analyzing player data...",
+    "🧠 Player data analyzed",
+    "📡 Monitoring sockets...",
+    "📡 WebSocket: Stable",
+    "📁 Modpack v0.1.5a deployed",
+    "⚙️ Monitoring background...",
+    "⚙️ Background tasks: OK",
+    "📂 Monitoring live logs...",
+    "📂 Live logs indexed",
+    "🔗 DB Syncing...",
+    "🔗 DB status: SYNCED",
+    "🚀 Server boot time optimized",
+    "🔍 Monitoring activity logs",
+    "🔒 TLS-secured APIs",
+    "📦 DB status: OK",
+    "🧬 Refreshing UUID cache...",
+    "🧬 UUID cache refreshed",
+    "🛰️ Monitoring latency...",
+    "🛰️ Latency: OK",
+  ];
+
+  let index = 0;
+
+  setInterval(() => {
+    const status = rotatingStatuses[index++ % rotatingStatuses.length];
+
+    webChatClient.user.setPresence({
+      activities: [
+        {
+          type: ActivityType.Custom,
+          name: "custom",
+          state: status,
+        },
+      ],
+      status: "online",
+      afk: false,
+    });
+  }, 60000);
 });
+
 logger.info("🧾 Summary:");
 logger.info(`   Port: ${port}`);
 logger.info(`   DB: ${process.env.DB_HOST}/${process.env.DB_DATABASE}`);
