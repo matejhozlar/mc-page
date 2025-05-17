@@ -131,7 +131,7 @@ const webChatClient = new WebChatClient({
   ],
 });
 
-setupDayVoteListener(webChatClient, setDayOnMinecraftServer);
+// setupDayVoteListener(webChatClient, setDayOnMinecraftServer, io);
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
@@ -204,13 +204,13 @@ async function fetchDiscordChatHistory(limit = 100) {
         return msg.content.match(/^`<[^<>]+>`/);
       })
       .map((msg) => {
+        const isWebBot = msg.author.id === webBotId;
         const name = msg.member?.displayName || msg.author.username;
         const image = msg.attachments?.first()?.url || null;
 
-        return {
-          text: `[${name}]: ${msg.content}`,
-          image,
-        };
+        const text = isWebBot ? msg.content : `[${name}]: ${msg.content}`;
+
+        return { text, image };
       });
 
     return messagesArray;

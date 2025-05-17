@@ -4,12 +4,18 @@ import React, { useEffect, useState } from "react";
 import AdminChat from "./AdminChat.jsx";
 import AdminRconPanel from "./AdminRconPanel.jsx";
 import AdminUsersTable from "./AdminUsersTable.jsx";
+import AdminWaitlistTable from "./AdminWaitlistTable.jsx";
+
+// utils
+import { AdminConsoleContext } from "./utils/AdminConsoleContext";
 
 const AdminPanel = () => {
   const [allowed, setAllowed] = useState(false);
   const [checked, setChecked] = useState(false);
   const [user, setUser] = useState(null);
   const [onlinePlayers, setOnlinePlayers] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const appendLog = (msg) => setLogs((prev) => [...prev.slice(-49), msg]);
 
   const getAvatarUrl = (uuid, size = 80) =>
     `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
@@ -137,9 +143,12 @@ const AdminPanel = () => {
         </div>
       )}
       {/* More admin tools will go below this */}
-      <div className="admin-rcon-wrapper">
-        <AdminRconPanel />
-      </div>
+      <AdminConsoleContext.Provider value={{ appendLog }}>
+        <div className="admin-rcon-wrapper">
+          <AdminRconPanel logs={logs} />
+        </div>
+        <AdminWaitlistTable />
+      </AdminConsoleContext.Provider>
 
       <AdminUsersTable />
       <button className="admin-logout-btn" onClick={handleLogout}>
