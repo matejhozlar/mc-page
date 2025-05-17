@@ -29,6 +29,7 @@ import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
 // utils
 import logError from "./utils/logError.js";
 import rotatingStatuses from "./utils/rotatingStatuses.js";
+import { setDayOnMinecraftServer } from "./utils/setDayOnMinecraftServer.js";
 
 // routes
 import playersRoutes from "./routes/players.js";
@@ -39,6 +40,10 @@ import discordOAuthRoutes from "./routes/discordOAuth.js";
 import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
 import gameDataRoutes from "./routes/gameData.js";
+
+// listeners
+import setupLinkOnlyChannelWatcher from "./discord/listeners/linkOnlyChannelMatcher.js";
+import { setupDayVoteListener } from "./discord/listeners/voteDayManager.js";
 
 // Resolve __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -125,6 +130,8 @@ const webChatClient = new WebChatClient({
     GatewayIntentBits.MessageContent,
   ],
 });
+
+setupDayVoteListener(webChatClient, setDayOnMinecraftServer);
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
@@ -240,6 +247,8 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
+
+setupLinkOnlyChannelWatcher(client);
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
