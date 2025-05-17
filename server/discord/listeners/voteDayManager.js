@@ -14,7 +14,7 @@ function msToMinutesSeconds(ms) {
   }`;
 }
 
-export function setupDayVoteListener(webChatClient, setDayCallback) {
+export function setupDayVoteListener(webChatClient, setDayCallback, io) {
   const minecraftChannelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
   const createringtonBotId = process.env.CREATERINGTON_BOT_ID;
 
@@ -33,9 +33,9 @@ export function setupDayVoteListener(webChatClient, setDayCallback) {
     if (voteCooldownUntil > now) {
       const remaining = voteCooldownUntil - now;
       const waitMsg = msToMinutesSeconds(remaining);
-      await message.channel.send(
-        `⏳ Please wait ${waitMsg} before starting another vote.`
-      );
+      const text = `⏳ Please wait ${waitMsg} before starting another vote.`;
+      await message.channel.send(text);
+      io.emit("chatMessage", { text: `${text}`, authorType: "web" });
       return;
     }
 
@@ -43,11 +43,10 @@ export function setupDayVoteListener(webChatClient, setDayCallback) {
     voteCounts = { yes: 0, no: 0 };
     voters.clear();
 
-    await message.channel.send(
-      "**Vote to set time to day has started!**\n" +
-        "Reply with `1` for **yes**, `2` for **no**.\n" +
-        "Voting ends in 30 seconds..."
-    );
+    const text =
+      "**Vote to set time to day has started!**\nReply with `1` for **yes**, `2` for **no**.\nVoting ends in 30 seconds...";
+    await message.channel.send(text);
+    io.emit("chatMessage", { text: `${text}`, authorType: "web" });
 
     const collector = message.channel.createMessageCollector({ time: 30000 });
 
@@ -83,9 +82,9 @@ export function setupDayVoteListener(webChatClient, setDayCallback) {
         resultMsg = "❌ Vote failed. Staying as is.";
       }
 
-      await message.channel.send(
-        `**📊 Vote Results**\nYes: ${yes} | No: ${no}\n${resultMsg}`
-      );
+      const text = `**📊 Vote Results**\nYes: ${yes} | No: ${no}\n${resultMsg}`;
+      await message.channel.send(text);
+      io.emit("chatMessage", { text: `${text}`, authorType: "web" });
 
       voteActive = false;
       voteCooldownUntil = Date.now() + cooldown;

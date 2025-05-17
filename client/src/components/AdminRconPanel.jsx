@@ -84,10 +84,12 @@ const CustomDropdown = ({ value, onChange, options }) => {
   );
 };
 
-const renderLog = (log) => {
-  const isError = log.includes("⚠️") || log.includes("❌");
-  const isSuccess = log.includes("✅");
-  const isRunning = log.includes("⏳") || log.includes("Running...");
+const renderLog = (logEntry) => {
+  const text = typeof logEntry === "string" ? logEntry : logEntry?.text || "";
+
+  const isError = text.includes("⚠️") || text.includes("❌");
+  const isSuccess = text.includes("✅");
+  const isRunning = text.includes("⏳") || text.includes("Running...");
 
   const borderColor = isError
     ? "#e74c3c"
@@ -127,7 +129,7 @@ const renderLog = (log) => {
         whiteSpace: "pre-wrap",
       }}
     >
-      {log}
+      {text}
     </div>
   );
 };
@@ -253,7 +255,7 @@ const AutocompleteInput = ({ value, onChange, placeholder, suggestions }) => {
   );
 };
 
-const AdminRconPanel = () => {
+const AdminRconPanel = ({ logs }) => {
   const { players = [] } = usePlayers();
   const [mcName, setMcName] = useState("");
   const [targetPlayer, setTargetPlayer] = useState("");
@@ -270,12 +272,35 @@ const AdminRconPanel = () => {
   const [output, setOutput] = useState("");
   const [consoleOpen, setConsoleOpen] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState([]);
+  const prevLogsRef = useRef([]);
   const consoleEndRef = useRef(null);
+
+  useEffect(() => {
+    const prevLength = prevLogsRef.current.length;
+    const newLength = logs?.length || 0;
+
+    if (newLength > prevLength) {
+      setConsoleOpen(true);
+    }
+
+    prevLogsRef.current = logs || [];
+  }, [logs]);
 
   const appendLog = (message) => {
     setConsoleOpen(true);
-    setConsoleLogs((logs) => [...logs.slice(-49), message]);
+    setConsoleLogs((logs) => [
+      ...logs.slice(-49),
+      { text: message, time: Date.now() },
+    ]);
   };
+
+  useEffect(() => {
+    if (consoleOpen && consoleEndRef.current) {
+      setTimeout(() => {
+        consoleEndRef.current.scrollIntoView({ behavior: "auto" });
+      }, 0);
+    }
+  }, [logs, consoleOpen]);
 
   useEffect(() => {
     if (consoleOpen && consoleEndRef.current) {
@@ -406,6 +431,10 @@ const AdminRconPanel = () => {
   const onlinePlayers = players.filter((p) => p.online);
 
   const playerList = onlinePlayers.map((p) => p.name);
+
+  const mergedLogs = [...consoleLogs, ...(logs || [])]
+    .sort((a, b) => a.time - b.time)
+    .slice(-50);
 
   return (
     <div className="admin-commands-container" style={{ marginTop: "2rem" }}>
@@ -708,8 +737,8 @@ const AdminRconPanel = () => {
               scrollbarWidth: "thin",
             }}
           >
-            {consoleLogs.map((log, idx) => (
-              <React.Fragment key={idx}>{renderLog(log)}</React.Fragment>
+            {mergedLogs.map((log, idx) => (
+              <React.Fragment key={idx}>{renderLog(log.text)}</React.Fragment>
             ))}
             <div ref={consoleEndRef} />
           </div>

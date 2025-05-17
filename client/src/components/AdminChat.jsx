@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { usePlayers } from "./AdminPlayerProvider";
+import { marked } from "marked";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
 const SERVER_URL = "http://localhost:5000";
@@ -200,8 +201,8 @@ const AdminServerChat = () => {
       if (webMatch) {
         return {
           type: "web",
-          name: webMatch[1],
-          content: webMatch[1] ? `<${webMatch[1]}> ${webMatch[2]}` : "",
+          name: "web",
+          content: `&lt;${webMatch[1]}&gt; ${webMatch[2]}`,
           image,
         };
       }
@@ -242,7 +243,7 @@ const AdminServerChat = () => {
     return {
       type: "web",
       name: "web",
-      content: msg,
+      content: marked.parseInline(msg),
       image,
     };
   };
@@ -339,7 +340,8 @@ const AdminServerChat = () => {
                     {type === "web" && (
                       <>
                         <FaGlobe className="icon web-icon" />
-                        <strong className="msg-name">web</strong> &gt; {content}
+                        <strong className="msg-name">{name}</strong> &gt;{" "}
+                        <span dangerouslySetInnerHTML={{ __html: content }} />
                       </>
                     )}
                     {image && (
