@@ -131,7 +131,7 @@ const webChatClient = new WebChatClient({
   ],
 });
 
-// setupDayVoteListener(webChatClient, setDayOnMinecraftServer, io);
+setupDayVoteListener(webChatClient, setDayOnMinecraftServer, io);
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
