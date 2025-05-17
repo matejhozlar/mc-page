@@ -10,6 +10,7 @@ const targetDirs = [
   "./discord/commands",
   "./routes",
   "./tests",
+  "./discord/listeners",
 ];
 
 if (!fs.existsSync(envSource)) {
