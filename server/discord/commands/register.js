@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
 import { verifyNotifyStaff } from "../../services/verifyNotifyStaff.js";
@@ -35,7 +35,7 @@ export async function execute(interaction, db) {
   if (!hasUnverified) {
     return await interaction.reply({
       content: "❌ You are already verified or not eligible to register.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -48,13 +48,13 @@ export async function execute(interaction, db) {
     return await interaction.reply({
       content:
         "🚫 You haven't verified your token yet. Run `/verify <token>` first.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
   await interaction.reply({
     content: "🔍 Initiating registration sequence...",
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 
   try {

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
@@ -31,7 +31,7 @@ export async function execute(interaction, db) {
       if (userData.rowCount === 0) {
         return await interaction.reply({
           content: `❌ No player found with the name \`${requestedName}\`.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     } else {
@@ -43,7 +43,7 @@ export async function execute(interaction, db) {
       if (userData.rowCount === 0) {
         return await interaction.reply({
           content: `❌ You don’t have your Minecraft account linked yet. Use **/link <username>** to connect your account.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }
@@ -52,7 +52,7 @@ export async function execute(interaction, db) {
     if (!play_time_seconds) {
       return await interaction.reply({
         content: `⏳ No playtime recorded yet for **${name}**.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -61,14 +61,14 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({
       content: `🕹️ **${name}** has played for **${hours}h ${minutes}m** in total.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     logger.error(`❌ Failed to fetch playtime: ${logError(error)}`);
     return await interaction.reply({
       content:
         "⚠️ Something went wrong while fetching playtime. Please try again later.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

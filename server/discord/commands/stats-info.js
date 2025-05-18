@@ -1,6 +1,10 @@
 import fs from "fs/promises";
 import path from "path";
-import { SlashCommandBuilder, AttachmentBuilder } from "discord.js";
+import {
+  SlashCommandBuilder,
+  AttachmentBuilder,
+  MessageFlags,
+} from "discord.js";
 import { fileURLToPath } from "url";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
@@ -28,7 +32,7 @@ export async function execute(interaction, db) {
       const hoursLeft = ((cooldownMs - diff) / (1000 * 60 * 60)).toFixed(1);
       return await interaction.reply({
         content: `⏳ You can use this command again in ${hoursLeft} hour(s).`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }

@@ -2,6 +2,7 @@ import {
   SlashCommandBuilder,
   EmbedBuilder,
   AttachmentBuilder,
+  MessageFlags,
 } from "discord.js";
 import dotenv from "dotenv";
 import path from "path";
@@ -33,7 +34,7 @@ export async function execute(interaction) {
 
     return await interaction.reply({
       content: `⏳ Please wait ${minutes} minute(s) and ${seconds} second(s) before using this command again.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -87,6 +88,6 @@ export async function execute(interaction) {
   await interaction.reply({
     embeds: [embed],
     files: [fullCommandImage],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
