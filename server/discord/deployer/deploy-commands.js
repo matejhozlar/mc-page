@@ -9,6 +9,42 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("stats-category")
+    .setDescription("Show the top players for a given Minecraft stat category")
+    .addStringOption((option) =>
+      option
+        .setName("type")
+        .setDescription("The stat category (e.g., mined, killed, crafted)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName("stats-champions")
+    .setDescription(
+      "Show players with the most 1st-place finishes across all Minecraft stats"
+    ),
+  new SlashCommandBuilder()
+    .setName("stats-info")
+    .setDescription(
+      "Export all known Minecraft stat categories and keys (once per 24h)"
+    ),
+  new SlashCommandBuilder()
+    .setName("stats")
+    .setDescription("Show the top 5 players for a specific Minecraft stat")
+    .addStringOption((option) =>
+      option
+        .setName("stat_type")
+        .setDescription("The stat category (e.g., mined, killed, custom)")
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("stat_key")
+        .setDescription(
+          "The specific Minecraft stat key (e.g., minecraft:stone)"
+        )
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("map")
     .setDescription("View the live server map for Createrington"),
   new SlashCommandBuilder()

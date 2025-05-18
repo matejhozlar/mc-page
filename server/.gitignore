@@ -3,3 +3,5 @@
 /services/.env
 /logs/
 /services/logs/
+/stats
+/tmp

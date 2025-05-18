@@ -20,11 +20,16 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import logger from "./logger.js";
+import { syncAndImportStats } from "./utils/syncAndImportStats.js";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
 import { assignPlaytimeRole } from "./services/assignPlaytimeRoles.js";
+import {
+  initStatsChampionsBoard,
+  updateStatsChampionsBoard,
+} from "./services/statsChampionsBoard.js";
 
 // utils
 import logError from "./utils/logError.js";
@@ -111,6 +116,8 @@ const db = new pg.Client({
 db.connect();
 logger.info("📦 Connected to PostgreSQL database.");
 
+// setInterval(() => syncAndImportStats(db, logger), 10 * 60 * 1000);
+
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
@@ -131,7 +138,7 @@ const webChatClient = new WebChatClient({
   ],
 });
 
-setupDayVoteListener(webChatClient, setDayOnMinecraftServer, io);
+// setupDayVoteListener(webChatClient, setDayOnMinecraftServer, io);
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
@@ -626,7 +633,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.once("ready", () => {
+client.once("ready", async () => {
   logger.info(`Discord bot ready as ${client.user.tag}`);
 
   logger.info("🚀 Server initialization complete. Awaiting connections...");
@@ -646,6 +653,17 @@ client.once("ready", () => {
 
   // setInterval(() => {
   //   assignPlaytimeRole(db, client, false);
+  // }, 60 * 60 * 1000);
+
+  // await initStatsChampionsBoard(
+  //   db,
+  //   client,
+  //   process.env.DISCORD_LEADERBOARDS_CHANNEL_ID
+  // );
+
+  // setInterval(() => {
+  //   logger.info("🔄 Auto-refreshing stats champions leaderboard...");
+  //   updateStatsChampionsBoard(db);
   // }, 60 * 60 * 1000);
 });
 
