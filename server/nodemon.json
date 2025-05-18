@@ -1,0 +1,3 @@
+{
+  "ignore": ["server/stats/*", "server/tmp/*, server/tmp/**"]
+}
