@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
@@ -21,7 +21,7 @@ export async function execute(interaction, db) {
     const secs = Math.floor((remaining % 60000) / 1000);
     return await interaction.reply({
       content: `⏳ Please wait **${mins}m ${secs}s** before using this command again.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -39,7 +39,7 @@ export async function execute(interaction, db) {
     if (topPlayers.rowCount === 0) {
       return await interaction.reply({
         content: "📉 No playtime data found yet!",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -55,13 +55,12 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({
       content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
-      ephemeral: false,
     });
   } catch (error) {
     logger.error(`❌ Failed to fetch leaderboard: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Couldn’t load leaderboard. Try again later.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

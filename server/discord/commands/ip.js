@@ -4,6 +4,7 @@ import {
   ButtonBuilder,
   ActionRowBuilder,
   ButtonStyle,
+  MessageFlags,
 } from "discord.js";
 import dotenv from "dotenv";
 
@@ -27,7 +28,7 @@ export async function execute(interaction) {
     const secs = Math.floor((remaining % 60000) / 1000);
     return await interaction.reply({
       content: `⏳ Please wait **${mins}m ${secs}s** before using this command again.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -63,6 +64,6 @@ export async function execute(interaction) {
   await interaction.reply({
     embeds: [embed],
     components: [row],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }

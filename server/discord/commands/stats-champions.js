@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 
@@ -21,7 +21,7 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({
       content: `⏳ This command can only be used once every hour.\nPlease try again in ${minutes} minute(s) and ${seconds} second(s).`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 

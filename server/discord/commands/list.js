@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 
@@ -18,7 +18,7 @@ export async function execute(interaction, db) {
     const remaining = Math.ceil((cooldownPeriod - (now - lastUsed)) / 60000);
     return await interaction.reply({
       content: `⏳ Please wait ${remaining} more minute(s) before using this again.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -34,7 +34,7 @@ export async function execute(interaction, db) {
     if (onlinePlayers.length === 0) {
       return await interaction.reply({
         content: "🟥 No players are currently online.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -42,13 +42,13 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({
       content: `🟩 **${onlinePlayers.length} player(s) online:**\n${playerList}`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     logger.error(`❌ Failed to query online players: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Could not fetch player list. Try again later.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

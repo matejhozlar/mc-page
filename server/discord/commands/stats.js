@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
+import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 
@@ -37,7 +37,7 @@ export async function execute(interaction, db) {
       const remaining = ((COOLDOWN_MS - (now - lastUsed)) / 60000).toFixed(1);
       return await interaction.reply({
         content: `⏳ Please wait ${remaining} more minute(s) before using this command here.\nTry it in <#${SPAM_CHANNEL_ID}> for unlimited access.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     channelCooldowns.set(key, now);

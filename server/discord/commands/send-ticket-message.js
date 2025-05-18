@@ -4,6 +4,7 @@ import {
   ButtonBuilder,
   ActionRowBuilder,
   ButtonStyle,
+  MessageFlags,
 } from "discord.js";
 import dotenv from "dotenv";
 
@@ -23,7 +24,7 @@ export async function execute(interaction) {
   if (!ticketChannel || !ticketChannel.isTextBased()) {
     return await interaction.reply({
       content: "❌ Ticket channel not found or is not text-based.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -57,6 +58,6 @@ export async function execute(interaction) {
 
   await interaction.reply({
     content: `✅ Ticket creation message sent to <#${ticketChannelId}>`,
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }

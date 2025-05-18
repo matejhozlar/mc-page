@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
@@ -27,7 +27,7 @@ export async function execute(interaction, db) {
   if (!hasUnverified) {
     return await interaction.reply({
       content: "❌ You are already verified or not eligible to register.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -41,7 +41,7 @@ export async function execute(interaction, db) {
       return await interaction.reply({
         content:
           "❌ Invalid or expired token.\n📧 If you're stuck, email **admin@create-rington.com** for help.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -57,13 +57,13 @@ export async function execute(interaction, db) {
     return await interaction.reply({
       content:
         "✅ Token verified! You may now use `/register <mc_name>` to join the server.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     logger.error(`❌ Verify command failed: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong. Please try again later.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

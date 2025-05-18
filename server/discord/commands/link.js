@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
@@ -28,7 +28,7 @@ export async function execute(interaction, db) {
     if (existing.rowCount > 0) {
       return await interaction.reply({
         content: `❌ You’ve already linked your Discord account to \`${existing.rows[0].name}\`.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -40,19 +40,19 @@ export async function execute(interaction, db) {
     if (result.rowCount === 0) {
       await interaction.reply({
         content: "❌ That Minecraft name was not found or is already linked.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } else {
       await interaction.reply({
         content: `✅ Successfully linked \`${mcName}\` to your Discord account.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   } catch (error) {
     logger.error(`❌ Failed to link account: ${logError(error)}`);
     await interaction.reply({
       content: "⚠️ Something went wrong while linking. Try again later.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
