@@ -183,7 +183,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
       const secs = Math.floor((remaining % 60000) / 1000);
       return interaction.reply({
         content: `⏳ The leaderboard can only be refreshed every 10 minutes.\nPlease wait ${mins} minute(s) and ${secs} second(s).`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
