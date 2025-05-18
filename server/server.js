@@ -759,7 +759,7 @@ app.use("/api", playersRoutes(db, serverIP, serverPort));
 // /verify-token for chat
 app.use("/api", verifyTokenRoute(db));
 // /apply-form /waitlist-form
-app.use("/api", formRoutes(db));
+app.use("/api", formRoutes(db, client));
 // /upload-image
 app.use("/api", uploadImageRoute(io, webChatClient, MINECRAFT_CHANNEL_NAME));
 // /discord/callback /discord/callback-game
