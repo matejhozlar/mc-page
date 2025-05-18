@@ -33,7 +33,8 @@
     "url": "^0.11.4",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
-    "winston-daily-rotate-file": "^5.0.0"
+    "winston-daily-rotate-file": "^5.0.0",
+    "undici": ">=6.21.2"
   },
   "devDependencies": {
     "supertest": "^7.1.1",
