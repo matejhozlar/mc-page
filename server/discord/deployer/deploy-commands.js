@@ -9,6 +9,9 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("stats-guide")
+    .setDescription("Learn how to use the /stats command with examples"),
+  new SlashCommandBuilder()
     .setName("stats-category")
     .setDescription("Show the top players for a given Minecraft stat category")
     .addStringOption((option) =>
