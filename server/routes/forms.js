@@ -4,7 +4,7 @@ import logger from "../logger.js";
 import logError from "../utils/logError.js";
 import { notifyAdminWaitlist } from "../utils/emailAdminOnWaitlist.js";
 
-export default function formRoutes(db) {
+export default function formRoutes(db, client) {
   const router = express.Router();
 
   // --- /api/apply ---
@@ -100,9 +100,10 @@ export default function formRoutes(db) {
         RETURNING *
       `;
       const result = await db.query(insertQuery, [email, discordName]);
+      const entry = result.rows[0];
 
       logger.info(`✅ Waitlist entry added: ${email} (${discordName})`);
-      await notifyAdminWaitlist({ email, discordName });
+      await notifyAdminWaitlist(entry, client);
       res.json({ success: true, entry: result.rows[0] });
     } catch (error) {
       logger.error(
