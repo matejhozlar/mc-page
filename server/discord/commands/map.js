@@ -21,10 +21,10 @@ export async function execute(interaction) {
   const remaining = COOLDOWN_MS - (now - lastUsed);
 
   if (remaining > 0) {
-    const mins = Math.floor(remaining / 60000);
-    const secs = Math.floor((remaining % 60000) / 1000);
+    const minutes = Math.floor(remaining / 60000);
+    const seconds = Math.floor((remaining % 60000) / 1000);
     return await interaction.reply({
-      content: `⏳ Please wait **${mins}m ${secs}s** before using this command again.`,
+      content: `⏳ Please wait ${minutes} minute(s) and ${seconds} second(s) before using this command again.`,
       flags: MessageFlags.Ephemeral,
     });
   }

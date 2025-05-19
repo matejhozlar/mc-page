@@ -135,6 +135,7 @@ export default function gameDataRoutes(db) {
       coal_reserve,
       smelting_queue,
       smelt_amounts,
+      offline_earnings_level,
     } = req.body;
 
     if (
@@ -155,10 +156,10 @@ export default function gameDataRoutes(db) {
       await db.query(
         `INSERT INTO clicker_game_data
            (discord_id, points, tool, inventory, materials, auto_click_level,
-            furnace_level, coal_reserve, smelting_queue, smelt_amounts, last_logout_at)
+            furnace_level, coal_reserve, smelting_queue, smelt_amounts, offline_earnings_level, last_logout_at)
          VALUES
            ($1, $2, $3, $4, $5::jsonb, $6,
-            $7, $8, $9::jsonb, $10::jsonb, now())
+            $7, $8, $9::jsonb, $10::jsonb, $11, now())
          ON CONFLICT (discord_id) DO UPDATE SET
            points = EXCLUDED.points,
            tool = EXCLUDED.tool,
@@ -169,6 +170,7 @@ export default function gameDataRoutes(db) {
            coal_reserve = EXCLUDED.coal_reserve,
            smelting_queue = EXCLUDED.smelting_queue,
            smelt_amounts = EXCLUDED.smelt_amounts,
+           offline_earnings_level = EXCLUDED.offline_earnings_level,
            updated_at = now()
         `,
         [
@@ -182,6 +184,7 @@ export default function gameDataRoutes(db) {
           coal_reserve,
           queueJson,
           smeltAmountsJson,
+          offline_earnings_level,
         ]
       );
       return res.json({ success: true });

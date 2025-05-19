@@ -26,7 +26,7 @@ export async function execute(interaction, db) {
     const seconds = Math.floor((remainingMs % 60000) / 1000);
 
     return await interaction.reply({
-      content: `⏳ You can use this command again in ${minutes} minute(s) and ${seconds} second(s).`,
+      content: `⏳ Please wait ${minutes} minute(s) and ${seconds} second(s) before using this command again.`,
       flags: MessageFlags.Ephemeral,
     });
   }
