@@ -2,7 +2,8 @@ import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 
-const cooldowns = new Map();
+const userCooldowns = new Map();
+const COOLDOWN_MS = 10 * 60 * 1000;
 
 export const data = new SlashCommandBuilder()
   .setName("list")
@@ -11,13 +12,15 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
   const now = Date.now();
-  const cooldownPeriod = 10 * 60 * 1000;
 
-  const lastUsed = cooldowns.get(userId);
-  if (lastUsed && now - lastUsed < cooldownPeriod) {
-    const remaining = Math.ceil((cooldownPeriod - (now - lastUsed)) / 60000);
+  const lastUsed = userCooldowns.get(userId);
+  if (lastUsed && now - lastUsed < COOLDOWN_MS) {
+    const remainingMs = COOLDOWN_MS - (now - lastUsed);
+    const minutes = Math.floor(remainingMs / 60000);
+    const seconds = Math.floor((remainingMs % 60000) / 1000);
+
     return await interaction.reply({
-      content: `⏳ Please wait ${remaining} more minute(s) before using this again.`,
+      content: `⏳ Please wait ${minutes} minute(s) and ${seconds} second(s) before using this command again.`,
       flags: MessageFlags.Ephemeral,
     });
   }
@@ -29,7 +32,7 @@ export async function execute(interaction, db) {
 
     const onlinePlayers = result.rows;
 
-    cooldowns.set(userId, now);
+    userCooldowns.set(userId, now);
 
     if (onlinePlayers.length === 0) {
       return await interaction.reply({

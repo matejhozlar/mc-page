@@ -9,6 +9,17 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("stats-crowns")
+    .setDescription(
+      "View how many stats you're 1st place in — and export the details!"
+    )
+    .addStringOption((option) =>
+      option
+        .setName("mc_name")
+        .setDescription("Minecraft username to check (optional)")
+        .setRequired(false)
+    ),
+  new SlashCommandBuilder()
     .setName("stats-guide")
     .setDescription("Learn how to use the /stats command with examples"),
   new SlashCommandBuilder()
