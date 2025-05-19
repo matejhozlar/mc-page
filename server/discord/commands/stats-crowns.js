@@ -56,15 +56,15 @@ export async function execute(interaction, db) {
     }
 
     const query = `
-      SELECT stat_type, stat_key, ps.value
-      FROM player_stats ps
-      JOIN users u ON ps.uuid = u.uuid
+      SELECT stat_type, stat_key, value
+      FROM (
+        SELECT DISTINCT ON (stat_type, stat_key)
+              stat_type, stat_key, value, uuid
+        FROM player_stats
+        ORDER BY stat_type, stat_key, value DESC
+      ) top_stats
+      JOIN users u ON u.uuid = top_stats.uuid
       WHERE u.name = $1
-        AND (stat_type, stat_key, value) IN (
-          SELECT stat_type, stat_key, MAX(value)
-          FROM player_stats
-          GROUP BY stat_type, stat_key
-        )
     `;
 
     const { rows } = await db.query(query, [mcName]);
@@ -76,13 +76,20 @@ export async function execute(interaction, db) {
       });
     }
 
+    const isSelf =
+      !inputName ||
+      mcName.toLowerCase() === interaction.user.username.toLowerCase();
     const totalCrowns = rows.length;
     const embed = new EmbedBuilder()
       .setTitle(`👑 ${mcName}'s Crowns`)
       .setDescription(
-        `You are **#1** in **${totalCrowns}** stat${
-          totalCrowns === 1 ? "" : "s"
-        }!`
+        isSelf
+          ? `You are **#1** in **${totalCrowns}** stat${
+              totalCrowns === 1 ? "" : "s"
+            }!`
+          : `**${mcName}** is #1 in **${totalCrowns}** stat${
+              totalCrowns === 1 ? "" : "s"
+            }!`
       )
       .setColor(0xe67e22)
       .setFooter({
