@@ -22,6 +22,7 @@ import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
 import logger from "./logger.js";
 import { syncAndImportStats } from "./utils/syncAndImportStats.js";
+import { status } from "minecraft-server-util";
 
 // config
 import { validateEnv } from "./config/validateEnv.js";
@@ -122,11 +123,32 @@ const db = new pg.Client({
 db.connect();
 logger.info("📦 Connected to PostgreSQL database.");
 
-// setInterval(() => syncAndImportStats(db, logger), 10 * 60 * 1000);
-
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
+
+let lastWasZero = false;
+
+async function maybeRunStatSync() {
+  try {
+    const { players } = await status(serverIP, serverPort, { timeout: 5000 });
+    const count = players.online;
+
+    if (count === 0 && !lastWasZero) {
+      lastWasZero = true;
+      logger.info("📉 0 players online — running stats sync...");
+      await syncAndImportStats(db, logger);
+    } else if (count > 0) {
+      lastWasZero = false;
+    }
+  } catch (error) {
+    logger.error(
+      `❌ Failed to check player count for sync: ${logError(error)}`
+    );
+  }
+}
+
+setInterval(() => maybeRunStatSync(), 10 * 60 * 1000);
 
 // start playtime tracking
 startPlaytimeTracking(db, serverIP, serverPort);
