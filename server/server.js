@@ -24,7 +24,7 @@ import logger from "./logger.js";
 import { syncAndImportStats } from "./utils/syncAndImportStats.js";
 
 // config
-import { validateEnv } from "./config/valiteEnv.js";
+import { validateEnv } from "./config/validateEnv.js";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
