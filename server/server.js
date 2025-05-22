@@ -13,6 +13,7 @@ import {
   ActionRowBuilder,
   ButtonStyle,
   ActivityType,
+  MessageFlags,
 } from "discord.js";
 import { AttachmentBuilder } from "discord.js";
 import cookieParser from "cookie-parser";
@@ -280,7 +281,7 @@ client.on("interactionCreate", async (interaction) => {
       );
       await interaction.reply({
         content: "❌ Command failed.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
@@ -298,7 +299,7 @@ client.on("interactionCreate", async (interaction) => {
       if (existing.rows.length > 0) {
         await interaction.reply({
           content: `❌ You already have a ticket open: <#${existing.rows[0].channel_id}>`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -372,13 +373,13 @@ client.on("interactionCreate", async (interaction) => {
 
       await interaction.reply({
         content: `✅ Your ticket has been created: ${ticketChannel}`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
       logger.error(`❌ Failed to create ticket: ${logError(error)}`);
       await interaction.reply({
         content: "⚠️ Failed to create ticket. Please try again later.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
@@ -456,7 +457,7 @@ client.on("interactionCreate", async (interaction) => {
       logger.error(`❌ Failed to close ticket: ${logError(err)}`);
       await interaction.reply({
         content: "❌ Failed to close ticket.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
@@ -517,14 +518,14 @@ client.on("interactionCreate", async (interaction) => {
       } else {
         await interaction.reply({
           content: "❌ Could not find original ticket owner in the database.",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     } catch (error) {
       logger.error(`❌ Failed to reopen ticket: ${logError(error)}`);
       await interaction.reply({
         content: "⚠️ Something went wrong while reopening the ticket.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
