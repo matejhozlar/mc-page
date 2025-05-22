@@ -9,6 +9,11 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("playtime-server")
+    .setDescription(
+      "Show the total combined playtime of all players on the server"
+    ),
+  new SlashCommandBuilder()
     .setName("stats-crowns")
     .setDescription(
       "View how many stats you're 1st place in — and export the details!"
