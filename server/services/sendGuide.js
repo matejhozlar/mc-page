@@ -55,7 +55,7 @@ client.once("ready", async () => {
           `🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n` +
           `🕹️ **/playtime** — Check your own playtime\n` +
           `🔍 **/playtime <mc_name>** — Check someone else's playtime\n` +
-          `🕒 **/playtime-server — Check the total combined playtime of all players on the server\n` +
+          `🕒 **/server-playtime — Check the total combined playtime of all players on the server\n` +
           `🏆 **/top-playtime** — See the top 10 players with the most hours\n` +
           `🧍 **/list** — Show who’s currently online on the Minecraft Server\n` +
           `🔑 **/token** — Generate a web chat token for [Createrington](https://create-rington.com/) (30 days)\n\n` +
