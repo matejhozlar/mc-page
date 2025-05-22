@@ -1,0 +1,81 @@
+import dotenv from "dotenv";
+import logger from "../logger.js";
+
+dotenv.config();
+
+const REQUIRED_VARS = [
+  "PORT",
+  "SERVER_IP",
+  "DB_USER",
+  "DB_HOST",
+  "DB_DATABASE",
+  "DB_PASSWORD",
+  "DB_PORT",
+  "CREATERINGTON_BOT_ID",
+  "DISCORD_BOT_TOKEN",
+  "DISCORD_GUILD_ID",
+  "DISCORD_CHAT_CHANNEL_ID",
+  "DISCORD_WEB_CHAT_BOT_TOKEN",
+  "DISCORD_CLIENT_ID",
+  "DISCORD_TOP_PLAYTIME_ROLE_ID",
+  "DISCORD_UNVERIFIED_ROLE_ID",
+  "DISCORD_PLAYER_ROLE_ID",
+  "DISCORD_ADMIN_ROLE_ID",
+  "DISCORD_STONE_ROLE_ID",
+  "DISCORD_COPPER_ROLE_ID",
+  "DISCORD_IRON_ROLE_ID",
+  "DISCORD_GOLD_ROLE_ID",
+  "DISCORD_DIAMOND_ROLE_ID",
+  "DISCORD_CRIMSON_ROLE_ID",
+  "DISCORD_SILVER_ROLE_ID",
+  "DISCORD_ELECTRUM_ROLE_ID",
+  "DISCORD_TYRIAN_ROLE_ID",
+  "DISCORD_ONE_ABOVE_ALL_ROLE_ID",
+  "DISCORD_VERIFY_CHANNEL_ID",
+  "DISCORD_ANNOUNCEMENT_CHANNEL_ID",
+  "DISCORD_HALL_OF_FAME_CHANNEL_ID",
+  "DISCORD_BOT_COMMANDS_CHANNEL_ID",
+  "ADMIN_CLIENT_ID",
+  "ADMIN_CLIENT_SECRET",
+  "ADMIN_REDIRECT_URI",
+  "RCON_PORT",
+  "RCON_PASSWORD",
+  "EMAIL_PASSWORD",
+  "EMAIL_ADDRESS",
+  "EMAIL_PORT",
+  "EMAIL_HOST",
+  "NOTIFY_ADMIN_EMAIL",
+  "DISCORD_LOGIN_CLIENT_ID",
+  "DISCORD_LOGIN_CLIENT_SECRET",
+  "DISCORD_LOGIN_REDIRECT_URI",
+  "DISCORD_TICKET_MESSAGE_CHANNEL_ID",
+  "DISCORD_TRANSCRIPT_CHANNEL_ID",
+  "DISCORD_MOD_SUGGESTIONS_CHANNEL_ID",
+  "DISCORD_MOD_DISCUSSION_CHANNEL_ID",
+  "DISCORD_MINECRAFT_CHANNEL_ID",
+  "DISCORD_BOT_SPAM_CHANNEL_ID",
+  "DISCORD_LEADERBOARDS_CHANNEL_ID",
+  "DISCORD_ADMIN_CHAT_CHANNEL_ID",
+  "DISCORD_TEST_CHANNEL_ID",
+  "SFTP_HOST",
+  "SFTP_PORT",
+  "SFTP_USER",
+  "SFTP_PASS",
+];
+
+export function validateEnv() {
+  let hasError = false;
+  for (const key of REQUIRED_VARS) {
+    if (!process.env[key]) {
+      logger.error(`❌ Missing required env variable: ${key}`);
+      hasError = true;
+    }
+  }
+
+  if (hasError) {
+    logger.error("🛑 Environment validation failed. Exiting.");
+    process.exit(1);
+  } else {
+    logger.info("✅ All required environment variables are set.");
+  }
+}

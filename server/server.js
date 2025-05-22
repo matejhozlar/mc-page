@@ -23,6 +23,9 @@ import { fileURLToPath, pathToFileURL } from "url";
 import logger from "./logger.js";
 import { syncAndImportStats } from "./utils/syncAndImportStats.js";
 
+// config
+import { validateEnv } from "./config/valiteEnv.js";
+
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
 import { assignTopPlayerRole } from "./services/assignTopTplayerRole.js";
@@ -50,6 +53,8 @@ import gameDataRoutes from "./routes/gameData.js";
 // listeners
 import setupLinkOnlyChannelWatcher from "./discord/listeners/linkOnlyChannelMatcher.js";
 import { setupDayVoteListener } from "./discord/listeners/voteDayManager.js";
+
+validateEnv();
 
 // Resolve __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -453,8 +458,8 @@ client.on("interactionCreate", async (interaction) => {
         `UPDATE tickets SET admin_message_id = $1 WHERE channel_id = $2`,
         [adminPanelMessage.id, interaction.channel.id]
       );
-    } catch (err) {
-      logger.error(`❌ Failed to close ticket: ${logError(err)}`);
+    } catch (error) {
+      logger.error(`❌ Failed to close ticket: ${logError(error)}`);
       await interaction.reply({
         content: "❌ Failed to close ticket.",
         flags: MessageFlags.Ephemeral,
