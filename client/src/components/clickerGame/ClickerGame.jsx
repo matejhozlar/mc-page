@@ -12,8 +12,12 @@ import {
   toolOrder,
   valuePerClick,
   offlineEarningsUpgrades,
+  lootCrateDrops,
 } from "./data/toolData";
 import { SMELTING_RECIPES } from "./data/furnaceData";
+
+// components
+import Tooltip from "./Tooltip";
 
 const ClickerGame = () => {
   const canvasRef = useRef(null);
@@ -49,9 +53,89 @@ const ClickerGame = () => {
   const [offlineSmelted, setOfflineSmelted] = useState(null);
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [materialAmounts, setMaterialAmounts] = useState({});
+  const [hoverUpgrade, setHoveredUpgrade] = useState(null);
+  const [isCrateOpening, setIsCrateOpening] = useState(null);
+  const [crateItems, setCrateItems] = useState(null);
+  const [finalCrateItem, setFinalCrateItem] = useState(null);
   const materialMenuRef = useRef(null);
+  const [crateScrollX, setCrateScrollX] = useState(0);
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
+  const [crateFinalIndex, setCrateFinalIndex] = useState(null);
 
   const ignoreClickRef = useRef(false);
+
+  const crateOnlyTools = new Set(["crimson_iron_pick"]);
+
+  useEffect(() => {
+    if (!isCrateOpening || !crateItems?.length || crateFinalIndex === null)
+      return;
+
+    const scrollContainer = document.querySelector(
+      `.${styles.crateScrollContainer}`
+    );
+    const scrollEl = scrollContainer.querySelector(`.${styles.crateScroll}`);
+    const itemEl = scrollEl.querySelector(`.${styles.crateItem}`);
+    const gap = parseInt(getComputedStyle(scrollEl).gap, 10) || 0;
+    const boxWidth = itemEl.offsetWidth + gap;
+    const scrollContainerWidth = scrollContainer.clientWidth;
+
+    const totalDistance = -(
+      crateFinalIndex * boxWidth -
+      scrollContainerWidth / 2 +
+      boxWidth / 2
+    );
+
+    const pixelsPerSecond = 1000;
+    const distance = Math.abs(totalDistance);
+    const duration = (distance / pixelsPerSecond) * 1000;
+    const startTime = performance.now();
+
+    const easeOutExpo = (t) => 1 - Math.pow(2, -10 * t);
+
+    const animateScroll = (time) => {
+      const elapsed = time - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = easeOutExpo(t);
+      const currentX = eased * totalDistance;
+
+      setCrateScrollX(currentX);
+
+      if (t < 1) {
+        requestAnimationFrame(animateScroll);
+      } else {
+        setTimeout(() => {
+          if (finalCrateItem) {
+            if (finalCrateItem.name.endsWith("_pick")) {
+              const baseToolKey = finalCrateItem.name.replace(/_pick$/, "");
+              if (!inventory.includes(baseToolKey)) {
+                setInventory((prev) => [...prev, baseToolKey]);
+              } else {
+                setMaterials((prev) => ({
+                  ...prev,
+                  cobble_stone: (prev.cobble_stone || 0) + 500,
+                  netherite_ore: (prev.netherite_ore || 0) + 1,
+                  copper_ore: (prev.copper_ore || 0) + 50,
+                }));
+              }
+            } else {
+              setMaterials((prev) => ({
+                ...prev,
+                [finalCrateItem.name]:
+                  (prev[finalCrateItem.name] || 0) +
+                  (finalCrateItem.amount || 1),
+              }));
+            }
+
+            setIsCrateOpening(false);
+            setShowFinalMessage(true);
+          }
+        }, 1000);
+      }
+    };
+
+    setCrateScrollX(0);
+    requestAnimationFrame(animateScroll);
+  }, [isCrateOpening, crateItems, finalCrateItem, crateFinalIndex, inventory]);
 
   const upgradeFurnace = () => {
     if (furnaceLevel >= 8) return;
@@ -543,7 +627,6 @@ const ClickerGame = () => {
           overlay.material.needsUpdate = true;
           breakStageRef.current = 0;
 
-          // Drop item now that block resets
           tryDropMaterial();
         }, 200);
       }
@@ -584,6 +667,7 @@ const ClickerGame = () => {
               gold: 16,
               diamond: 32,
               netherite: 64,
+              crimson_iron: 128,
             };
             earned = values[tool] || 0;
           }
@@ -652,6 +736,29 @@ const ClickerGame = () => {
       );
       const unlocked = toolIndex <= maxInventoryTier + 1;
       const filename = name === "gold" ? "golden" : name;
+
+      if (crateOnlyTools.has(name)) {
+        return (
+          <div
+            key={name}
+            className={`${styles.shopItem} ${styles.disabledItem}`}
+          >
+            <div className={styles.pickaxeWrapper}>
+              <img
+                src={`/assets/clickerGame/models/images/${filename}_pick.png`}
+                alt={`${name} pickaxe`}
+                className={styles.pickaxeIcon}
+              />
+              <img
+                src="/assets/clickerGame/models/images/lock_locked.png"
+                alt="Locked"
+                className={styles.lockCentered}
+              />
+            </div>
+            <div className={styles.itemPrice}>????</div>
+          </div>
+        );
+      }
 
       return (
         <button
@@ -744,6 +851,53 @@ const ClickerGame = () => {
       }
     };
   }, [lastDrop]);
+
+  const handleOpenLootCrate = () => {
+    if (points < 10000 || (materials.copper_ingot || 0) < 50) return;
+
+    const rawEntries = [];
+
+    for (let i = 0; i < 100; i++) {
+      const rand = Math.random();
+      let cumulative = 0;
+      for (const drop of lootCrateDrops) {
+        cumulative += drop.chance;
+        if (rand <= cumulative) {
+          rawEntries.push({ ...drop });
+          break;
+        }
+      }
+    }
+
+    const finalIndexInRaw = Math.floor(Math.random() * rawEntries.length);
+    const finalItem = rawEntries[finalIndexInRaw];
+
+    const boxWidth = 72;
+    const scrollContainerWidth = 300;
+    const visibleItems = Math.floor(scrollContainerWidth / boxWidth);
+    const padding = Math.floor(visibleItems / 2);
+
+    const filler = { name: "coal" };
+    const paddedEntries = [
+      ...Array(padding).fill(filler),
+      ...rawEntries,
+      ...Array(padding).fill(filler),
+    ];
+
+    const finalIndex = padding + finalIndexInRaw;
+
+    setCrateItems(paddedEntries);
+    setFinalCrateItem(finalItem);
+    setCrateFinalIndex(finalIndex);
+    setCrateScrollX(0);
+    setIsCrateOpening(true);
+
+    setPoints((p) => p - 10000);
+    setMaterials((m) => ({
+      ...m,
+      copper_ingot: m.copper_ingot - 50,
+    }));
+  };
 
   const saveProgress = useCallback(
     (override = null) => {
@@ -886,6 +1040,7 @@ const ClickerGame = () => {
           </div>
         </div>
       )}
+
       <div className={styles["clicker-game-container"]}>
         {/* === SHOP SIDEBAR === */}
         <div className={`${styles["clicker-sidebar"]} ${styles.shop}`}>
@@ -928,7 +1083,6 @@ const ClickerGame = () => {
 
                 {/* Upcoming pickaxes (grayed out) */}
                 {[
-                  "crimson_iron_pick",
                   "crimson_steel_pick",
                   "blaze_gold_pick",
                   "azure_silver_pick",
@@ -963,6 +1117,8 @@ const ClickerGame = () => {
                 <button
                   onClick={handleAutoclickerUpgrade}
                   className={styles.shopItem}
+                  onMouseEnter={() => setHoveredUpgrade("autoclicker")}
+                  onMouseLeave={() => setHoveredUpgrade(null)}
                 >
                   <div className={styles.pickaxeWrapper}>
                     <img
@@ -998,6 +1154,11 @@ const ClickerGame = () => {
                       );
                     })}
                   </div>
+                  {hoverUpgrade === "autoclicker" && (
+                    <Tooltip
+                      text={`Automatically mines for you every few seconds.\n Faster with each upgrade!`}
+                    />
+                  )}
                 </button>
               ) : (
                 <p>Autoclicker Maxed Out!</p>
@@ -1032,10 +1193,12 @@ const ClickerGame = () => {
                     className={`${styles.shopItem} ${
                       locked ? styles.disabledItem : ""
                     }`}
+                    onMouseEnter={() => setHoveredUpgrade("offline")}
+                    onMouseLeave={() => setHoveredUpgrade(null)}
                   >
                     <div className={styles.pickaxeWrapper}>
                       <img
-                        src="/assets/clickerGame/models/images/moon_clock.png"
+                        src="/assets/clickerGame/models/images/offlineclicker.png"
                         alt="Offline Earnings"
                         className={styles.pickaxeIcon}
                       />
@@ -1074,6 +1237,11 @@ const ClickerGame = () => {
                         );
                       })}
                     </div>
+                    {hoverUpgrade === "offline" && (
+                      <Tooltip
+                        text={`Earn points and get materials while offline.\nHigher levels = more gains.`}
+                      />
+                    )}
                   </button>
                 ) : (
                   <p>Offline Earnings Maxed!</p>
@@ -1166,15 +1334,49 @@ const ClickerGame = () => {
             </div>
           ) : shopTab === "loot" ? (
             <div className={styles.shopSection}>
-              <p
-                style={{
-                  fontSize: "16px",
-                  textAlign: "center",
-                  marginTop: "20px",
-                }}
+              <button
+                onClick={handleOpenLootCrate}
+                className={styles.shopItem}
+                disabled={points < 10000 || (materials.copper_ingot || 0) < 50}
               >
-                🧰 Loot Crates - <strong>Coming Soon...</strong>
-              </p>
+                <div className={styles.pickaxeWrapper}>
+                  <img
+                    src="/assets/clickerGame/models/images/crate1.png"
+                    alt="Autoclicker"
+                    className={`${styles.pickaxeIcon} ${styles.autoclickerIcon}`}
+                  />
+                </div>
+                Open Loot Crate
+                <div className={styles.materialCostList}>
+                  <div className={styles.materialCost}>
+                    <img
+                      src="/assets/clickerGame/materials/copper_ingot.png"
+                      className={styles.materialIcon}
+                      alt="Copper Ingot"
+                    />
+                    <span
+                      className={
+                        (materials.copper_ingot || 0) < 50
+                          ? styles.materialCountInsufficient
+                          : styles.materialCount
+                      }
+                    >
+                      {materials.copper_ingot || 0} / 50
+                    </span>
+                  </div>
+                  <div className={styles.materialCost}>
+                    <span
+                      className={
+                        points < 10000
+                          ? styles.materialCountInsufficient
+                          : styles.materialCount
+                      }
+                    >
+                      {points} / 10000 pts
+                    </span>
+                  </div>
+                </div>
+              </button>
             </div>
           ) : null}
         </div>
@@ -1587,6 +1789,76 @@ const ClickerGame = () => {
           </em>
         </footer>
       </div>
+      {isCrateOpening && (
+        <div className={styles.crateOverlay}>
+          <div className={styles.crateModal}>
+            <div className={styles.crateScrollContainer}>
+              <div className={styles.crateCenterIndicator}></div>{" "}
+              {/* << This line */}
+              <div
+                className={styles.crateScroll}
+                style={{ transform: `translateX(${crateScrollX}px)` }}
+              >
+                {crateItems.map((item, i) => (
+                  <div key={i} className={styles.crateItem}>
+                    <img
+                      src={
+                        item.name.endsWith("_pick")
+                          ? `/assets/clickerGame/models/images/${item.name}.png`
+                          : `/assets/clickerGame/materials/${item.name}.png`
+                      }
+                      alt={item.name}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setIsCrateOpening(false);
+                setCrateItems([]);
+                setFinalCrateItem(null);
+                setCrateScrollX(0);
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+      {showFinalMessage && finalCrateItem && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h2>Loot Crate Opened!</h2>
+            <p>
+              You received:{" "}
+              <strong>
+                {finalCrateItem.amount ? `${finalCrateItem.amount} × ` : ""}
+                {materialNames[finalCrateItem.name] || finalCrateItem.name}
+              </strong>
+            </p>
+            <img
+              src={
+                finalCrateItem.name.endsWith("_pick")
+                  ? `/assets/clickerGame/models/images/${finalCrateItem.name}.png`
+                  : `/assets/clickerGame/materials/${finalCrateItem.name}.png`
+              }
+              alt={finalCrateItem.name}
+              style={{ width: "64px", margin: "12px auto" }}
+            />
+            <button
+              onClick={() => {
+                setShowFinalMessage(false);
+                setCrateItems([]);
+                setFinalCrateItem(null);
+              }}
+            >
+              Awesome!
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
