@@ -821,3 +821,82 @@
   color: #aaa;
   margin-top: 6px;
 }
+
+.crateOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.crateModal {
+  background: #222;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  border: 2px solid #888;
+}
+
+.crateScrollContainer {
+  width: 300px;
+  overflow: hidden;
+  border: 2px solid #ccc;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.crateScroll {
+  display: flex;
+  gap: 8px;
+}
+
+.crateItem {
+  min-width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+}
+
+.crateItem img {
+  width: 48px;
+  height: 48px;
+}
+
+.finalItem {
+  border-color: gold;
+  transform: scale(1.2);
+  transition: transform 0.3s ease;
+}
+
+@keyframes scrollCrate {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.finalItem {
+  border: 2px solid gold;
+  transform: scale(1.2);
+}
+
+.crateCenterIndicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  background: white;
+  transform: translateX(-1px);
+  z-index: 2;
+}

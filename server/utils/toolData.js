@@ -85,6 +85,15 @@ export const materialDrops = {
     { name: "diamond", chance: 0.0075 },
     { name: "netherite_ore", chance: 0.001 },
   ],
+  crimson_iron: [
+    { name: "cobble_stone", chance: 0.5625 },
+    { name: "coal", chance: 0.2 },
+    { name: "copper_ore", chance: 0.11 },
+    { name: "iron_ore", chance: 0.06 },
+    { name: "gold_ore", chance: 0.05 },
+    { name: "diamond", chance: 0.015 },
+    { name: "netherite_ore", chance: 0.0025 },
+  ],
 };
 
 export const materialNames = {
@@ -119,6 +128,7 @@ export const valuePerClick = {
   gold: 16,
   diamond: 32,
   netherite: 64,
+  crimson_iron: 128,
 };
 
 export const toolOrder = [
@@ -129,6 +139,7 @@ export const toolOrder = [
   "gold",
   "diamond",
   "netherite",
+  "crimson_iron",
 ];
 
 export const offlineEarningsUpgrades = [
@@ -138,7 +149,7 @@ export const offlineEarningsUpgrades = [
       cobble_stone: 500,
       copper_ingot: 5,
     },
-    cap: 30,
+    cap: 30, // minutes
   },
   {
     level: 2,
@@ -220,4 +231,14 @@ export const offlineEarningsUpgrades = [
     },
     cap: 720,
   },
+];
+
+export const lootCrateDrops = [
+  { name: "crimson_iron_pick", chance: 0.001 },
+  { name: "netherite_ingot", chance: 0.005 },
+  { name: "diamond", chance: 0.01 },
+  { name: "gold_ingot", chance: 0.03 },
+  { name: "iron_ingot", chance: 0.05 },
+  { name: "coal", chance: 0.15, amount: 50 },
+  { name: "cobble_stone", chance: 0.749, amount: 250 },
 ];
