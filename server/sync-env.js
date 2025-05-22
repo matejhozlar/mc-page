@@ -12,6 +12,7 @@ const targetDirs = [
   "./tests",
   "./discord/listeners",
   "./bin",
+  "./config",
 ];
 
 if (!fs.existsSync(envSource)) {
