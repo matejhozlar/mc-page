@@ -9,7 +9,7 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
-    .setName("playtime-server")
+    .setName("server-playtime")
     .setDescription(
       "Show the total combined playtime of all players on the server"
     ),

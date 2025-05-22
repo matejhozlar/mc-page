@@ -6,7 +6,7 @@ let lastPlaytimeServerUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;
 
 export const data = new SlashCommandBuilder()
-  .setName("playtime-server")
+  .setName("server-playtime")
   .setDescription(
     "Show the total combined playtime of all players on the server"
   );
