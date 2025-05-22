@@ -14,8 +14,8 @@ import {
   ButtonStyle,
   ActivityType,
   MessageFlags,
+  AttachmentBuilder,
 } from "discord.js";
-import { AttachmentBuilder } from "discord.js";
 import cookieParser from "cookie-parser";
 import fs from "fs";
 import path from "path";

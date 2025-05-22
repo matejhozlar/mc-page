@@ -50,11 +50,12 @@ client.once("ready", async () => {
           `ℹ️ **/stats-info** — A list of all current stat types and keys\n` +
           `📘 **/stats-guide** — Learn how to use /stats with images and examples\n` +
           `👑 **/stats-champions** — See who has the most 1st-place finishes across all stats\n` +
-          `🔎 **/stats-crowns** — See how many stats you're ranked #1 in — and export them\n` +
-          `🎖️ **/stats-crowns <mc_name>** — Check another player’s #1 stat ranks\n` +
+          `🎖️ **/stats-crowns** — See how many stats you're ranked #1 in — and export them\n` +
+          `🔎 **/stats-crowns <mc_name>** — Check another player’s #1 stat ranks\n` +
           `🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n` +
           `🕹️ **/playtime** — Check your own playtime\n` +
           `🔍 **/playtime <mc_name>** — Check someone else's playtime\n` +
+          `🕒 **/playtime-server — Check the total combined playtime of all players on the server\n` +
           `🏆 **/top-playtime** — See the top 10 players with the most hours\n` +
           `🧍 **/list** — Show who’s currently online on the Minecraft Server\n` +
           `🔑 **/token** — Generate a web chat token for [Createrington](https://create-rington.com/) (30 days)\n\n` +
