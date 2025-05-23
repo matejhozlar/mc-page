@@ -695,7 +695,7 @@ client.once("ready", async () => {
   // }, 60 * 60 * 1000);
 });
 
-// creatin a message
+// creating a message
 client.on("messageCreate", (message) => {
   if (!message.channel || message.channel.name !== MINECRAFT_CHANNEL_NAME)
     return;
