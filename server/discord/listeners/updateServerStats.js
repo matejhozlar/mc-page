@@ -43,5 +43,5 @@ export default function startUpdatingServerStats(client) {
   }
 
   updateStats();
-  setInterval(updateStats, 10 * 60 * 1000);
+  setInterval(updateStats, 30 * 60 * 1000);
 }
