@@ -54,6 +54,7 @@ import gameDataRoutes from "./routes/gameData.js";
 // listeners
 import setupLinkOnlyChannelWatcher from "./discord/listeners/linkOnlyChannelMatcher.js";
 import { setupDayVoteListener } from "./discord/listeners/voteDayManager.js";
+import startUpdatingServerStats from "./discord/listeners/updateServerStats.js";
 
 validateEnv();
 
@@ -693,6 +694,8 @@ client.once("ready", async () => {
   //   logger.info("🔄 Auto-refreshing stats champions leaderboard...");
   //   updateStatsChampionsBoard(db);
   // }, 60 * 60 * 1000);
+
+  startUpdatingServerStats(client);
 });
 
 // creating a message
