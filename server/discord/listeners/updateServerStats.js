@@ -4,7 +4,8 @@ export default function startUpdatingServerStats(client) {
   const guildId = process.env.DISCORD_GUILD_ID;
   const membersChannelId = process.env.DISCORD_MEMBERS_COUNTER_CHANNEL_ID;
   const botsChannelId = process.env.DISCORD_BOTS_COUNTER_CHANNEL_ID;
-  const allMembersChannelId = process.env.DISCORD_ALL_MEMBERS_COUNTER_CANNEL_ID;
+  const allMembersChannelId =
+    process.env.DISCORD_ALL_MEMBERS_COUNTER_CHANNEL_ID;
 
   let lastMembers = null;
   let lastBots = null;
