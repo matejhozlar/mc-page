@@ -36,7 +36,7 @@ async function fetchLeaderboardEmbed(db) {
     .join("\n");
 
   const embed = new EmbedBuilder()
-    .setTitle("🏆 Stat Champions: Most 1st Places")
+    .setTitle("🏆 Stat Champions: Most 1st Places across all stats")
     .setDescription(leaderboard || "No data found.")
     .setColor(0x9b59b6)
     .setFooter({ text: "Updated" })
