@@ -16,7 +16,7 @@ This Node.js server powers authentication, Discord/Minecraft integration, real-t
 ## 📦 Tech Stack
 
 - **Node.js** + **Express**
-- **Socket.IO** – real-time chat sync
+- **Socket.IO** – real-time chat sync mc <-> dc <-> web
 - **PostgreSQL** – player data and tokens
 - **Discord.js** – two-way integration with Discord
 - **Minecraft RCON** – in-game automation
@@ -29,7 +29,7 @@ This Node.js server powers authentication, Discord/Minecraft integration, real-t
 ## ⚙️ Features
 
 - 🔒 **Secure Token-Based Registration & Verification**
-- 💬 **Two-Way Chat Sync** between Web & Discord & MC Server
+- 💬 **Three-Way Chat Sync** between Web & Discord & MC Server
 - ⌛ **Playtime Tracking** with Top Player Roles
 - 📝 **Whitelist Registration** via Discord
 - 📷 **Image Uploads** from Web UI to Discord to MC Server
@@ -42,16 +42,22 @@ This Node.js server powers authentication, Discord/Minecraft integration, real-t
 ## 🚀 Getting Started
 
 ### 1. Clone the Repository
+
 ```bash
 git clone https://github.com/matejhozlar/mc-page.git
 cd mc-page
 ```
+
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
+
 ### 3. Configure Environment
+
 #### Create a .env file and set the following:
+
 ```bash
 env
 # server
@@ -96,8 +102,13 @@ EMAIL_PASSWORD=your_email_password
 EMAIL_ADDRESS=your_email
 EMAIL_PORT=your_port
 EMAIL_HOST=your_host
+...
 ```
+
+Please check out [this file](https://github.com/matejhozlar/minecraft-server/blob/main/server/.env.example) for more detailed .env example
+
 ### 4. Run the Server
+
 ```bash
 npm start
 🔌 API Endpoints
@@ -109,7 +120,9 @@ Route	Description
 /wait-list	Join waitlist via email/Discord
 /upload-image	Upload image to Discord chat
 ```
+
 ### 💬 Discord Integration
+
 ### Includes full support for:
 
 - Slash commands (/register, /verify, /playtime, etc.)
@@ -125,4 +138,3 @@ This project is fan-made, not affiliated with Mojang or Microsoft. All original 
 📧 Contact
 📮 Email: admin@create-rington.com
 🌍 Site: https://create-rington.com
-
