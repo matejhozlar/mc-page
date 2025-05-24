@@ -39,7 +39,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName("stats-champions")
     .setDescription(
-      "Show players with the most 1st-place finishes across all Minecraft stats"
+      "Show players with the most 1st-places across all Minecraft stats"
     ),
   new SlashCommandBuilder()
     .setName("stats-info")

@@ -36,7 +36,7 @@ async function fetchLeaderboardEmbed(db) {
     .join("\n");
 
   const embed = new EmbedBuilder()
-    .setTitle("🏆 Stat Champions: Most 1st Place Finishes")
+    .setTitle("🏆 Stat Champions: Most 1st Places")
     .setDescription(leaderboard || "No data found.")
     .setColor(0x9b59b6)
     .setFooter({ text: "Updated" })
@@ -151,7 +151,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
           const announcementEmbed = new EmbedBuilder()
             .setTitle("🏆 A New Champion Has Risen!")
             .setDescription(
-              `🎉 <@${topId}> is now **The Champion** with **${first_place_count}** 1st-place finishes!\n\nAll hail **${topName}**! 👑`
+              `🎉 <@${topId}> is now **The Champion** with **${first_place_count}** 1st-places!\n\nAll hail **${topName}**! 👑`
             )
             .setColor(0x00ff4c)
             .setThumbnail(topMember.displayAvatarURL())
