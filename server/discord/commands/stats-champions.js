@@ -8,7 +8,7 @@ let lastGlobalExecution = 0;
 export const data = new SlashCommandBuilder()
   .setName("stats-champions")
   .setDescription(
-    "Show players with the most 1st-place finishes across all Minecraft stats"
+    "Show players with the most 1st-places across all Minecraft stats"
   );
 
 export async function execute(interaction, db) {
@@ -56,7 +56,7 @@ export async function execute(interaction, db) {
       .join("\n");
 
     const embed = new EmbedBuilder()
-      .setTitle("🏆 Stat Champions: Most 1st Place Finishes")
+      .setTitle("🏆 Stat Champions: Most 1st Places")
       .setDescription(leaderboard)
       .setColor(0x9b59b6)
       .setFooter({
