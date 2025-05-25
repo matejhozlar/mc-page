@@ -157,7 +157,7 @@ export async function execute(interaction, db) {
     logger.error(`❌ Register command failed: ${logError(error)}`);
     await verifyNotifyStaff(
       interaction,
-      `Unexpected Error: ${err.message}`,
+      `Unexpected Error: ${logError(error)}`,
       mcName
     );
     await interaction.editReply({
