@@ -44,17 +44,17 @@ export async function execute(interaction, db) {
       .setDescription(`**${days}d ${hours}h ${minutes}m**`)
       .addFields(
         {
-          name: "⏱ Seconds",
+          name: "Seconds",
           value: totalSeconds.toLocaleString(),
           inline: true,
         },
         {
-          name: "🕒 Minutes",
+          name: "Minutes",
           value: totalMinutes.toLocaleString(),
           inline: true,
         },
         {
-          name: "⌛ Hours",
+          name: "Hours",
           value: totalHours.toLocaleString(),
           inline: true,
         }
