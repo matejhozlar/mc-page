@@ -12,6 +12,9 @@ const targetDirs = [
   "./tests",
   "./discord/listeners",
   "./bin",
+  "./bin/guides",
+  "./bin/invites",
+  "./bin/trash",
   "./config",
   "./AI",
 ];
