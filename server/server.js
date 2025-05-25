@@ -115,15 +115,23 @@ const io = new Server(httpServer, {
 });
 
 // DB connection
-const db = new pg.Client({
+const db = new pg.Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
-db.connect();
-logger.info("📦 Connected to PostgreSQL database.");
+
+try {
+  await db.query("SELECT 1");
+  logger.info("📦 Connected to PostgreSQL database.");
+} catch (error) {
+  logger.error(`❌ Failed to connect to DB: ${logError(error)}`);
+  process.exit(1);
+}
 
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;
