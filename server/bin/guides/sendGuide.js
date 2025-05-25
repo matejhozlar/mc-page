@@ -88,6 +88,7 @@ client.once("ready", async () => {
   }
 
   client.destroy();
+  process.exit(0);
 });
 
 client.login(TOKEN);
