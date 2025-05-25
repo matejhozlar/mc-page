@@ -70,7 +70,7 @@ export async function execute(interaction, db) {
     await interaction.editReply({ embeds: [embed] });
     logger.info("✅ Successfuly sent /stat-champions");
   } catch (error) {
-    logger.error(`❌ /stats-champions command failed: ${logError(err)}`);
+    logger.error(`❌ /stats-champions command failed: ${logError(error)}`);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }
