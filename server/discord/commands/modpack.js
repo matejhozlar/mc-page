@@ -5,19 +5,17 @@ import {
   ActionRowBuilder,
   ButtonStyle,
   MessageFlags,
+  Message,
 } from "discord.js";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
 
 export const data = new SlashCommandBuilder()
-  .setName("ip")
-  .setDescription("Get the Minecraft server IP and connection info");
+  .setName("modpack")
+  .setDescription("Get the modpack for Createrington server");
 
 export async function execute(interaction) {
   try {
@@ -38,31 +36,22 @@ export async function execute(interaction) {
     userCooldowns.set(userId, now);
 
     const embed = new EmbedBuilder()
-      .setTitle("🌐 Createrington Server Info")
-      .setColor(0x2f3136)
-      .setDescription("Use the IP below to join the Minecraft server.")
-      .addFields(
-        {
-          name: "🖥️ Server IP",
-          value: "`create-rington.mcserv.fun`",
-        },
-        {
-          name: "🎮 Version",
-          value: "Minecraft Java 1.21.1",
-        },
-        {
-          name: "❓ Need Help?",
-          value: `[Open a support ticket](https://discord.com/channels/${interaction.guild.id}/${process.env.DISCORD_TICKET_MESSAGE_CHANNEL_ID})`,
-        }
+      .setTitle("🛠 Createrington modpack")
+      .setDescription(
+        "Download the Createrington modpack through CurseForge with just 1 click."
       )
-      .setFooter({ text: "See you in-game!" });
+      .setColor(0x2f3136)
+      .setURL("https://www.curseforge.com/minecraft/modpacks/create-rington")
+      .setFooter({
+        text: "Requires CurseForge installed on your device",
+      });
 
-    const connectButton = new ButtonBuilder()
-      .setLabel("Visit Server Site")
+    const button = new ButtonBuilder()
+      .setLabel("Open CurseForge")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com");
+      .setURL("https://www.curseforge.com/minecraft/modpacks/create-rington");
 
-    const row = new ActionRowBuilder().addComponents(connectButton);
+    const row = new ActionRowBuilder().addComponents(button);
 
     await interaction.reply({
       embeds: [embed],
