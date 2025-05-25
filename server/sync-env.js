@@ -13,6 +13,7 @@ const targetDirs = [
   "./discord/listeners",
   "./bin",
   "./config",
+  "./AI",
 ];
 
 if (!fs.existsSync(envSource)) {

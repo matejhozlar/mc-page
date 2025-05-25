@@ -9,6 +9,15 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("ask")
+    .setDescription("Ask the Createrington AI Assistant a question")
+    .addStringOption((option) =>
+      option
+        .setName("question")
+        .setDescription("Your question")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("server-playtime")
     .setDescription(
       "Show the total combined playtime of all players on the server"

@@ -55,6 +55,7 @@ import gameDataRoutes from "./routes/gameData.js";
 import setupLinkOnlyChannelWatcher from "./discord/listeners/linkOnlyChannelMatcher.js";
 import { setupDayVoteListener } from "./discord/listeners/voteDayManager.js";
 import startUpdatingServerStats from "./discord/listeners/updateServerStats.js";
+import setupAIChatListener from "./discord/listeners/aiChatChannel.js";
 
 validateEnv();
 
@@ -284,7 +285,8 @@ const client = new Client({
   ],
 });
 
-setupLinkOnlyChannelWatcher(client);
+// setupLinkOnlyChannelWatcher(client);
+// setupAIChatListener(client);
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
@@ -695,7 +697,7 @@ client.once("ready", async () => {
   //   updateStatsChampionsBoard(db);
   // }, 60 * 60 * 1000);
 
-  startUpdatingServerStats(client);
+  // startUpdatingServerStats(client);
 });
 
 // creating a message
