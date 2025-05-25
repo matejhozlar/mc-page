@@ -15,6 +15,7 @@ const targetDirs = [
   "./bin/guides",
   "./bin/invites",
   "./bin/trash",
+  "./bin/announcements",
   "./config",
   "./AI",
 ];
