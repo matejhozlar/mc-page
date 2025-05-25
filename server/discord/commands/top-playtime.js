@@ -57,7 +57,7 @@ export async function execute(interaction, db) {
       content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
     });
   } catch (error) {
-    logger.error(`❌ Failed to fetch leaderboard: ${logError(error)}`);
+    logger.error(`❌ /top-playtime command failed: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Couldn’t load leaderboard. Try again later.",
       flags: MessageFlags.Ephemeral,

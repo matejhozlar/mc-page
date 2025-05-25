@@ -9,6 +9,9 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("modpack")
+    .setDescription("Get the modpack for Createrington server"),
+  new SlashCommandBuilder()
     .setName("ask")
     .setDescription("Ask the Createrington AI Assistant a question")
     .addStringOption((option) =>

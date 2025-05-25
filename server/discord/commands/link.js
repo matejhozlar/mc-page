@@ -49,7 +49,7 @@ export async function execute(interaction, db) {
       });
     }
   } catch (error) {
-    logger.error(`❌ Failed to link account: ${logError(error)}`);
+    logger.error(`❌ /link command failed: ${logError(error)}`);
     await interaction.reply({
       content: "⚠️ Something went wrong while linking. Try again later.",
       flags: MessageFlags.Ephemeral,

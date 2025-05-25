@@ -48,7 +48,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ Failed to query online players: ${logError(error)}`);
+    logger.error(`❌ /list command failed: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Could not fetch player list. Try again later.",
       flags: MessageFlags.Ephemeral,

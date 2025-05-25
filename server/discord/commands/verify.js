@@ -60,7 +60,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ Verify command failed: ${logError(error)}`);
+    logger.error(`❌ /verify command failed: ${logError(error)}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong. Please try again later.",
       flags: MessageFlags.Ephemeral,

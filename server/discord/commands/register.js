@@ -154,7 +154,7 @@ export async function execute(interaction, db) {
       content: `✅ **Done!** You've been successfully registered and whitelisted as \`${correctName}\`. Welcome aboard! 🚂`,
     });
   } catch (error) {
-    logger.error(`❌ Register command failed: ${logError(error)}`);
+    logger.error(`❌ /register command failed: ${logError(error)}`);
     await verifyNotifyStaff(
       interaction,
       `Unexpected Error: ${logError(error)}`,
