@@ -46,6 +46,7 @@ client.once("ready", async () => {
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +
           `🗺️ **/map** — View the web server map\n` +
+          `🧩 **/modpack** — Get the Createrington server modpack\n` +
           `📈 **/stats** — View top 5 players for any specific Minecraft stat\n` +
           `ℹ️ **/stats-info** — A list of all current stat types and keys\n` +
           `📘 **/stats-guide** — Learn how to use /stats with images and examples\n` +
