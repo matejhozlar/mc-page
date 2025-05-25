@@ -89,5 +89,87 @@ export default function currencyRoutes(db) {
     }
   });
 
+  // --- /api/currency/deposit ---
+  router.post("/currency/deposit", async (req, res) => {
+    const { uuid, amount } = req.body;
+
+    if (!uuid || typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({ error: "Invalid input" });
+    }
+
+    const client = await db.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const result = await client.query(
+        `UPDATE user_funds SET balance = balance + $1 WHERE uuid = $2 RETURNING balance`,
+        [amount, uuid]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      await client.query("COMMIT");
+      res.json({ success: true, new_balance: result.rows[0].balance });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ /currency/deposit error: ${logError(error)}`);
+      res.status(400).json({ error: logError(error) });
+    } finally {
+      client.release();
+    }
+  });
+
+  // --- /api/currency/withdraw ---
+  router.post("/currency/withdraw", async (req, res) => {
+    const { uuid, count } = req.body;
+
+    if (!uuid || typeof count !== "number" || count <= 0) {
+      return res.status(400).json({ error: "Invalid input " });
+    }
+
+    const amount = count * 1000;
+
+    const client = await db.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      const result = await client.query(
+        `SELECT balance FROM user_funds WHERE uuid = $1 FOR UPDATE`,
+        [uuid]
+      );
+
+      if (result.rows.length === 0) {
+        throw new Error("User not found");
+      }
+
+      const balance = result.rows[0].balance;
+      if (balance < amount) {
+        throw new Error("Insufficient funds");
+      }
+
+      const updateRes = await client.query(
+        `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2 RETURNING balance`,
+        [amount, uuid]
+      );
+
+      await client.query("COMMIT");
+      res.json({
+        success: true,
+        withdrawn: count,
+        new_balance: updateRes.rows[0].balance,
+      });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ /currency/withdraw error: ${logError(error)}`);
+      res.status(400).json({ error: logError(error) });
+    } finally {
+      client.release();
+    }
+  });
+
   return router;
 }
