@@ -7,7 +7,6 @@ export default function currencyRoutes(db) {
 
   // --- /api/currency/balance ---
   router.get("/currency/balance", async (req, res) => {
-    console.log("👉 /api/currency/balance called with", req.query);
     const { uuid } = req.query;
 
     if (!uuid) {
@@ -32,7 +31,7 @@ export default function currencyRoutes(db) {
   });
 
   // --- /api/currency/send ---
-  router.post("/currency/send", async (req, res) => {
+  router.post("/currency/pay", async (req, res) => {
     const { from_uuid, to_uuid, amount } = req.body;
 
     if (!from_uuid || !to_uuid || typeof amount !== "number") {
@@ -168,6 +167,19 @@ export default function currencyRoutes(db) {
       res.status(400).json({ error: logError(error) });
     } finally {
       client.release();
+    }
+  });
+
+  // --- /api/currency/top ---
+  router.get("/currency/top", async (req, res) => {
+    try {
+      const result = await db.query(
+        `SELECT name, balance FROM user_funds ORDER BY balance DESC LIMIT 10`
+      );
+      res.json(result.rows);
+    } catch (error) {
+      logger.error(`❌ /currency/top error: ${logError(error)}`);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
