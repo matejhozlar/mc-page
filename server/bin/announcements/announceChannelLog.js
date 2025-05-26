@@ -32,6 +32,7 @@ client.once("ready", async () => {
             "- Create: Railways Navigator",
             "- Create: Stock Bridge",
             "- Create: Central Kitchen",
+            "- The Afterdark",
             "- Deeper Darker",
             "- Jamlib",
             "- KubeJS",
