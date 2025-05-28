@@ -1,9 +1,10 @@
 import express from "express";
 import logError from "../utils/logError.js";
 import logger from "../logger.js";
+import jwt from "jsonwebtoken";
 
 // middleware
-import verifyApiKey from "../middleware/verifyApiKey.js";
+import verifyJWT from "../middleware/verifyJWT.js";
 
 // utils
 import { logTransactions } from "../utils/logTransactions.js";
@@ -11,11 +12,25 @@ import { logTransactions } from "../utils/logTransactions.js";
 export default function currencyRoutes(db) {
   const router = express.Router();
 
-  router.use("/currency", verifyApiKey);
+  router.post("/currency/login", (req, res) => {
+    const { uuid, name } = req.body;
+
+    if (!uuid || !name) {
+      return res.status(400).json({ error: "Missing uuid or name" });
+    }
+
+    const token = jwt.sign({ uuid, name }, process.env.JWT_SECRET, {
+      expiresIn: "10m",
+    });
+
+    res.json({ token });
+  });
+
+  router.use("/currency", verifyJWT);
 
   // --- /api/currency/balance ---
   router.get("/currency/balance", async (req, res) => {
-    const { uuid } = req.query;
+    const uuid = req.user.uuid;
 
     if (!uuid) {
       return res.status(400).json({ error: "Missing uuid" });
@@ -40,7 +55,8 @@ export default function currencyRoutes(db) {
 
   // --- /api/currency/send ---
   router.post("/currency/pay", async (req, res) => {
-    const { from_uuid, to_uuid, amount } = req.body;
+    const { to_uuid, amount } = req.body;
+    const from_uuid = req.user.uuid;
 
     if (!from_uuid || !to_uuid || typeof amount !== "number") {
       return res.status(400).json({ error: "Invalid input" });
@@ -106,7 +122,8 @@ export default function currencyRoutes(db) {
 
   // --- /api/currency/deposit ---
   router.post("/currency/deposit", async (req, res) => {
-    const { uuid, amount } = req.body;
+    const { amount } = req.body;
+    const uuid = req.user.uuid;
 
     if (!uuid || typeof amount !== "number" || amount <= 0) {
       return res.status(400).json({ error: "Invalid input" });
@@ -145,7 +162,8 @@ export default function currencyRoutes(db) {
 
   // --- /api/currency/withdraw ---
   router.post("/currency/withdraw", async (req, res) => {
-    const { uuid, count, denomination } = req.body;
+    const { count, denomination } = req.body;
+    const uuid = req.user.uuid;
 
     if (!uuid || typeof count !== "number" || count <= 0) {
       return res.status(400).json({ error: "Invalid count or uuid" });
