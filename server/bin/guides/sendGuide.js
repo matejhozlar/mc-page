@@ -5,8 +5,6 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import dotenv from "dotenv";
-import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 dotenv.config();
 
@@ -32,7 +30,7 @@ client.once("ready", async () => {
       !botCommandsChannel ||
       botCommandsChannel.type !== ChannelType.GuildText
     ) {
-      logger.info(
+      console.log(
         `⚠️ No valid text channel with ID '${TARGET_CHANNEL_ID}' found in ${guild.name}`
       );
       continue;
@@ -81,13 +79,11 @@ client.once("ready", async () => {
     try {
       await botCommandsChannel.send({ embeds: [embed] });
 
-      logger.info(
+      console.log(
         `✅ Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`
       );
     } catch (error) {
-      logger.error(
-        `❌ Failed to send guide in ${guild.name}: ${logError(error)}`
-      );
+      console.error(`❌ Failed to send guide in ${guild.name}:`, error);
     }
   }
 
