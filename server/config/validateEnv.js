@@ -66,6 +66,7 @@ const REQUIRED_VARS = [
   "DISCORD_ALL_MEMBERS_COUNTER_CHANNEL_ID",
   "DISCORD_AI_CHANNEL_ID",
   "OPENAI_API_KEY",
+  "JWT_SECRET",
 ];
 
 export function validateEnv() {
