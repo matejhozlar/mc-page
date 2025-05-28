@@ -1,3 +1,5 @@
+import { sendRconCommand } from "../../utils/sendRconCommand.js";
+
 let voteActive = false;
 let voteCooldownUntil = 0;
 let voteCounts = { yes: 0, no: 0 };
@@ -14,7 +16,26 @@ function msToMinutesSeconds(ms) {
   }`;
 }
 
-export function setupDayVoteListener(webChatClient, setDayCallback, io) {
+const voteCommands = {
+  ".day": {
+    description: "set time to day",
+    command: "time set day",
+  },
+  ".rain": {
+    description: "start rain",
+    command: "weather rain",
+  },
+  ".thunder": {
+    description: "start thunderstorm",
+    command: "weather thunder",
+  },
+  ".clear": {
+    description: "clear the weather",
+    command: "weather clear",
+  },
+};
+
+export function setupVoteListener(webChatClient, io) {
   const minecraftChannelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
   const createringtonBotId = process.env.CREATERINGTON_BOT_ID;
 
@@ -23,9 +44,14 @@ export function setupDayVoteListener(webChatClient, setDayCallback, io) {
     if (message.author.id !== createringtonBotId) return;
 
     const content = message.content.trim();
-    const isDayCommand = /^`<[^>]+>`\s*\.day$/i.test(content);
+    const voteCommandMatch = content.match(
+      /^`<[^>]+>`\s*(\.day|\.rain|\.thunder|\.clear)$/i
+    );
+    if (!voteCommandMatch) return;
 
-    if (!isDayCommand) return;
+    const command = voteCommandMatch[1].toLowerCase();
+    const voteDetails = voteCommands[command];
+    if (!voteDetails) return;
 
     const now = Date.now();
     if (voteActive) return;
@@ -35,7 +61,7 @@ export function setupDayVoteListener(webChatClient, setDayCallback, io) {
       const waitMsg = msToMinutesSeconds(remaining);
       const text = `⏳ Please wait ${waitMsg} before starting another vote.`;
       await message.channel.send(text);
-      io.emit("chatMessage", { text: `${text}`, authorType: "web" });
+      io.emit("chatMessage", { text, authorType: "web" });
       return;
     }
 
@@ -43,10 +69,9 @@ export function setupDayVoteListener(webChatClient, setDayCallback, io) {
     voteCounts = { yes: 0, no: 0 };
     voters.clear();
 
-    const text =
-      "**Vote to set time to day has started!**\nReply with `1` for **yes**, `2` for **no**.\nVoting ends in 30 seconds...";
-    await message.channel.send(text);
-    io.emit("chatMessage", { text: `${text}`, authorType: "web" });
+    const voteText = `**Vote to ${voteDetails.description} has started!**\nReply with \`1\` for **yes**, \`2\` for **no**.\nVoting ends in 30 seconds...`;
+    await message.channel.send(voteText);
+    io.emit("chatMessage", { text: voteText, authorType: "web" });
 
     const collector = message.channel.createMessageCollector({ time: 30000 });
 
@@ -73,8 +98,8 @@ export function setupDayVoteListener(webChatClient, setDayCallback, io) {
       let cooldown = FAIL_COOLDOWN_MS;
 
       if (yes > no) {
-        resultMsg = "✅ Vote passed! Setting day...";
-        await setDayCallback();
+        resultMsg = `✅ Vote passed! Executing: ${voteDetails.command}`;
+        await sendRconCommand(voteDetails.command);
         cooldown = SUCCESS_COOLDOWN_MS;
       } else if (yes === no) {
         resultMsg = "It's a tie. Nothing changes.";
@@ -84,7 +109,7 @@ export function setupDayVoteListener(webChatClient, setDayCallback, io) {
 
       const text = `**📊 Vote Results**\nYes: ${yes} | No: ${no}\n${resultMsg}`;
       await message.channel.send(text);
-      io.emit("chatMessage", { text: `${text}`, authorType: "web" });
+      io.emit("chatMessage", { text, authorType: "web" });
 
       voteActive = false;
       voteCooldownUntil = Date.now() + cooldown;

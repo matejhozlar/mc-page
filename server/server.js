@@ -39,7 +39,6 @@ import {
 // utils
 import logError from "./utils/logError.js";
 import rotatingStatuses from "./utils/rotatingStatuses.js";
-import { setDayOnMinecraftServer } from "./utils/setDayOnMinecraftServer.js";
 
 // routes
 import playersRoutes from "./routes/players.js";
@@ -53,7 +52,7 @@ import gameDataRoutes from "./routes/gameData.js";
 
 // listeners
 import setupLinkOnlyChannelWatcher from "./discord/listeners/linkOnlyChannelMatcher.js";
-import { setupDayVoteListener } from "./discord/listeners/voteDayManager.js";
+import { setupVoteListener } from "./discord/listeners/voteDayManager.js";
 import startUpdatingServerStats from "./discord/listeners/updateServerStats.js";
 import setupAIChatListener from "./discord/listeners/aiChatChannel.js";
 
@@ -176,7 +175,7 @@ const webChatClient = new WebChatClient({
   ],
 });
 
-// setupDayVoteListener(webChatClient, setDayOnMinecraftServer, io);
+// setupVoteListener(webChatClient, io);
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
