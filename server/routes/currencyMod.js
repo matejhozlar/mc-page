@@ -5,6 +5,9 @@ import logger from "../logger.js";
 // middleware
 import verifyApiKey from "../middleware/verifyApiKey.js";
 
+// utils
+import { logTransactions } from "../utils/logTransactions.js";
+
 export default function currencyRoutes(db) {
   const router = express.Router();
 
@@ -82,6 +85,14 @@ export default function currencyRoutes(db) {
       }
 
       await client.query("COMMIT");
+      await logTransactions(db, {
+        uuid: from_uuid,
+        action: "pay",
+        amount,
+        from_uuid,
+        to_uuid,
+        balance_after: senderBalance - amount,
+      });
 
       res.json({ success: true, new_sender_balance: senderBalance - amount });
     } catch (error) {
@@ -116,6 +127,12 @@ export default function currencyRoutes(db) {
       }
 
       await client.query("COMMIT");
+      await logTransactions(db, {
+        uuid,
+        action: "deposit",
+        amount,
+        balance_after: result.rows[0].balance,
+      });
       res.json({ success: true, new_balance: result.rows[0].balance });
     } catch (error) {
       await client.query("ROLLBACK");
@@ -162,6 +179,14 @@ export default function currencyRoutes(db) {
       );
 
       await client.query("COMMIT");
+      await logTransactions(db, {
+        uuid,
+        action: "withdraw",
+        amount,
+        denomination: denom,
+        count,
+        balance_after: updateRes.rows[0].balance,
+      });
 
       res.json({
         success: true,
