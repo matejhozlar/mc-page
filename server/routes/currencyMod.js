@@ -2,8 +2,13 @@ import express from "express";
 import logError from "../utils/logError.js";
 import logger from "../logger.js";
 
+// middleware
+import verifyApiKey from "../middleware/verifyApiKey.js";
+
 export default function currencyRoutes(db) {
   const router = express.Router();
+
+  router.use("/currency", verifyApiKey);
 
   // --- /api/currency/balance ---
   router.get("/currency/balance", async (req, res) => {
@@ -123,13 +128,14 @@ export default function currencyRoutes(db) {
 
   // --- /api/currency/withdraw ---
   router.post("/currency/withdraw", async (req, res) => {
-    const { uuid, count } = req.body;
+    const { uuid, count, denomination } = req.body;
 
     if (!uuid || typeof count !== "number" || count <= 0) {
-      return res.status(400).json({ error: "Invalid input " });
+      return res.status(400).json({ error: "Invalid count or uuid" });
     }
 
-    const amount = count * 1000;
+    const denom = typeof denomination === "number" ? denomination : 1000;
+    const amount = count * denom;
 
     const client = await db.connect();
 
@@ -156,10 +162,13 @@ export default function currencyRoutes(db) {
       );
 
       await client.query("COMMIT");
+
       res.json({
         success: true,
-        withdrawn: count,
+        withdrawn: amount,
         new_balance: updateRes.rows[0].balance,
+        denomination: denom,
+        count: count,
       });
     } catch (error) {
       await client.query("ROLLBACK");
