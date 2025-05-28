@@ -2,7 +2,6 @@ import { askAssitant } from "../../AI/openaiAssistant.js";
 import logError from "../../utils/logError.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
-import { MessageFlags } from "discord.js";
 
 dotenv.config();
 
