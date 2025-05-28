@@ -42,7 +42,10 @@ client.once("ready", async () => {
       .setTitle("📚 Welcome to the Bot Commands Channel!")
       .setDescription(
         `Custom Minecraft commands:\n` +
-          `☀️ **.day** — Starts a voting process for /time set day\n\n` +
+          `☀️ **.day** — Starts a voting process for /time set day\n` +
+          `🌧️ **.rain** — Starts a voting process for /weather rain\n` +
+          `⚡ **.thunder** — Starts a voting process for /weather thunder\n` +
+          `🌤️ **.clear** — Starts a voting process for /weather clear\n\n` +
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +
           `🗺️ **/map** — View the web server map\n` +
