@@ -235,5 +235,50 @@ export default function currencyRoutes(db) {
     }
   });
 
+  // --- /api/currency/mob-limit ---
+  router.post("/currency/mob-limit", async (req, res) => {
+    const uuid = req.user.uuid;
+
+    if (!uuid) {
+      return res.status(400).json({ error: "Missing uuid" });
+    }
+
+    try {
+      await db.query(
+        `INSERT INTO mob_limit_reached (uuid, date_reached) 
+       VALUES ($1, CURRENT_DATE)
+       ON CONFLICT (uuid) DO UPDATE SET date_reached = CURRENT_DATE`,
+        [uuid]
+      );
+
+      res.json({ success: true, message: "Mob limit marked for user" });
+    } catch (error) {
+      logger.error(`❌ /currency/mob-limit error: ${logError(error)}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // --- /api/currency/mob-limit GET (check limit)
+  router.get("/currency/mob-limit", async (req, res) => {
+    const uuid = req.user.uuid;
+
+    if (!uuid) {
+      return res.status(400).json({ error: "Missing uuid" });
+    }
+
+    try {
+      const result = await db.query(
+        `SELECT 1 FROM mob_limit_reached WHERE uuid = $1 AND date_reached = CURRENT_DATE LIMIT 1`,
+        [uuid]
+      );
+
+      const limitReached = result.rowCount > 0;
+      res.json({ limitReached });
+    } catch (error) {
+      logger.error(`❌ /currency/mob-limit GET error: ${logError(error)}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }
