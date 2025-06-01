@@ -280,5 +280,12 @@ export default function currencyRoutes(db) {
     }
   });
 
+  router.get("/currency/test-ip", (req, res) => {
+    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const normalizedIp = ip.replace("::ffff:", "");
+    logger.info(`Received request from IP: ${normalizedIp}`);
+    res.json({ ip: normalizedIp });
+  });
+
   return router;
 }
