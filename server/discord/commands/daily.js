@@ -13,6 +13,14 @@ export const data = new SlashCommandBuilder()
   .setName("daily")
   .setDescription("Claim your daily reward");
 
+function getLastReset(now) {
+  let resetTime = now.set({ hour: 6, minute: 30, second: 0, millisecond: 0 });
+  if (now < resetTime) {
+    resetTime = resetTime.minus({ days: 1 });
+  }
+  return resetTime;
+}
+
 export async function execute(interaction, db) {
   const discordId = interaction.user.id;
 
@@ -26,6 +34,7 @@ export async function execute(interaction, db) {
     );
 
     if (userRes.rowCount === 0) {
+      await client.query("ROLLBACK");
       return await interaction.reply({
         content: `❌ You don’t have your Minecraft account linked yet. Use **/link <username>** to connect your account.`,
         flags: MessageFlags.Ephemeral,
@@ -33,27 +42,27 @@ export async function execute(interaction, db) {
     }
 
     const { uuid, balance } = userRes.rows[0];
-
     const now = DateTime.now().setZone(TIMEZONE);
-    const today = now.toISODate();
+    const lastReset = getLastReset(now);
 
     const rewardRes = await client.query(
-      `SELECT last_claim_date FROM daily_rewards WHERE discord_id = $1`,
+      `SELECT last_claim_at FROM daily_rewards WHERE discord_id = $1 FOR UPDATE`,
       [discordId]
     );
 
-    if (rewardRes.rowCount > 0 && rewardRes.rows[0].last_claim_date === today) {
-      const nextReset = now
-        .plus({ days: 1 })
-        .set({ hour: 6, minute: 30, second: 0, millisecond: 0 });
-
+    if (
+      rewardRes.rowCount > 0 &&
+      DateTime.fromJSDate(rewardRes.rows[0].last_claim_at).setZone(TIMEZONE) >=
+        lastReset
+    ) {
+      const nextReset = lastReset.plus({ days: 1 });
       const diff = nextReset.diff(now, ["hours", "minutes"]).toObject();
       const hours = Math.floor(diff.hours);
       const minutes = Math.floor(diff.minutes);
 
       await client.query("ROLLBACK");
       return await interaction.reply({
-        content: `⏳ You already claimed your daily reward today. Next reset in **${hours}h ${minutes}m**.`,
+        content: `⏳ You already claimed your daily reward. Next reset in **${hours}h ${minutes}m**.`,
         flags: MessageFlags.Ephemeral,
       });
     }
@@ -64,11 +73,11 @@ export async function execute(interaction, db) {
     );
 
     await client.query(
-      `INSERT INTO daily_rewards (discord_id, last_claim_date)
+      `INSERT INTO daily_rewards (discord_id, last_claim_at)
        VALUES ($1, $2)
        ON CONFLICT (discord_id)
-       DO UPDATE SET last_claim_date = EXCLUDED.last_claim_date`,
-      [discordId, today]
+       DO UPDATE SET last_claim_at = EXCLUDED.last_claim_at`,
+      [discordId, now.toJSDate()]
     );
 
     await client.query("COMMIT");
