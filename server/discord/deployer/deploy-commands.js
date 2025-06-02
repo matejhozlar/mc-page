@@ -9,6 +9,9 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("daily")
+    .setDescription("Claim your daily reward"),
+  new SlashCommandBuilder()
     .setName("baltop")
     .setDescription("Show top 10 richest players"),
   new SlashCommandBuilder()
