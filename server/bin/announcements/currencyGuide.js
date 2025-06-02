@@ -47,6 +47,7 @@ client.once("ready", async () => {
             "- Use **/withdraw** to get bills you can carry and trade.",
             "- Use **/deposit** to convert bills back into your account balance.",
             "- Always check your balance with **/money** before transactions!",
+            "*Note: Currently there is a daily limit of $1000 from mob drops*",
           ].join("\n"),
         },
         {
