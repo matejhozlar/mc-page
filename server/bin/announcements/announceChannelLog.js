@@ -25,6 +25,16 @@ client.once("ready", async () => {
       )
       .addFields(
         {
+          name: "⚖️ Create: Sifting Changes",
+          value:
+            "We've rebalanced the **Create: Sifting** recipes to make progression more fair:\n- Removed **Netherite**, **Diamonds**, and other high-end items from drops.\n- Sifting now provides more balanced rewards without being overpowered.",
+        },
+        {
+          name: "⚠️ IMPORTANT",
+          value:
+            "Since some of the sifting recipes are gone, please check your farms!",
+        },
+        {
           name: "🆕 New Mods",
           value: [
             "- AdvancedAE",
