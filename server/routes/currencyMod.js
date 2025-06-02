@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 // middleware
 import verifyJWT from "../middleware/verifyJWT.js";
+import verifyIP from "../middleware/verifyIP.js";
 
 // utils
 import { logTransactions } from "../utils/logTransactions.js";
@@ -27,10 +28,17 @@ export default function currencyRoutes(db) {
   });
 
   router.use("/currency", verifyJWT);
+  router.use("/currency", verifyIP);
 
   // --- /api/currency/balance ---
   router.get("/currency/balance", async (req, res) => {
     const uuid = req.user.uuid;
+
+    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const normalizedIp = ip.replace("::ffff:", "");
+    logger.info(
+      `/currency/balance accessed by IP: ${normalizedIp} (uuid: ${uuid})`
+    );
 
     if (!uuid) {
       return res.status(400).json({ error: "Missing uuid" });
@@ -278,13 +286,6 @@ export default function currencyRoutes(db) {
       logger.error(`❌ /currency/mob-limit GET error: ${logError(error)}`);
       res.status(500).json({ error: "Internal server error" });
     }
-  });
-
-  router.get("/currency/test-ip", (req, res) => {
-    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-    const normalizedIp = ip.replace("::ffff:", "");
-    logger.info(`Received request from IP: ${normalizedIp}`);
-    res.json({ ip: normalizedIp });
   });
 
   return router;
