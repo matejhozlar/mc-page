@@ -47,7 +47,8 @@ client.once("ready", async () => {
           `Createrington Currency mod commands (DC):\n` +
           `💰 **/money** — Check your balance\n` +
           `💸 **/pay** — Send money to a player\n` +
-          `🏦 **/baltop** — See the top 10 richest players\n\n` +
+          `🏦 **/baltop** — See the top 10 richest players\n` +
+          `🎁 **/daily** — Claim your daily reward\n\n` +
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +
           `🗺️ **/map** — View the web server map\n` +
