@@ -27,6 +27,7 @@
     "node-cron": "^4.1.0",
     "node-fetch": "^3.3.2",
     "nodemailer": "^6.10.1",
+    "openai": "^5.0.1",
     "path": "^0.12.7",
     "pg": "^8.14.1",
     "rcon-client": "^4.2.5",
