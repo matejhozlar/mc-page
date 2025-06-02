@@ -23,6 +23,7 @@ import { fileURLToPath, pathToFileURL } from "url";
 import logger from "./logger.js";
 import { syncAndImportStats } from "./utils/syncAndImportStats.js";
 import { status } from "minecraft-server-util";
+import cron from "node-cron";
 
 // config
 import { validateEnv } from "./config/validateEnv.js";
@@ -35,6 +36,7 @@ import {
   initStatsChampionsBoard,
   updateStatsChampionsBoard,
 } from "./services/statsChampionsBoard.js";
+import { runMobLimitCleaner } from "./services/mobLimitCleaner.js";
 
 // utils
 import logError from "./utils/logError.js";
@@ -132,6 +134,17 @@ try {
   logger.error(`❌ Failed to connect to DB: ${logError(error)}`);
   process.exit(1);
 }
+
+cron.schedule(
+  `30 6 * * *`,
+  () => {
+    runMobLimitCleaner(db);
+  },
+  {
+    timezone: "Europe/Berlin",
+  }
+);
+logger.info("🕰️ Scheduled mob_limit_reached cleanup job at 6:30 AM CET.");
 
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;
