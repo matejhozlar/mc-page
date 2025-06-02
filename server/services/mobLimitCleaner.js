@@ -1,5 +1,5 @@
 import logger from "../logger.js";
-import logError from "../utils/logError";
+import logError from "../utils/logError.js";
 
 export async function runMobLimitCleaner(db) {
   try {

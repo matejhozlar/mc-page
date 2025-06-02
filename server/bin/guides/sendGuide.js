@@ -44,6 +44,10 @@ client.once("ready", async () => {
           `🌧️ **.rain** — Starts a voting process for /weather rain\n` +
           `⚡ **.thunder** — Starts a voting process for /weather thunder\n` +
           `🌤️ **.clear** — Starts a voting process for /weather clear\n\n` +
+          `Createrington Currency mod commands (DC):\n` +
+          `💰 **/money** — Check your balance\n` +
+          `💸 **/pay** — Send money to a player\n` +
+          `🏦 **/baltop** — See the top 10 richest players\n\n` +
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +
           `🗺️ **/map** — View the web server map\n` +
