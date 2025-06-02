@@ -18,7 +18,7 @@ client.once("ready", async () => {
     );
 
     const embed = new EmbedBuilder()
-      .setTitle("💰 Createrington Currency Mod Guide")
+      .setTitle("💰 Createrington Currency Mod Guide **(Alpha)**")
       .setColor(0x00b0f4)
       .setDescription(
         "Here’s a quick guide on how to use the **Currency Mod** on Createrington!"
