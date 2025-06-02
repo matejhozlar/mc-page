@@ -61,7 +61,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/send ---
+  // --- /api/currency/pay ---
   router.post("/currency/pay", async (req, res) => {
     const { to_uuid, amount } = req.body;
     const from_uuid = req.user.uuid;

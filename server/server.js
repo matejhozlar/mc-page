@@ -135,16 +135,16 @@ try {
   process.exit(1);
 }
 
-cron.schedule(
-  `30 6 * * *`,
-  () => {
-    runMobLimitCleaner(db);
-  },
-  {
-    timezone: "Europe/Berlin",
-  }
-);
-logger.info("🕰️ Scheduled mob_limit_reached cleanup job at 6:30 AM CET.");
+// cron.schedule(
+//   `30 6 * * *`,
+//   () => {
+//     runMobLimitCleaner(db);
+//   },
+//   {
+//     timezone: "Europe/Berlin",
+//   }
+// );
+// logger.info("🕰️ Scheduled mob_limit_reached cleanup job at 6:30 AM CET.");
 
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;

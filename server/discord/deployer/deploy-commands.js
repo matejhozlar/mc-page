@@ -9,6 +9,28 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("baltop")
+    .setDescription("Show top 10 richest players"),
+  new SlashCommandBuilder()
+    .setName("pay")
+    .setDescription("Pay another player from your balance")
+    .addStringOption((option) =>
+      option
+        .setName("recipient")
+        .setDescription("The recipient's Discord mention or Minecraft username")
+        .setRequired(true)
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName("amount")
+        .setDescription("The amount to send")
+        .setRequired(true)
+        .setMinValue(1)
+    ),
+  new SlashCommandBuilder()
+    .setName("money")
+    .setDescription("Check your current balance"),
+  new SlashCommandBuilder()
     .setName("modpack")
     .setDescription("Get the modpack for Createrington server"),
   new SlashCommandBuilder()
