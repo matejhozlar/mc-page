@@ -34,12 +34,6 @@ export default function currencyRoutes(db) {
   router.get("/currency/balance", async (req, res) => {
     const uuid = req.user.uuid;
 
-    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-    const normalizedIp = ip.replace("::ffff:", "");
-    logger.info(
-      `/currency/balance accessed by IP: ${normalizedIp} (uuid: ${uuid})`
-    );
-
     if (!uuid) {
       return res.status(400).json({ error: "Missing uuid" });
     }
@@ -280,6 +274,7 @@ export default function currencyRoutes(db) {
         [uuid]
       );
 
+      logger.info("Checked limit reached");
       const limitReached = result.rowCount > 0;
       res.json({ limitReached });
     } catch (error) {
