@@ -24,22 +24,16 @@ client.once("ready", async () => {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle("📢 Sifter Nerf Update")
+      .setTitle("📢 Sifter Changes")
       .setColor(0xff7f50)
-      .setDescription(
-        `🗳️ As per our poll:\n**14 voted for nerf/removal vs 10 against.**`
-      )
       .addFields(
         {
           name: "🔧 Changes Implemented",
           value:
-            `Crushed Basalt ➔ now made from **Smooth Basalt**\n` +
-            `**Netherite** & **Diamonds** no longer obtainable via sifting\n` +
-            `**Gold** now requires **Red Sand**\n` +
-            `**Gravel** improved odds for:\n` +
-            `- Iron\n` +
-            `- Copper\n` +
-            `- Zinc`,
+            `Crush Deepslate ➔ **Cobbled Deepslate**\n` +
+            `Crush Cobbled Deepslate ➔ **Crushed Deepslate**\n` +
+            `Sifter it with sturdy Meshes ➔ **Tuff Pebble**\n` +
+            `Compact Tuff Pebble ➔ **Tuff**\n`,
         },
         {
           name: "💬 Complaints?",
