@@ -28,6 +28,19 @@ client.once("ready", async () => {
             "Collect bills in various denominations: **$1, $5, $10, $20, $50, $100, $500, $1000**. These bills can be stacked, traded, and stored in your inventory.",
         },
         {
+          name: "🆕 Enchant Capitalist Greed",
+          value:
+            "Createrington Currency has a new enchant! Enchant your weapons to raise drop rates of bills.",
+        },
+        {
+          name: "Levels",
+          value: [
+            "- Capitalist Greed I → +5%",
+            "- Capitalist Greed II → +8%",
+            "- Capitalist Greed III → +10%",
+          ].join("\n"),
+        },
+        {
           name: "⚔️ Mob Farming & Drop Rates",
           value: [
             "- Zombies, Spiders, Creepers → **2% chance** to drop $1 bill.",
