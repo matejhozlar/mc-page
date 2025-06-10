@@ -52,6 +52,7 @@ import userRoutes from "./routes/user.js";
 import adminRoutes from "./routes/admin.js";
 import gameDataRoutes from "./routes/gameData.js";
 import currencyRoutes from "./routes/currencyMod.js";
+import cryptoRoutes from "./routes/cryptoMod.js";
 
 // listeners
 import setupLinkOnlyChannelWatcher from "./discord/listeners/linkOnlyChannelMatcher.js";
@@ -826,6 +827,8 @@ app.use("/api", adminRoutes(db));
 app.use("/api", gameDataRoutes(db));
 // /currency/balance /currency/send
 app.use("/api", currencyRoutes(db));
+// /market/tokens
+app.use("/api", cryptoRoutes(db));
 
 // auto add unverified role on join
 client.on("guildMemberAdd", async (member) => {

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import logo from "../assets/logo/logo.png";
 import { FaPaypal } from "react-icons/fa";
 import { FiHome } from "react-icons/fi";
+import { Coins } from "lucide-react";
 
 const Sidebar = () => {
   const [playerCount, setPlayerCount] = useState(0);
@@ -68,6 +69,12 @@ const Sidebar = () => {
             <NavLink to="/" className="nav-link">
               <FiHome className="nav-icon" />
               Home
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink to="/market" className="nav-link">
+              <Coins className="nav-icon" />
+              Market
             </NavLink>
           </li>
           <li className="nav-item">

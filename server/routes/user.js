@@ -55,5 +55,49 @@ export default function userRoutes(db) {
     }
   });
 
+  // --- /api/user/full-profile ---
+  router.get("/user/full-profile", async (req, res) => {
+    const discordId = req.cookies.user_session;
+
+    if (!discordId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const userQuery = db.query(
+        `SELECT uuid, name, first_joined, last_seen, play_time_seconds, discord_id
+       FROM users
+       WHERE discord_id = $1
+       LIMIT 1`,
+        [discordId]
+      );
+
+      const fundsQuery = db.query(
+        `SELECT balance
+       FROM user_funds
+       WHERE discord_id = $1
+       LIMIT 1`,
+        [discordId]
+      );
+
+      const [userResult, fundsResult] = await Promise.all([
+        userQuery,
+        fundsQuery,
+      ]);
+
+      if (userResult.rowCount === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const user = userResult.rows[0];
+      const balance = fundsResult.rows[0]?.balance ?? 0;
+
+      res.json({ ...user, balance });
+    } catch (error) {
+      logger.error(`❌ /user/full-profile error: ${logError(error)}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }
