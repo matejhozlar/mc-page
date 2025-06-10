@@ -20,6 +20,8 @@ import { PlayerProvider } from "./components/AdminPlayerProvider.jsx";
 import ClickerGame from "./components/clickerGame/ClickerGame.jsx";
 import DiscordLoginButton from "./components/DiscordLoginButton.jsx";
 import CallbackGame from "./components/CallbackGame.jsx";
+import Market from "./components/Market.jsx";
+import CallbackMarket from "./components/CallbackMarket.jsx";
 
 function App() {
   const [showLoader, setShowLoader] = useState(() => {
@@ -60,6 +62,8 @@ function App() {
               <Route path="/callback" element={<Callback />} />
               <Route path="/game" element={<ClickerGame />} />
               <Route path="/callback-game" element={<CallbackGame />} />
+              <Route path="/market" element={<Market />} />
+              <Route path="/callback-market" element={<CallbackMarket />} />
               <Route
                 path="/admin"
                 element={

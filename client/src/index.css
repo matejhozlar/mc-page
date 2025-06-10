@@ -101,7 +101,6 @@ html {
 .main-content {
   flex: 1;
   margin-left: 16rem;
-  padding: 1rem;
 }
 
 /****************************************************
@@ -1462,4 +1461,369 @@ input:checked + .slider:before {
 
 .nav-link[href="/rules"] .nav-icon {
   margin-left: -2px;
+}
+
+/* Market */
+.market-page {
+  background-color: #0c0f14;
+  padding: 2rem;
+  color: #f1f1f1;
+  font-family: "Segoe UI", sans-serif;
+  min-height: 100%;
+}
+
+.market-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.market-title {
+  color: #c5ff47;
+  font-size: 2.5rem;
+  margin-bottom: 0.25rem;
+  text-shadow: 0 0 8px rgba(197, 255, 71, 0.4);
+}
+
+.market-subtitle {
+  font-size: 1.1rem;
+  color: #aaa;
+}
+
+.market-overview {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.market-card {
+  background-color: #161b22;
+  border: 1px solid #2a2f38;
+  border-radius: 12px;
+  padding: 1.5rem;
+  min-width: 260px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.user-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(145deg, #bfff00, #d1ff66);
+  border-radius: 8px;
+  background-size: cover;
+  background-position: center;
+}
+
+.user-info h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.user-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+.balance-card {
+  position: relative;
+  flex: 1 1 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #161b22;
+  border: 1px solid #2a2f38;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  min-height: 160px;
+}
+
+.balance-card-glow {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #ffcb05, transparent);
+  z-index: 1;
+}
+
+.balance-card h2 {
+  font-size: 2.5rem;
+  color: #ffcb05;
+  margin: 0 0 0.5rem 0;
+}
+
+.balance-card p {
+  margin: 0;
+  color: #aaa;
+  font-size: 1rem;
+}
+
+.token-section {
+  margin-top: 3rem;
+}
+
+.token-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #f8f8f8;
+}
+
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+/* New clickable token card button */
+.token-card-button {
+  position: relative;
+  background-color: #1f2128;
+  border: 1px solid #2c2e35;
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  color: #fff;
+  text-align: left;
+  width: 100%;
+  max-width: 240px;
+  overflow: hidden;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.token-card-button:hover {
+  background-color: #272a33;
+  border-color: #ffcb05;
+}
+
+/* Top-glow hover line effect */
+.token-card-button::before {
+  content: "";
+  position: absolute;
+  top: 0; /* aligned to top now */
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #ffcb05, transparent);
+  transform: translateX(-50%);
+  transition: width 0.4s ease;
+  z-index: 1;
+}
+
+.token-card-button:hover::before {
+  width: 100%;
+}
+
+.token-card-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.token-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.token-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.token-symbol-pill {
+  background: linear-gradient(to right, #8dc926, #ffcc00);
+  color: #000;
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  min-width: 44px;
+  text-align: center;
+}
+
+.token-supply {
+  font-size: 0.85rem;
+  color: #a0a0a0;
+  margin-top: 0.25rem;
+}
+
+.token-price {
+  font-weight: bold;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  color: #ffc107;
+  font-family: "Courier New", monospace;
+  margin-bottom: 0px;
+}
+
+.market-loading,
+.market-login-required {
+  text-align: center;
+  font-size: 1.25rem;
+  margin-top: 3rem;
+  color: #ccc;
+}
+
+.user-card {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2rem;
+  overflow: hidden;
+}
+
+/* Glowing top line */
+.user-card-glow {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #ffcb05, transparent);
+  z-index: 1;
+}
+
+.user-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.user-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.stat-box {
+  background-color: #202620;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #94ff4a;
+}
+
+.stat-label {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+/* TokenModal.css */
+.token-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.token-modal {
+  background: #1b1f26;
+  color: #f1f1f1;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 0 20px rgba(255, 204, 0, 0.2);
+  position: relative;
+  border-top: 3px solid #ffcb05;
+}
+
+.token-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #ffcb05;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.token-modal h2 {
+  margin-bottom: 1rem;
+  color: #fff;
+}
+
+.token-modal h2 span {
+  font-size: 1rem;
+  color: #aaa;
+  margin-left: 0.5rem;
+}
+
+.token-modal-description {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.token-modal-details p {
+  margin-bottom: 0.5rem;
+}
+
+.token-buy-button {
+  margin-top: 1rem;
+  background-color: #8dc926;
+  color: #000;
+  font-weight: bold;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.token-buy-button:hover {
+  background-color: #aaff55;
+}
+
+.token-modal {
+  max-width: 600px;
+  width: 90%;
+  background: #1f1f1f;
+  padding: 2rem;
+  border-radius: 12px;
+  position: relative;
+  z-index: 10;
+}
+
+.token-modal-chart {
+  height: 240px;
+  margin-top: 1rem;
 }
