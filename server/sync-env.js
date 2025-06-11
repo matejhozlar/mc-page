@@ -6,6 +6,7 @@ const envSource = path.resolve(".env");
 
 const targetDirs = [
   "./services",
+  "./services/crypto",
   "./utils",
   "./discord/commands",
   "./routes",
