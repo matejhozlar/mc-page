@@ -16,73 +16,73 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("💰 Createrington Currency Mod Guide **(Alpha)**")
-      .setColor(0x00b0f4)
+      .setTitle("🪙 Createrington Market Guide")
+      .setColor(0xffcb05)
       .setDescription(
-        "Here’s a quick guide on how to use the **Currency Mod** on Createrington!"
+        "Welcome to the **Createrington Market** — trade tokens using your Minecraft balance and grow your wealth!"
       )
       .addFields(
         {
-          name: "💵 Currency Items",
+          name: "🔐 Getting Started",
+          value: [
+            "- Log in on the website.",
+            "- Go to the **Market** tab to begin trading.",
+            "- Click on a token to buy or sell.",
+          ].join("\n"),
+        },
+        {
+          name: "📈 Market Overview",
+          value: [
+            "- Each token has a live price that changes over time.",
+            "- You’ll see details like: **Price**, **Supply**, **Ownership**, and **Price History**.",
+            "- You can track price trends in intervals like **1h, 24h, 7d, 30d, all**.",
+          ].join("\n"),
+        },
+        {
+          name: "💰 Profile & Portfolio",
+          value: [
+            "- View your **balance**, and **token holdings**.",
+            "- Your total net worth = token portfolio + in-game balance.",
+            "- Portfolio chart shows value over time.",
+          ].join("\n"),
+        },
+        {
+          name: "📊 Tokens",
+          value: [
+            "- Buy low, sell high! Track performance via charts.",
+            "- Limited supply means some tokens become more valuable over time.",
+            "- Prices update live every x seconds/minutes depending on the token.",
+          ].join("\n"),
+        },
+        {
+          name: "🎮 Games",
+          value: [
+            "- Visit the **Games** tab to play the [Clicker Game](https://create-rington.com/game).",
+            "- Earn rewards that can boost your balance.",
+            "- More games coming soon!",
+          ].join("\n"),
+        },
+        {
+          name: "💡 Tips",
+          value: [
+            "- Use your **in-game currency** wisely to buy tokens.",
+            "- Watch for price drops to make smart investments.",
+            "- Track your transaction history in the **Profile** tab.",
+          ].join("\n"),
+        },
+        {
+          name: "📣 Reminder",
           value:
-            "Collect bills in various denominations: **$1, $5, $10, $20, $50, $100, $500, $1000**. These bills can be stacked, traded, and stored in your inventory.",
-        },
-        {
-          name: "🆕 Enchant Capitalist Greed",
-          value:
-            "Createrington Currency has a new enchant! Enchant your weapons to raise drop rates of bills.",
-        },
-        {
-          name: "Levels",
-          value: [
-            "- Capitalist Greed I → +5%",
-            "- Capitalist Greed II → +8%",
-            "- Capitalist Greed III → +10%",
-          ].join("\n"),
-        },
-        {
-          name: "⚔️ Mob Farming & Drop Rates",
-          value: [
-            "- Zombies, Spiders, Creepers → **2% chance** to drop $1 bill.",
-            "- Skeletons → **3% chance** to drop $1 bill.",
-            "- Skeletons also have a **1% chance** to drop a $5 bill.",
-            "- Daily mob farming limit: **$1000 per day**.",
-            "- Once limit is reached, no more bills will drop that day.",
-          ].join("\n"),
-        },
-        {
-          name: "💻 Commands",
-          value: [
-            "**/money** — Check your current balance.",
-            "**/deposit** — Deposit all bills from your inventory into your account.",
-            "**/withdraw <amount>** — Withdraw money into physical bills (automatically optimizes denominations).",
-            "**/withdraw <denomination> <count>** — Withdraw specific bills \n(e.g. `/withdraw 50 2`).",
-            "**/pay <player> <amount>** — Send money to another player (player-to-player trading).",
-            "**/baltop** — See the top 10 richest players on the server.",
-          ].join("\n"),
-        },
-        {
-          name: "📦 How It Works",
-          value: [
-            "- Earn money by killing spiders, zombies, creepers and skeletons!",
-            "- Use **/withdraw** to get bills you can carry and trade.",
-            "- Use **/deposit** to convert bills back into your account balance.",
-            "- Always check your balance with **/money** before transactions!",
-          ].join("\n"),
-        },
-        {
-          name: "📢 Reminder",
-          value:
-            "Take good care of your bills — if you lose them, you lose your money!",
+            "All trades are final. Make sure you're confident before confirming any transaction!",
         }
       )
       .setFooter({ text: "Thanks for playing on Createrington!" })
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 Currency guide sent!");
+    console.log("📣 Market guide sent!");
   } catch (err) {
-    console.error("❌ Failed to send currency guide:", err);
+    console.error("❌ Failed to send market guide:", err);
   } finally {
     client.destroy();
     process.exit(0);
