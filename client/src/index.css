@@ -2256,3 +2256,18 @@ input:checked + .slider:before {
   cursor: pointer;
   text-decoration: underline;
 }
+
+.tax-note {
+  font-size: 0.85rem;
+  color: #ffcb05;
+  margin-top: 0.25rem;
+}
+
+.token-dead-label {
+  color: #ff4d4f;
+  font-weight: bold;
+  font-size: 1rem;
+}
+.token-price.crashed {
+  color: #999;
+}

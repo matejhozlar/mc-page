@@ -3,6 +3,9 @@ import express from "express";
 import logger from "../logger.js";
 import logError from "../utils/logError.js";
 
+// utils
+import { getCooldownStatus } from "../utils/crypto/isOnCooldown.js";
+
 export default function cryptoRoutes(db) {
   const router = express.Router();
 
@@ -10,7 +13,7 @@ export default function cryptoRoutes(db) {
   router.get("/market/tokens", async (req, res) => {
     try {
       const result = await db.query(
-        `SELECT id, name, symbol, total_supply, price_per_unit, description, available_supply FROM crypto_tokens ORDER BY id ASC`
+        `SELECT id, name, symbol, total_supply, price_per_unit, description, available_supply, is_memecoin, crashed FROM crypto_tokens ORDER BY id ASC`
       );
       res.json(result.rows);
     } catch (error) {
@@ -19,13 +22,24 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/tokens ---
+  // --- /api/market/buy ---
   router.post("/market/buy", async (req, res) => {
     const userId = req.cookies.user_session;
     const { tokenId, amount } = req.body;
 
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { onCooldown, secondsRemaining } = await getCooldownStatus(
+      db,
+      userId
+    );
+    if (onCooldown) {
+      return res.status(429).json({
+        error: "Cooldown active",
+        cooldown: secondsRemaining,
+      });
     }
 
     const floatAmount = parseFloat(amount);
@@ -46,7 +60,7 @@ export default function cryptoRoutes(db) {
       const balance = parseFloat(userResult.rows[0].balance);
 
       const tokenResult = await db.query(
-        `SELECT id, price_per_unit, available_supply FROM crypto_tokens WHERE id = $1`,
+        `SELECT id, price_per_unit, available_supply, is_memecoin FROM crypto_tokens WHERE id = $1`,
         [tokenId]
       );
 
@@ -57,10 +71,15 @@ export default function cryptoRoutes(db) {
       const token = tokenResult.rows[0];
       const price = parseFloat(token.price_per_unit);
       const availableSupply = parseFloat(token.available_supply);
+      const isMemecoin = token.is_memecoin === true;
+      const taxRate = isMemecoin ? 0.05 : 0;
       const totalCost = price * floatAmount;
+      const taxedCost = totalCost * (1 + taxRate);
 
-      if (totalCost > balance) {
-        return res.status(400).json({ error: "Insufficient funds" });
+      if (taxedCost > balance) {
+        return res
+          .status(400)
+          .json({ error: "Insufficient funds (incl. tax)" });
       }
 
       if (floatAmount > availableSupply) {
@@ -71,8 +90,16 @@ export default function cryptoRoutes(db) {
 
       await db.query(
         `UPDATE user_funds SET balance = balance - $1 WHERE discord_id = $2`,
-        [totalCost, userId]
+        [taxedCost, userId]
       );
+
+      if (isMemecoin) {
+        const taxAmount = taxedCost - totalCost;
+        await db.query(
+          `UPDATE memecoin_tax_tracker SET total_collected = total_collected + $1 WHERE id = 1`,
+          [taxAmount]
+        );
+      }
 
       await db.query(
         `UPDATE crypto_tokens SET available_supply = available_supply - $1 WHERE id = $2`,
@@ -133,13 +160,23 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/sell ---
   router.post("/market/sell", async (req, res) => {
     const userId = req.cookies.user_session;
     const { tokenId, amount } = req.body;
 
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { onCooldown, secondsRemaining } = await getCooldownStatus(
+      db,
+      userId
+    );
+    if (onCooldown) {
+      return res.status(429).json({
+        error: "Cooldown active",
+        cooldown: secondsRemaining,
+      });
     }
 
     const floatAmount = parseFloat(amount);
@@ -163,7 +200,7 @@ export default function cryptoRoutes(db) {
       }
 
       const tokenResult = await db.query(
-        `SELECT price_per_unit FROM crypto_tokens WHERE id = $1`,
+        `SELECT price_per_unit, is_memecoin FROM crypto_tokens WHERE id = $1`,
         [tokenId]
       );
 
@@ -171,15 +208,28 @@ export default function cryptoRoutes(db) {
         return res.status(404).json({ error: "Token not found" });
       }
 
-      const price = parseFloat(tokenResult.rows[0].price_per_unit);
-      const totalGain = price * floatAmount;
+      const token = tokenResult.rows[0];
+      const price = parseFloat(token.price_per_unit);
+      const isMemecoin = token.is_memecoin === true;
+      const taxRate = isMemecoin ? 0.05 : 0;
+      const grossGain = price * floatAmount;
+      const netGain = grossGain * (1 - taxRate);
+      const taxAmount = grossGain - netGain;
 
       await db.query("BEGIN");
 
       await db.query(
         `UPDATE user_funds SET balance = balance + $1 WHERE discord_id = $2`,
-        [totalGain, userId]
+        [netGain, userId]
       );
+
+      if (isMemecoin) {
+        await db.query(
+          `UPDATE memecoin_tax_tracker SET total_collected = total_collected + $1 WHERE id = 1`,
+          [taxAmount]
+        );
+      }
+
       await db.query(
         `UPDATE crypto_tokens SET available_supply = available_supply + $1 WHERE id = $2`,
         [floatAmount, tokenId]
@@ -197,7 +247,7 @@ export default function cryptoRoutes(db) {
 
       await db.query(
         `INSERT INTO token_transactions (discord_id, token_id, amount, price_at_transaction, type)
-   VALUES ($1, $2, $3, $4, 'sell')`,
+       VALUES ($1, $2, $3, $4, 'sell')`,
         [userId, tokenId, floatAmount, price]
       );
 
