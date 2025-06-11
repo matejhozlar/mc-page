@@ -1,5 +1,4 @@
-// components/TokenModal.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -8,11 +7,163 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
+import { Doughnut } from "react-chartjs-2";
+import { ArcElement, Tooltip, Legend } from "chart.js";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
-function TokenModal({ token, onClose }) {
-  if (!token) return null;
+function TokenModal({ token, onClose, ownedAmount = null }) {
+  const [showBuyUI, setShowBuyUI] = useState(false);
+  const [showSellUI, setShowSellUI] = useState(false);
+  const [amount, setAmount] = useState(1);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [selectedRange, setSelectedRange] = useState("7d");
+  const [chartData, setChartData] = useState([]);
+  const [priceChange, setPriceChange] = useState(null);
+  const [isPriceUp, setIsPriceUp] = useState(true);
+  const [distribution, setDistribution] = useState([]);
+  const [showAllOwners, setShowAllOwners] = useState(false);
+
+  const ranges = ["1h", "24h", "7d", "30d", "all"];
+
+  const handleTransaction = async (type) => {
+    const endpoint = type === "buy" ? "/api/market/buy" : "/api/market/sell";
+
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          tokenId: token.id,
+          amount: Number(amount),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `${type} failed`);
+
+      setSuccess(`Successfully ${type === "buy" ? "bought" : "sold"} tokens!`);
+      setError("");
+    } catch (err) {
+      setError(err.message);
+      setSuccess("");
+    }
+  };
+
+  const handleBuyClick = () => {
+    setShowBuyUI(true);
+    setShowSellUI(false);
+    setSuccess("");
+    setError("");
+  };
+
+  const handleSellClick = () => {
+    setShowSellUI(true);
+    setShowBuyUI(false);
+    setSuccess("");
+    setError("");
+  };
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(
+          `/api/market/token-history/${token.id}?range=${selectedRange}`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        setChartData(data);
+      } catch (err) {
+        console.error("Failed to load price history:", err);
+      }
+    };
+
+    fetchHistory();
+  }, [token.id, selectedRange]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(
+          `/api/market/token-history/${token.id}?range=${selectedRange}`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+
+        if (!Array.isArray(data)) {
+          console.warn("Unexpected token history data:", data);
+          setChartData([]);
+          return;
+        }
+
+        setChartData(data);
+
+        if (data.length >= 2) {
+          const start = Number(data[0].price);
+          const end = Number(data[data.length - 1].price);
+          const percentChange = ((end - start) / start) * 100;
+          setPriceChange(percentChange.toFixed(2));
+          setIsPriceUp(end >= start);
+        }
+      } catch (err) {
+        console.error("Failed to load price history:", err);
+      }
+    };
+
+    fetchHistory();
+  }, [token.id, selectedRange]);
+
+  useEffect(() => {
+    const fetchDistribution = async () => {
+      try {
+        const res = await fetch(`/api/market/token-distribution/${token.id}`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        setDistribution(data);
+      } catch (err) {
+        console.error("Failed to load token distribution:", err);
+      }
+    };
+
+    fetchDistribution();
+  }, [token.id]);
+
+  const totalOwned = distribution.reduce((sum, d) => sum + Number(d.amount), 0);
+  const unownedAmount = Math.max(0, Number(token.total_supply) - totalOwned);
+
+  const doughnutData = {
+    labels: [...distribution.map((entry) => entry.username), "Unowned"],
+    datasets: [
+      {
+        label: "Token Distribution",
+        data: [...distribution.map((entry) => entry.amount), unownedAmount],
+        backgroundColor: [...distribution.map(() => "#ffcb05"), "#666"],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const formattedChartData = {
+    labels: Array.isArray(chartData)
+      ? chartData.map((entry) => new Date(entry.recorded_at).toLocaleString())
+      : [],
+    datasets: [
+      {
+        label: `${token.symbol} Price`,
+        data: Array.isArray(chartData)
+          ? chartData.map((entry) => Number(entry.price))
+          : [],
+        borderColor: "#ffcb05",
+        tension: 0.3,
+        fill: false,
+      },
+    ],
+  };
 
   return (
     <div className="token-modal-overlay" onClick={onClose}>
@@ -21,7 +172,19 @@ function TokenModal({ token, onClose }) {
           ×
         </button>
         <h2>
-          {token.name} <span>({token.symbol})</span>
+          {token.name} <span>({token.symbol})</span>{" "}
+          {priceChange !== null && (
+            <span
+              style={{
+                color: isPriceUp ? "limegreen" : "#ff4d4f",
+                fontWeight: 600,
+                marginLeft: "0.5rem",
+              }}
+            >
+              {isPriceUp ? "+" : ""}
+              {priceChange}%
+            </span>
+          )}
         </h2>
 
         <p className="token-modal-description">
@@ -38,32 +201,145 @@ function TokenModal({ token, onClose }) {
             {Number(token.total_supply).toLocaleString()}
           </p>
           <p>
-            <strong>Price:</strong> ${Number(token.price_per_unit).toFixed(2)}
+            <strong>Price per Token:</strong> $
+            {Number(token.price_per_unit).toFixed(4)}
           </p>
+          {ownedAmount !== null && (
+            <p>
+              <strong>Owned:</strong> {Number(ownedAmount).toLocaleString()}{" "}
+              {token.symbol}
+            </p>
+          )}
         </div>
+
+        {!showBuyUI && !showSellUI && (
+          <div className="token-modal-actions">
+            <button className="token-buy-button" onClick={handleBuyClick}>
+              Buy Token
+            </button>
+            <button className="token-sell-button" onClick={handleSellClick}>
+              Sell Token
+            </button>
+          </div>
+        )}
+
+        {(showBuyUI || showSellUI) && (
+          <div className="token-modal-transaction">
+            <input
+              type="number"
+              min="0.01"
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <div className="buy-summary">
+              Total: $
+              {(
+                Number(token.price_per_unit) * Number(amount || 0)
+              ).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </div>
+            <button
+              className="token-buy-button"
+              onClick={() => handleTransaction(showBuyUI ? "buy" : "sell")}
+            >
+              Confirm {showBuyUI ? "Purchase" : "Sale"}
+            </button>
+            <button
+              className="token-cancel-button"
+              onClick={() => {
+                setShowBuyUI(false);
+                setShowSellUI(false);
+                setAmount(1);
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {error && <p className="buy-error">{error}</p>}
+        {success && <p className="buy-success">{success}</p>}
 
         <div className="token-modal-chart">
-          <Line
-            data={{
-              labels: ["1d", "3d", "5d", "7d"],
-              datasets: [
-                {
-                  label: `${token.symbol} Price`,
-                  data: [1.0, 1.2, 1.15, 1.3],
-                  borderColor: "#ffcb05",
-                  tension: 0.3,
-                  fill: false,
+          {chartData.length > 0 ? (
+            <Line
+              data={formattedChartData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  x: {
+                    ticks: {
+                      callback: function (value, index, ticks) {
+                        const label = this.getLabelForValue(value);
+                        const date = new Date(label);
+                        return date.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                      },
+                      maxRotation: 0,
+                      autoSkip: true,
+                    },
+                  },
+                  y: {
+                    ticks: {
+                      callback: function (value) {
+                        return `$${value.toFixed(5)}`;
+                      },
+                    },
+                  },
                 },
-              ],
-            }}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-            }}
-          />
+              }}
+            />
+          ) : (
+            <p className="chart-placeholder">No chart data available</p>
+          )}
         </div>
 
-        <button className="token-buy-button">Buy Token</button>
+        <div className="token-range-filters">
+          {ranges.map((range) => (
+            <button
+              key={range}
+              className={selectedRange === range ? "active" : ""}
+              onClick={() => setSelectedRange(range)}
+            >
+              {range.toUpperCase()}
+            </button>
+          ))}
+        </div>
+        <div className="distribution-chart-section">
+          <h3>Ownership Distribution</h3>
+          <div className="doughnut-chart-wrapper">
+            <Doughnut data={doughnutData} />
+          </div>
+
+          <ul className="top-owners-list">
+            {distribution
+              .slice(0, showAllOwners ? distribution.length : 3)
+              .map((entry, idx) => {
+                const percent = (
+                  (entry.amount / token.total_supply) *
+                  100
+                ).toFixed(2);
+                return (
+                  <li key={entry.username}>
+                    <strong>{idx + 1}.</strong> {entry.username} - {percent}%
+                  </li>
+                );
+              })}
+            {distribution.length > 3 && (
+              <li>
+                <button onClick={() => setShowAllOwners(!showAllOwners)}>
+                  {showAllOwners ? "Show Less" : "Show All"}
+                </button>
+              </li>
+            )}
+          </ul>
+        </div>
       </div>
     </div>
   );

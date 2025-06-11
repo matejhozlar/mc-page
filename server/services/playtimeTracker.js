@@ -63,6 +63,33 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
           } online player(s) @ ${new Date().toISOString()}`
         );
       }
+
+      const { rows } = await db.query(`
+        SELECT SUM(play_time_seconds + 
+          CASE 
+            WHEN online AND session_start IS NOT NULL 
+            THEN EXTRACT(EPOCH FROM (NOW() - session_start)) 
+            ELSE 0 
+          END
+        ) AS total
+        FROM users
+      `);
+
+      const totalPlaytimeSeconds = Number(rows[0]?.total || 0);
+
+      await db.query(
+        `INSERT INTO server_playtime_snapshots (total_seconds) VALUES ($1)`,
+        [totalPlaytimeSeconds]
+      );
+
+      await db.query(`
+  DELETE FROM server_playtime_snapshots
+  WHERE id NOT IN (
+    SELECT id FROM server_playtime_snapshots
+    ORDER BY snapshot_time DESC
+    LIMIT 20
+  )
+`);
     } catch (error) {
       logger.error(`❌ Background playtime sync failed: ${logError(error)}`);
     }

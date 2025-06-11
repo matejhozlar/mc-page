@@ -37,6 +37,12 @@ import {
   updateStatsChampionsBoard,
 } from "./services/statsChampionsBoard.js";
 import { runMobLimitCleaner } from "./services/mobLimitCleaner.js";
+import { updateRingcoinPriceMinutes } from "./services/crypto/updateRingcoinPriceMinutes.js";
+import { updateRingcoinPriceHourly } from "./services/crypto/updateRingcoinPriceHourly.js";
+import { updateRingcoinPriceDaily } from "./services/crypto/updateRingcoinPriceDaily.js";
+import { updateRingcoinPriceWeekly } from "./services/crypto/updateRingcoinPriceWeekly.js";
+import { snapshotUserPortfolios } from "./services/crypto/dailyPortfolioSnapshot.js";
+import { cleanupTokenHistoryTable } from "./services/crypto/cleanupTokenHistory.js";
 
 // utils
 import logError from "./utils/logError.js";
@@ -146,6 +152,33 @@ try {
 //   }
 // );
 // logger.info("🕰️ Scheduled mob_limit_reached cleanup job at 6:30 AM CET.");
+
+cron.schedule("*/10 * * * *", () => updateRingcoinPriceMinutes(db));
+cron.schedule("1 * * * *", () => updateRingcoinPriceHourly(db), {
+  timezone: "Europe/Berlin",
+});
+cron.schedule("30 3 * * *", () => updateRingcoinPriceDaily(db), {
+  timezone: "Europe/Berlin",
+});
+cron.schedule("30 4 * * 1", () => updateRingcoinPriceWeekly(db), {
+  timezone: "Europe/Berlin",
+});
+cron.schedule("0 4 * * *", () => snapshotUserPortfolios(db), {
+  timezone: "Europe/Berlin",
+});
+
+cron.schedule("0 */3 * * *", () =>
+  cleanupTokenHistoryTable(db, "token_price_history_minutes", 144, 20)
+);
+cron.schedule("0 1 * * *", () =>
+  cleanupTokenHistoryTable(db, "token_price_history_hourly", 168, 20)
+);
+cron.schedule("0 3 1,15 * *", () =>
+  cleanupTokenHistoryTable(db, "token_price_history_daily", 90, 10)
+);
+cron.schedule("0 5 1 * *", () =>
+  cleanupTokenHistoryTable(db, "token_price_history_weekly", 104, 5)
+);
 
 // server IP, PORT
 const serverIP = process.env.SERVER_IP;
