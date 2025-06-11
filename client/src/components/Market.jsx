@@ -110,6 +110,18 @@ function Market() {
     fetchPortfolioHistory(portfolioRange);
   }, [isLoggedIn, portfolioRange]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetch("/api/market/tokens", { credentials: "include" })
+        .then((res) => res.json())
+        .then(setTokens)
+        .catch((err) =>
+          console.error("❌ Failed to refresh token prices:", err)
+        );
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
   function calculatePortfolioValue(userTokens = [], marketTokens = []) {
     if (!Array.isArray(userTokens)) return "0.00";
     return userTokens
@@ -129,7 +141,10 @@ function Market() {
 
   function calculateOwnedTokenCount(userTokens = []) {
     if (!Array.isArray(userTokens)) return 0;
-    return userTokens.reduce((count, token) => count + token.amount, 0);
+    return userTokens.reduce((count, token) => {
+      const amt = parseFloat(token.amount);
+      return count + (isNaN(amt) ? 0 : amt);
+    }, 0);
   }
 
   if (loading) return <div className="market-loading">Loading...</div>;
@@ -230,6 +245,12 @@ function Market() {
                   <h2>
                     <AnimatedNumber
                       value={Number(calculateOwnedTokenCount(profile.tokens))}
+                      format={(val) =>
+                        Number(val).toLocaleString(undefined, {
+                          minimumFractionDigits: 0,
+                          maximumFractionDigits: 0,
+                        })
+                      }
                     />
                   </h2>
                   <p>Tokens Owned</p>
@@ -262,8 +283,21 @@ function Market() {
                         Supply:{" "}
                         {Number(token.available_supply).toLocaleString()}
                       </p>
-                      <p className="token-price">
-                        ${Number(token.price_per_unit).toFixed(2)}
+                      <p
+                        className={`token-price ${
+                          token.crashed ? "crashed" : ""
+                        }`}
+                      >
+                        {token.crashed ? (
+                          <span className="token-dead-label">💀 Crashed</span>
+                        ) : (
+                          <>
+                            $
+                            <AnimatedNumber
+                              value={Number(token.price_per_unit)}
+                            />
+                          </>
+                        )}
                       </p>
                     </div>
                   </button>
@@ -344,7 +378,12 @@ function Market() {
               >
                 <h2>
                   Total Portfolio Value: $
-                  {calculatePortfolioValue(profile.tokens, tokens)}
+                  {Number(
+                    calculatePortfolioValue(profile.tokens, tokens)
+                  ).toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
                 </h2>
                 <div className="portfolio-range-buttons">
                   {["7d", "30d", "all"].map((range) => (
@@ -397,15 +436,27 @@ function Market() {
                         <p className="token-supply">
                           Owned: {Number(token.amount).toLocaleString()}
                         </p>
-                        <p className="token-price">
-                          $
-                          {Number(
-                            (tokens.find((t) => t.id === token.token_id)
-                              ?.price_per_unit || 0) * token.amount
-                          ).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                        <p
+                          className={`token-price ${
+                            tokens.find((t) => t.id === token.token_id)?.crashed
+                              ? "crashed"
+                              : ""
+                          }`}
+                        >
+                          {tokens.find((t) => t.id === token.token_id)
+                            ?.crashed ? (
+                            <span className="token-dead-label">💀 Crashed</span>
+                          ) : (
+                            <>
+                              $
+                              <AnimatedNumber
+                                value={Number(
+                                  (tokens.find((t) => t.id === token.token_id)
+                                    ?.price_per_unit || 0) * token.amount
+                                )}
+                              />
+                            </>
+                          )}
                         </p>
                       </div>
                     </button>

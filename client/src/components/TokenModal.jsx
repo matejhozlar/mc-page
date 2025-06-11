@@ -10,6 +10,9 @@ import {
 import { Doughnut } from "react-chartjs-2";
 import { ArcElement, Tooltip, Legend } from "chart.js";
 
+// components
+import AnimatedNumber from "./AnimatedNumber";
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
@@ -20,12 +23,25 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
   const [amount, setAmount] = useState(1);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [selectedRange, setSelectedRange] = useState("7d");
+  const [selectedRange, setSelectedRange] = useState("1h");
   const [chartData, setChartData] = useState([]);
   const [priceChange, setPriceChange] = useState(null);
   const [isPriceUp, setIsPriceUp] = useState(true);
   const [distribution, setDistribution] = useState([]);
   const [showAllOwners, setShowAllOwners] = useState(false);
+  const [livePrice, setLivePrice] = useState(Number(token.price_per_unit));
+  const [lastTxTime, setLastTxTime] = useState(null);
+  const [cooldownRemaining, setCooldownRemaining] = useState(0);
+
+  const isMemecoin = token.is_memecoin === true;
+  const unitPrice = Number(token.price_per_unit);
+  const quantity = Number(amount || 0);
+  const baseTotal = unitPrice * quantity;
+  const taxRate = isMemecoin ? 0.05 : 0;
+  const taxAmount = baseTotal * taxRate;
+  const totalWithTax = baseTotal + taxAmount;
+  const netGain = baseTotal - taxAmount;
+  const isCrashed = !!token.crashed || livePrice <= 0;
 
   const ranges = ["1h", "24h", "7d", "30d", "all"];
 
@@ -44,10 +60,26 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || `${type} failed`);
+
+      if (!res.ok) {
+        if (res.status === 429 && data.cooldown) {
+          setCooldownRemaining(data.cooldown);
+          setError(`Cooldown active — try again in ${data.cooldown} seconds`);
+          return;
+        }
+
+        throw new Error(data.error || `${type} failed`);
+      }
 
       setSuccess(`Successfully ${type === "buy" ? "bought" : "sold"} tokens!`);
+      const now = Date.now();
+      setLastTxTime(now);
+      localStorage.setItem("globalLastTxTime", now.toString());
+      setCooldownRemaining(180);
       setError("");
+      setAmount(1);
+      setShowBuyUI(false);
+      setShowSellUI(false);
     } catch (err) {
       setError(err.message);
       setSuccess("");
@@ -69,23 +101,34 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
   };
 
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await fetch(
-          `/api/market/token-history/${token.id}?range=${selectedRange}`,
-          { credentials: "include" }
-        );
-        const data = await res.json();
-        setChartData(data);
-      } catch (err) {
-        console.error("Failed to load price history:", err);
+    const stored = localStorage.getItem("globalLastTxTime");
+    if (stored) {
+      const txTime = parseInt(stored, 10);
+      const elapsed = Math.floor((Date.now() - txTime) / 1000);
+      const remaining = 180 - elapsed;
+      if (remaining > 0) {
+        setCooldownRemaining(remaining);
+        setLastTxTime(txTime);
       }
-    };
-
-    fetchHistory();
-  }, [token.id, selectedRange]);
+    }
+  }, [token.id]);
 
   useEffect(() => {
+    if (!lastTxTime) return;
+
+    const interval = setInterval(() => {
+      const secondsPassed = Math.floor((Date.now() - lastTxTime) / 1000);
+      const remaining = 180 - secondsPassed;
+      setCooldownRemaining(remaining > 0 ? remaining : 0);
+      if (remaining <= 0) clearInterval(interval);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lastTxTime]);
+
+  useEffect(() => {
+    let isMounted = true;
+
     const fetchHistory = async () => {
       try {
         const res = await fetch(
@@ -94,11 +137,7 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
         );
         const data = await res.json();
 
-        if (!Array.isArray(data)) {
-          console.warn("Unexpected token history data:", data);
-          setChartData([]);
-          return;
-        }
+        if (!isMounted || !Array.isArray(data)) return;
 
         setChartData(data);
 
@@ -106,6 +145,7 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
           const start = Number(data[0].price);
           const end = Number(data[data.length - 1].price);
           const percentChange = ((end - start) / start) * 100;
+          setLivePrice(end);
           setPriceChange(percentChange.toFixed(2));
           setIsPriceUp(end >= start);
         }
@@ -115,6 +155,12 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
     };
 
     fetchHistory();
+    const interval = setInterval(fetchHistory, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [token.id, selectedRange]);
 
   useEffect(() => {
@@ -168,6 +214,13 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
   return (
     <div className="token-modal-overlay" onClick={onClose}>
       <div className="token-modal" onClick={(e) => e.stopPropagation()}>
+        {isCrashed && (
+          <p
+            style={{ color: "#ff4d4f", fontWeight: "bold", marginTop: "1rem" }}
+          >
+            💀 This token has crashed and is no longer tradable.
+          </p>
+        )}
         <button className="token-modal-close" onClick={onClose}>
           ×
         </button>
@@ -202,7 +255,7 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
           </p>
           <p>
             <strong>Price per Token:</strong> $
-            {Number(token.price_per_unit).toFixed(4)}
+            <AnimatedNumber value={Number(livePrice.toFixed(4))} />
           </p>
           {ownedAmount !== null && (
             <p>
@@ -212,18 +265,32 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
           )}
         </div>
 
-        {!showBuyUI && !showSellUI && (
+        {!showBuyUI && !showSellUI && !isCrashed && (
           <div className="token-modal-actions">
-            <button className="token-buy-button" onClick={handleBuyClick}>
-              Buy Token
-            </button>
-            <button className="token-sell-button" onClick={handleSellClick}>
-              Sell Token
-            </button>
+            <div className="token-modal-actions">
+              <button
+                className="token-buy-button"
+                onClick={handleBuyClick}
+                disabled={cooldownRemaining > 0}
+              >
+                {cooldownRemaining > 0
+                  ? `Wait ${cooldownRemaining}s`
+                  : "Buy Token"}
+              </button>
+              <button
+                className="token-sell-button"
+                onClick={handleSellClick}
+                disabled={cooldownRemaining > 0}
+              >
+                {cooldownRemaining > 0
+                  ? `Wait ${cooldownRemaining}s`
+                  : "Sell Token"}
+              </button>
+            </div>
           </div>
         )}
 
-        {(showBuyUI || showSellUI) && (
+        {(showBuyUI || showSellUI) && !isCrashed && (
           <div className="token-modal-transaction">
             <input
               type="number"
@@ -233,13 +300,34 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
               onChange={(e) => setAmount(e.target.value)}
             />
             <div className="buy-summary">
-              Total: $
-              {(
-                Number(token.price_per_unit) * Number(amount || 0)
-              ).toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
+              {showBuyUI ? (
+                <>
+                  <strong>Total:</strong> $
+                  {totalWithTax.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  {isMemecoin && (
+                    <div className="tax-note">
+                      Includes 5% tax for memecoin purchase ($
+                      {taxAmount.toFixed(2)})
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <strong>Net Gain:</strong> $
+                  {netGain.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  {isMemecoin && (
+                    <div className="tax-note">
+                      5% memecoin tax will be deducted (${taxAmount.toFixed(2)})
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             <button
               className="token-buy-button"

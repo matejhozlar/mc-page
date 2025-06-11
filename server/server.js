@@ -43,6 +43,8 @@ import { updateRingcoinPriceDaily } from "./services/crypto/updateRingcoinPriceD
 import { updateRingcoinPriceWeekly } from "./services/crypto/updateRingcoinPriceWeekly.js";
 import { snapshotUserPortfolios } from "./services/crypto/dailyPortfolioSnapshot.js";
 import { cleanupTokenHistoryTable } from "./services/crypto/cleanupTokenHistory.js";
+import { updateMemecoinPrices } from "./services/crypto/updateMemecoinPrices.js";
+import { deleteCrashedMemecoins } from "./services/crypto/deleteCrashedMemecoins.js";
 
 // utils
 import logError from "./utils/logError.js";
@@ -75,23 +77,23 @@ const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "client", "build");
 
 // Load command handlers
-const commandsPath = path.join(__dirname, "discord", "commands");
-const commandFiles = fs
-  .readdirSync(commandsPath)
-  .filter((file) => file.endsWith(".js"));
-const commandHandlers = new Map();
+// const commandsPath = path.join(__dirname, "discord", "commands");
+// const commandFiles = fs
+//   .readdirSync(commandsPath)
+//   .filter((file) => file.endsWith(".js"));
+// const commandHandlers = new Map();
 
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file);
-  const commandModule = await import(pathToFileURL(filePath).href);
+// for (const file of commandFiles) {
+//   const filePath = path.join(commandsPath, file);
+//   const commandModule = await import(pathToFileURL(filePath).href);
 
-  if (commandModule.data && typeof commandModule.execute === "function") {
-    commandHandlers.set(commandModule.data.name, commandModule);
-  } else {
-    logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
-  }
-}
-logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
+//   if (commandModule.data && typeof commandModule.execute === "function") {
+//     commandHandlers.set(commandModule.data.name, commandModule);
+//   } else {
+//     logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+//   }
+// }
+// logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
 
 // bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
@@ -252,6 +254,13 @@ logger.info(`   Port: ${port}`);
 logger.info(`   DB: ${process.env.DB_HOST}/${process.env.DB_DATABASE}`);
 logger.info(`   Discord Guild ID: ${process.env.DISCORD_GUILD_ID}`);
 logger.info(`   Minecraft Server: ${serverIP}:${serverPort}`);
+
+// memecoins
+setInterval(() => updateMemecoinPrices(db), 30000);
+// delete crashed memecoins
+cron.schedule("*/30 * * * *", () => deleteCrashedMemecoins(db), {
+  timezone: "Europe/Berlin",
+});
 
 try {
   await webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
