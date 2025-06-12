@@ -7,13 +7,13 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_TEST_CHANNEL_ID } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_CURRENCY_CHANNEL_ID } = process.env;
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
   try {
-    const channel = await client.channels.fetch(DISCORD_TEST_CHANNEL_ID);
+    const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
       .setTitle("🪙 Createrington Market Guide")
