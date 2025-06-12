@@ -9,6 +9,15 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("market-token")
+    .setDescription("Generate a market token chart screenshot")
+    .addStringOption((option) =>
+      option
+        .setName("symbol")
+        .setDescription("Enter the token symbol (e.g., MOO, BTC, ETH)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("daily")
     .setDescription("Claim your daily reward"),
   new SlashCommandBuilder()

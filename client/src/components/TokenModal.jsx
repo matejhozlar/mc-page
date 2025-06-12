@@ -17,7 +17,12 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
-function TokenModal({ token, onClose, ownedAmount = null }) {
+function TokenModal({
+  token,
+  onClose,
+  ownedAmount = null,
+  purchasePrice = null,
+}) {
   const [showBuyUI, setShowBuyUI] = useState(false);
   const [showSellUI, setShowSellUI] = useState(false);
   const [amount, setAmount] = useState(1);
@@ -42,6 +47,12 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
   const totalWithTax = baseTotal + taxAmount;
   const netGain = baseTotal - taxAmount;
   const isCrashed = !!token.crashed || livePrice <= 0;
+
+  const calculatePercentageChange = (livePrice, purchasePrice) => {
+    if (!purchasePrice || purchasePrice <= 0) return 0;
+    const percentage = ((livePrice - purchasePrice) / purchasePrice) * 100;
+    return percentage.toFixed(2);
+  };
 
   const ranges = ["1h", "24h", "7d", "30d", "all"];
 
@@ -258,10 +269,25 @@ function TokenModal({ token, onClose, ownedAmount = null }) {
             <AnimatedNumber value={Number(livePrice.toFixed(4))} />
           </p>
           {ownedAmount !== null && (
-            <p>
-              <strong>Owned:</strong> {Number(ownedAmount).toLocaleString()}{" "}
-              {token.symbol}
-            </p>
+            <>
+              <p>
+                <strong>Purchased At:</strong> $
+                {Number(purchasePrice).toLocaleString()}
+                <span
+                  style={{
+                    color: livePrice >= purchasePrice ? "limegreen" : "#ff4d4f",
+                    fontWeight: 600,
+                    marginLeft: "0.5rem",
+                  }}
+                >
+                  ({calculatePercentageChange(livePrice, purchasePrice)}%)
+                </span>
+              </p>
+              <p>
+                <strong>Owned:</strong> {Number(ownedAmount).toLocaleString()}{" "}
+                {token.symbol}
+              </p>
+            </>
           )}
         </div>
 

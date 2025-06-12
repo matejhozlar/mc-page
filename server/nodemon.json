@@ -1,3 +1,7 @@
 {
-  "ignore": ["server/stats/*", "server/tmp/*", "server/tmp/**"]
+  "ignore": [
+    "server/stats/*",
+    "server/tmp/*",
+    "server/tmp/**, server/discord/commands/screenshots"
+  ]
 }

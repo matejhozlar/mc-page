@@ -107,11 +107,11 @@ export default function cryptoRoutes(db) {
       );
 
       await db.query(
-        `INSERT INTO user_tokens (discord_id, token_id, amount)
-       VALUES ($1, $2, $3)
+        `INSERT INTO user_tokens (discord_id, token_id, amount, price_at_purchase)
+       VALUES ($1, $2, $3, $4)
        ON CONFLICT (discord_id, token_id)
-       DO UPDATE SET amount = user_tokens.amount + $3`,
-        [userId, tokenId, floatAmount]
+       DO UPDATE SET amount = user_tokens.amount + $3, price_at_purchase = $4`,
+        [userId, tokenId, floatAmount, price]
       );
 
       await db.query(
@@ -144,6 +144,7 @@ export default function cryptoRoutes(db) {
       SELECT 
         ut.token_id,
         ut.amount,
+        ut.price_at_purchase,
         ct.symbol,
         ct.name
       FROM user_tokens ut
@@ -423,6 +424,88 @@ export default function cryptoRoutes(db) {
     } catch (error) {
       console.error("❌ Failed to fetch token distribution:", logError(error));
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // --- /api/market/token-history-by-symbol/:symbol ---
+  router.get("/market/token-history-by-symbol/:symbol", async (req, res) => {
+    const symbol = req.params.symbol;
+    const range = req.query.range || "all";
+
+    // Check for valid symbol
+    if (!symbol) {
+      return res.status(400).json({ error: "Token symbol is required" });
+    }
+
+    let tableName = "token_price_history_weekly";
+    let intervalCondition = "TRUE";
+    let groupExpr = "date_trunc('day', recorded_at)";
+
+    switch (range) {
+      case "1h":
+        tableName = "token_price_history_minutes";
+        intervalCondition = "recorded_at >= NOW() - INTERVAL '1 hour'";
+        groupExpr = "date_trunc('minute', recorded_at)";
+        break;
+      case "24h":
+        tableName = "token_price_history_hourly";
+        intervalCondition = "recorded_at >= NOW() - INTERVAL '24 hours'";
+        groupExpr = "date_trunc('hour', recorded_at)";
+        break;
+      case "7d":
+        tableName = "token_price_history_daily";
+        intervalCondition = "recorded_at >= NOW() - INTERVAL '7 days'";
+        groupExpr = `date_trunc('hour', recorded_at) - 
+      INTERVAL '1 hour' * (EXTRACT(hour FROM recorded_at)::int % 6)`;
+        break;
+      case "30d":
+        tableName = "token_price_history_daily";
+        intervalCondition = "recorded_at >= NOW() - INTERVAL '30 days'";
+        groupExpr = "date_trunc('day', recorded_at)";
+        break;
+      case "all":
+      default:
+        tableName = "token_price_history_weekly";
+        intervalCondition = "TRUE";
+        groupExpr = "date_trunc('day', recorded_at)";
+        break;
+    }
+
+    try {
+      const tokenResult = await db.query(
+        `SELECT id FROM crypto_tokens WHERE symbol = $1`,
+        [symbol]
+      );
+
+      if (tokenResult.rowCount === 0) {
+        return res.status(404).json({ error: "Token not found" });
+      }
+
+      const tokenId = tokenResult.rows[0].id;
+
+      const result = await db.query(
+        `
+      SELECT 
+        ${groupExpr} AS recorded_at,
+        AVG(price) AS price
+      FROM ${tableName}
+      WHERE token_id = $1 AND ${intervalCondition}
+      GROUP BY recorded_at
+      ORDER BY recorded_at ASC
+      `,
+        [tokenId]
+      );
+
+      if (result.rowCount === 0) {
+        return res
+          .status(404)
+          .json({ error: "No price history found for this token" });
+      }
+
+      res.json(result.rows);
+    } catch (err) {
+      console.error("❌ Failed to fetch price history:", err);
+      res.status(500).json({ error: "Failed to fetch price history" });
     }
   });
 

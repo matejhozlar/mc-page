@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 
 // components
 import Sidebar from "./components/Sidebar.jsx";
@@ -22,11 +27,25 @@ import DiscordLoginButton from "./components/DiscordLoginButton.jsx";
 import CallbackGame from "./components/CallbackGame.jsx";
 import Market from "./components/Market.jsx";
 import CallbackMarket from "./components/CallbackMarket.jsx";
+import TokenChartPage from "./components/TokenChartPage.jsx";
 
 function App() {
+  return (
+    <Router>
+      <AppWithRouter />
+    </Router>
+  );
+}
+
+// This is where the logic for showing or hiding the loader goes
+function AppWithRouter() {
+  const location = useLocation(); // We use this to get the current route
   const [showLoader, setShowLoader] = useState(() => {
     return sessionStorage.getItem("initialLoad") !== "done";
   });
+
+  // Only show the loader if we are NOT on the chart page
+  const shouldShowLoader = showLoader && !location.pathname.includes("/chart/");
 
   useEffect(() => {
     if (showLoader) {
@@ -35,8 +54,8 @@ function App() {
   }, [showLoader]);
 
   return (
-    <Router>
-      {showLoader ? (
+    <>
+      {shouldShowLoader ? (
         <LoadingScreen onFinish={() => setShowLoader(false)} />
       ) : (
         <div className="app-container">
@@ -64,6 +83,7 @@ function App() {
               <Route path="/callback-game" element={<CallbackGame />} />
               <Route path="/market" element={<Market />} />
               <Route path="/callback-market" element={<CallbackMarket />} />
+              <Route path="/chart/:symbol" element={<TokenChartPage />} />
               <Route
                 path="/admin"
                 element={
@@ -76,7 +96,7 @@ function App() {
           </div>
         </div>
       )}
-    </Router>
+    </>
   );
 }
 

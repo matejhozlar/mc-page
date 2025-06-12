@@ -7,13 +7,13 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_CURRENCY_CHANNEL_ID } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_TEST_CHANNEL_ID } = process.env;
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
   try {
-    const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
+    const channel = await client.channels.fetch(DISCORD_TEST_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
       .setTitle("🪙 Createrington Market Guide")
@@ -55,10 +55,21 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
+          name: "🪙 Memecoins",
+          value: [
+            "- These coins are **randomly** generated and have no fixed value.",
+            "- The price of the memecoins fluctuates entirely **random**, meaning their value can rise and fall **unpredictably**.",
+            "- Players **loose all investments** if the coin **crashes**.",
+            "- There is no guarantee of profit — the coin's value can change dramatically at any time.",
+            "- A **5% tax** applies whenever players buy or sell meme coins.",
+            "- The value can fluctuate rapidly, so only invest what you're willing to lose.",
+          ].join("\n"),
+        },
+        {
           name: "🎮 Games",
           value: [
             "- Visit the **Games** tab to play the [Clicker Game](https://create-rington.com/game).",
-            "- Earn rewards that can boost your balance.",
+            "- Each game will have ways to get currency in the future (not yet).",
             "- More games coming soon!",
           ].join("\n"),
         },
