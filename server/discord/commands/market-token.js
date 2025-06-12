@@ -38,7 +38,7 @@ async function captureChartScreenshot(symbol) {
   }
 
   const page = await browser.newPage();
-  const chartPageUrl = `http://localhost:3000/chart/${encodeURIComponent(
+  const chartPageUrl = `https://create-rington.com/chart/${encodeURIComponent(
     symbol
   )}`;
 
