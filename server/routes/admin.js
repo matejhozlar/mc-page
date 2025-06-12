@@ -318,7 +318,7 @@ export default function adminRoutes(db) {
         <h3>🔗 Next Steps:</h3>
         <p>To join, just reply to this email or follow the instructions in the invite link below. If we don’t hear back within 48 hours, the spot may be offered to the next person in the queue.</p>
       
-        <p><a href="https://discord.gg/6T246zeZW6">Join our Discord</a></p>
+        <p><a href="https://discord.gg/7PAptNgqk2">Join our Discord</a></p>
         <p><em>Your verification token: <strong>${newToken}</strong></em></p>
       
         <p>Looking forward to seeing you in-game and watching your creations come to life!</p>

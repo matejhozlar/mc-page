@@ -64,9 +64,11 @@ export async function execute(interaction, db) {
     });
 
     const response = await fetch(
-      `https://api.mojang.com/users/profiles/minecraft/${mcName}`
+      `https://playerdb.co/api/player/minecraft/${mcName}`
     );
-    if (!response.ok) {
+    const result = await response.json();
+
+    if (!response.ok || !result.success || !result.data.player?.id) {
       await verifyNotifyStaff(
         interaction,
         "Invalid Minecraft username",
@@ -77,7 +79,8 @@ export async function execute(interaction, db) {
       });
     }
 
-    const { id: uuid, name: correctName } = await response.json();
+    const uuid = result.data.player.id;
+    const correctName = result.data.player.username;
 
     await randomDelay();
     await interaction.editReply({
