@@ -49,6 +49,9 @@ client.once("ready", async () => {
           `💸 **/pay** — Send money to a player\n` +
           `🏦 **/baltop** — See the top 10 richest players\n` +
           `🎁 **/daily** — Claim your daily reward\n\n` +
+          `Createrington Crypto commands (DC):\n` +
+          `🪙 **/market-token <symbol>** — Check live prices and charts for a specific token\n` +
+          `More crypto commands coming soon to both Discord and Minecraft!\n\n` +
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +
           `🗺️ **/map** — View the web server map\n` +
