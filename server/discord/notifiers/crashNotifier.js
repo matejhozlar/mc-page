@@ -3,14 +3,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const { DISCORD_BOT_TOKEN, DISCORD_TEST_CHANNEL_ID } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
 export async function sendCrashNotification(token) {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
   client.once("ready", async () => {
     try {
-      const channel = await client.channels.fetch(DISCORD_TEST_CHANNEL_ID);
+      const channel = await client.channels.fetch(DISCORD_CRYPTO_CHANNEL_ID);
 
       const embed = new EmbedBuilder()
         .setTitle(`💀 Token Crashed: ${token.name} (${token.symbol})`)
