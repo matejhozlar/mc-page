@@ -421,7 +421,8 @@ function Market() {
                         if (fullToken) {
                           setSelectedToken({
                             ...fullToken,
-                            ownedAmount: token.amount, // pass owned amount into token
+                            ownedAmount: token.amount,
+                            purchasePrice: token.price_at_purchase,
                           });
                         }
                       }}
@@ -532,6 +533,7 @@ function Market() {
           <TokenModal
             token={selectedToken}
             ownedAmount={selectedToken.ownedAmount}
+            purchasePrice={selectedToken.purchasePrice}
             onClose={async () => {
               setSelectedToken(null);
               await fetchFreshData();

@@ -77,23 +77,23 @@ const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "client", "build");
 
 // Load command handlers
-// const commandsPath = path.join(__dirname, "discord", "commands");
-// const commandFiles = fs
-//   .readdirSync(commandsPath)
-//   .filter((file) => file.endsWith(".js"));
-// const commandHandlers = new Map();
+const commandsPath = path.join(__dirname, "discord", "commands");
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
+const commandHandlers = new Map();
 
-// for (const file of commandFiles) {
-//   const filePath = path.join(commandsPath, file);
-//   const commandModule = await import(pathToFileURL(filePath).href);
+for (const file of commandFiles) {
+  const filePath = path.join(commandsPath, file);
+  const commandModule = await import(pathToFileURL(filePath).href);
 
-//   if (commandModule.data && typeof commandModule.execute === "function") {
-//     commandHandlers.set(commandModule.data.name, commandModule);
-//   } else {
-//     logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
-//   }
-// }
-// logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
+  if (commandModule.data && typeof commandModule.execute === "function") {
+    commandHandlers.set(commandModule.data.name, commandModule);
+  } else {
+    logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+  }
+}
+logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
 
 // bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
