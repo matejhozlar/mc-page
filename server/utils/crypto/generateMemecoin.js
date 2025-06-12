@@ -14,7 +14,7 @@ const db = new pg.Pool({
 });
 
 const memecoins = JSON.parse(fs.readFileSync("memecoins.json", "utf8"));
-const { DISCORD_BOT_TOKEN, DISCORD_TEST_CHANNEL_ID } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
 function getRandomMemecoin() {
   const coin = memecoins[Math.floor(Math.random() * memecoins.length)];
@@ -33,7 +33,7 @@ async function sendDiscordNotification({
 
   client.once("ready", async () => {
     try {
-      const channel = await client.channels.fetch(DISCORD_TEST_CHANNEL_ID);
+      const channel = await client.channels.fetch(DISCORD_CRYPTO_CHANNEL_ID);
 
       const embed = new EmbedBuilder()
         .setTitle(`🚀 New Memecoin Launched: ${name} (${symbol})`)
