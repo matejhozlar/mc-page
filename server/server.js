@@ -144,16 +144,16 @@ try {
   process.exit(1);
 }
 
-cron.schedule(
-  `30 6 * * *`,
-  () => {
-    runMobLimitCleaner(db);
-  },
-  {
-    timezone: "Europe/Berlin",
-  }
-);
-logger.info("🕰️ Scheduled mob_limit_reached cleanup job at 6:30 AM CET.");
+// cron.schedule(
+//   `30 6 * * *`,
+//   () => {
+//     runMobLimitCleaner(db);
+//   },
+//   {
+//     timezone: "Europe/Berlin",
+//   }
+// );
+// logger.info("🕰️ Scheduled mob_limit_reached cleanup job at 6:30 AM CET.");
 
 cron.schedule("*/10 * * * *", () => updateRingcoinPriceMinutes(db));
 cron.schedule("1 * * * *", () => updateRingcoinPriceHourly(db), {
@@ -186,28 +186,28 @@ cron.schedule("0 5 1 * *", () =>
 const serverIP = process.env.SERVER_IP;
 const serverPort = 26980;
 
-let lastWasZero = false;
+// let lastWasZero = false;
 
-async function maybeRunStatSync() {
-  try {
-    const { players } = await status(serverIP, serverPort, { timeout: 5000 });
-    const count = players.online;
+// async function maybeRunStatSync() {
+//   try {
+//     const { players } = await status(serverIP, serverPort, { timeout: 5000 });
+//     const count = players.online;
 
-    if (count === 0 && !lastWasZero) {
-      lastWasZero = true;
-      logger.info("📉 0 players online — running stats sync...");
-      await syncAndImportStats(db, logger);
-    } else if (count > 0) {
-      lastWasZero = false;
-    }
-  } catch (error) {
-    logger.error(
-      `❌ Failed to check player count for sync: ${logError(error)}`
-    );
-  }
-}
+//     if (count === 0 && !lastWasZero) {
+//       lastWasZero = true;
+//       logger.info("📉 0 players online — running stats sync...");
+//       await syncAndImportStats(db, logger);
+//     } else if (count > 0) {
+//       lastWasZero = false;
+//     }
+//   } catch (error) {
+//     logger.error(
+//       `❌ Failed to check player count for sync: ${logError(error)}`
+//     );
+//   }
+// }
 
-setInterval(() => maybeRunStatSync(), 10 * 60 * 1000);
+// setInterval(() => maybeRunStatSync(), 10 * 60 * 1000);
 
 // start playtime tracking
 startPlaytimeTracking(db, serverIP, serverPort);
@@ -225,28 +225,28 @@ const webChatClient = new WebChatClient({
   ],
 });
 
-setupVoteListener(webChatClient, io);
+// setupVoteListener(webChatClient, io);
 
 webChatClient.once("ready", () => {
   logger.info(`WebChatBot ready as ${webChatClient.user.tag}`);
 
-  let index = 0;
+  // let index = 0;
 
-  setInterval(() => {
-    const status = rotatingStatuses[index++ % rotatingStatuses.length];
+  // setInterval(() => {
+  //   const status = rotatingStatuses[index++ % rotatingStatuses.length];
 
-    webChatClient.user.setPresence({
-      activities: [
-        {
-          type: ActivityType.Custom,
-          name: "custom",
-          state: status,
-        },
-      ],
-      status: "online",
-      afk: false,
-    });
-  }, 60000);
+  //   webChatClient.user.setPresence({
+  //     activities: [
+  //       {
+  //         type: ActivityType.Custom,
+  //         name: "custom",
+  //         state: status,
+  //       },
+  //     ],
+  //     status: "online",
+  //     afk: false,
+  //   });
+  // }, 60000);
 });
 
 logger.info("🧾 Summary:");
@@ -349,8 +349,8 @@ const client = new Client({
   ],
 });
 
-setupLinkOnlyChannelWatcher(client);
-setupAIChatListener(client);
+// setupLinkOnlyChannelWatcher(client);
+// setupAIChatListener(client);
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
@@ -736,32 +736,32 @@ client.once("ready", async () => {
     logger.info(`Server running on port ${port}`);
   });
 
-  // Assign Top Player role once on startup
-  assignTopPlayerRole(db, client);
+  // // Assign Top Player role once on startup
+  // assignTopPlayerRole(db, client);
 
-  // Then every hour
-  setInterval(() => {
-    assignTopPlayerRole(db, client);
-  }, 60 * 60 * 1000);
+  // // Then every hour
+  // setInterval(() => {
+  //   assignTopPlayerRole(db, client);
+  // }, 60 * 60 * 1000);
 
-  assignPlaytimeRole(db, client, true);
+  // assignPlaytimeRole(db, client, true);
 
-  setInterval(() => {
-    assignPlaytimeRole(db, client, false);
-  }, 60 * 60 * 1000);
+  // setInterval(() => {
+  //   assignPlaytimeRole(db, client, false);
+  // }, 60 * 60 * 1000);
 
-  await initStatsChampionsBoard(
-    db,
-    client,
-    process.env.DISCORD_LEADERBOARDS_CHANNEL_ID
-  );
+  // await initStatsChampionsBoard(
+  //   db,
+  //   client,
+  //   process.env.DISCORD_LEADERBOARDS_CHANNEL_ID
+  // );
 
-  setInterval(() => {
-    logger.info("🔄 Auto-refreshing stats champions leaderboard...");
-    updateStatsChampionsBoard(db);
-  }, 60 * 60 * 1000);
+  // setInterval(() => {
+  //   logger.info("🔄 Auto-refreshing stats champions leaderboard...");
+  //   updateStatsChampionsBoard(db);
+  // }, 60 * 60 * 1000);
 
-  startUpdatingServerStats(client);
+  // startUpdatingServerStats(client);
 });
 
 // creating a message

@@ -4,7 +4,7 @@ const DiscordLoginButton = () => {
   const handleLogin = () => {
     const clientId = "1382106807128031372";
     const redirectUri = encodeURIComponent(
-      "https://create-rington.com/callback-market"
+      "http://localhost:3000/callback-market"
     );
     const scope = "identify";
     const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&prompt=consent`;
