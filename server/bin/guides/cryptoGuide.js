@@ -25,7 +25,7 @@ client.once("ready", async () => {
         {
           name: "🔐 Getting Started",
           value: [
-            "- Log in on the website.",
+            "- Log in on the website [Here](https://create-rington.com)",
             "- Go to the **Market** tab to begin trading.",
             "- Click on a token to buy or sell.",
           ].join("\n"),

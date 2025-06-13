@@ -53,14 +53,20 @@ export async function execute(interaction, db) {
       `SELECT uuid, balance FROM user_funds WHERE discord_id = $1 FOR UPDATE`,
       [senderDiscordId]
     );
-
     if (senderRes.rowCount === 0) {
       throw new Error("Sender account not found.");
     }
 
-    const { uuid: from_uuid, balance: senderBalance } = senderRes.rows[0];
+    const { uuid: from_uuid } = senderRes.rows[0];
+    const rawSenderBal = senderRes.rows[0].balance;
+    const senderBalNum =
+      typeof rawSenderBal === "string"
+        ? parseFloat(rawSenderBal)
+        : rawSenderBal;
+    const senderBalance = Math.floor(senderBalNum);
 
     if (senderBalance < amount) {
+      await client.query("ROLLBACK");
       return await interaction.reply({
         content: "❌ Insufficient funds.",
         flags: MessageFlags.Ephemeral,
@@ -79,7 +85,6 @@ export async function execute(interaction, db) {
         [recipientMcName]
       );
     }
-
     if (recipientRes.rowCount === 0) {
       throw new Error("Recipient account not found.");
     }
@@ -91,6 +96,7 @@ export async function execute(interaction, db) {
     } = recipientRes.rows[0];
 
     if (from_uuid === to_uuid) {
+      await client.query("ROLLBACK");
       return await interaction.reply({
         content: "❌ You cannot pay yourself.",
         flags: MessageFlags.Ephemeral,
@@ -101,34 +107,34 @@ export async function execute(interaction, db) {
       `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
       [amount, from_uuid]
     );
-
     await client.query(
       `UPDATE user_funds SET balance = balance + $1 WHERE uuid = $2`,
       [amount, to_uuid]
     );
 
+    const balanceAfter = senderBalance - amount;
     await db.query(
-      `INSERT INTO currency_transactions (uuid, action, amount, from_uuid, to_uuid, balance_after)
+      `INSERT INTO currency_transactions
+         (uuid, action, amount, from_uuid, to_uuid, balance_after)
        VALUES ($1, $2, $3, $4, $5, $6)`,
-      [from_uuid, "pay", amount, from_uuid, to_uuid, senderBalance - amount]
+      [from_uuid, "pay", amount, from_uuid, to_uuid, balanceAfter]
     );
 
     await client.query("COMMIT");
 
     const formattedAmount = amount.toLocaleString("en-US");
-
-    let recipientDisplay = resolvedDiscordId
+    const recipientDisplay = resolvedDiscordId
       ? `<@${resolvedDiscordId}> (${resolvedMcName})`
       : resolvedMcName;
 
-    await interaction.reply({
+    return await interaction.reply({
       content: `✅ Successfully sent **$${formattedAmount}** to ${recipientDisplay}.`,
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     await client.query("ROLLBACK");
     logger.error(`❌ /pay command failed: ${logError(error)}`);
-    await interaction.reply({
+    return await interaction.reply({
       content: "⚠️ Something went wrong while processing your payment.",
       flags: MessageFlags.Ephemeral,
     });

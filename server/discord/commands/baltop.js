@@ -41,7 +41,11 @@ export async function execute(interaction, db) {
 
     const leaderboard = result.rows
       .map((row, index) => {
-        const formattedBalance = row.balance.toLocaleString("en-US");
+        const raw = row.balance;
+        const num = typeof raw === "string" ? parseFloat(raw) : raw;
+        const floored = Math.floor(num);
+
+        const formattedBalance = floored.toLocaleString("en-US");
         return `**#${index + 1}** ${row.name} — $${formattedBalance}`;
       })
       .join("\n");

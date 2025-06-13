@@ -48,7 +48,9 @@ export default function currencyRoutes(db) {
         return res.status(404).json({ error: "Player not found" });
       }
 
-      res.json({ balance: result.rows[0].balance });
+      const rawBal = result.rows[0].balance;
+      const balance = Math.floor(parseFloat(rawBal));
+      res.json({ balance });
     } catch (error) {
       logger.error(`❌ /currency/balance error: ${logError(error)}`);
       res.status(500).json({ error: "Internal server error" });
@@ -82,7 +84,10 @@ export default function currencyRoutes(db) {
         throw new Error("Sender not found");
       }
 
-      const senderBalance = senderRes.rows[0].balance;
+      const rawSender = senderRes.rows[0].balance;
+      const senderBalance = Math.floor(parseFloat(rawSender));
+
+      const newSenderBal = senderBalance - amount;
 
       if (senderBalance < amount) {
         throw new Error("Insufficient funds");
@@ -109,10 +114,10 @@ export default function currencyRoutes(db) {
         amount,
         from_uuid,
         to_uuid,
-        balance_after: senderBalance - amount,
+        balance_after: newSenderBal,
       });
 
-      res.json({ success: true, new_sender_balance: senderBalance - amount });
+      res.json({ success: true, new_sender_balance: newSenderBal });
     } catch (error) {
       await client.query("ROLLBACK");
       logger.error(`❌ /currency/send error: ${logError(error)}`);
@@ -145,14 +150,17 @@ export default function currencyRoutes(db) {
         return res.status(404).json({ error: "User not found" });
       }
 
+      const rawNew = result.rows[0].balance;
+      const newBalance = Math.floor(parseFloat(rawNew));
+
       await client.query("COMMIT");
       await logTransactions(db, {
         uuid,
         action: "deposit",
         amount,
-        balance_after: result.rows[0].balance,
+        balance_after: newBalance,
       });
-      res.json({ success: true, new_balance: result.rows[0].balance });
+      res.json({ success: true, new_balance: newBalance });
     } catch (error) {
       await client.query("ROLLBACK");
       logger.error(`❌ /currency/deposit error: ${logError(error)}`);
@@ -183,35 +191,42 @@ export default function currencyRoutes(db) {
         `SELECT balance FROM user_funds WHERE uuid = $1 FOR UPDATE`,
         [uuid]
       );
-
       if (result.rows.length === 0) {
         throw new Error("User not found");
       }
 
-      const balance = result.rows[0].balance;
-      if (balance < amount) {
+      const rawBal = result.rows[0].balance;
+      const currentBalance = Math.floor(parseFloat(rawBal));
+      if (currentBalance < amount) {
         throw new Error("Insufficient funds");
       }
 
       const updateRes = await client.query(
-        `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2 RETURNING balance`,
+        `UPDATE user_funds
+         SET balance = balance - $1
+       WHERE uuid = $2
+       RETURNING balance`,
         [amount, uuid]
       );
 
       await client.query("COMMIT");
+
+      const rawAfter = updateRes.rows[0].balance;
+      const newBalance = Math.floor(parseFloat(rawAfter));
+
       await logTransactions(db, {
         uuid,
         action: "withdraw",
         amount,
         denomination: denom,
         count,
-        balance_after: updateRes.rows[0].balance,
+        balance_after: newBalance,
       });
 
       res.json({
         success: true,
         withdrawn: amount,
-        new_balance: updateRes.rows[0].balance,
+        new_balance: newBalance,
         denomination: denom,
         count: count,
       });
@@ -230,7 +245,13 @@ export default function currencyRoutes(db) {
       const result = await db.query(
         `SELECT name, balance FROM user_funds ORDER BY balance DESC LIMIT 10`
       );
-      res.json(result.rows);
+
+      const top = result.rows.map((r) => ({
+        name: r.name,
+        balance: Math.floor(parseFloat(r.balance)),
+      }));
+
+      res.json(top);
     } catch (error) {
       logger.error(`❌ /currency/top error: ${logError(error)}`);
       res.status(500).json({ error: "Internal server error" });
