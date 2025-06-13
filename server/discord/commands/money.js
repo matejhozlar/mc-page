@@ -25,9 +25,11 @@ export async function execute(interaction, db) {
       });
     }
 
-    const { balance } = result.rows[0];
+    const raw = result.rows[0].balance;
+    const num = typeof raw === "string" ? parseFloat(raw) : raw;
+    const balanceInt = Math.floor(num);
 
-    const formattedBalance = balance.toLocaleString("en-US");
+    const formattedBalance = balanceInt.toLocaleString("en-US");
 
     return await interaction.reply({
       content: `💰 Balance: **$${formattedBalance}**`,

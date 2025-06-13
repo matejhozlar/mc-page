@@ -32,7 +32,6 @@ export async function execute(interaction, db) {
       `SELECT uuid, balance FROM user_funds WHERE discord_id = $1 FOR UPDATE`,
       [discordId]
     );
-
     if (userRes.rowCount === 0) {
       await client.query("ROLLBACK");
       return await interaction.reply({
@@ -40,27 +39,26 @@ export async function execute(interaction, db) {
         flags: MessageFlags.Ephemeral,
       });
     }
+    const { uuid } = userRes.rows[0];
+    const rawBal = userRes.rows[0].balance;
+    const currentBal = Math.floor(parseFloat(rawBal));
 
-    const { uuid, balance } = userRes.rows[0];
     const now = DateTime.now().setZone(TIMEZONE);
     const lastReset = getLastReset(now);
-
     const rewardRes = await client.query(
       `SELECT last_claim_at FROM daily_rewards WHERE discord_id = $1 FOR UPDATE`,
       [discordId]
     );
-
     if (
       rewardRes.rowCount > 0 &&
       DateTime.fromJSDate(rewardRes.rows[0].last_claim_at).setZone(TIMEZONE) >=
         lastReset
     ) {
+      await client.query("ROLLBACK");
       const nextReset = lastReset.plus({ days: 1 });
       const diff = nextReset.diff(now, ["hours", "minutes"]).toObject();
       const hours = Math.floor(diff.hours);
       const minutes = Math.floor(diff.minutes);
-
-      await client.query("ROLLBACK");
       return await interaction.reply({
         content: `⏳ You already claimed your daily reward. Next reset in **${hours}h ${minutes}m**.`,
         flags: MessageFlags.Ephemeral,
@@ -71,28 +69,28 @@ export async function execute(interaction, db) {
       `UPDATE user_funds SET balance = balance + $1 WHERE uuid = $2`,
       [DAILY_REWARD_AMOUNT, uuid]
     );
-
     await client.query(
       `INSERT INTO daily_rewards (discord_id, last_claim_at)
-       VALUES ($1, $2)
-       ON CONFLICT (discord_id)
-       DO UPDATE SET last_claim_at = EXCLUDED.last_claim_at`,
+         VALUES ($1, $2)
+         ON CONFLICT (discord_id)
+         DO UPDATE SET last_claim_at = EXCLUDED.last_claim_at`,
       [discordId, now.toJSDate()]
     );
-
     await client.query("COMMIT");
 
-    const formattedBalance = (balance + DAILY_REWARD_AMOUNT).toLocaleString(
-      "en-US"
-    );
-    await interaction.reply({
-      content: `✅ You claimed your daily reward of **$${DAILY_REWARD_AMOUNT}**!\n💰 New Balance: **$${formattedBalance}**`,
+    const newBalance = currentBal + DAILY_REWARD_AMOUNT;
+    const formattedBalance = newBalance.toLocaleString("en-US");
+
+    return await interaction.reply({
+      content:
+        `✅ You claimed your daily reward of **$${DAILY_REWARD_AMOUNT}**!\n` +
+        `💰 New Balance: **$${formattedBalance}**`,
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     await client.query("ROLLBACK");
     logger.error(`❌ /daily command failed: ${logError(error)}`);
-    await interaction.reply({
+    return await interaction.reply({
       content: "⚠️ Something went wrong while claiming your daily reward.",
       flags: MessageFlags.Ephemeral,
     });
