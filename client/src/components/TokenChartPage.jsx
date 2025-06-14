@@ -122,7 +122,11 @@ function TokenChartPage() {
       {tokenInfo && (
         <div style={{ marginBottom: 20 }}>
           <p>
-            <strong>Price per Token:</strong> ${tokenInfo.price_per_unit}
+            <strong>Price per Token:</strong> $
+            {Number(tokenInfo.price_per_unit).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </p>
           <p>
             <strong>Total Supply:</strong>{" "}
