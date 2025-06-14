@@ -319,6 +319,7 @@ function Market() {
                 token={selectedToken}
                 ownedAmount={selectedToken.ownedAmount}
                 purchasePrice={selectedToken.purchasePrice}
+                profileBalance={profile.balance}
                 onClose={async () => {
                   setSelectedToken(null);
                   await fetchFreshData();
@@ -545,6 +546,7 @@ function Market() {
             token={selectedToken}
             ownedAmount={selectedToken.ownedAmount}
             purchasePrice={selectedToken.purchasePrice}
+            profileBalance={profile.balance}
             onClose={async () => {
               setSelectedToken(null);
               await fetchFreshData();
