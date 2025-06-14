@@ -214,5 +214,30 @@ export default function gameDataRoutes(db) {
     }
   });
 
+  // --- POST /game-reward/add-balance ---
+  router.post("/game-reward/add-balance", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    if (!discordId) return res.status(401).json({ error: "Unauthorized" });
+
+    const { amount } = req.body;
+    if (typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+
+    try {
+      await db.query(
+        `UPDATE user_funds
+        SET balance = balance + $2
+        WHERE discord_id = $1`,
+        [discordId, amount]
+      );
+
+      return res.json({ success: true });
+    } catch (error) {
+      logger.error(`❌ Failed to add reward balance: ${logError(error)}`);
+      return res.status(500).json({ error: "Failed to add balance" });
+    }
+  });
+
   return router;
 }
