@@ -1,10 +1,10 @@
-export async function getCooldownStatus(db, userId) {
+export async function getCooldownStatus(db, userId, tokenId) {
   const { rows } = await db.query(
     `SELECT timestamp FROM token_transactions
-     WHERE discord_id = $1
+     WHERE discord_id = $1 AND token_id = $2
      ORDER BY timestamp DESC
      LIMIT 1`,
-    [userId]
+    [userId, tokenId]
   );
 
   if (!rows.length) return { onCooldown: false, secondsRemaining: 0 };

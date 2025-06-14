@@ -85,7 +85,11 @@ function TokenModal({
       setSuccess(`Successfully ${type === "buy" ? "bought" : "sold"} tokens!`);
       const now = Date.now();
       setLastTxTime(now);
-      localStorage.setItem("globalLastTxTime", now.toString());
+      const updatedCooldowns = {
+        ...JSON.parse(localStorage.getItem("tokenCooldowns") || "{}"),
+        [token.id]: now,
+      };
+      localStorage.setItem("tokenCooldowns", JSON.stringify(updatedCooldowns));
       setCooldownRemaining(180);
       setError("");
       setAmount(1);
@@ -112,14 +116,14 @@ function TokenModal({
   };
 
   useEffect(() => {
-    const stored = localStorage.getItem("globalLastTxTime");
-    if (stored) {
-      const txTime = parseInt(stored, 10);
-      const elapsed = Math.floor((Date.now() - txTime) / 1000);
+    const txTimes = JSON.parse(localStorage.getItem("tokenCooldowns") || "{}");
+    const tokenLastTxTime = txTimes[token.id];
+    if (tokenLastTxTime) {
+      const elapsed = Math.floor((Date.now() - tokenLastTxTime) / 1000);
       const remaining = 180 - elapsed;
       if (remaining > 0) {
         setCooldownRemaining(remaining);
-        setLastTxTime(txTime);
+        setLastTxTime(tokenLastTxTime);
       }
     }
   }, [token.id]);

@@ -33,7 +33,8 @@ export default function cryptoRoutes(db) {
 
     const { onCooldown, secondsRemaining } = await getCooldownStatus(
       db,
-      userId
+      userId,
+      tokenId
     );
     if (onCooldown) {
       return res.status(429).json({
