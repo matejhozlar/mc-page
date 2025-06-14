@@ -22,6 +22,7 @@ function TokenModal({
   onClose,
   ownedAmount = null,
   purchasePrice = null,
+  profileBalance = null,
 }) {
   const [showBuyUI, setShowBuyUI] = useState(false);
   const [showSellUI, setShowSellUI] = useState(false);
@@ -37,6 +38,8 @@ function TokenModal({
   const [livePrice, setLivePrice] = useState(Number(token.price_per_unit));
   const [lastTxTime, setLastTxTime] = useState(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
+  const [buyMode, setBuyMode] = useState("amount");
+  const [moneyInput, setMoneyInput] = useState("");
 
   const isMemecoin = token.is_memecoin === true;
   const unitPrice = Number(token.price_per_unit);
@@ -194,6 +197,16 @@ function TokenModal({
     fetchDistribution();
   }, [token.id]);
 
+  useEffect(() => {
+    if (buyMode === "money") {
+      const dollars = parseFloat(moneyInput);
+      if (!isNaN(dollars) && livePrice > 0) {
+        const calculatedAmount = dollars / livePrice;
+        setAmount(calculatedAmount.toFixed(6));
+      }
+    }
+  }, [moneyInput, livePrice, buyMode]);
+
   const totalOwned = distribution.reduce((sum, d) => sum + Number(d.amount), 0);
   const unownedAmount = Math.max(0, Number(token.total_supply) - totalOwned);
 
@@ -322,13 +335,70 @@ function TokenModal({
 
         {(showBuyUI || showSellUI) && !isCrashed && (
           <div className="token-modal-transaction">
-            <input
-              type="number"
-              min="0.01"
-              step="0.01"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
+            <div className="buy-mode-wrapper">
+              <div className="buy-mode-input-group">
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={buyMode === "money" ? moneyInput : amount}
+                  onChange={(e) =>
+                    buyMode === "money"
+                      ? setMoneyInput(e.target.value)
+                      : setAmount(e.target.value)
+                  }
+                  className="buy-mode-input"
+                  placeholder={
+                    showBuyUI
+                      ? buyMode === "money"
+                        ? "Amount in USD"
+                        : `Amount in ${token.symbol}`
+                      : `Amount in ${token.symbol}`
+                  }
+                />
+                {showSellUI && (
+                  <div
+                    className="buy-mode-balance"
+                    style={{
+                      marginTop: "0.3rem",
+                      fontSize: "0.9rem",
+                      color: "#999",
+                    }}
+                  >
+                    Holdings: {ownedAmount}
+                  </div>
+                )}
+
+                {showBuyUI && (
+                  <button
+                    className="toggle-buy-mode"
+                    onClick={() =>
+                      setBuyMode((prev) =>
+                        prev === "money" ? "amount" : "money"
+                      )
+                    }
+                  >
+                    {buyMode === "money" ? "USD" : token.symbol}
+                  </button>
+                )}
+              </div>
+
+              {showBuyUI && (
+                <div className="buy-mode-balance">
+                  {buyMode === "money" ? (
+                    <>Balance: ${Number(profileBalance).toFixed(2)}</>
+                  ) : (
+                    <>
+                      Holdings:{" "}
+                      {Number(ownedAmount || 0).toLocaleString(undefined, {
+                        maximumFractionDigits: 6,
+                      })}{" "}
+                      {token.symbol}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
             <div className="buy-summary">
               {showBuyUI ? (
                 <>
