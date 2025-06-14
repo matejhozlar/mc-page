@@ -272,7 +272,16 @@ function Market() {
                   <button
                     className="token-card-button"
                     key={token.symbol}
-                    onClick={() => setSelectedToken(token)}
+                    onClick={() => {
+                      const userToken = profile.tokens?.find(
+                        (t) => t.token_id === token.id
+                      );
+                      setSelectedToken({
+                        ...token,
+                        ownedAmount: userToken?.amount,
+                        purchasePrice: userToken?.price_at_purchase,
+                      });
+                    }}
                   >
                     <div className="token-card-content">
                       <div className="token-header">
@@ -308,6 +317,8 @@ function Market() {
             {selectedToken && (
               <TokenModal
                 token={selectedToken}
+                ownedAmount={selectedToken.ownedAmount}
+                purchasePrice={selectedToken.purchasePrice}
                 onClose={async () => {
                   setSelectedToken(null);
                   await fetchFreshData();
