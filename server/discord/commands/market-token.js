@@ -29,8 +29,16 @@ async function captureChartScreenshot(symbol) {
     logger.info("Launching Puppeteer...");
     browser = await puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      executablePath: "/usr/bin/chromium-browser", // Path to installed Chromium
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--ignore-certificate-errors", // trust any cert
+      ],
     });
+
     logger.info("Puppeteer launched.");
   } catch (error) {
     logger.error(`❌ Error launching Puppeteer: ${logError(error)}`);
@@ -45,14 +53,18 @@ async function captureChartScreenshot(symbol) {
   try {
     logger.info(`Navigating to ${chartPageUrl}...`);
     await page.goto(chartPageUrl, {
-      waitUntil: "networkidle0",
+      waitUntil: "domcontentloaded",
       timeout: 60000,
     });
 
+    await page.reload({ waitUntil: "domcontentloaded" });
     logger.info("Page loaded. Waiting for chart to render...");
+    page.on("requestfailed", (request) => {
+      logger.error(`Request failed: ${request.url()}`);
+    });
     await page.waitForSelector(".chart-container", { timeout: 10000 });
     await page.evaluate(
-      () => new Promise((resolve) => setTimeout(resolve, 5000))
+      () => new Promise((resolve) => setTimeout(resolve, 2000))
     );
 
     const chartDiv = await page.$(".chart-container");
@@ -74,9 +86,18 @@ async function captureChartScreenshot(symbol) {
   }
 }
 
-export async function execute(interaction) {
+export async function execute(interaction, db) {
   try {
     const symbol = interaction.options.getString("symbol").toUpperCase();
+
+    const { rows } = await db.query(
+      `SELECT price_per_unit FROM crypto_tokens WHERE LOWER(symbol) = LOWER($1) LIMIT 1`,
+      [symbol]
+    );
+
+    const tokenInfo = rows[0];
+    const isCrashed = tokenInfo && Number(tokenInfo.price_per_unit) === 0;
+    const embedColor = isCrashed ? 0xff4d4f : 0x3498db;
 
     await interaction.deferReply();
 
@@ -96,7 +117,7 @@ export async function execute(interaction) {
       .setTitle(`📊 Market Token Chart — ${symbol}`)
       .setDescription(`Here is the generated chart for **${symbol}**.`)
       .setImage(`attachment://chart_${symbol}.png`)
-      .setColor(0x3498db)
+      .setColor(embedColor)
       .setFooter({ text: "Market Token Chart" });
 
     await interaction.editReply({
