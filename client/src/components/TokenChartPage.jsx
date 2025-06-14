@@ -16,6 +16,8 @@ function TokenChartPage() {
   const [data, setData] = useState([]);
   const [tokenInfo, setTokenInfo] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [priceChange, setPriceChange] = useState(null);
+  const [isPriceUp, setIsPriceUp] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,6 +31,14 @@ function TokenChartPage() {
 
         const tokens = await tokensRes.json();
         const history = await historyRes.json();
+
+        if (Array.isArray(history) && history.length >= 2) {
+          const start = Number(history[0].price);
+          const end = Number(history[history.length - 1].price);
+          const percentChange = ((end - start) / start) * 100;
+          setPriceChange(percentChange.toFixed(2));
+          setIsPriceUp(end >= start);
+        }
 
         if (Array.isArray(tokens)) {
           const match = tokens.find(
@@ -86,8 +96,26 @@ function TokenChartPage() {
       }}
       className="chart-container"
     >
+      {tokenInfo && Number(tokenInfo?.price_per_unit) === 0 && (
+        <p style={{ color: "#ff4d4f", fontWeight: "bold", marginTop: "1rem" }}>
+          💀 This token has crashed and is no longer tradable.
+        </p>
+      )}
       <h1 style={{ marginBottom: 20 }}>
-        {tokenInfo?.name || "Unknown Token"} ({symbol.toUpperCase()})
+        {tokenInfo?.name || "Unknown Token"}{" "}
+        <span>({symbol.toUpperCase()})</span>
+        {priceChange !== null && (
+          <span
+            style={{
+              color: isPriceUp ? "limegreen" : "#ff4d4f",
+              fontWeight: 600,
+              marginLeft: "1rem",
+            }}
+          >
+            {isPriceUp ? "+" : ""}
+            {priceChange}%
+          </span>
+        )}
       </h1>
 
       {/* Display token information */}
@@ -128,6 +156,15 @@ function TokenChartPage() {
               maintainAspectRatio: false,
               layout: {
                 padding: 0,
+              },
+              scales: {
+                y: {
+                  ticks: {
+                    callback: function (value) {
+                      return `$${value.toFixed(5)}`;
+                    },
+                  },
+                },
               },
             }}
             style={{
