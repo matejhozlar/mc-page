@@ -240,5 +240,6 @@ export const lootCrateDrops = [
   { name: "gold_ingot", chance: 0.03 },
   { name: "iron_ingot", chance: 0.05 },
   { name: "coal", chance: 0.15, amount: 50 },
-  { name: "cobble_stone", chance: 0.749, amount: 250 },
+  { name: "cobble_stone", chance: 0.739, amount: 250 },
+  { name: "$100_bill", chance: 0.01 },
 ];

@@ -117,6 +117,31 @@ const ClickerGame = () => {
                   copper_ore: (prev.copper_ore || 0) + 50,
                 }));
               }
+
+              setIsCrateOpening(false);
+              setShowFinalMessage(true);
+            } else if (finalCrateItem.name === "$100_bill") {
+              fetch("/api/game-reward/add-balance", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ amount: 100 }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  if (!data.success) {
+                    console.warn("Failed to add $100 reward to user balance");
+                  }
+                  setIsCrateOpening(false);
+                  setShowFinalMessage(true);
+                })
+                .catch((error) => {
+                  console.error("API error:", error);
+                  setIsCrateOpening(false);
+                  setShowFinalMessage(true);
+                });
             } else {
               setMaterials((prev) => ({
                 ...prev,
@@ -124,10 +149,10 @@ const ClickerGame = () => {
                   (prev[finalCrateItem.name] || 0) +
                   (finalCrateItem.amount || 1),
               }));
-            }
 
-            setIsCrateOpening(false);
-            setShowFinalMessage(true);
+              setIsCrateOpening(false);
+              setShowFinalMessage(true);
+            }
           }
         }, 1000);
       }
