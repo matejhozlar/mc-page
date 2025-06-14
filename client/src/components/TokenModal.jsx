@@ -365,7 +365,7 @@ function TokenModal({
                       color: "#999",
                     }}
                   >
-                    Holdings: {ownedAmount}
+                    Holdings: {Number(ownedAmount || 0)}
                   </div>
                 )}
 
@@ -391,7 +391,7 @@ function TokenModal({
                     <>
                       Holdings:{" "}
                       {Number(ownedAmount || 0).toLocaleString(undefined, {
-                        maximumFractionDigits: 6,
+                        maximumFractionDigits: 8,
                       })}{" "}
                       {token.symbol}
                     </>
