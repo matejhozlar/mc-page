@@ -37,6 +37,10 @@ import {
   initStatsChampionsBoard,
   updateStatsChampionsBoard,
 } from "./services/statsChampionsBoard.js";
+import {
+  initMarketLeaderboard,
+  updateMarketLeaderboard,
+} from "./services/marketBoard.js";
 import { runMobLimitCleaner } from "./services/mobLimitCleaner.js";
 import { updateRingcoinPriceMinutes } from "./services/crypto/updateRingcoinPriceMinutes.js";
 import { updateRingcoinPriceHourly } from "./services/crypto/updateRingcoinPriceHourly.js";
@@ -78,23 +82,23 @@ const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "client", "build");
 
 // Load command handlers
-// const commandsPath = path.join(__dirname, "discord", "commands");
-// const commandFiles = fs
-//   .readdirSync(commandsPath)
-//   .filter((file) => file.endsWith(".js"));
-// const commandHandlers = new Map();
+const commandsPath = path.join(__dirname, "discord", "commands");
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
+const commandHandlers = new Map();
 
-// for (const file of commandFiles) {
-//   const filePath = path.join(commandsPath, file);
-//   const commandModule = await import(pathToFileURL(filePath).href);
+for (const file of commandFiles) {
+  const filePath = path.join(commandsPath, file);
+  const commandModule = await import(pathToFileURL(filePath).href);
 
-//   if (commandModule.data && typeof commandModule.execute === "function") {
-//     commandHandlers.set(commandModule.data.name, commandModule);
-//   } else {
-//     logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
-//   }
-// }
-// logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
+  if (commandModule.data && typeof commandModule.execute === "function") {
+    commandHandlers.set(commandModule.data.name, commandModule);
+  } else {
+    logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+  }
+}
+logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
 
 // bot instance for sending messages
 import { Client as WebChatClient } from "discord.js";
@@ -256,13 +260,6 @@ logger.info(`   DB: ${process.env.DB_HOST}/${process.env.DB_DATABASE}`);
 logger.info(`   Discord Guild ID: ${process.env.DISCORD_GUILD_ID}`);
 logger.info(`   Minecraft Server: ${serverIP}:${serverPort}`);
 
-// memecoins
-setInterval(() => updateMemecoinPrices(db), 30000);
-// delete crashed memecoins
-cron.schedule("*/30 * * * *", () => deleteCrashedMemecoins(db), {
-  timezone: "Europe/Berlin",
-});
-
 try {
   await webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
 } catch (error) {
@@ -354,6 +351,13 @@ const client = new Client({
 
 // setupLinkOnlyChannelWatcher(client);
 // setupAIChatListener(client, db);
+
+// memecoins
+setInterval(() => updateMemecoinPrices(db, client), 30000);
+// delete crashed memecoins
+cron.schedule("*/30 * * * *", () => deleteCrashedMemecoins(db), {
+  timezone: "Europe/Berlin",
+});
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
@@ -762,6 +766,17 @@ client.once("ready", async () => {
   // setInterval(() => {
   //   logger.info("🔄 Auto-refreshing stats champions leaderboard...");
   //   updateStatsChampionsBoard(db);
+  // }, 60 * 60 * 1000);
+
+  // await initMarketLeaderboard(
+  //   db,
+  //   client,
+  //   process.env.DISCORD_LEADERBOARDS_CHANNEL_ID
+  // );
+
+  // setInterval(() => {
+  //   logger.info("🔄 Auto-refreshing market leaderboard...");
+  //   updateMarketLeaderboard(db);
   // }, 60 * 60 * 1000);
 
   // startUpdatingServerStats(client);

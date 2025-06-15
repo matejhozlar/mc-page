@@ -9,6 +9,42 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("market-portfolio")
+    .setDescription("View a user's market portfolio")
+    .addStringOption((option) =>
+      option
+        .setName("username")
+        .setDescription("Minecraft username (optional)")
+        .setRequired(false)
+    ),
+  new SlashCommandBuilder()
+    .setName("market-alert-list")
+    .setDescription("View your active market price alerts"),
+  new SlashCommandBuilder()
+    .setName("market-alert-remove")
+    .setDescription("Remove your market alert for a specific token")
+    .addStringOption((option) =>
+      option
+        .setName("token")
+        .setDescription("Token symbol (e.g. RGC)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName("market-alert")
+    .setDescription("Get notified when a token reaches a certain price")
+    .addStringOption((option) =>
+      option
+        .setName("token")
+        .setDescription("Token symbol (e.g. RGC)")
+        .setRequired(true)
+    )
+    .addNumberOption((option) =>
+      option
+        .setName("price")
+        .setDescription("Target price (e.g. 0.25)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("market-token")
     .setDescription("Generate a market token chart screenshot")
     .addStringOption((option) =>

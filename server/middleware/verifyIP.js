@@ -10,7 +10,7 @@ export default function verifyIP(req, res, next) {
     .split(",")[0]
     .trim();
 
-  if (normalizedIp === allowedIp || normalizedIp === allowedIpLocal) {
+  if (normalizedIp === allowedIp) {
     return next();
   }
 

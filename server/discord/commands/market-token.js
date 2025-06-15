@@ -118,7 +118,7 @@ export async function execute(interaction, db) {
       .setDescription(`Here is the generated chart for **${symbol}**.`)
       .setImage(`attachment://chart_${symbol}.png`)
       .setColor(embedColor)
-      .setFooter({ text: "Market Token Chart" });
+      .setFooter({ text: "Createrington Market" });
 
     await interaction.editReply({
       embeds: [embed],

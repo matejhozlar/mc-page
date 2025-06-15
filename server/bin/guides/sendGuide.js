@@ -51,6 +51,11 @@ client.once("ready", async () => {
           `🎁 **/daily** — Claim your daily reward\n\n` +
           `Createrington Crypto commands (DC):\n` +
           `🪙 **/market-token <symbol>** — Check live prices and charts for a specific token\n` +
+          `💼 **/market-portfolio** — View your portfolio\n` +
+          `🔍 **/market-portfolio <name>** — View someone’s public portfolio\n` +
+          `🔔 **/market-alert <symbol> <price>** — Get notified when a token reaches a price\n` +
+          `❌ **/market-alert-remove <symbol>** — Remove a price alert for a token\n` +
+          `📋 **/market-alert-list** — View all your active price alerts\n` +
           `More crypto commands coming soon to both Discord and Minecraft!\n\n` +
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +
@@ -61,7 +66,7 @@ client.once("ready", async () => {
           `📘 **/stats-guide** — Learn how to use /stats with images and examples\n` +
           `👑 **/stats-champions** — See who has the most 1st-place finishes across all stats\n` +
           `🎖️ **/stats-crowns** — See how many stats you're ranked #1 in — and export them\n` +
-          `🔎 **/stats-crowns <mc_name>** — Check another player’s #1 stat ranks\n` +
+          `🔍 **/stats-crowns <mc_name>** — Check another player’s #1 stat ranks\n` +
           `🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n` +
           `🕹️ **/playtime** — Check your own playtime\n` +
           `🔍 **/playtime <mc_name>** — Check someone else's playtime\n` +
