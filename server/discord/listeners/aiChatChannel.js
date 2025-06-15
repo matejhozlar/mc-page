@@ -5,44 +5,54 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const aiCooldowns = new Map();
-const COOLDOWN_MS = 60 * 1000;
+const DAILY_LIMIT = 50;
 
-export default function setupAIChatListener(client) {
-  const AI_CHANNEL_ID = process.env.DISCORD_AI_CHANNEL_ID;
-
-  if (!AI_CHANNEL_ID) {
-    logger.warn("⚠️ No DISCORD_AI_CHAT_CHANNEL_ID set in .env");
-    return;
-  }
-
+export default function setupAIChatListener(client, db) {
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
-
-    if (message.channel.id !== AI_CHANNEL_ID) return;
+    if (message.channel.type !== 1) return;
 
     const userId = message.author.id;
-    const now = Date.now();
-    const lastUsed = aiCooldowns.get(userId) || 0;
-
-    const remaining = Math.ceil((COOLDOWN_MS - (now - lastUsed)) / 1000);
-
-    if (now - lastUsed < COOLDOWN_MS) {
-      return message.reply(
-        `⏳ Please wait **${remaining} second${
-          remaining !== 1 ? "s" : ""
-        }** before asking again.`
-      );
-    }
-
-    aiCooldowns.set(userId, now);
 
     try {
+      const userResult = await db.query(
+        `SELECT discord_id FROM users WHERE discord_id = $1 LIMIT 1`,
+        [userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        return message.reply(
+          "❌ You are not registered with Createrington. Please apply at <https://create-rington.com>."
+        );
+      }
+
+      const countResult = await db.query(
+        `
+        SELECT COUNT(*) FROM ai_message_log
+        WHERE discord_id = $1 AND created_at::date = CURRENT_DATE
+        `,
+        [userId]
+      );
+
+      const messageCount = parseInt(countResult.rows[0].count, 10);
+
+      if (messageCount >= DAILY_LIMIT) {
+        return message.reply(
+          `⛔ You've reached the **daily limit of ${DAILY_LIMIT} AI messages**. Try again tomorrow.`
+        );
+      }
+
       await message.channel.sendTyping();
       const response = await askAssitant(message.content);
       await message.reply(response);
+
+      await db.query(
+        `INSERT INTO ai_message_log (discord_id, message, created_at)
+         VALUES ($1, $2, NOW())`,
+        [userId, message.content]
+      );
     } catch (error) {
-      logger.error("❌ AI Chat Error:", logError(error));
+      logger.error(`❌ AI Chat Error: ${logError(error)}`);
       await message.reply("⚠️ The assistant encountered an error.");
     }
   });

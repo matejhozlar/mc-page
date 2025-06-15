@@ -15,6 +15,7 @@ import {
   ActivityType,
   MessageFlags,
   AttachmentBuilder,
+  Partials,
 } from "discord.js";
 import cookieParser from "cookie-parser";
 import fs from "fs";
@@ -342,15 +343,17 @@ async function sendToMinecraftChat(message) {
 // --- Discord Listener Bot ---
 const client = new Client({
   intents: [
+    GatewayIntentBits.DirectMessages,
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
+  partials: [Partials.Channel],
 });
 
 // setupLinkOnlyChannelWatcher(client);
-// setupAIChatListener(client);
+setupAIChatListener(client, db);
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
