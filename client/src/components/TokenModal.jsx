@@ -40,6 +40,7 @@ function TokenModal({
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [buyMode, setBuyMode] = useState("amount");
   const [moneyInput, setMoneyInput] = useState("");
+  const [tokenTVL, setTokenTVL] = useState(null);
 
   const isMemecoin = token.is_memecoin === true;
   const unitPrice = Number(token.price_per_unit);
@@ -129,6 +130,32 @@ function TokenModal({
         setLastTxTime(tokenLastTxTime);
       }
     }
+  }, [token.id]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchTokenTVL = async () => {
+      try {
+        const res = await fetch(`/api/market/tvl/${token.id}`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (isMounted && data.tvl_usd !== undefined) {
+          setTokenTVL(data.tvl_usd);
+        }
+      } catch (err) {
+        console.error("Failed to fetch token TVL:", err);
+      }
+    };
+
+    fetchTokenTVL();
+    const interval = setInterval(fetchTokenTVL, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [token.id]);
 
   useEffect(() => {
@@ -281,6 +308,15 @@ function TokenModal({
             <strong>Total Supply:</strong>{" "}
             {Number(token.total_supply).toLocaleString()}
           </p>
+          {tokenTVL !== null && tokenTVL !== 0 && (
+            <p>
+              <strong>Total Value Locked (TVL):</strong> $
+              {Number(tokenTVL).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </p>
+          )}
           <p>
             <strong>Price per Token:</strong> $
             <AnimatedNumber value={Number(livePrice.toFixed(4))} />

@@ -510,5 +510,33 @@ export default function cryptoRoutes(db) {
     }
   });
 
+  // --- /api/market/tvl/:tokenId ---
+  router.get("/market/tvl/:tokenId", async (req, res) => {
+    const tokenId = req.params.tokenId;
+
+    try {
+      const result = await db.query(
+        `
+      SELECT 
+        SUM(ut.amount * ct.price_per_unit) AS tvl_usd
+      FROM user_tokens ut
+      JOIN crypto_tokens ct ON ut.token_id = ct.id
+      WHERE ct.id = $1
+    `,
+        [tokenId]
+      );
+
+      const rawTVL = result.rows[0].tvl_usd;
+      const tvl = rawTVL !== null ? parseFloat(rawTVL).toFixed(2) : "0.00";
+      res.json({ tvl_usd: parseFloat(tvl) });
+    } catch (error) {
+      console.error(
+        "❌ Failed to calculate token-specific TVL:",
+        logError(error)
+      );
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }
