@@ -353,7 +353,7 @@ const client = new Client({
 });
 
 // setupLinkOnlyChannelWatcher(client);
-setupAIChatListener(client, db);
+// setupAIChatListener(client, db);
 
 // discord bot commands setup
 client.on("interactionCreate", async (interaction) => {
