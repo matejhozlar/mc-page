@@ -43,6 +43,16 @@ const commands = [
         .setName("price")
         .setDescription("Target price (e.g. 0.25)")
         .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("direction")
+        .setDescription("Trigger direction: above or below target price")
+        .setRequired(false)
+        .addChoices(
+          { name: "Above", value: "above" },
+          { name: "Below", value: "below" }
+        )
     ),
   new SlashCommandBuilder()
     .setName("market-token")
