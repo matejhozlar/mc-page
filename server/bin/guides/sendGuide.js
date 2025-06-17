@@ -53,7 +53,7 @@ client.once("ready", async () => {
           `🪙 **/market-token <symbol>** — Check live prices and charts for a specific token\n` +
           `💼 **/market-portfolio** — View your portfolio\n` +
           `🔍 **/market-portfolio <name>** — View someone’s public portfolio\n` +
-          `🔔 **/market-alert <symbol> <price>** — Get notified when a token reaches a price\n` +
+          `🔔 **/market-alert <symbol> <price> <direction>** — Get notified when a token reaches a price\n` +
           `❌ **/market-alert-remove <symbol>** — Remove a price alert for a token\n` +
           `📋 **/market-alert-list** — View all your active price alerts\n` +
           `More crypto commands coming soon to both Discord and Minecraft!\n\n` +

@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import SftpClient from "ssh2-sftp-client";
 import dotenv from "dotenv";
 import logger from "../logger.js";
+import logError from "./logError.js";
 
 dotenv.config();
 
@@ -55,8 +56,8 @@ async function importStatsFromFile(uuid, filePath, db) {
     }
 
     logger.info(`✅ Imported stats for UUID: ${uuid}`);
-  } catch (err) {
-    logger.error(`❌ Failed to import for ${uuid}:`, err.message);
+  } catch (error) {
+    logger.error(`❌ Failed to import for ${uuid}: ${logError(error)}`);
   }
 }
 
@@ -102,8 +103,8 @@ export async function syncAndImportStats(db, logger) {
     }
 
     logger.info("📊 Stat import complete.");
-  } catch (err) {
-    logger.error(`❌ syncAndImportStats failed: ${err.message}`);
+  } catch (error) {
+    logger.error(`❌ syncAndImportStats failed: ${logError(error)}`);
   } finally {
     sftp.end();
   }

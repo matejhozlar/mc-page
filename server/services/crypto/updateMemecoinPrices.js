@@ -21,19 +21,24 @@ export async function updateMemecoinPrices(db, client) {
       const price = parseFloat(token.price_per_unit);
       if (!Number.isFinite(price)) continue;
 
-      let direction;
-      if (price < 5) {
-        direction = Math.random() < 0.6 ? -1 : 1;
-      } else {
-        direction = Math.random() < 0.5 ? -1 : 1;
-      }
+      let direction = Math.random() < 0.505 ? 1 : -1;
+      let changePercent;
       let delta;
 
       if (price < 5) {
-        const randomStep = Math.random() * (0.5 - 0.25) + 0.25;
-        delta = randomStep * direction;
+        changePercent = Math.random() * (0.03 - 0.01) + 0.01;
+        delta = price * changePercent * direction;
       } else {
-        const changePercent = Math.random() * 0.1;
+        let maxPercent;
+        if (price < 1000) {
+          maxPercent = 0.1;
+        } else if (price < 10000) {
+          maxPercent = 0.1 - ((price - 1000) / 9000) * 0.07;
+        } else {
+          maxPercent = 0.03;
+        }
+
+        changePercent = Math.random() * maxPercent;
         delta = price * changePercent * direction;
       }
 
@@ -54,19 +59,29 @@ export async function updateMemecoinPrices(db, client) {
         `SELECT * FROM token_price_alerts
    WHERE token_symbol = (
      SELECT symbol FROM crypto_tokens WHERE id = $1
-   ) AND target_price <= $2`,
-        [id, newPrice]
+   )`,
+        [id]
       );
 
-      for (const alert of alerts) {
+      const triggeredAlerts = alerts.filter((alert) => {
+        if (alert.direction === "above") {
+          return newPrice >= alert.target_price;
+        } else {
+          return newPrice <= alert.target_price;
+        }
+      });
+
+      for (const alert of triggeredAlerts) {
         try {
           const user = await client.users.fetch(alert.discord_id);
+          const triggerDirectionText =
+            alert.direction === "below" ? "dropped below" : "reached";
           const embed = new EmbedBuilder()
             .setTitle(`📈 ${alert.token_symbol} Price Alert`)
             .setDescription(
               `**${
                 alert.token_symbol
-              }** has reached your target of **$${newPrice.toFixed(
+              }** has ${triggerDirectionText} your target of **$${newPrice.toFixed(
                 4
               )}**!\n\nYou have been automatically unsubscribed from this alert.`
             )

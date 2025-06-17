@@ -16,12 +16,25 @@ export const data = new SlashCommandBuilder()
       .setName("price")
       .setDescription("Target price (e.g. 0.25)")
       .setRequired(true)
+  )
+  .addStringOption((option) =>
+    option
+      .setName("direction")
+      .setDescription("Trigger direction: above or below target price")
+      .setRequired(false)
+      .addChoices(
+        { name: "Above", value: "above" },
+        { name: "Below", value: "below" }
+      )
   );
 
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
   const symbol = interaction.options.getString("token").toUpperCase();
   const targetPrice = interaction.options.getNumber("price");
+  const direction = (
+    interaction.options.getString("direction") || "above"
+  ).toLowerCase();
 
   try {
     const { rows } = await db.query(
@@ -37,17 +50,21 @@ export async function execute(interaction, db) {
     }
 
     await db.query(
-      `INSERT INTO token_price_alerts (discord_id, token_symbol, target_price)
-       VALUES ($1, $2, $3)`,
-      [userId, symbol, targetPrice]
+      `INSERT INTO token_price_alerts (discord_id, token_symbol, target_price, direction)
+       VALUES ($1, $2, $3, $4)`,
+      [userId, symbol, targetPrice, direction]
     );
 
     await interaction.user.send(
-      `🔔 You will be notified when **${symbol}** hits $${targetPrice}.`
+      `🔔 You will be notified when **${symbol}** ${
+        direction === "below" ? "drops below" : "reaches"
+      } $${targetPrice}.`
     );
 
-    return await interaction.reply({
-      content: `✅ Subscribed to **${symbol}** alert at $${targetPrice}`,
+    await interaction.reply({
+      content: `✅ Subscribed to **${symbol}** alert when price ${
+        direction === "below" ? "drops below" : "rises above"
+      } $${targetPrice}`,
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
