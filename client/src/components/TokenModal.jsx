@@ -238,11 +238,12 @@ function TokenModal({
     if (buyMode === "money") {
       const dollars = parseFloat(moneyInput);
       if (!isNaN(dollars) && livePrice > 0) {
-        const calculatedAmount = dollars / livePrice;
-        setAmount(calculatedAmount.toFixed(6));
+        const baseAmount = dollars / (1 + taxRate);
+        const calculatedAmount = baseAmount / livePrice;
+        setAmount(Number(calculatedAmount.toPrecision(15)));
       }
     }
-  }, [moneyInput, livePrice, buyMode]);
+  }, [moneyInput, livePrice, buyMode, taxRate]);
 
   const totalOwned = distribution.reduce((sum, d) => sum + Number(d.amount), 0);
   const unownedAmount = Math.max(0, Number(token.total_supply) - totalOwned);
@@ -449,10 +450,9 @@ function TokenModal({
               {showBuyUI ? (
                 <>
                   <strong>Total:</strong> $
-                  {totalWithTax.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })}
+                  {buyMode === "money"
+                    ? parseFloat(moneyInput || 0).toFixed(2)
+                    : totalWithTax.toFixed(2)}
                   {isMemecoin && (
                     <div className="tax-note">
                       Includes 5% tax for memecoin purchase ($
