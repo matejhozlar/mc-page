@@ -46,13 +46,31 @@ async function importStatsFromFile(uuid, filePath, db) {
     const stats = flattenStats(json.stats);
 
     for (const { stat_type, stat_key, value } of stats) {
-      await db.query(
-        `INSERT INTO player_stats (uuid, stat_type, stat_key, value)
-         VALUES ($1, $2, $3, $4)
-         ON CONFLICT (uuid, stat_type, stat_key)
-         DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
-        [uuid, stat_type, stat_key, value]
+      const { rows } = await db.query(
+        `SELECT value FROM player_stats WHERE uuid = $1 AND stat_type = $2 AND stat_key = $3`,
+        [uuid, stat_type, stat_key]
       );
+
+      const previousValue = rows[0]?.value ?? 0;
+      const delta = value - previousValue;
+
+      if (delta !== 0) {
+        await db.query(
+          `INSERT INTO player_stats (uuid, stat_type, stat_key, value)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (uuid, stat_type, stat_key)
+       DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+          [uuid, stat_type, stat_key, value]
+        );
+
+        await db.query(
+          `INSERT INTO daily_player_stats (uuid, stat_type, stat_key, stat_date, value)
+       VALUES ($1, $2, $3, CURRENT_DATE, $4)
+       ON CONFLICT (uuid, stat_type, stat_key, stat_date)
+       DO UPDATE SET value = daily_player_stats.value + EXCLUDED.value`,
+          [uuid, stat_type, stat_key, delta]
+        );
+      }
     }
 
     logger.info(`✅ Imported stats for UUID: ${uuid}`);
@@ -106,6 +124,11 @@ export async function syncAndImportStats(db, logger) {
   } catch (error) {
     logger.error(`❌ syncAndImportStats failed: ${logError(error)}`);
   } finally {
-    sftp.end();
+    try {
+      sftp.end();
+      logger.info("🔌 SFTP connection closed cleanly.");
+    } catch (error) {
+      logger.warn(`⚠️ SFTP connection closed with warning: ${logError(error)}`);
+    }
   }
 }

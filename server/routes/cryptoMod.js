@@ -70,6 +70,12 @@ export default function cryptoRoutes(db) {
       }
 
       const token = tokenResult.rows[0];
+      if (token.symbol === "PLC") {
+        return res.status(403).json({
+          error:
+            "The PLC token is not purchasable. It can only be earned and sold.",
+        });
+      }
       const price = parseFloat(token.price_per_unit);
       const availableSupply = parseFloat(token.available_supply);
       const isMemecoin = token.is_memecoin === true;

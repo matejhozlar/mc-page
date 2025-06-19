@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import dotenv from "dotenv";
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
@@ -29,7 +29,7 @@ export async function execute(interaction) {
   if (!hasAdminRole && !hasOwnerRole) {
     return await interaction.reply({
       content: "❌ You do not have permission to use this command.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -41,7 +41,7 @@ export async function execute(interaction) {
       const remaining = Math.ceil((10 * 60 * 1000 - (now - lastUsed)) / 1000);
       return await interaction.reply({
         content: `⏳ Please wait ${remaining} seconds before using this again.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -51,7 +51,7 @@ export async function execute(interaction) {
   if (count < 1 || count > 100) {
     return await interaction.reply({
       content: "⚠️ Please provide a number between 1 and 100.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -59,14 +59,14 @@ export async function execute(interaction) {
     const deletedMessages = await interaction.channel.bulkDelete(count, true);
     await interaction.reply({
       content: `✅ Deleted ${deletedMessages.size} messages.`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     logger.error(`❌ /delete failed: ${logError(error)}`);
     await interaction.reply({
       content:
         "⚠️ Failed to delete messages. Make sure they are not older than 14 days.",
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }

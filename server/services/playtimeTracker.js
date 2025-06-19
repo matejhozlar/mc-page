@@ -32,28 +32,77 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
       }
 
       if (onlineUUIDs.length > 0) {
-        await db.query(
+        const { rows: loggingOutUsers } = await db.query(
           `
-          UPDATE users
-          SET online = false,
-              last_seen = NOW(),
-              play_time_seconds = play_time_seconds + EXTRACT(EPOCH FROM (NOW() - session_start)),
-              session_start = NULL
-          WHERE session_start IS NOT NULL AND uuid NOT IN (${onlineUUIDs
-            .map((_, i) => `$${i + 1}`)
-            .join(",")})
-        `,
+    SELECT uuid, session_start
+    FROM users
+    WHERE session_start IS NOT NULL
+      AND uuid NOT IN (${onlineUUIDs.map((_, i) => `$${i + 1}`).join(",")})
+  `,
           onlineUUIDs
         );
+
+        for (const user of loggingOutUsers) {
+          const sessionStart = new Date(user.session_start);
+          const now = new Date();
+          const sessionSeconds = Math.floor((now - sessionStart) / 1000);
+
+          await db.query(
+            `
+      UPDATE users
+      SET online = false,
+          last_seen = NOW(),
+          play_time_seconds = play_time_seconds + $2,
+          session_start = NULL
+      WHERE uuid = $1
+    `,
+            [user.uuid, sessionSeconds]
+          );
+
+          await db.query(
+            `
+      INSERT INTO daily_playtime (uuid, play_date, seconds_played)
+      VALUES ($1, CURRENT_DATE, $2)
+      ON CONFLICT (uuid, play_date)
+      DO UPDATE SET seconds_played = daily_playtime.seconds_played + EXCLUDED.seconds_played
+    `,
+            [user.uuid, sessionSeconds]
+          );
+        }
       } else {
-        await db.query(`
-          UPDATE users
-          SET online = false,
-              last_seen = NOW(),
-              play_time_seconds = play_time_seconds + EXTRACT(EPOCH FROM (NOW() - session_start)),
-              session_start = NULL
-          WHERE session_start IS NOT NULL
-        `);
+        const { rows: loggingOutUsers } = await db.query(`
+    SELECT uuid, session_start
+    FROM users
+    WHERE session_start IS NOT NULL
+  `);
+
+        for (const user of loggingOutUsers) {
+          const sessionStart = new Date(user.session_start);
+          const now = new Date();
+          const sessionSeconds = Math.floor((now - sessionStart) / 1000);
+
+          await db.query(
+            `
+      UPDATE users
+      SET online = false,
+          last_seen = NOW(),
+          play_time_seconds = play_time_seconds + $2,
+          session_start = NULL
+      WHERE uuid = $1
+    `,
+            [user.uuid, sessionSeconds]
+          );
+
+          await db.query(
+            `
+      INSERT INTO daily_playtime (uuid, play_date, seconds_played)
+      VALUES ($1, CURRENT_DATE, $2)
+      ON CONFLICT (uuid, play_date)
+      DO UPDATE SET seconds_played = daily_playtime.seconds_played + EXCLUDED.seconds_played
+    `,
+            [user.uuid, sessionSeconds]
+          );
+        }
       }
 
       if (onlinePlayers.length > 0) {

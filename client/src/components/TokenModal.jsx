@@ -29,7 +29,9 @@ function TokenModal({
   const [amount, setAmount] = useState(1);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [selectedRange, setSelectedRange] = useState("1h");
+  const [selectedRange, setSelectedRange] = useState(
+    token.symbol === "PLC" ? "7d" : "1h"
+  );
   const [chartData, setChartData] = useState([]);
   const [priceChange, setPriceChange] = useState(null);
   const [isPriceUp, setIsPriceUp] = useState(true);
@@ -58,10 +60,18 @@ function TokenModal({
     return percentage.toFixed(2);
   };
 
-  const ranges = ["1h", "24h", "7d", "30d", "all"];
+  const ranges =
+    token.symbol === "PLC" ? ["7d"] : ["1h", "24h", "7d", "30d", "all"];
 
   const handleTransaction = async (type) => {
     const endpoint = type === "buy" ? "/api/market/buy" : "/api/market/sell";
+
+    if (type === "buy" && token.symbol === "PLC") {
+      setError(
+        "The PLC token cannot be bought. It can only be earned or sold."
+      );
+      return;
+    }
 
     try {
       const res = await fetch(endpoint, {
