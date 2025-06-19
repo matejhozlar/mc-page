@@ -7,13 +7,13 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_CURRENCY_CHANNEL_ID } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_TEST_CHANNEL_ID } = process.env;
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 
   try {
-    const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
+    const channel = await client.channels.fetch(DISCORD_TEST_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
       .setTitle("🔔 Market Alert System")
@@ -26,7 +26,7 @@ client.once("ready", async () => {
         {
           name: "/market-alert",
           value:
-            "Set a price alert for a token (e.g. `RGC` at `$0.25`). You’ll get a DM when the price is hit.",
+            "Set a price alert for a token (e.g. `RGC` at `$0.25` optional: `Above`/`Below`). You’ll get a DM when the price is hit.",
         },
         {
           name: "/market-alert-remove",

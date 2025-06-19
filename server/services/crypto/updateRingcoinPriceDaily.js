@@ -1,18 +1,17 @@
 import logger from "../../logger.js";
 import logError from "../../utils/logError.js";
 
-export async function updateRingcoinPriceDaily(db, tokenId = 1) {
+export async function updateRingcoinPriceDaily(db, tokenSymbol = "RGC") {
   try {
-    const lastPriceRes = await db.query(
-      `SELECT price_per_unit FROM crypto_tokens WHERE id = $1`,
-      [tokenId]
+    const { rows } = await db.query(
+      `SELECT id, price_per_unit FROM crypto_tokens WHERE symbol = $1 LIMIT 1`,
+      [tokenSymbol]
     );
 
-    if (!lastPriceRes.rows.length) {
-      throw new Error(`No price found for token ID ${tokenId}`);
-    }
+    if (!rows.length) throw new Error(`Token ${tokenSymbol} not found`);
 
-    const price = Number(lastPriceRes.rows[0].price_per_unit);
+    const { id: tokenId, price_per_unit } = rows[0];
+    const price = Number(price_per_unit);
 
     await db.query(
       `INSERT INTO token_price_history_daily (token_id, price, recorded_at)
@@ -20,10 +19,10 @@ export async function updateRingcoinPriceDaily(db, tokenId = 1) {
       [tokenId, price]
     );
 
-    logger.info(`✅ Daily snapshot saved for token ${tokenId}: $${price}`);
+    logger.info(`✅ Daily snapshot saved for ${tokenSymbol}: $${price}`);
   } catch (error) {
     logger.error(
-      `❌ Failed to update Ringcoin price (daily): ${logError(error)}`
+      `❌ Failed to update price for ${tokenSymbol} (daily): ${logError(error)}`
     );
   }
 }

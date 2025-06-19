@@ -9,15 +9,6 @@ const TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
-    .setName("delete")
-    .setDescription("Delete up to 100 recent messages (admin/owner only)")
-    .addIntegerOption((option) =>
-      option
-        .setName("count")
-        .setDescription("Number of messages to delete (max 100)")
-        .setRequired(true)
-    ),
-  new SlashCommandBuilder()
     .setName("market-portfolio")
     .setDescription("View a user's market portfolio")
     .addStringOption((option) =>
@@ -52,16 +43,6 @@ const commands = [
         .setName("price")
         .setDescription("Target price (e.g. 0.25)")
         .setRequired(true)
-    )
-    .addStringOption((option) =>
-      option
-        .setName("direction")
-        .setDescription("Trigger direction: above or below target price")
-        .setRequired(false)
-        .addChoices(
-          { name: "Above", value: "above" },
-          { name: "Below", value: "below" }
-        )
     ),
   new SlashCommandBuilder()
     .setName("market-token")
