@@ -11,6 +11,68 @@ export async function generateDailyQuestsAndTokenUpdate(
   tokenSymbol = "PLC"
 ) {
   const today = DateTime.now().setZone("Europe/Berlin").toISODate();
+  const yesterday = DateTime.now()
+    .setZone("Europe/Berlin")
+    .minus({ days: 1 })
+    .toISODate();
+
+  try {
+    const { rows: yQuests } = await db.query(
+      `SELECT * FROM daily_shared_quests`
+    );
+    const yCompleted = yQuests.filter(
+      (q) => q.progress_count >= q.target_count
+    );
+    const yCompletionRatio = yCompleted.length / 3;
+
+    const { rows: yPlaytimeRows } = await db.query(
+      `SELECT uuid, seconds_played FROM daily_playtime WHERE play_date = $1`,
+      [yesterday]
+    );
+
+    const rewards = [];
+    for (const row of yPlaytimeRows) {
+      const playHours = row.seconds_played / 3600;
+      const baseReward = Math.min((playHours / 3) * 100, 100);
+      const finalReward = baseReward * yCompletionRatio;
+
+      if (finalReward > 0) {
+        const { rows: userRows } = await db.query(
+          `SELECT name FROM users WHERE uuid = $1`,
+          [row.uuid]
+        );
+        if (userRows.length > 0) {
+          rewards.push({
+            name: userRows[0].name,
+            tokens: Number(finalReward.toFixed(2)),
+          });
+        }
+      }
+    }
+
+    if (rewards.length > 0) {
+      const rewardChannel = await discordClient.channels.fetch(channelId);
+      const rewardEmbed = new EmbedBuilder()
+        .setTitle("🏅 Rewards for Yesterday")
+        .setColor("#27ae60")
+        .setDescription(
+          "Here are the token rewards distributed for yesterday's efforts:"
+        )
+        .setTimestamp();
+
+      for (const reward of rewards) {
+        rewardEmbed.addFields({
+          name: `${reward.name}`,
+          value: `+${reward.tokens} ${tokenSymbol}`,
+          inline: true,
+        });
+      }
+
+      await rewardChannel.send({ embeds: [rewardEmbed] });
+    }
+  } catch (error) {
+    logger.error(`❌ Sending summary failed: ${logError(error)}`);
+  }
 
   try {
     const { rows: quests } = await db.query(
