@@ -34,6 +34,13 @@ client.once("ready", async () => {
             "The more quests you all complete, the more PLC everyone can earn — and the more valuable PLC becomes!",
         }
       )
+      .addFields({
+        name: "🚫 No Auto-Crafting or Modded Shortcuts",
+        value:
+          "**To complete quests, you must do them *yourself*.**\n" +
+          "Using **modded machines**, especially **AE2 crafting (including wireless terminals)**, or any **auto-crafting system**, will NOT count.\n\n" +
+          "✅ **Manual crafting only** — prefer **vanilla** or **backpack crafting menus**.",
+      })
       .setFooter({ text: "Thanks for playing on Createrington!" })
       .setTimestamp();
 
