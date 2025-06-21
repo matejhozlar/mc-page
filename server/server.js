@@ -232,7 +232,6 @@ try {
   logger.error(`❌ Failed to login WebChatBot: ${logError(error)}`);
 }
 
-setupCronJobs(db, client, webChatClient);
 // message history fetch
 async function fetchDiscordChatHistory(limit = 100) {
   try {
@@ -312,6 +311,7 @@ const client = new Client({
 
 // setupLinkOnlyChannelWatcher(client);
 // setupAIChatListener(client, db);
+setupCronJobs(db, client, webChatClient);
 
 // memecoins
 setInterval(() => updateMemecoinPrices(db, client), 30000);
