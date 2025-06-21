@@ -26,11 +26,11 @@ export async function updateRingcoinPriceMinutes(db, tokenId = 1) {
     let newPrice;
 
     if (delta > 0) {
-      const activePlayers = delta / 600;
+      const activePlayers = delta / 300;
       const change = activePlayers * 0.00025;
       newPrice = lastPrice + change;
     } else {
-      const decayRate = 0.00025;
+      const decayRate = 0.00005;
       newPrice = lastPrice - decayRate;
     }
 
