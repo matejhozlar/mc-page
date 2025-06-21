@@ -10,8 +10,10 @@ import verifyIP from "../middleware/verifyIP.js";
 
 // utils
 import { logTransactions } from "../utils/logTransactions.js";
+import { startLotteryResolver } from "../utils/lottery/lotteryResolver.js";
+import { announceLotteryStart } from "../utils/lottery/announceLotteryStart.js";
 
-export default function currencyRoutes(db) {
+export default function currencyRoutes(db, webChatClient) {
   const router = express.Router();
 
   router.post("/currency/login", (req, res) => {
@@ -408,6 +410,137 @@ export default function currencyRoutes(db) {
       res.status(500).json({
         error: "Something went wrong while claiming your daily reward.",
       });
+    } finally {
+      client.release();
+    }
+  });
+
+  // /currency/lottery/start
+  router.post("/currency/lottery/start", async (req, res) => {
+    const { uuid, name } = req.user;
+    const { amount } = req.body;
+
+    if (!amount || amount < 10) {
+      return res.status(400).json({ error: "Minimum amount is 10." });
+    }
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const existing = await client.query(
+        `SELECT 1 FROM lottery_participants LIMIT 1`
+      );
+      if (existing.rowCount > 0) {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: "A lottery is already in progress." });
+      }
+
+      const balanceRes = await client.query(
+        `SELECT balance FROM user_funds WHERE uuid = $1 FOR UPDATE`,
+        [uuid]
+      );
+
+      if (balanceRes.rowCount === 0) {
+        throw new Error("User not found.");
+      }
+
+      const balance = Math.floor(parseFloat(balanceRes.rows[0].balance));
+      if (balance < amount) {
+        throw new Error("Insufficient balance.");
+      }
+
+      await client.query(
+        `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
+        [amount, uuid]
+      );
+
+      await client.query(
+        `INSERT INTO lottery_participants (uuid, name, amount) VALUES ($1, $2, $3)`,
+        [uuid, name, amount]
+      );
+
+      await client.query("COMMIT");
+      res.json({ success: true, message: "Lottery started." });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ /lottery/start error: ${logError(error)}`);
+      res.status(400).json({ error: logError(error) });
+    } finally {
+      client.release();
+    }
+
+    startLotteryResolver(db, webChatClient);
+    announceLotteryStart(webChatClient, name);
+  });
+
+  // /currency/lottery/join
+  router.post("/currency/lottery/join", async (req, res) => {
+    const { uuid, name } = req.user;
+    const { amount } = req.body;
+
+    if (!amount || amount < 10) {
+      return res.status(400).json({ error: "Minimum amount is 10." });
+    }
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const activeLottery = await client.query(
+        `SELECT id FROM lottery_participants LIMIT 1`
+      );
+
+      if (activeLottery.rowCount === 0) {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: "No active lottery is currently running." });
+      }
+
+      const alreadyJoined = await client.query(
+        `SELECT 1 FROM lottery_participants WHERE uuid = $1`,
+        [uuid]
+      );
+      if (alreadyJoined.rowCount > 0) {
+        await client.query("ROLLBACK");
+        return res
+          .status(400)
+          .json({ error: "You've already joined the lottery." });
+      }
+
+      const balanceRes = await client.query(
+        `SELECT balance FROM user_funds WHERE uuid = $1 FOR UPDATE`,
+        [uuid]
+      );
+
+      if (balanceRes.rowCount === 0) {
+        throw new Error("User not found.");
+      }
+
+      const balance = Math.floor(parseFloat(balanceRes.rows[0].balance));
+      if (balance < amount) {
+        throw new Error("Insufficient balance.");
+      }
+
+      await client.query(
+        `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
+        [amount, uuid]
+      );
+
+      await client.query(
+        `INSERT INTO lottery_participants (uuid, name, amount) VALUES ($1, $2, $3)`,
+        [uuid, name, amount]
+      );
+
+      await client.query("COMMIT");
+      res.json({ success: true, message: "Joined the lottery." });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ /lottery/join error: ${logError(error)}`);
+      res.status(400).json({ error: logError(error) });
     } finally {
       client.release();
     }

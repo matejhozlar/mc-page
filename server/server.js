@@ -843,7 +843,7 @@ app.use("/api", adminRoutes(db));
 // /game-data /game-logout
 app.use("/api", gameDataRoutes(db));
 // /currency/balance /currency/send
-app.use("/api", currencyRoutes(db));
+app.use("/api", currencyRoutes(db, webChatClient));
 // /market/tokens
 app.use("/api", cryptoRoutes(db));
 
