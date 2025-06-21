@@ -18,15 +18,27 @@ function TokenChartPage() {
   const [loading, setLoading] = useState(true);
   const [priceChange, setPriceChange] = useState(null);
   const [isPriceUp, setIsPriceUp] = useState(true);
+  const [range, setRange] = useState("1h");
+
+  useEffect(() => {
+    if (symbol === "PLC") {
+      setRange("7d");
+    } else {
+      setRange("1h");
+    }
+  }, [symbol]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [tokensRes, historyRes] = await Promise.all([
           fetch("/api/market/tokens", { credentials: "include" }),
-          fetch(`/api/market/token-history-by-symbol/${symbol}?range=1h`, {
-            credentials: "include",
-          }),
+          fetch(
+            `/api/market/token-history-by-symbol/${symbol}?range=${range}`,
+            {
+              credentials: "include",
+            }
+          ),
         ]);
 
         const tokens = await tokensRes.json();
@@ -62,7 +74,7 @@ function TokenChartPage() {
     };
 
     fetchData();
-  }, [symbol]);
+  }, [symbol, range]);
 
   const chartData = {
     labels: data.map((entry) =>
@@ -174,7 +186,7 @@ function TokenChartPage() {
             style={{
               width: "100%",
               height: "auto",
-              maxHeight: "500px", // Optional max-height
+              maxHeight: "500px",
             }}
           />
         </div>
