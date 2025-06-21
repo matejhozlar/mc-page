@@ -1,4 +1,3 @@
-import { DateTime } from "luxon";
 import { questsPool } from "./data/questPool.js";
 import { EmbedBuilder } from "discord.js";
 import logError from "../../utils/logError.js";
@@ -10,31 +9,24 @@ export async function generateDailyQuestsAndTokenUpdate(
   channelId,
   tokenSymbol = "PLC"
 ) {
-  const today = DateTime.now().setZone("Europe/Berlin").toISODate();
-  const yesterday = DateTime.now()
-    .setZone("Europe/Berlin")
-    .minus({ days: 1 })
-    .toISODate();
-
   try {
-    const { rows: yQuests } = await db.query(
+    const { rows: quests } = await db.query(
       `SELECT * FROM daily_shared_quests`
     );
-    const yCompleted = yQuests.filter(
+    const completedQuests = quests.filter(
       (q) => q.progress_count >= q.target_count
     );
-    const yCompletionRatio = yCompleted.length / 3;
+    const completionRatio = completedQuests.length / 3;
 
-    const { rows: yPlaytimeRows } = await db.query(
-      `SELECT uuid, seconds_played FROM daily_playtime WHERE play_date = $1`,
-      [yesterday]
+    const { rows: playtimeRows } = await db.query(
+      `SELECT uuid, seconds_played FROM daily_playtime`
     );
-
     const rewards = [];
-    for (const row of yPlaytimeRows) {
+
+    for (const row of playtimeRows) {
       const playHours = row.seconds_played / 3600;
       const baseReward = Math.min((playHours / 3) * 100, 100);
-      const finalReward = baseReward * yCompletionRatio;
+      const finalReward = baseReward * completionRatio;
 
       if (finalReward > 0) {
         const { rows: userRows } = await db.query(
@@ -43,6 +35,7 @@ export async function generateDailyQuestsAndTokenUpdate(
         );
         if (userRows.length > 0) {
           rewards.push({
+            uuid: row.uuid,
             name: userRows[0].name,
             tokens: Number(finalReward.toFixed(2)),
           });
@@ -62,7 +55,7 @@ export async function generateDailyQuestsAndTokenUpdate(
 
       for (const reward of rewards) {
         rewardEmbed.addFields({
-          name: `${reward.name}`,
+          name: reward.name,
           value: `+${reward.tokens} ${tokenSymbol}`,
           inline: true,
         });
@@ -70,40 +63,11 @@ export async function generateDailyQuestsAndTokenUpdate(
 
       await rewardChannel.send({ embeds: [rewardEmbed] });
     }
-  } catch (error) {
-    logger.error(`❌ Sending summary failed: ${logError(error)}`);
-  }
 
-  try {
-    const { rows: quests } = await db.query(
-      `SELECT * FROM daily_shared_quests WHERE quest_date = $1`,
-      [today]
+    let totalPlaytime = playtimeRows.reduce(
+      (acc, row) => acc + row.seconds_played / 3600,
+      0
     );
-
-    const completedQuests = quests.filter(
-      (q) => q.progress_count >= q.target_count
-    );
-    const completionRatio = completedQuests.length / 3;
-
-    const { rows: playtimeRows } = await db.query(
-      `SELECT uuid, seconds_played FROM daily_playtime WHERE play_date = $1`,
-      [today]
-    );
-
-    let totalPlaytime = 0;
-    const userTokenAllocations = [];
-
-    for (const row of playtimeRows) {
-      const playHours = row.seconds_played / 3600;
-      totalPlaytime += playHours;
-      const baseReward = Math.min((playHours / 3) * 100, 100);
-      const finalReward = baseReward * completionRatio;
-
-      if (finalReward > 0) {
-        userTokenAllocations.push({ uuid: row.uuid, tokens: finalReward });
-      }
-    }
-
     const { rows: tokenRows } = await db.query(
       `SELECT * FROM crypto_tokens WHERE symbol = $1 LIMIT 1`,
       [tokenSymbol]
@@ -112,16 +76,16 @@ export async function generateDailyQuestsAndTokenUpdate(
       throw new Error(`Token ${tokenSymbol} not found.`);
 
     const token = tokenRows[0];
-    let newPrice = Number(token.price_per_unit);
+    let newPrice;
 
     if (completedQuests.length === 0) {
-      newPrice = Math.max(newPrice * 0.9, 1);
+      newPrice = Math.max(token.price_per_unit * 0.9, 1);
     } else {
       const bonus = Math.min(
         0.15 * completionRatio * Math.min(totalPlaytime / 8, 1),
         0.15
       );
-      newPrice = newPrice + bonus;
+      newPrice = token.price_per_unit + bonus;
     }
 
     newPrice = Math.min(Math.max(newPrice, 1), 5);
@@ -132,13 +96,25 @@ export async function generateDailyQuestsAndTokenUpdate(
       [newPrice, token.id]
     );
 
-    for (const user of userTokenAllocations) {
+    for (const reward of rewards) {
+      const { rows: userRows } = await db.query(
+        `SELECT discord_id FROM users WHERE uuid = $1`,
+        [reward.uuid]
+      );
+
+      if (!userRows.length) {
+        logger.warn(`⚠️ Could not find discord_id for uuid: ${reward.uuid}`);
+        continue;
+      }
+
+      const discordId = userRows[0].discord_id;
+
       await db.query(
         `INSERT INTO user_tokens (discord_id, token_id, amount)
-         SELECT discord_id, $1, $2 FROM users WHERE uuid = $3
+         VALUES ($1, $2, $3)
          ON CONFLICT (discord_id, token_id)
          DO UPDATE SET amount = user_tokens.amount + EXCLUDED.amount`,
-        [token.id, user.tokens, user.uuid]
+        [discordId, token.id, reward.tokens]
       );
     }
 
@@ -147,7 +123,6 @@ export async function generateDailyQuestsAndTokenUpdate(
 
     const newQuests = pickRandomQuests(3);
     const questChannel = await discordClient.channels.fetch(channelId);
-
     const embed = new EmbedBuilder()
       .setTitle("🎯 Daily Shared Quests")
       .setColor("#f39c12")
@@ -158,10 +133,9 @@ export async function generateDailyQuestsAndTokenUpdate(
       const { quest_type, quest_key, target_count, description } = quest;
 
       await db.query(
-        `INSERT INTO daily_shared_quests (quest_date, quest_type, quest_key, target_count, description)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING id`,
-        [today, quest_type, quest_key, target_count, description]
+        `INSERT INTO daily_shared_quests (quest_type, quest_key, target_count, description)
+         VALUES ($1, $2, $3, $4)`,
+        [quest_type, quest_key, target_count, description]
       );
 
       embed.addFields({
@@ -174,8 +148,8 @@ export async function generateDailyQuestsAndTokenUpdate(
     const sentMsg = await questChannel.send({ embeds: [embed] });
 
     await db.query(
-      `UPDATE daily_shared_quests SET discord_message_id = $1 WHERE quest_date = $2`,
-      [sentMsg.id, today]
+      `UPDATE daily_shared_quests SET discord_message_id = $1 WHERE discord_message_id IS NULL`,
+      [sentMsg.id]
     );
 
     logger.info("✅ Daily quests and token updates complete.");
