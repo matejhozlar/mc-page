@@ -38,6 +38,19 @@ client.once("ready", async () => {
           value: "- Createrington Currency",
         },
         {
+          name: "🎟️ New Commands",
+          value: [
+            "**/lottery <amount>** – Start a server-wide lottery with a minimum of 10 currency. Other players can join using **/join <amount>**.",
+            "- The lottery runs for 2 minutes, after which a random winner is chosen.",
+            "- **Chances of winning are weighted based on the amount each player contributes** – the more you spend, the higher your chances!",
+            "- The winner takes the entire pot.",
+            "- This command has a 30-minute cooldown.",
+            "- Currently available **only in Minecraft** (Discord support coming soon).",
+            "",
+            "**/daily** – Claim your daily reward directly from Minecraft!",
+          ].join("\n"),
+        },
+        {
           name: "📢 Reminder",
           value:
             "Please **update the modpack** to the latest version.\nIf you encounter **any bugs or issues**, report them as soon as possible!",
