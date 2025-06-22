@@ -16,7 +16,7 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("💰 Createrington Currency Mod Guide **(Alpha)**")
+      .setTitle("💰 Createrington Currency Mod Guide **(Beta)**")
       .setColor(0x00b0f4)
       .setDescription(
         "Here’s a quick guide on how to use the **Currency Mod** on Createrington!"
@@ -28,12 +28,15 @@ client.once("ready", async () => {
             "Collect bills in various denominations: **$1, $5, $10, $20, $50, $100, $500, $1000**. These bills can be stacked, traded, and stored in your inventory.",
         },
         {
-          name: "🆕 Enchant Capitalist Greed",
-          value:
-            "Createrington Currency has a new enchant! Enchant your weapons to raise drop rates of bills.",
+          name: "🆕 Commands",
+          value: [
+            "**/daily** — Claim your daily reward.",
+            "**/lottery <amount>** —  Start a server-wide lottery with a minimum of $10.",
+            "**/join <amount>** — Join the ongoing lottery.",
+          ].join("\n"),
         },
         {
-          name: "Levels",
+          name: "Enchant Capitalist Greed",
           value: [
             "- Capitalist Greed I → +5%",
             "- Capitalist Greed II → +8%",
