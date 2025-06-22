@@ -40,6 +40,9 @@ client.once("ready", async () => {
       .setTitle("📚 Welcome to the Bot Commands Channel!")
       .setDescription(
         `Custom Minecraft commands:\n` +
+          `🎁 **/daily** — Claim your daily reward\n` +
+          `🎲 **/lottery <amount>** — Start a lottery (min $10)\n` +
+          `🤑 **/join <amount>** — Join the ongoing lottery (min $10)\n` +
           `☀️ **.day** — Starts a voting process for /time set day\n` +
           `🌧️ **.rain** — Starts a voting process for /weather rain\n` +
           `⚡ **.thunder** — Starts a voting process for /weather thunder\n` +
