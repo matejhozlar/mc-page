@@ -47,9 +47,15 @@ function TokenChartPage() {
         if (Array.isArray(history) && history.length >= 2) {
           const start = Number(history[0].price);
           const end = Number(history[history.length - 1].price);
-          const percentChange = ((end - start) / start) * 100;
-          setPriceChange(percentChange.toFixed(2));
-          setIsPriceUp(end >= start);
+
+          if (!isNaN(start) && !isNaN(end) && start !== 0) {
+            const percentChange = ((end - start) / start) * 100;
+            setPriceChange(percentChange.toFixed(2));
+            setIsPriceUp(end >= start);
+          } else {
+            console.warn("Invalid token history data", { start, end, history });
+            setPriceChange(null);
+          }
         }
 
         if (Array.isArray(tokens)) {
@@ -116,7 +122,7 @@ function TokenChartPage() {
       <h1 style={{ marginBottom: 20 }}>
         {tokenInfo?.name || "Unknown Token"}{" "}
         <span>({symbol.toUpperCase()})</span>
-        {priceChange !== null && (
+        {priceChange !== null && !isNaN(priceChange) && (
           <span
             style={{
               color: isPriceUp ? "limegreen" : "#ff4d4f",

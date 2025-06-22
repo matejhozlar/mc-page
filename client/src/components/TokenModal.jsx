@@ -209,10 +209,19 @@ function TokenModal({
         if (data.length >= 2) {
           const start = Number(data[0].price);
           const end = Number(data[data.length - 1].price);
-          const percentChange = ((end - start) / start) * 100;
-          setLivePrice(end);
-          setPriceChange(percentChange.toFixed(2));
-          setIsPriceUp(end >= start);
+
+          if (!isNaN(start) && !isNaN(end)) {
+            const percentChange = ((end - start) / start) * 100;
+            setLivePrice(end);
+            setPriceChange(percentChange.toFixed(2));
+            setIsPriceUp(end >= start);
+          } else {
+            console.warn("Invalid price data in chart history", {
+              start,
+              end,
+              data,
+            });
+          }
         }
       } catch (err) {
         console.error("Failed to load price history:", err);
@@ -340,7 +349,9 @@ function TokenModal({
           )}
           <p>
             <strong>Price per Token:</strong> $
-            <AnimatedNumber value={Number(livePrice.toFixed(4))} />
+            <AnimatedNumber
+              value={Number.isFinite(livePrice) ? livePrice.toFixed(4) : 0}
+            />
           </p>
           {ownedAmount !== null && (
             <>
