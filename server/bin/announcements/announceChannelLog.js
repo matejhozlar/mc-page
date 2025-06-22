@@ -40,7 +40,7 @@ client.once("ready", async () => {
         {
           name: "🎟️ New Commands",
           value: [
-            "**/lottery <amount>** – Start a server-wide lottery with a minimum of 10 currency. Other players can join using **/join <amount>**.",
+            "**/lottery <amount>** – Start a server-wide lottery with a minimum of $10. Other players can join using **/join <amount>**.",
             "- The lottery runs for 2 minutes, after which a random winner is chosen.",
             "- **Chances of winning are weighted based on the amount each player contributes** – the more you spend, the higher your chances!",
             "- The winner takes the entire pot.",
