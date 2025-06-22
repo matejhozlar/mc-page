@@ -76,16 +76,23 @@ export async function generateDailyQuestsAndTokenUpdate(
       throw new Error(`Token ${tokenSymbol} not found.`);
 
     const token = tokenRows[0];
+    let currentPrice = Number(token.price_per_unit);
+    let availableSupply = Number(token.available_supply);
+
+    if (isNaN(availableSupply)) {
+      throw new Error(`Token ${tokenSymbol} has invalid available_supply`);
+    }
+
     let newPrice;
 
     if (completedQuests.length === 0) {
-      newPrice = Math.max(token.price_per_unit * 0.9, 1);
+      newPrice = Math.max(currentPrice * 0.9, 1);
     } else {
       const bonus = Math.min(
         0.15 * completionRatio * Math.min(totalPlaytime / 8, 1),
         0.15
       );
-      newPrice = token.price_per_unit + bonus;
+      newPrice = currentPrice + bonus;
     }
 
     newPrice = Math.min(Math.max(newPrice, 1), 5);
@@ -96,7 +103,16 @@ export async function generateDailyQuestsAndTokenUpdate(
       [newPrice, token.id]
     );
 
+    let remainingSupply = availableSupply;
+
     for (const reward of rewards) {
+      if (reward.tokens > remainingSupply) {
+        logger.warn(
+          `⚠️ Skipping reward for ${reward.name}, insufficient supply.`
+        );
+        continue;
+      }
+
       const { rows: userRows } = await db.query(
         `SELECT discord_id FROM users WHERE uuid = $1`,
         [reward.uuid]
@@ -116,6 +132,13 @@ export async function generateDailyQuestsAndTokenUpdate(
          DO UPDATE SET amount = user_tokens.amount + EXCLUDED.amount`,
         [discordId, token.id, reward.tokens]
       );
+      if (reward.tokens > 0) {
+        await db.query(
+          `UPDATE crypto_tokens SET available_supply = available_supply - $1 WHERE id = $2`,
+          [reward.tokens, token.id]
+        );
+      }
+      remainingSupply -= reward.tokens;
     }
 
     await db.query(`DELETE FROM daily_shared_quests`);

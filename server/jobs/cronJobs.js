@@ -16,9 +16,9 @@ import { sendDailyReminder } from "../discord/listeners/sendDailyReminder.js";
 
 export function setupCronJobs(db, client, webChatClient) {
   // send daily reminder
-  cron.schedule("10 */2 * * *", () => {
-    sendDailyReminder(webChatClient);
-  });
+  // cron.schedule("10 */2 * * *", () => {
+  //   sendDailyReminder(webChatClient);
+  // });
   // clean up daily playtime and daily mob limit
   cron.schedule(
     `30 6 * * *`,
@@ -74,9 +74,9 @@ export function setupCronJobs(db, client, webChatClient) {
   //   timezone: "Europe/Berlin",
   // });
   // cron.schedule(
-  //   "0 * * * *",
+  //   "*/1 * * * *",
   //   () => {
-  //     updateQuestProgress(db, client, process.env.DISCORD_QUESTS_CHANNEL_ID);
+  //     updateQuestProgress(db, client, process.env.DISCORD_TEST_CHANNEL_ID);
   //   },
   //   {
   //     timezone: "Europe/Berlin",
@@ -84,12 +84,12 @@ export function setupCronJobs(db, client, webChatClient) {
   // );
   // //  generate daily quests
   // cron.schedule(
-  //   "15 6 * * *",
+  //   "*/10 * * * *",
   //   () =>
   //     generateDailyQuestsAndTokenUpdate(
   //       db,
   //       client,
-  //       process.env.DISCORD_QUESTS_CHANNEL_ID
+  //       process.env.DISCORD_TEST_CHANNEL_ID
   //     ),
   //   { timezone: "Europe/Berlin" }
   // );

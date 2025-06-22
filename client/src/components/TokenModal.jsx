@@ -37,7 +37,10 @@ function TokenModal({
   const [isPriceUp, setIsPriceUp] = useState(true);
   const [distribution, setDistribution] = useState([]);
   const [showAllOwners, setShowAllOwners] = useState(false);
-  const [livePrice, setLivePrice] = useState(Number(token.price_per_unit));
+  const [livePrice, setLivePrice] = useState(() => {
+    const parsed = Number(token?.price_per_unit);
+    return isNaN(parsed) ? 0 : parsed;
+  });
   const [lastTxTime, setLastTxTime] = useState(null);
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
   const [buyMode, setBuyMode] = useState("amount");
@@ -53,6 +56,13 @@ function TokenModal({
   const totalWithTax = baseTotal + taxAmount;
   const netGain = baseTotal - taxAmount;
   const isCrashed = !!token.crashed || livePrice <= 0;
+
+  useEffect(() => {
+    const parsed = Number(token?.price_per_unit);
+    if (!isNaN(parsed)) {
+      setLivePrice(parsed);
+    }
+  }, [token?.price_per_unit]);
 
   const calculatePercentageChange = (livePrice, purchasePrice) => {
     if (!purchasePrice || purchasePrice <= 0) return 0;
@@ -334,19 +344,23 @@ function TokenModal({
           </p>
           {ownedAmount !== null && (
             <>
-              <p>
-                <strong>Purchased At:</strong> $
-                {Number(purchasePrice).toLocaleString()}
-                <span
-                  style={{
-                    color: livePrice >= purchasePrice ? "limegreen" : "#ff4d4f",
-                    fontWeight: 600,
-                    marginLeft: "0.5rem",
-                  }}
-                >
-                  ({calculatePercentageChange(livePrice, purchasePrice)}%)
-                </span>
-              </p>
+              {purchasePrice !== null && (
+                <p>
+                  <strong>Purchased At:</strong> $
+                  {Number(purchasePrice).toLocaleString()}
+                  <span
+                    style={{
+                      color:
+                        livePrice >= purchasePrice ? "limegreen" : "#ff4d4f",
+                      fontWeight: 600,
+                      marginLeft: "0.5rem",
+                    }}
+                  >
+                    ({calculatePercentageChange(livePrice, purchasePrice)}%)
+                  </span>
+                </p>
+              )}
+
               <p>
                 <strong>Owned:</strong> {Number(ownedAmount).toLocaleString()}{" "}
                 {token.symbol}
