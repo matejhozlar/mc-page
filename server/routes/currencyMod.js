@@ -463,6 +463,10 @@ export default function currencyRoutes(db, webChatClient) {
       );
 
       await client.query("COMMIT");
+
+      startLotteryResolver(db, webChatClient);
+      announceLotteryStart(webChatClient, name);
+
       res.json({ success: true, message: "Lottery started." });
     } catch (error) {
       await client.query("ROLLBACK");
@@ -471,9 +475,6 @@ export default function currencyRoutes(db, webChatClient) {
     } finally {
       client.release();
     }
-
-    startLotteryResolver(db, webChatClient);
-    announceLotteryStart(webChatClient, name);
   });
 
   // /currency/lottery/join
