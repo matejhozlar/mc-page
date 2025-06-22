@@ -184,6 +184,7 @@ export async function generateDailyQuestsAndTokenUpdate(
 }
 
 function pickRandomQuests(count) {
-  const shuffled = questsPool.sort(() => 0.5 - Math.random());
+  const copy = [...questsPool];
+  const shuffled = copy.sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 }
