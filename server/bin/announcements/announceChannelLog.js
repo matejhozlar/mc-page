@@ -18,32 +18,24 @@ client.once("ready", async () => {
     );
 
     const embed = new EmbedBuilder()
-      .setTitle("🛠️ Createrington v0.1.7 Modpack Update")
+      .setTitle("🛠️ Createrington v0.1.8 Modpack Update")
       .setColor(0x00b0f4)
       .setDescription(
-        "A new version of the modpack is now available! Please update to **v0.1.7** to enjoy new content and improvements."
+        "A new version of the modpack is now available! Please update to **v0.1.8** to enjoy new content and improvements."
       )
       .addFields(
         {
-          name: "⚖️ Create: Sifting Changes",
-          value:
-            "We've rebalanced the **Create: Sifting** recipes to make progression more fair:\n- Removed **Netherite**, **Diamonds**, and other high-end items from drops.\n- Sifting now provides more balanced rewards without being overpowered.",
-        },
-        {
-          name: "⚠️ IMPORTANT",
-          value:
-            "Since some of the sifting recipes are gone, please check your farms!",
-        },
-        {
           name: "🆕 New Mods",
           value: [
-            "- AdvancedAE",
-            "- ExtendedAE",
-            "- Createrington Currency",
-            "- Create: Copycats +",
-            "- Create: Deep Dark",
-            "- Geckolib",
+            "- Simple Hats",
+            "- Magic Mirror",
+            "- owo library",
+            "- accessories library",
           ].join("\n"),
+        },
+        {
+          name: "⬆️ Updated Mods",
+          value: "- Createrington Currency",
         },
         {
           name: "📢 Reminder",
