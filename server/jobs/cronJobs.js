@@ -16,7 +16,7 @@ import { sendDailyReminder } from "../discord/listeners/sendDailyReminder.js";
 
 export function setupCronJobs(db, client, webChatClient) {
   // send daily reminder
-  // cron.schedule("10 */2 * * *", () => {
+  // cron.schedule("10 */4 * * *", () => {
   //   sendDailyReminder(webChatClient);
   // });
   // clean up daily playtime and daily mob limit
