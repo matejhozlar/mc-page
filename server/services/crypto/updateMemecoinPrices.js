@@ -208,53 +208,6 @@ export async function updateMemecoinPrices(db, client) {
         );
         logger.info(`🧹 Trimmed 20 old history entries for token ID ${id}`);
       }
-
-      if (newPrice === 0) {
-        await db.query(
-          `UPDATE crypto_tokens SET crashed = NOW() WHERE id = $1`,
-          [id]
-        );
-        logger.info(`💀 Token ID ${id} crashed to $0 and marked as crashed`);
-
-        const {
-          rows: [crashedToken],
-        } = await db.query(
-          `SELECT name, symbol, description, price_per_unit, total_supply
-     FROM crypto_tokens
-     WHERE id = $1`,
-          [id]
-        );
-
-        const { rows: alerts } = await db.query(
-          `SELECT id, discord_id FROM token_price_alerts
-     WHERE token_symbol = $1`,
-          [crashedToken.symbol]
-        );
-
-        for (const alert of alerts) {
-          try {
-            const user = await client.users.fetch(alert.discord_id);
-            await user.send(
-              `💀 Your alert for **${crashedToken.symbol}** has been cancelled — the token has **crashed to $0**.`
-            );
-          } catch (err) {
-            logger.warn(
-              `⚠️ Failed to send crash alert DM to ${
-                alert.discord_id
-              }: ${logError(err)}`
-            );
-          }
-        }
-
-        await db.query(
-          `DELETE FROM token_price_alerts WHERE token_symbol = $1`,
-          [crashedToken.symbol]
-        );
-
-        if (crashedToken) {
-          await sendCrashNotification(crashedToken);
-        }
-      }
     }
   } catch (error) {
     logger.error(`❌ Failed to update memecoin prices: ${logError(error)}`);
