@@ -1,4 +1,5 @@
-def extract_env_variables(env_file_path, output_file_path):
+# extract and replace required vars for the config startup
+def extract_env_variables_to_js(env_file_path, js_output_path):
     variable_names = []
 
     with open(env_file_path, 'r') as env_file:
@@ -6,12 +7,15 @@ def extract_env_variables(env_file_path, output_file_path):
             line = line.strip()
             if line and not line.startswith('#') and '=' in line:
                 var_name = line.split('=', 1)[0].strip()
-                variable_names.append(f'"{var_name}",')
+                variable_names.append(f'  "{var_name}",')
 
-    with open(output_file_path, 'w') as output_file:
-        for var in variable_names:
-            output_file.write(var + '\n')
+    js_content = "const REQUIRED_VARS = [\n"
+    js_content += "\n".join(variable_names)
+    js_content += "\n];\n\nexport default REQUIRED_VARS;\n"
 
-    print(f"Extracted {len(variable_names)} variables to {output_file_path}")
+    with open(js_output_path, 'w') as js_file:
+        js_file.write(js_content)
 
-extract_env_variables('.env', 'env_variables.txt')
+    print(f"✅ Wrote {len(variable_names)} variables to {js_output_path}")
+
+extract_env_variables_to_js('.env', './vars/requiredVars.js')
