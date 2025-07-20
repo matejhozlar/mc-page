@@ -73,6 +73,8 @@ body.scroll-override {
   margin: 0;
   padding: 0;
   cursor: url("./assets/cursors/sword.cur") 0 0, auto !important;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 body {
