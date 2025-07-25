@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("market-portfolio")
@@ -78,7 +77,7 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`❌ /market-portfolio failed: ${logError(error)}`);
+    logger.error(`❌ /market-portfolio failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Failed to load portfolio. Please try again later.",
       flags: MessageFlags.Ephemeral,

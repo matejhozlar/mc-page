@@ -1,7 +1,5 @@
-// routes/cryptoMod.js
 import express from "express";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 // utils
 import { getCooldownStatus } from "../utils/crypto/isOnCooldown.js";
@@ -17,7 +15,7 @@ export default function cryptoRoutes(db) {
       );
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch market tokens: ${logError(error)}`);
+      logger.error(`❌ Failed to fetch market tokens: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -132,7 +130,7 @@ export default function cryptoRoutes(db) {
       res.json({ success: true, message: "Token purchased successfully" });
     } catch (error) {
       await db.query("ROLLBACK");
-      logger.error(`❌ Buy token failed: ${logError(error)}`);
+      logger.error(`❌ Buy token failed: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -163,7 +161,7 @@ export default function cryptoRoutes(db) {
 
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch user tokens: logError(error)`);
+      logger.error(`❌ Failed to fetch user tokens: (error)`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -264,7 +262,7 @@ export default function cryptoRoutes(db) {
       res.json({ success: true, message: "Token sold successfully" });
     } catch (error) {
       await db.query("ROLLBACK");
-      logger.error(`❌ Sell token failed: ${logError(error)}`);
+      logger.error(`❌ Sell token failed: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -300,9 +298,7 @@ export default function cryptoRoutes(db) {
 
       res.json(result.rows);
     } catch (error) {
-      logger.error(
-        `❌ Failed to fetch transaction history: ${logError(error)}`
-      );
+      logger.error(`❌ Failed to fetch transaction history: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -368,7 +364,7 @@ export default function cryptoRoutes(db) {
 
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch price history: ${logError(error)}`);
+      logger.error(`❌ Failed to fetch price history: ${error}`);
       res.status(500).json({ error: "Failed to fetch price history" });
     }
   });
@@ -408,7 +404,7 @@ export default function cryptoRoutes(db) {
 
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch portfolio history: ${logError(error)}`);
+      logger.error(`❌ Failed to fetch portfolio history: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -431,7 +427,7 @@ export default function cryptoRoutes(db) {
 
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch token distribution: ${logError(error)}`);
+      logger.error(`❌ Failed to fetch token distribution: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -513,7 +509,7 @@ export default function cryptoRoutes(db) {
 
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch price history: ${logError(error)}`);
+      logger.error(`❌ Failed to fetch price history: ${error}`);
       res.status(500).json({ error: "Failed to fetch price history" });
     }
   });
@@ -538,9 +534,7 @@ export default function cryptoRoutes(db) {
       const tvl = rawTVL !== null ? parseFloat(rawTVL).toFixed(2) : "0.00";
       res.json({ tvl_usd: parseFloat(tvl) });
     } catch (error) {
-      logger.error(
-        `❌ Failed to calculate token-specific TVL: ${logError(error)}`
-      );
+      logger.error(`❌ Failed to calculate token-specific TVL: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });

@@ -43,7 +43,6 @@ import {
 import { updateMemecoinPrices } from "./services/crypto/updateMemecoinPrices.js";
 
 // utils
-import logError from "./utils/logError.js";
 import rotatingStatuses from "./utils/rotatingStatuses.js";
 
 // routes
@@ -139,7 +138,7 @@ try {
   await db.query("SELECT 1");
   logger.info("📦 Connected to PostgreSQL database.");
 } catch (error) {
-  logger.error(`❌ Failed to connect to DB: ${logError(error)}`);
+  logger.error(`❌ Failed to connect to DB: ${error}`);
   process.exit(1);
 }
 
@@ -173,7 +172,7 @@ const serverPort = Number(process.env.SERVER_PORT);
 //     }
 //   } catch (error) {
 //     logger.error(
-//       `❌ Failed to check player count for sync: ${logError(error)}`
+//       `❌ Failed to check player count for sync: ${error}`
 //     );
 //   }
 // }
@@ -229,7 +228,7 @@ logger.info(`   Minecraft Server: ${serverIP}:${serverPort}`);
 try {
   await webChatClient.login(process.env.DISCORD_WEB_CHAT_BOT_TOKEN);
 } catch (error) {
-  logger.error(`❌ Failed to login WebChatBot: ${logError(error)}`);
+  logger.error(`❌ Failed to login WebChatBot: ${error}`);
 }
 
 // message history fetch
@@ -274,7 +273,7 @@ async function fetchDiscordChatHistory(limit = 100) {
 
     return messagesArray;
   } catch (error) {
-    logger.error(`❌ Failed to fetch Discord history: ${logError(error)}`);
+    logger.error(`❌ Failed to fetch Discord history: ${error}`);
     return [];
   }
 }
@@ -293,7 +292,7 @@ async function sendToMinecraftChat(message) {
       await channel.send(`${message}`);
     }
   } catch (error) {
-    logger.error(`WebChatBot send error: ${logError(error)}`);
+    logger.error(`WebChatBot send error: ${error}`);
   }
 }
 
@@ -333,9 +332,7 @@ client.on("interactionCreate", async (interaction) => {
       await command.execute(interaction, db);
     } catch (error) {
       logger.error(
-        `❌ Error executing command ${interaction.commandName}: ${logError(
-          error
-        )}`
+        `❌ Error executing command ${interaction.commandName}: ${error}`
       );
       await interaction.reply({
         content: "❌ Command failed.",
@@ -434,7 +431,7 @@ client.on("interactionCreate", async (interaction) => {
         flags: MessageFlags.Ephemeral,
       });
     } catch (error) {
-      logger.error(`❌ Failed to create ticket: ${logError(error)}`);
+      logger.error(`❌ Failed to create ticket: ${error}`);
       await interaction.reply({
         content: "⚠️ Failed to create ticket. Please try again later.",
         flags: MessageFlags.Ephemeral,
@@ -512,7 +509,7 @@ client.on("interactionCreate", async (interaction) => {
         [adminPanelMessage.id, interaction.channel.id]
       );
     } catch (error) {
-      logger.error(`❌ Failed to close ticket: ${logError(error)}`);
+      logger.error(`❌ Failed to close ticket: ${error}`);
       await interaction.reply({
         content: "❌ Failed to close ticket.",
         flags: MessageFlags.Ephemeral,
@@ -580,7 +577,7 @@ client.on("interactionCreate", async (interaction) => {
         });
       }
     } catch (error) {
-      logger.error(`❌ Failed to reopen ticket: ${logError(error)}`);
+      logger.error(`❌ Failed to reopen ticket: ${error}`);
       await interaction.reply({
         content: "⚠️ Something went wrong while reopening the ticket.",
         flags: MessageFlags.Ephemeral,
@@ -684,7 +681,7 @@ client.on("interactionCreate", async (interaction) => {
         embeds: [transcriptEmbed],
       });
     } catch (error) {
-      logger.error(`❌ Failed to save/send transcript: ${logError(error)}`);
+      logger.error(`❌ Failed to save/send transcript: ${error}`);
       await interaction.channel.send({
         content: "⚠️ Failed to generate transcript.",
       });
@@ -816,7 +813,7 @@ io.on("connection", async (socket) => {
         authorType: "web",
       });
     } catch (error) {
-      logger.error(`❌ Error handling chat message: ${logError(error)}`);
+      logger.error(`❌ Error handling chat message: ${error}`);
     }
   });
 
@@ -863,9 +860,7 @@ client.on("guildMemberAdd", async (member) => {
       );
     }
   } catch (error) {
-    logger.error(
-      `❌ Error assigning role or sending message: ${logError(error)}`
-    );
+    logger.error(`❌ Error assigning role or sending message: ${error}`);
   }
 });
 
@@ -876,9 +871,7 @@ app.get("/*", (req, res) => {
 client.login(process.env.DISCORD_BOT_TOKEN);
 
 app.use((error, req, res, next) => {
-  logger.error(
-    `Unhandled Express error at ${req.method} ${req.url}: ${logError(error)}`
-  );
+  logger.error(`Unhandled Express error at ${req.method} ${req.url}: ${error}`);
   res.status(500).json({ error: "Internal server error" });
 });
 
@@ -892,11 +885,11 @@ process.on("SIGINT", async () => {
       process.exit(0);
     });
   } catch (error) {
-    logger.error(`❌ Error during shutdown: ${logError(error)}`);
+    logger.error(`❌ Error during shutdown: ${error}`);
     process.exit(1);
   }
 });
 
 process.on("unhandledRejection", (reason) => {
-  logger.error(`🧨 Unhandled promise rejection: ${logError(reason)}`);
+  logger.error(`🧨 Unhandled promise rejection: ${reason}`);
 });

@@ -1,6 +1,5 @@
 import { Rcon } from "rcon-client";
 import dotenv from "dotenv";
-import logError from "./logError.js";
 import logger from "../logger.js";
 
 dotenv.config();
@@ -19,7 +18,7 @@ export async function sendRconCommand(command) {
     logger.info(`✅ RCON command sent: ${command}`);
     return response;
   } catch (error) {
-    logger.error(`❌ RCON command failed: ${logError(error)}`);
+    logger.error(`❌ RCON command failed: ${error}`);
     throw new Error("Failed to send RCON command");
   }
 }

@@ -6,7 +6,6 @@ import {
   MessageFlags,
 } from "discord.js";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
 let lastRefreshTime = 0;
@@ -154,8 +153,8 @@ export async function initMarketLeaderboard(db, client, channelId) {
           await hofChannel.send({ embeds: [announcement] });
         }
       }
-    } catch (err) {
-      logger.error(`❌ updateMarketLeaderboard failed: ${logError(err)}`);
+    } catch (error) {
+      logger.error(`❌ updateMarketLeaderboard failed: ${error}`);
     }
   }
 

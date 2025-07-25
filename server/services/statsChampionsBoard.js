@@ -5,7 +5,6 @@ import {
   ButtonStyle,
 } from "discord.js";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
 let lastRefreshTime = 0;
@@ -162,7 +161,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
         }
       }
     } catch (error) {
-      logger.error(`❌ updateLeaderboard failed: ${logError(error)}`);
+      logger.error(`❌ updateLeaderboard failed: ${error}`);
     }
   }
 

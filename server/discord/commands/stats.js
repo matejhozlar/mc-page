@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const channelCooldowns = new Map();
 const COOLDOWN_MS = 60 * 60 * 1000;
@@ -107,7 +106,7 @@ export async function execute(interaction, db) {
 
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`❌ /stats command failed: ${logError(error)}`);
+    logger.error(`❌ /stats command failed: ${error}`);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }

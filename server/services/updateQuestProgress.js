@@ -1,6 +1,5 @@
 import { EmbedBuilder } from "discord.js";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 export async function updateQuestProgress(db, discordClient, channelId) {
   try {
@@ -67,6 +66,6 @@ export async function updateQuestProgress(db, discordClient, channelId) {
 
     logger.info("🔄 Quest progress updated and embed refreshed.");
   } catch (error) {
-    logger.error(`❌ updateQuestProgress failed: ${logError(error)}`);
+    logger.error(`❌ updateQuestProgress failed: ${error}`);
   }
 }

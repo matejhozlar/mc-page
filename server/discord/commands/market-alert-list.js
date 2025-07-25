@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("market-alert-list")
@@ -34,7 +33,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /market-alert-list failed: ${logError(error)}`);
+    logger.error(`❌ /market-alert-list failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Failed to fetch your alerts. Please try again later.",
       flags: MessageFlags.Ephemeral,

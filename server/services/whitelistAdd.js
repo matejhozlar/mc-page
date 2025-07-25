@@ -1,6 +1,5 @@
 import { Rcon } from "rcon-client";
 import logger from "../logger.jsx";
-import logError from "../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -20,7 +19,7 @@ async function whitelistPlayer(playerName) {
 
     rcon.end();
   } catch (error) {
-    logger.error(`Error connecting to RCON: ${logError(error)}`);
+    logger.error(`Error connecting to RCON: ${error}`);
   }
 }
 

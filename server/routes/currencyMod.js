@@ -1,5 +1,4 @@
 import express from "express";
-import logError from "../utils/logError.js";
 import logger from "../logger.js";
 import jwt from "jsonwebtoken";
 import { DateTime } from "luxon";
@@ -55,7 +54,7 @@ export default function currencyRoutes(db, webChatClient) {
       const balance = Math.floor(parseFloat(rawBal));
       res.json({ balance });
     } catch (error) {
-      logger.error(`❌ /currency/balance error: ${logError(error)}`);
+      logger.error(`❌ /currency/balance error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -123,8 +122,8 @@ export default function currencyRoutes(db, webChatClient) {
       res.json({ success: true, new_sender_balance: newSenderBal });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /currency/send error: ${logError(error)}`);
-      res.status(400).json({ error: logError(error) });
+      logger.error(`❌ /currency/send error: ${error}`);
+      res.status(400).json({ error: error });
     } finally {
       client.release();
     }
@@ -166,8 +165,8 @@ export default function currencyRoutes(db, webChatClient) {
       res.json({ success: true, new_balance: newBalance });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /currency/deposit error: ${logError(error)}`);
-      res.status(400).json({ error: logError(error) });
+      logger.error(`❌ /currency/deposit error: ${error}`);
+      res.status(400).json({ error: error });
     } finally {
       client.release();
     }
@@ -235,8 +234,8 @@ export default function currencyRoutes(db, webChatClient) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /currency/withdraw error: ${logError(error)}`);
-      res.status(400).json({ error: logError(error) });
+      logger.error(`❌ /currency/withdraw error: ${error}`);
+      res.status(400).json({ error: error });
     } finally {
       client.release();
     }
@@ -256,7 +255,7 @@ export default function currencyRoutes(db, webChatClient) {
 
       res.json(top);
     } catch (error) {
-      logger.error(`❌ /currency/top error: ${logError(error)}`);
+      logger.error(`❌ /currency/top error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -279,7 +278,7 @@ export default function currencyRoutes(db, webChatClient) {
 
       res.json({ success: true, message: "Mob limit marked for user" });
     } catch (error) {
-      logger.error(`❌ /currency/mob-limit error: ${logError(error)}`);
+      logger.error(`❌ /currency/mob-limit error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -302,7 +301,7 @@ export default function currencyRoutes(db, webChatClient) {
       const limitReached = result.rowCount > 0;
       res.json({ limitReached });
     } catch (error) {
-      logger.error(`❌ /currency/mob-limit GET error: ${logError(error)}`);
+      logger.error(`❌ /currency/mob-limit GET error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -406,7 +405,7 @@ export default function currencyRoutes(db, webChatClient) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /currency/daily error: ${logError(error)}`);
+      logger.error(`❌ /currency/daily error: ${error}`);
       res.status(500).json({
         error: "Something went wrong while claiming your daily reward.",
       });
@@ -470,8 +469,8 @@ export default function currencyRoutes(db, webChatClient) {
       res.json({ success: true, message: "Lottery started." });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /lottery/start error: ${logError(error)}`);
-      res.status(400).json({ error: logError(error) });
+      logger.error(`❌ /lottery/start error: ${error}`);
+      res.status(400).json({ error: error });
     } finally {
       client.release();
     }
@@ -540,8 +539,8 @@ export default function currencyRoutes(db, webChatClient) {
       res.json({ success: true, message: "Joined the lottery." });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /lottery/join error: ${logError(error)}`);
-      res.status(400).json({ error: logError(error) });
+      logger.error(`❌ /lottery/join error: ${error}`);
+      res.status(400).json({ error: error });
     } finally {
       client.release();
     }

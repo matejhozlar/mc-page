@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -49,7 +48,7 @@ export async function execute(interaction, db) {
       });
     }
   } catch (error) {
-    logger.error(`❌ /link command failed: ${logError(error)}`);
+    logger.error(`❌ /link command failed: ${error}`);
     await interaction.reply({
       content: "⚠️ Something went wrong while linking. Try again later.",
       flags: MessageFlags.Ephemeral,

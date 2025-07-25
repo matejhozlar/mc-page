@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../logError.js";
 
 export async function announceLotteryStart(client, hostName) {
   const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
@@ -16,6 +15,6 @@ export async function announceLotteryStart(client, hostName) {
       );
     }
   } catch (error) {
-    logger.error(`❌ Failed to send lottery announcement: ${logError(error)}`);
+    logger.error(`❌ Failed to send lottery announcement: ${error}`);
   }
 }

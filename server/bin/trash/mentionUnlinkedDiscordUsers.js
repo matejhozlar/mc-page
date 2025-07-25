@@ -1,7 +1,6 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import pg from "pg";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -52,7 +51,7 @@ client.once("ready", async () => {
     await channel.send(message);
     logger.info("📨 Sent notification for unlinked members.");
   } catch (error) {
-    logger.error(`❌ Failed to check and notify: ${logError(error)}`);
+    logger.error(`❌ Failed to check and notify: ${error}`);
   } finally {
     db.end();
     client.destroy();

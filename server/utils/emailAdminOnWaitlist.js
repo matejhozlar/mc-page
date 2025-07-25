@@ -1,7 +1,6 @@
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import logger from "../logger.js";
-import logError from "./logError.js";
 import {
   EmbedBuilder,
   ButtonBuilder,
@@ -41,7 +40,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     await transporter.sendMail(mailOptions);
     logger.info(`📧 Admin notified of new waitlist entry: ${discord_name}`);
   } catch (error) {
-    logger.error(`❌ Failed to notify admin: ${logError(error)}`);
+    logger.error(`❌ Failed to notify admin: ${error}`);
   }
 
   try {
@@ -77,6 +76,6 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
       `📢 Discord admin channel notified of waitlist: ${discord_name}`
     );
   } catch (error) {
-    logger.error(`❌ Failed to send Discord notification: ${logError(error)}`);
+    logger.error(`❌ Failed to send Discord notification: ${error}`);
   }
 }

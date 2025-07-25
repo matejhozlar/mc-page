@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -30,7 +29,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /token command failed: ${logError(error)}`);
+    logger.error(`❌ /token command failed: ${error}`);
     await interaction.reply({
       content: "❌ Could not generate token. Please try again later.",
       flags: MessageFlags.Ephemeral,

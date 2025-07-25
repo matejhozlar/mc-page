@@ -2,7 +2,6 @@ import express from "express";
 import multer from "multer";
 import { AttachmentBuilder } from "discord.js";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 export default function uploadImageRoute(
   io,
@@ -71,9 +70,7 @@ export default function uploadImageRoute(
       return res.json({ success: true, image: imageUrl });
     } catch (error) {
       logger.error(
-        `❌ Failed to send image to Discord from ${authorName}: ${logError(
-          error
-        )}`
+        `❌ Failed to send image to Discord from ${authorName}: ${error}`
       );
       return res.status(500).json({ error: "Failed to send image" });
     }

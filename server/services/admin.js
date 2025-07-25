@@ -1,5 +1,4 @@
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -14,7 +13,7 @@ export const isAdmin = async (db, discordId) => {
     );
     return result.rowCount > 0;
   } catch (error) {
-    logger.error(`Admin check failed: ${logError(error)}`);
+    logger.error(`Admin check failed: ${error}`);
     return false;
   }
 };

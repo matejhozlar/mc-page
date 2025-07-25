@@ -1,6 +1,5 @@
 import { status } from "minecraft-server-util";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -140,7 +139,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
   )
 `);
     } catch (error) {
-      logger.error(`❌ Background playtime sync failed: ${logError(error)}`);
+      logger.error(`❌ Background playtime sync failed: ${error}`);
     }
   }
 

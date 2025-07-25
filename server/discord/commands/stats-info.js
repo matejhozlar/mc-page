@@ -7,7 +7,6 @@ import {
 } from "discord.js";
 import { fileURLToPath } from "url";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const cooldown = new Map();
 
@@ -67,8 +66,8 @@ export async function execute(interaction, db) {
       .unlink(jsonPath)
       .catch(() => logger.warn(`⚠️ Failed to delete temp file: ${jsonPath}`));
     cooldown.set(userId, now);
-  } catch (err) {
-    logger.error(`❌ /stats-info failed: ${logError(err)}`);
+  } catch (error) {
+    logger.error(`❌ /stats-info failed: ${error}`);
     await interaction.editReply("⚠️ Failed to fetch or send stats info.");
   }
 }

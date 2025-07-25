@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
@@ -48,7 +47,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /list command failed: ${logError(error)}`);
+    logger.error(`❌ /list command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Could not fetch player list. Try again later.",
       flags: MessageFlags.Ephemeral,

@@ -7,7 +7,6 @@ import {
   MessageFlags,
 } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -70,7 +69,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /modpack command failed: ${logError(error)}`);
+    logger.error(`❌ /modpack command failed: ${error}`);
     await interaction.reply({
       content: `⚠️ Something went wrong. Try again later.`,
       flags: MessageFlags.Ephemeral,

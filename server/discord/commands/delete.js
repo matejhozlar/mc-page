@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import dotenv from "dotenv";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const ADMIN_ROLE_ID = process.env.DISCORD_ADMIN_ROLE_ID;
 const OWNER_ROLE_ID = process.env.DISCORD_OWNER_ROLE_ID;
@@ -62,7 +61,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /delete failed: ${logError(error)}`);
+    logger.error(`❌ /delete failed: ${error}`);
     await interaction.reply({
       content:
         "⚠️ Failed to delete messages. Make sure they are not older than 14 days.",

@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export async function updateRingcoinPriceHourly(db, tokenId = 1) {
   try {
@@ -22,8 +21,6 @@ export async function updateRingcoinPriceHourly(db, tokenId = 1) {
 
     logger.info(`✅ Hourly snapshot saved for token ${tokenId}: $${price}`);
   } catch (error) {
-    logger.error(
-      `❌ Failed to update Ringcoin price (Hourly): ${logError(error)}`
-    );
+    logger.error(`❌ Failed to update Ringcoin price (Hourly): ${error}`);
   }
 }

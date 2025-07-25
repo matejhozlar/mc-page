@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -57,7 +56,7 @@ export async function execute(interaction, db) {
       content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
     });
   } catch (error) {
-    logger.error(`❌ /top-playtime command failed: ${logError(error)}`);
+    logger.error(`❌ /top-playtime command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Couldn’t load leaderboard. Try again later.",
       flags: MessageFlags.Ephemeral,

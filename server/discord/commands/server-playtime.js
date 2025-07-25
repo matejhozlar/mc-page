@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import { SlashCommandBuilder, MessageFlags, EmbedBuilder } from "discord.js";
 
 let lastPlaytimeServerUse = 0;
@@ -68,7 +67,7 @@ export async function execute(interaction, db) {
       embeds: [embed],
     });
   } catch (error) {
-    logger.error(`❌ /server-playtime command failed: ${logError(error)}`);
+    logger.error(`❌ /server-playtime command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Could not fetch total playtime. Try again later.",
       flags: MessageFlags.Ephemeral,

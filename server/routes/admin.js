@@ -1,8 +1,6 @@
-// routes/admin.js
 import express from "express";
 import logger from "../logger.js";
 import rconLogger from "../rconLogger.js";
-import logError from "../utils/logError.js";
 import { isAdmin } from "../services/admin.js";
 import { Rcon } from "rcon-client";
 import { v4 as uuidv4 } from "uuid";
@@ -27,7 +25,7 @@ export default function adminRoutes(db) {
       logger.info(`🛂 Admin validate check: ${discordId} => ${valid}`);
       res.json({ valid });
     } catch (error) {
-      logger.error(`❌ Admin validation error: ${logError(error)}`);
+      logger.error(`❌ Admin validation error: ${error}`);
       res.status(500).json({ valid: false });
     }
   });
@@ -74,7 +72,7 @@ export default function adminRoutes(db) {
       logger.info(`📥 Admin /me data sent for: ${discordId}`);
       res.json(result.rows[0]);
     } catch (error) {
-      logger.error(`Failed to fetch admin user data: ${logError(error)}`);
+      logger.error(`Failed to fetch admin user data: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -130,9 +128,7 @@ export default function adminRoutes(db) {
 
       return res.json({ success: true, response });
     } catch (error) {
-      rconLogger.error(
-        `❌ RCON execution failed for ${discordId}: ${logError(error)}`
-      );
+      rconLogger.error(`❌ RCON execution failed for ${discordId}: ${error}`);
       return res.status(500).json({ success: false, error: "RCON failure" });
     }
   });
@@ -162,7 +158,7 @@ export default function adminRoutes(db) {
       logger.info(`📊 Admin ${discordId} fetched user list.`);
       res.json({ users: result.rows });
     } catch (error) {
-      logger.error(`Failed to fetch users: ${logError(error)}`);
+      logger.error(`Failed to fetch users: ${error}`);
       res.status(500).json({ error: "Database error" });
     }
   });
@@ -195,7 +191,7 @@ export default function adminRoutes(db) {
 
       res.json({ vanished: result.rows[0].vanished });
     } catch (error) {
-      logger.error(`❌ Failed to fetch vanish status: ${logError(error)}`);
+      logger.error(`❌ Failed to fetch vanish status: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -245,7 +241,7 @@ export default function adminRoutes(db) {
       logger.info(`🟢 Vanish status updated: ${name} → ${vanished}`);
       res.json({ success: true });
     } catch (error) {
-      logger.error(`❌ Failed to update vanish status: ${logError(error)}`);
+      logger.error(`❌ Failed to update vanish status: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -350,7 +346,7 @@ export default function adminRoutes(db) {
       logger.info(`🔑 Token generated: ${token}`);
       res.json({ success: true });
     } catch (error) {
-      logger.error(`❌ Failed to send invite: ${logError(error)}`);
+      logger.error(`❌ Failed to send invite: ${error}`);
       res.status(500).json({ error: "Failed to send invite" });
     }
   });
@@ -368,8 +364,8 @@ export default function adminRoutes(db) {
       );
       logger.info(`📊 Admin ${discordId} fetched waitlist list.`);
       res.json({ entries: result.rows });
-    } catch (err) {
-      logger.error(`❌ Failed to fetch waitlist: ${logError(err)}`);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch waitlist: ${error}`);
       res.status(500).json({ error: "Failed to load waitlist" });
     }
   });

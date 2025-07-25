@@ -1,6 +1,5 @@
 import express from "express";
 import { status } from "minecraft-server-util";
-import logError from "../utils/logError.js";
 import logger from "../logger.js";
 
 let lastPlayerCount = null;
@@ -30,7 +29,7 @@ export default function playersRoutes(
 
       res.json({ count });
     } catch (error) {
-      logger.error(`Error querying server: ${logError(error)}`);
+      logger.error(`Error querying server: ${error}`);
       res.status(500).json({ err: "Failed to fetch player count" });
     }
   });
@@ -56,9 +55,7 @@ export default function playersRoutes(
             [player.id, player.name]
           );
         } catch (error) {
-          logger.warn(
-            `⚠️ Failed to insert player ${player.name}: ${logError(error)}`
-          );
+          logger.warn(`⚠️ Failed to insert player ${player.name}: ${error}`);
         }
       }
 
@@ -71,9 +68,7 @@ export default function playersRoutes(
 
       res.json({ players: result.rows });
     } catch (error) {
-      logger.error(
-        `❌ Error fetching or processing player list: ${logError(error)}`
-      );
+      logger.error(`❌ Error fetching or processing player list: ${error}`);
       res.status(500).json({ error: "Could not fetch players" });
     }
   });

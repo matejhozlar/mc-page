@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../logError.js";
 
 export async function announceLotteryRefund(client, participantName, amount) {
   const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
@@ -18,8 +17,6 @@ export async function announceLotteryRefund(client, participantName, amount) {
       );
     }
   } catch (error) {
-    logger.error(
-      `❌ Failed to send lottery refund message: ${logError(error)}`
-    );
+    logger.error(`❌ Failed to send lottery refund message: ${error}`);
   }
 }

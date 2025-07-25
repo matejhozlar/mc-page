@@ -14,7 +14,6 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -150,9 +149,7 @@ export async function execute(interaction, db) {
 
         await fs.unlink(filePath);
       } catch (err) {
-        logger.warn(
-          `⚠️ Could not create/send/delete crown file: ${logError(err)}`
-        );
+        logger.warn(`⚠️ Could not create/send/delete crown file: ${err}`);
         await btnInt.reply({
           content: `❌ Something went wrong exporting your file.`,
           flags: MessageFlags.Ephemeral,
@@ -166,7 +163,7 @@ export async function execute(interaction, db) {
       } catch {}
     });
   } catch (error) {
-    logger.error(`❌ /stats-crowns failed: ${logError(error)}`);
+    logger.error(`❌ /stats-crowns failed: ${error}`);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }

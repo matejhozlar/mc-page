@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 export async function updateRingcoinPriceMinutes(db, tokenId = 1) {
   try {
     const { rows } = await db.query(
@@ -60,6 +59,6 @@ export async function updateRingcoinPriceMinutes(db, tokenId = 1) {
       )} (${changeStr})`
     );
   } catch (error) {
-    logger.error(`❌ Failed to update Ringcoin price: ${logError(error)}`);
+    logger.error(`❌ Failed to update Ringcoin price: ${error}`);
   }
 }

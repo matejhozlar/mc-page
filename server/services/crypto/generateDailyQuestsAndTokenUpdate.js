@@ -1,6 +1,5 @@
 import { questsPool } from "./data/questPool.js";
 import { EmbedBuilder } from "discord.js";
-import logError from "../../utils/logError.js";
 import logger from "../../logger.js";
 
 export async function generateDailyQuestsAndTokenUpdate(
@@ -177,9 +176,7 @@ export async function generateDailyQuestsAndTokenUpdate(
 
     logger.info("✅ Daily quests and token updates complete.");
   } catch (error) {
-    logger.error(
-      `❌ generateDailyQuestsAndTokenUpdate failed: ${logError(error)}`
-    );
+    logger.error(`❌ generateDailyQuestsAndTokenUpdate failed: ${error}`);
   }
 }
 

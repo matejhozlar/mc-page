@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export async function deleteCrashedMemecoins(db) {
   try {
@@ -16,6 +15,6 @@ export async function deleteCrashedMemecoins(db) {
       );
     }
   } catch (error) {
-    logger.error(`❌ Failed to delete crashed memecoins: ${logError(error)}`);
+    logger.error(`❌ Failed to delete crashed memecoins: ${error}`);
   }
 }

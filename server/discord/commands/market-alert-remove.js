@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export const data = new SlashCommandBuilder()
   .setName("market-alert-remove")
@@ -35,7 +34,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /market-alert-remove failed: ${logError(error)}`);
+    logger.error(`❌ /market-alert-remove failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while removing your alert.",
       flags: MessageFlags.Ephemeral,

@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import {
   EmbedBuilder,
   ActionRowBuilder,
@@ -55,9 +54,7 @@ export async function updateMemecoinPrices(db, client) {
             );
           } catch (err) {
             logger.warn(
-              `⚠️ Failed to send crash alert DM to ${
-                alert.discord_id
-              }: ${logError(err)}`
+              `⚠️ Failed to send crash alert DM to ${alert.discord_id}: ${err}`
             );
           }
         }
@@ -160,9 +157,7 @@ export async function updateMemecoinPrices(db, client) {
           await new Promise((resolve) => setTimeout(resolve, 300));
         } catch (error) {
           logger.warn(
-            `⚠️ Failed to send alert DM to ${alert.discord_id}: ${logError(
-              error
-            )}`
+            `⚠️ Failed to send alert DM to ${alert.discord_id}: ${error}`
           );
         }
       }
@@ -210,6 +205,6 @@ export async function updateMemecoinPrices(db, client) {
       }
     }
   } catch (error) {
-    logger.error(`❌ Failed to update memecoin prices: ${logError(error)}`);
+    logger.error(`❌ Failed to update memecoin prices: ${error}`);
   }
 }

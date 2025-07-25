@@ -8,7 +8,6 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -94,7 +93,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /stats-guide command failed: ${logError(error)}`);
+    logger.error(`❌ /stats-guide command failed: ${error}`);
     await interaction.reply({
       content: `⚠️ Something went wrong. Try again later.`,
       flags: MessageFlags.Ephemeral,

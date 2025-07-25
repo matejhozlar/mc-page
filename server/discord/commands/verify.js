@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -60,7 +59,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /verify command failed: ${logError(error)}`);
+    logger.error(`❌ /verify command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong. Please try again later.",
       flags: MessageFlags.Ephemeral,

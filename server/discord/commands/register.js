@@ -3,7 +3,6 @@ import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
 import { verifyNotifyStaff } from "../../services/verifyNotifyStaff.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -157,12 +156,8 @@ export async function execute(interaction, db) {
       content: `✅ **Done!** You've been successfully registered and whitelisted as \`${correctName}\`. Welcome aboard! 🚂`,
     });
   } catch (error) {
-    logger.error(`❌ /register command failed: ${logError(error)}`);
-    await verifyNotifyStaff(
-      interaction,
-      `Unexpected Error: ${logError(error)}`,
-      mcName
-    );
+    logger.error(`❌ /register command failed: ${error}`);
+    await verifyNotifyStaff(interaction, `Unexpected Error: ${error}`, mcName);
     await interaction.editReply({
       content:
         "⚠️ Something went wrong. Please try again later or contact staff.\n💬 A staff member has been notified.",

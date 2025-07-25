@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export async function cleanupTokenHistoryTable(
   db,
@@ -40,6 +39,6 @@ export async function cleanupTokenHistoryTable(
       }
     }
   } catch (error) {
-    logger.error(`❌ Failed to clean ${tableName}: ${logError(error)}`);
+    logger.error(`❌ Failed to clean ${tableName}: ${error}`);
   }
 }

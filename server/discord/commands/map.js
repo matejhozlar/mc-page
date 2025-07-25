@@ -7,7 +7,6 @@ import {
   MessageFlags,
 } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
@@ -56,7 +55,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /modpack command failed: ${logError(error)}`);
+    logger.error(`❌ /modpack command failed: ${error}`);
     await interaction.reply({
       content: `⚠️ Something went wrong. Try again later.`,
       flags: MessageFlags.Ephemeral,

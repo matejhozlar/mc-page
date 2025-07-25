@@ -1,5 +1,4 @@
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -118,6 +117,6 @@ export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
       }
     }
   } catch (error) {
-    logger.error(`❌ Error assigning playtime roles: ${logError(error)}`);
+    logger.error(`❌ Error assigning playtime roles: ${error}`);
   }
 }

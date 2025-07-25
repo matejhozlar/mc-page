@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export async function sendDailyReminder(client) {
   const message =
@@ -16,6 +15,6 @@ export async function sendDailyReminder(client) {
       );
     }
   } catch (error) {
-    logger.error(`❌ Failed to send daily reminder: ${logError(error)}`);
+    logger.error(`❌ Failed to send daily reminder: ${error}`);
   }
 }

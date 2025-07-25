@@ -6,7 +6,6 @@ import {
 import puppeteer from "puppeteer";
 import dotenv from "dotenv";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 dotenv.config();
 
@@ -41,7 +40,7 @@ async function captureChartScreenshot(symbol) {
 
     logger.info("Puppeteer launched.");
   } catch (error) {
-    logger.error(`❌ Error launching Puppeteer: ${logError(error)}`);
+    logger.error(`❌ Error launching Puppeteer: ${error}`);
     return null;
   }
 
@@ -79,7 +78,7 @@ async function captureChartScreenshot(symbol) {
     logger.info("✅ Screenshot captured.");
     return screenshotBuffer;
   } catch (error) {
-    logger.error(`❌ Error during screenshot capture: ${logError(error)}`);
+    logger.error(`❌ Error during screenshot capture: ${error}`);
     return null;
   } finally {
     if (browser) await browser.close();
@@ -127,7 +126,7 @@ export async function execute(interaction, db) {
 
     logger.info(`✅ Chart for ${symbol} sent to Discord.`);
   } catch (error) {
-    logger.error(`❌ Error executing market-token command: ${logError(error)}`);
+    logger.error(`❌ Error executing market-token command: ${error}`);
     try {
       await interaction.editReply({
         content: `⚠️ Something went wrong. Try again later.`,

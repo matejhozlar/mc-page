@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 import { DateTime } from "luxon";
 
@@ -89,7 +88,7 @@ export async function execute(interaction, db) {
     });
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ /daily command failed: ${logError(error)}`);
+    logger.error(`❌ /daily command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while claiming your daily reward.",
       flags: MessageFlags.Ephemeral,

@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../logError.js";
 import { setTimeout as sleep } from "timers/promises";
 import { announceLotteryWinner } from "./announceLotteryWinner.js";
 import { announceLotteryRefund } from "./announceLotteryRefund.js";
@@ -62,7 +61,7 @@ export async function startLotteryResolver(db, webChatClient, waitMs = 120000) {
     await announceLotteryWinner(webChatClient, winner.name, total);
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ Lottery resolver failed: ${logError(error)}`);
+    logger.error(`❌ Lottery resolver failed: ${error}`);
   } finally {
     client.release();
   }

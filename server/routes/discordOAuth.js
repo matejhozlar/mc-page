@@ -1,7 +1,6 @@
 import express from "express";
 import axios from "axios";
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 export default function discordOAuthRoutes(db) {
   const router = express.Router();
@@ -51,7 +50,7 @@ export default function discordOAuthRoutes(db) {
       logger.info(`🎉 Game session started for user: ${discordUser.username}`);
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`❌ Game login failed: ${logError(error)}`);
+      logger.error(`❌ Game login failed: ${error}`);
       res.status(500).json({ error: "OAuth error" });
     }
   });
@@ -102,7 +101,7 @@ export default function discordOAuthRoutes(db) {
       logger.info(`🎉 Game session started for user: ${discordUser.username}`);
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`❌ Game login failed: ${logError(error)}`);
+      logger.error(`❌ Game login failed: ${error}`);
       res.status(500).json({ error: "OAuth error" });
     }
   });
@@ -158,7 +157,7 @@ export default function discordOAuthRoutes(db) {
       logger.info(`🔓 Admin session started for ${user.username} (${user.id})`);
       res.status(200).json({ success: true });
     } catch (error) {
-      logger.error(`OAuth or admin check error: ${logError(error)}`);
+      logger.error(`OAuth or admin check error: ${error}`);
       res.status(500).json({ error: "OAuth error" });
     }
   });

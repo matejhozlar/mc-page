@@ -1,6 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -57,7 +56,7 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`❌ /baltop command failed: ${logError(error)}`);
+    logger.error(`❌ /baltop command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while fetching top balances.",
       flags: MessageFlags.Ephemeral,

@@ -1,5 +1,4 @@
 import logger from "../logger.js";
-import logError from "../utils/logError.js";
 
 export async function runMobLimitCleaner(db) {
   try {
@@ -18,6 +17,6 @@ export async function runMobLimitCleaner(db) {
 
     logger.info("✅ job_history updated.");
   } catch (error) {
-    logger.error(`❌ Failed to run mob limit cleaner: ${logError(error)}`);
+    logger.error(`❌ Failed to run mob limit cleaner: ${error}`);
   }
 }

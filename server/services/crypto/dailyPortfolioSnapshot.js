@@ -1,4 +1,3 @@
-import logError from "../../utils/logError.js";
 import logger from "../../logger.js";
 
 export async function snapshotUserPortfolios(db) {
@@ -31,6 +30,6 @@ export async function snapshotUserPortfolios(db) {
 
     logger.info("✅ Daily user portfolio snapshot recorded.");
   } catch (error) {
-    logger.error(`❌ Failed to record daily snapshots: ${logError(error)}`);
+    logger.error(`❌ Failed to record daily snapshots: ${error}`);
   }
 }

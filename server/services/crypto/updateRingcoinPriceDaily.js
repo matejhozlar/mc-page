@@ -1,5 +1,4 @@
 import logger from "../../logger.js";
-import logError from "../../utils/logError.js";
 
 export async function updateRingcoinPriceDaily(db, tokenSymbol = "RGC") {
   try {
@@ -22,7 +21,7 @@ export async function updateRingcoinPriceDaily(db, tokenSymbol = "RGC") {
     logger.info(`✅ Daily snapshot saved for ${tokenSymbol}: $${price}`);
   } catch (error) {
     logger.error(
-      `❌ Failed to update price for ${tokenSymbol} (daily): ${logError(error)}`
+      `❌ Failed to update price for ${tokenSymbol} (daily): ${error}`
     );
   }
 }
