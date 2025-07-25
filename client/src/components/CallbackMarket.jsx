@@ -14,7 +14,7 @@ const CallbackMarket = () => {
         if (!res.ok) throw new Error("Not authorized");
         return res.json();
       })
-      .then((data) => {
+      .then(() => {
         window.history.replaceState({}, document.title, "/market");
         window.location.href = "/market";
       })

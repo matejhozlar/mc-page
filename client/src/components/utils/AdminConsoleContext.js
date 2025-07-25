@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 
 export const AdminConsoleContext = createContext({
-  appendLog: (msg) => {},
+  appendLog: () => {},
 });
 
 export const useAdminConsole = () => useContext(AdminConsoleContext);

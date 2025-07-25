@@ -14,7 +14,7 @@ const Callback = () => {
         if (!res.ok) throw new Error("Not authorized");
         return res.json();
       })
-      .then((data) => {
+      .then(() => {
         window.history.replaceState({}, document.title, "/admin");
         window.location.href = "/admin";
       })

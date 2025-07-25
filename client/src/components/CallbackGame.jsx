@@ -14,7 +14,7 @@ const CallbackGame = () => {
         if (!res.ok) throw new Error("Not authorized");
         return res.json();
       })
-      .then((data) => {
+      .then(() => {
         window.history.replaceState({}, document.title, "/game");
         window.location.href = "/game";
       })

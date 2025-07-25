@@ -5,8 +5,7 @@ import { usePlayers } from "./AdminPlayerProvider";
 import { marked } from "marked";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
-const SERVER_URL = "http://localhost:5000";
-const socket = io(SERVER_URL);
+const socket = io();
 
 const AdminServerChat = () => {
   const { players: onlinePlayers = [] } = usePlayers();

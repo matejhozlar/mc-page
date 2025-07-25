@@ -18,7 +18,6 @@ const ProfileSkinViewer = ({ username }) => {
     viewer.controls.enableZoom = false;
     viewer.controls.enableRotate = true;
 
-    // Delay animation setup to ensure animations object is defined
     const startAnimations = () => {
       try {
         if (viewer.animations?.walking) {

@@ -1,5 +1,5 @@
 // context/PlayerContext.jsx
-import React, { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect } from "react";
 
 const PlayerContext = createContext();
 
@@ -31,5 +31,3 @@ export const PlayerProvider = ({ children }) => {
     </PlayerContext.Provider>
   );
 };
-
-export const usePlayers = () => useContext(PlayerContext);

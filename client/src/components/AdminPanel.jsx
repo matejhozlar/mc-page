@@ -7,7 +7,7 @@ import AdminUsersTable from "./AdminUsersTable.jsx";
 import AdminWaitlistTable from "./AdminWaitlistTable.jsx";
 
 // utils
-import { AdminConsoleContext } from "./utils/AdminConsoleContext";
+import { AdminConsoleContext } from "./utils/AdminConsoleContext.js";
 
 const AdminPanel = () => {
   const [allowed, setAllowed] = useState(false);

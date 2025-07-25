@@ -42,7 +42,7 @@ function PortfolioHistoryChart({ data }) {
       x: {
         ticks: {
           maxTicksLimit: 8,
-          callback: function (value, index, ticks) {
+          callback: function (value) {
             const label = this.getLabelForValue(value);
             const date = new Date(label);
             return date.toLocaleDateString();

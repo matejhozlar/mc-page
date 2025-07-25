@@ -532,7 +532,7 @@ function TokenModal({
                 scales: {
                   x: {
                     ticks: {
-                      callback: function (value, index, ticks) {
+                      callback: function (value) {
                         const label = this.getLabelForValue(value);
                         const date = new Date(label);
                         return date.toLocaleTimeString([], {

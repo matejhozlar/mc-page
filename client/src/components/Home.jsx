@@ -1,4 +1,3 @@
-// src/components/Home.jsx
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import AOS from "aos";
