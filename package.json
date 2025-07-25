@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "openai": "^4.103.0",
-    "react-router-dom": "^7.5.0"
-  }
-}
