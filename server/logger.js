@@ -52,6 +52,31 @@ class DailyFolderLogger {
     });
   }
 
+  cleanOldLogFolders(daysToKeep = 7) {
+    const cutoff = Date.now() - daysToKeep * 24 * 60 * 60 * 1000;
+
+    fs.readdir(logDir, (error, folders) => {
+      if (err) return console.error("Failed to read logDir:", error);
+
+      folders.forEach((folder) => {
+        const folderPath = path.join(logDir, folder);
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(folder)) return;
+
+        const folderTime = new Date(folder).getTime();
+        if (!isNaN(folderTime) && folderTime < cutoff) {
+          fs.rm(folderPath, { recursive: true, force: true }, (rmErr) => {
+            if (rmErr) {
+              console.log(`Failed to delete old log folder ${folder}:`, rmErr);
+            } else {
+              console.log(`Deteted old log folder: ${folder}`);
+            }
+          });
+        }
+      });
+    });
+  }
+
   monitorDateChange() {
     setInterval(() => {
       const newDate = this.getDateString();
@@ -59,24 +84,39 @@ class DailyFolderLogger {
         this.logger.close();
         this.currentDate = newDate;
         this.logger = this.createLoggerForDate(this.currentDate);
+        this.cleanOldLogFolders(7);
       }
     }, 60 * 1000);
   }
 
-  log(level, message) {
-    this.logger.log({ level, message });
-  }
-
-  warn(message) {
-    this.logger.warn(message);
-  }
-
-  info(message) {
-    this.logger.info(message);
+  formatMessage(input) {
+    if (input instanceof Error) {
+      return input.stack || input.message;
+    }
+    if (typeof input === "object") {
+      try {
+        return JSON.stringify(input);
+      } catch {
+        return String(input);
+      }
+    }
+    return String(input);
   }
 
   error(message) {
-    this.logger.error(message);
+    this.logger.error(this.formatMessage(message));
+  }
+
+  warn(message) {
+    this.logger.warn(this.formatMessage(message));
+  }
+
+  info(message) {
+    this.logger.info(this.formatMessage(message));
+  }
+
+  log(level, message) {
+    this.logger.log({ level, message: this.formatMessage(message) });
   }
 }
 
