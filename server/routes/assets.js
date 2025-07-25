@@ -21,7 +21,7 @@ export default function assetsRoutes() {
       return res.status(401).send("Unauthorized: Invalid or missing code");
     }
 
-    const filePath = path.join(__dirname, "..", "download", "assets.zip");
+    const filePath = path.join(__dirname, "download", "assets.zip");
 
     if (!existsSync(filePath)) {
       return res.status(404).send("File not found");

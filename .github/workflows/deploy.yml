@@ -1,9 +1,7 @@
 name: Build and Push to Other Repo
 
 on:
-  push:
-    branches:
-      - main
+  workflow-dispatch:
 
 jobs:
   build-and-push:
