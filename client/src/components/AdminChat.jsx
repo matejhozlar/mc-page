@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
-import { usePlayers } from "./AdminPlayerProvider";
+import { usePlayers } from "./utils/usePlayers.js";
 import { marked } from "marked";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
