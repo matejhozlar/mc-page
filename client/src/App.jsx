@@ -37,14 +37,12 @@ function App() {
   );
 }
 
-// This is where the logic for showing or hiding the loader goes
 function AppWithRouter() {
-  const location = useLocation(); // We use this to get the current route
+  const location = useLocation();
   const [showLoader, setShowLoader] = useState(() => {
     return sessionStorage.getItem("initialLoad") !== "done";
   });
 
-  // Only show the loader if we are NOT on the chart page
   const shouldShowLoader = showLoader && !location.pathname.includes("/chart/");
 
   useEffect(() => {

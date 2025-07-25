@@ -73,7 +73,7 @@ validateEnv();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const reactBuildPath = path.join(__dirname, "..", "client", "build");
+const reactBuildPath = path.join(__dirname, "..", "client", "dist");
 
 // Load command handlers
 const commandsPath = path.join(__dirname, "discord", "commands");
