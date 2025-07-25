@@ -1,0 +1,43 @@
+name: Build and Push to Other Repo
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this Repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install and Build Client
+        working-directory: ./client
+        run: |
+          npm install 
+          npm run build
+
+      - name: Prepare output folder
+        run: |
+          mkdir -p out/client/dist
+          cp -r client/dist/* out/client/dist
+          cp -r server out/server
+
+      - name: Push to other Repo
+        run: |
+          cd out
+          git init
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git remote add origin https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/matejhozlar/mc-server-prod.git
+          git fetch origin
+          git add .
+          git commit -m "Automated deployment"
+          git push --force origin main
