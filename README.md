@@ -1,6 +1,6 @@
 # Createrington Market & Community Portal
 
-Welcome to **Createrington**, a full‑stack community portal that unifies a Minecraft server, Discord community and browser‑based web client into one seamless experience. The project not only provides traditional features like play‑time tracking and whitelist management but also incorporates a novel **memecoin market**, a **wait‑list/application system**, an **OpenAI‑powered assistant** and extensive **role automation** across Discord and the game. This README explains the purpose of the project, its architectural components, how to set up and run your own instance, and gives an overview of the REST API.
+Welcome to **Createrington**, a full‑stack community portal that unifies a Minecraft server, Discord community and browser‑based web client into one seamless experience. The project not only provides traditional features like play‑time tracking and whitelist management but also incorporates a novel **memecoin market**, a **wait‑list/application system**, an **OpenAI‑powered assistant** and extensive **role automation** across Discord and fun web games. This README explains the purpose of the project, its architectural components, how to set up and run your own instance, and gives an overview of the REST API.
 
 ---
 
@@ -60,7 +60,7 @@ Includes:
 - `/api/playerCount` and `/api/players` for online status
 - Live Socket.io events and leaderboard pages on the web client
 
-### 💱 Integrated currency & crypto market
+### Integrated currency & crypto market
 
 - Trade, earn, deposit/withdraw funds
 - Memecoins simulate a volatile market
