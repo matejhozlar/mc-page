@@ -43,6 +43,19 @@ jobs:
           cp -r client/dist/* out/client/dist
           cp -r server out/server
 
+      - name: Rewrite .gitignore for deployment
+        run: |
+          cat > out/.gitignore <<EOF
+/node_modules
+.env
+/services/.env
+/logs/
+/services/logs/
+/stats
+/tmp
+/discord/disabled/
+EOF
+
       - name: Push to other Repo
         run: |
           cd out
