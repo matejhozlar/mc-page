@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest",
     "start": "node server",
-    "dev": "nodemon server"
+    "dev": "nodemon server",
+    "gen:env-vars": "node scripts/env/generate.js"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,7 @@
     "discord.js": "^14.18.0",
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
+    "fast-glob": "^3.3.3",
     "form-data": "^4.0.4",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",

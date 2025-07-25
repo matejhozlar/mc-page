@@ -1,6 +1,6 @@
-// sync-env.js
 import fs from "fs";
 import path from "path";
+import logger from "./logger.js";
 
 const envSource = path.resolve(".env");
 
@@ -19,22 +19,26 @@ const targetDirs = [
   "./bin/invites",
   "./bin/trash",
   "./bin/announcements",
-  "./config",
   "./AI",
 ];
 
-if (!fs.existsSync(envSource)) {
-  console.error("❌ .env file not found at project root.");
-  process.exit(1);
+export function syncEnv() {
+  if (!fs.existsSync(envSource)) {
+    logger.error("❌ .env file not found at project root.");
+    process.exit(1);
+  }
+
+  for (const dir of targetDirs) {
+    const dest = path.join(dir, ".env");
+
+    try {
+      fs.copyFileSync(envSource, dest);
+    } catch (error) {
+      logger.error(`❌ Failed to copy to ${dest}: ${error}`);
+    }
+  }
 }
 
-for (const dir of targetDirs) {
-  const dest = path.join(dir, ".env");
-
-  try {
-    fs.copyFileSync(envSource, dest);
-    console.log(`✅ Copied .env to ${dest}`);
-  } catch (err) {
-    console.error(`❌ Failed to copy to ${dest}:`, err.message);
-  }
+if (import.meta.url === `file://${process.argv[1]}`) {
+  syncEnv();
 }

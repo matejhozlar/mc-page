@@ -26,7 +26,8 @@ import { syncAndImportStats } from "./utils/syncAndImportStats.js";
 import { status } from "minecraft-server-util";
 
 // config
-import { validateEnv } from "./config/validateEnv.js";
+import { validateEnv } from "./config/env/validateEnv.js";
+import { syncEnv } from "./sync-env.js";
 
 //services
 import { startPlaytimeTracking } from "./services/playtimeTracker.js";
@@ -67,6 +68,7 @@ import setupAIChatListener from "./discord/listeners/aiChatChannel.js";
 // cron jobs
 import { setupCronJobs } from "./jobs/cronJobs.js";
 
+syncEnv();
 validateEnv();
 
 // Resolve __dirname

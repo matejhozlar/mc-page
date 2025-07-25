@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import logger from "../logger.js";
+import logger from "../../logger.js";
 
 // required vars
 import REQUIRED_VARS from "./vars/requiredVars.js";
