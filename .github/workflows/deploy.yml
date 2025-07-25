@@ -45,7 +45,7 @@ jobs:
 
       - name: Rewrite .gitignore for deployment
         run: |
-          cat > out/.gitignore <<EOF
+          cat > out/server/.gitignore <<EOF
           /node_modules
           .env
           /services/.env
