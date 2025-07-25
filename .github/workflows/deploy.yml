@@ -16,10 +16,14 @@ jobs:
           echo "Downloading assets.zip..."
           curl -L "https://create-rington.com/api/download/assets?code=${{ secrets.DOWNLOAD_ACCESS_CODE }}" -o assets.zip
 
-          echo "Unzipping assets..."
+          echo "Copying assets.zip to server/routes/download/"
+          mkdir -p server/routes/download
+          cp assets.zip server/routes/download/assets.zip
+
+          echo "Unzipping assets.zip to working directory..."
           unzip -o assets.zip -d ./
 
-          echo "Cleaning up..."
+          echo "Cleaning up temporary zip..."
           rm assets.zip
 
       - name: Set up Node.js
