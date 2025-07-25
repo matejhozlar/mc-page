@@ -1,4 +1,4 @@
-name: Build and Push to Other Repo
+name: Build and Push to Deployment Repo
 
 on:
   workflow_dispatch:
@@ -9,7 +9,18 @@ jobs:
 
     steps:
       - name: Checkout this Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: Download and Unzip Assets
+        run: |
+          echo "🔽 Downloading assets.zip..."
+          curl -L "https://create-rington.com/api/download/assets?code=${{ secrets.DOWNLOAD_ACCESS_CODE }}" -o assets.zip
+
+          echo "📂 Unzipping assets..."
+          unzip -o assets.zip -d ./
+
+          echo "🧹 Cleaning up..."
+          rm assets.zip
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -22,7 +33,7 @@ jobs:
           npm install 
           npm run build
 
-      - name: Prepare output folder
+      - name: Prepare output Folder
         run: |
           mkdir -p out/client/dist
           cp -r client/dist/* out/client/dist
