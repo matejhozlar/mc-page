@@ -1,5 +1,5 @@
-// context/PlayerContext.jsx
 import { useState, useEffect } from "react";
+import { PlayerContext } from "./utils/PlayerContext";
 
 export const PlayerProvider = ({ children }) => {
   const [players, setPlayers] = useState([]);
