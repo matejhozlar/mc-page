@@ -5,6 +5,7 @@ import AdminChat from "./AdminChat.jsx";
 import AdminRconPanel from "./AdminRconPanel.jsx";
 import AdminUsersTable from "./AdminUsersTable.jsx";
 import AdminWaitlistTable from "./AdminWaitlistTable.jsx";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 // utils
 import { AdminConsoleContext } from "./utils/AdminConsoleContext.js";
@@ -95,11 +96,7 @@ const AdminPanel = () => {
   };
 
   if (!checked || (allowed && !user))
-    return (
-      <div className="admin-panel-wrapper">
-        <p>Loading...</p>
-      </div>
-    );
+    return <LoadingSpinner message="Logging in..." />;
   if (!allowed) return null;
 
   return (

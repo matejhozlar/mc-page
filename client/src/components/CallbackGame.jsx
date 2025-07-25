@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 
+import LoadingSpinner from "./LoadingSpinner.jsx";
+
 const CallbackGame = () => {
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
@@ -24,7 +26,7 @@ const CallbackGame = () => {
       });
   }, []);
 
-  return <p>Logging in via Discord...</p>;
+  return <LoadingSpinner message="Logging in via Discord..." />;
 };
 
 export default CallbackGame;

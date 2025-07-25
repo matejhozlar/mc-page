@@ -18,6 +18,7 @@ import { SMELTING_RECIPES } from "./data/furnaceData";
 
 // components
 import Tooltip from "./Tooltip";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ClickerGame = () => {
   const canvasRef = useRef(null);
@@ -752,7 +753,7 @@ const ClickerGame = () => {
 
   const shop = toolOrder
     .filter((name) => !inventory?.includes(name))
-    .map((name, index) => {
+    .map((name) => {
       const cost = toolCosts[name];
       const materialCost = toolMaterialCosts[name] || {};
       const toolIndex = toolOrder.indexOf(name);
@@ -1021,7 +1022,7 @@ const ClickerGame = () => {
   if (!checked || (allowed && !user)) {
     return (
       <div className="admin-panel-wrapper">
-        <p>Loading...</p>
+        <LoadingSpinner message="Loading..." />
       </div>
     );
   }

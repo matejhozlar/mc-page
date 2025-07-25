@@ -8,6 +8,7 @@ import MarketHeader from "./MarketHeader.jsx";
 import ProfileSkinViewer from "./ProfileSkinViewer.jsx";
 import PortfolioHistoryChart from "./PortfolioHistoryChart.jsx";
 import Games from "./Games.jsx";
+import LoadingSpinner from "./LoadingSpinner.jsx";
 
 function Market() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -147,7 +148,7 @@ function Market() {
     }, 0);
   }
 
-  if (loading) return <div className="market-loading">Loading...</div>;
+  if (loading) return <LoadingSpinner message="Loading..." />;
 
   if (!isLoggedIn) {
     return (
@@ -159,7 +160,7 @@ function Market() {
   }
 
   if (!profile) {
-    return <div className="market-loading">Loading profile...</div>;
+    return <LoadingSpinner message="Loading profile..." />;
   }
 
   return (
