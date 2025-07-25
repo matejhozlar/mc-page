@@ -5,9 +5,17 @@ import logger from "../logger.js";
 export default function discordOAuthRoutes(db) {
   const router = express.Router();
 
+  function getRedirectUri(keyBase) {
+    const isDev = process.env.NODE_ENV !== "production";
+    const fullKey = isDev ? keyBase : `${keyBase}_PRODUCTION`;
+    return process.env[fullKey];
+  }
+
   // --- /api//discord/callback-market ---
   router.post("/discord/callback-market", async (req, res) => {
     const code = req.body.code;
+
+    const redirectUri = getRedirectUri("MARKET_LOGIN_REDIRECT_URI");
 
     try {
       const tokenRes = await axios.post(
@@ -17,7 +25,7 @@ export default function discordOAuthRoutes(db) {
           client_secret: process.env.MARKET_LOGIN_CLIENT_SECRET,
           grant_type: "authorization_code",
           code,
-          redirect_uri: process.env.MARKET_LOGIN_REDIRECT_URI,
+          redirect_uri: redirectUri,
         }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
@@ -58,17 +66,18 @@ export default function discordOAuthRoutes(db) {
   // --- /api//discord/callback-game ---
   router.post("/discord/callback-game", async (req, res) => {
     const code = req.body.code;
-    logger.info(`🎮 Received Discord login code for game: ${code}`);
+
+    const redirectUri = getRedirectUri("GAME_LOGIN_REDIRECT_URI");
 
     try {
       const tokenRes = await axios.post(
         "https://discord.com/api/oauth2/token",
         new URLSearchParams({
-          client_id: process.env.DISCORD_LOGIN_CLIENT_ID,
-          client_secret: process.env.DISCORD_LOGIN_CLIENT_SECRET,
+          client_id: process.env.GAME_LOGIN_CLIENT_ID,
+          client_secret: process.env.GAME_LOGIN_CLIENT_SECRET,
           grant_type: "authorization_code",
           code,
-          redirect_uri: process.env.DISCORD_LOGIN_REDIRECT_URI,
+          redirect_uri: redirectUri,
         }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
@@ -109,17 +118,18 @@ export default function discordOAuthRoutes(db) {
   // --- /api/discord-callback ---
   router.post("/discord/callback", async (req, res) => {
     const code = req.body.code;
-    logger.info(`🔐 Received Discord OAuth callback with code: ${code}`);
+
+    const redirectUri = getRedirectUri("ADMIN_LOGIN_REDIRECT_URI");
 
     try {
       const tokenRes = await axios.post(
         "https://discord.com/api/oauth2/token",
         new URLSearchParams({
-          client_id: process.env.ADMIN_CLIENT_ID,
-          client_secret: process.env.ADMIN_CLIENT_SECRET,
+          client_id: process.env.ADMIN_LOGIN_CLIENT_ID,
+          client_secret: process.env.ADMIN_LOGIN_CLIENT_SECRET,
           grant_type: "authorization_code",
           code,
-          redirect_uri: process.env.ADMIN_REDIRECT_URI,
+          redirect_uri: redirectUri,
         }),
         {
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
