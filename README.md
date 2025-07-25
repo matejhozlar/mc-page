@@ -1,140 +1,234 @@
-# Createrington Server Integration
+# Createrington Market & Community Portal
 
-Welcome to the backend codebase for **Create Rington**, a curated Minecraft modded server with rich community interaction through Discord and web services.
-
-This Node.js server powers authentication, Discord/Minecraft integration, real-time chat, playtime tracking, whitelist automation, application forms, and more.
+Welcome to **Createrington**, a full‑stack community portal that unifies a Minecraft server, Discord community and browser‑based web client into one seamless experience. The project not only provides traditional features like play‑time tracking and whitelist management but also incorporates a novel **memecoin market**, a **wait‑list/application system**, an **OpenAI‑powered assistant** and extensive **role automation** across Discord and the game. This README explains the purpose of the project, its architectural components, how to set up and run your own instance, and gives an overview of the REST API.
 
 ---
 
-## 🌐 Live Server
+## Table of contents
 
-🔗 https://create-rington.com  
-📊 View Dynmap, chat, apply to join, and more.
-
----
-
-## 📦 Tech Stack
-
-- **Node.js** + **Express**
-- **Socket.IO** – real-time chat sync mc <-> dc <-> web
-- **PostgreSQL** – player data and tokens
-- **Discord.js** – two-way integration with Discord
-- **Minecraft RCON** – in-game automation
-- **minecraft-server-util** – server status checks
-- **Multer** – image uploads
-- **dotenv**, **uuid**, **cors**, **body-parser**
+- [Key features](#key-features)
+- [Architecture overview](#architecture-overview)
+- [Installation & setup](#installation--setup)
+- [Configuration](#configuration)
+- [Running the project](#running-the-project)
+- [API overview](#api-overview)
+- [Services & cron jobs](#services--cron-jobs)
+- [Market & crypto module](#market--crypto-module)
+- [AI assistant](#ai-assistant)
+- [Contributing](#contributing)
+- [License & disclaimer](#license--disclaimer)
 
 ---
 
-## ⚙️ Features
+## Key features
 
-- 🔒 **Secure Token-Based Registration & Verification**
-- 💬 **Three-Way Chat Sync** between Web & Discord & MC Server
-- ⌛ **Playtime Tracking** with Top Player Roles
-- 📝 **Whitelist Registration** via Discord
-- 📷 **Image Uploads** from Web UI to Discord to MC Server
-- 🧾 **Waitlist & Application System**
-- 📊 **Player List & Live Server Stats**
-- 🛡️ **Role assignment automation for Discord**
+Createrington is more than a simple web front‑end; it is a **complete ecosystem** linking Minecraft gameplay to Discord and a browser client. Highlights include:
+
+### Secure registration and verification
+
+Players register for the Minecraft server using a one‑time token sent via the website. The backend verifies the token and fetches the associated Discord user. It rejects invalid or expired tokens and prevents duplicate registrations.
+
+### Unified chat bridge
+
+Real‑time two‑way chat sync: messages from the Minecraft server, Discord, and the web chat appear across all platforms using Socket.io and Discord.js.
+
+### Play‑time tracking & automatic roles
+
+The server tracks total playtime and automatically assigns Discord roles:
+
+- Stone: 10–99 hours
+- Diamond: 1,000–1,999 hours
+- And so on...
+
+The `assignPlaytimeRoles` service manages this, and a daily "Top Player" role is awarded based on hours played.
+
+### Whitelist & wait‑list system
+
+Users can apply via the website. Admins approve applications via:
+
+- `/api/apply` for submissions
+- `/api/wait-list` for queueing
+
+### Image uploads & gallery
+
+Players can upload screenshots from the web client. The `/api/upload-image` endpoint handles file uploads using multer and forwards them to a Discord channel.
+
+### Player statistics & leaderboards
+
+Includes:
+
+- `/api/playerCount` and `/api/players` for online status
+- Live Socket.io events and leaderboard pages on the web client
+
+### 💱 Integrated currency & crypto market
+
+- Trade, earn, deposit/withdraw funds
+- Memecoins simulate a volatile market
+- All endpoints protected via JWT
+
+### AI assistant
+
+OpenAI‑powered bot responds to market/token questions in Discord only. Declines unrelated topics and limits users to daily messages.
+
+### Admin control panel
+
+Admin features:
+
+- RCON command execution
+- View/manage users
+- Moderate content
+- JWT-based session validation and cookie-auth for login
 
 ---
 
-## 🚀 Getting Started
+## Architecture overview
 
-### 1. Clone the Repository
+### Server
+
+- **Node.js + Express** (`server.js`): configures middleware, WebSockets, database, routes, services.
+- **Routes**: `server/routes/`
+
+  - `/api/playerCount`, `/api/players`
+  - `/api/verify-token`
+  - `/api/apply`, `/api/wait-list`
+  - `/api/upload-image`, `/api/user`, `/api/admin`
+  - `/api/currency`, `/api/market`
+
+- **Services**: `server/services/`
+
+  - `assignPlaytimeRoles.js`, `marketBoard.js`, `updateMemecoinPrices.js`
+
+- **Cron Jobs**: Scheduled via `jobs/cronJobs.js`
+- **Discord Integration**: Handles roles, chat commands, leaderboards
+
+### Client
+
+- **React + Vite** (`client/`)
+- **vite.config.js**: proxies `/api` to backend
+- **Components**: chat, market, leaderboards, admin
+- **Libraries**: React Router, Socket.io-client, Three.js, Chart.js, AOS
+
+---
+
+## Installation & setup
+
+### Prerequisites
+
+- Node.js v18+
+- PostgreSQL DB
+- Discord bot (token, client ID, OAuth)
+- Minecraft server with RCON
+
+### Cloning & installing
 
 ```bash
 git clone https://github.com/matejhozlar/mc-page.git
 cd mc-page
+cd server && npm install
+cd ../client && npm install
 ```
 
-### 2. Install Dependencies
+### Database setup
+
+- Create tables: users, tokens, applications, market, etc.
+- Schema inferred from route files like `currencyMod.js`
+
+### Environment variables
+
+Copy `.env.example` to `.env` in `server/` and fill:
+
+- `DATABASE_URL`, `DISCORD_TOKEN`, `RCON_*`
+- `JWT_SECRET`, `SESSION_SECRET`, etc.
+- Optional: SMTP, market options, role IDs
+
+---
+
+## Running the project
+
+### Development
 
 ```bash
-npm install
+# Server
+cd server && npm run dev
+# Client
+cd ../client && npm run dev
 ```
 
-### 3. Configure Environment
-
-#### Create a .env file and set the following:
+### Production
 
 ```bash
-env
-# server
-PORT=your_backend_port
-SERVER_IP=your_server_ip
-# database
-DB_USER=your_user
-DB_HOST=your_host
-DB_DATABASE=your_name
-DB_PASSWORD=your_password
-DB_PORT=your_port
-# discord bots
-DISCORD_BOT_TOKEN=your_discord_bot_token
-DISCORD_GUILD_ID=your_guild_id
-DISCORD_CHAT_CHANNEL_ID=your_channel_id
-DISCORD_WEB_CHAT_BOT_TOKEN=your_discord_bot_token
-DISCORD_CLIENT_ID=your_client_id
-# discord roles
-DISCORD_TOP_PLAYTIME_ROLE_ID=your_role_id
-DISCORD_UNVERIFIED_ROLE_ID=your_role_id
-DISCORD_PLAYER_ROLE_ID=your_role_id
-DISCORD_ADMIN_ROLE_ID=your_role_id
-# playtime discord roles
-DISCORD_STONE_ROLE_ID=your_role_id
-DISCORD_COPPER_ROLE_ID=your_role_id
-DISCORD_IRON_ROLE_ID=your_role_id
-DISCORD_GOLD_ROLE_ID=your_role_id
-DISCORD_DIAMOND_ROLE_ID=your_role_id
-# discord channels
-DISCORD_VERIFY_CHANNEL_ID=your_channel_id
-DISCORD_ANNOUNCEMENT_CHANNEL_ID=your_channel_id
-DISCORD_HALL_OF_FAME_CHANNEL_ID=your_channel_id
-DISCORD_BOT_COMMANDS_CHANNEL_ID=your_channel_id
-# admin
-ADMIN_USER=your_user
-ADMIN_PASSWORD=your_password
-# rcon
-RCON_PORT=your_rcon_port
-RCON_PASSWORD=your_rcon_password
-# email
-EMAIL_PASSWORD=your_email_password
-EMAIL_ADDRESS=your_email
-EMAIL_PORT=your_port
-EMAIL_HOST=your_host
-...
+cd client && npm run build
+cd ../server && NODE_ENV=production npm start
 ```
 
-Please check out [this file](https://github.com/matejhozlar/minecraft-server/blob/main/server/.env.example) for more detailed .env example
+Serve static files from `client/dist` and use a reverse proxy (e.g., Nginx).
 
-### 4. Run the Server
+---
 
-```bash
-npm start
-🔌 API Endpoints
-Route	Description
-/playerCount	Get current online player count
-/players	List tracked players + playtime
-/verify-token	Validate access token
-/apply	        Submit application to join
-/wait-list	Join waitlist via email/Discord
-/upload-image	Upload image to Discord chat
-```
+## API overview
 
-### 💬 Discord Integration
+| Method   | Endpoint            | Description             |
+| -------- | ------------------- | ----------------------- |
+| GET      | /playerCount        | Online player count     |
+| GET      | /players            | Player stats            |
+| POST     | /verify-token       | Register with token     |
+| POST     | /apply, /wait-list  | Applications            |
+| POST     | /upload-image       | Upload screenshot       |
+| GET      | /user/validate, /me | User info               |
+| POST     | /currency/login     | JWT for economy         |
+| POST     | /currency/\*        | Balance ops             |
+| GET/POST | /market/\*          | Token trading           |
+| POST     | /admin/rcon         | Execute server commands |
 
-### Includes full support for:
+Authentication via JWT and sessions for protected routes.
 
-- Slash commands (/register, /verify, /playtime, etc.)
+---
 
-- Auto-role assignment (Unverified ➡ Verified)
+## Services & cron jobs
 
-- Staff notifications for issues
+- **assignPlaytimeRoles.js**: Tier roles and Top Player
+- **marketBoard.js**: Updates leaderboard embed
+- **updateMemecoinPrices.js**: Random fluctuations, crashes
+- **cronJobs.js**: Periodic snapshots, data cleaning, mob limits
 
-- Chat history syncing
+---
 
-This project is fan-made, not affiliated with Mojang or Microsoft. All original Minecraft assets must be supplied by the end-user
+## Market & crypto module
 
-📧 Contact
-📮 Email: admin@create-rington.com
-🌍 Site: https://create-rington.com
+### Currency module
+
+- Deposit, withdraw, transfer
+- Transactions logged
+- Auth via `/currency/login`
+
+### Memecoin market
+
+- Buy/sell with tax and cooldown
+- Token prices fluctuate
+- Crashes remove tokens below threshold
+- Top investors get roles
+
+---
+
+## AI assistant
+
+- Prompted as Createrington Market Bot
+- OpenAI completion API
+- Daily limit enforced
+- Active only in Discord's AI chat channel
+
+---
+
+## Contributing
+
+- Open issues or PRs
+- Use ESLint, Prettier, and commit best practices
+- Include tests (Jest)
+
+---
+
+## License & disclaimer
+
+MIT License. Not affiliated with Mojang, Microsoft, or Discord.
+
+> **Disclaimer**: The memecoin system is for entertainment only and has no real-world value.
