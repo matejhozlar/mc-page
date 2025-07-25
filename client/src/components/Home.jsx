@@ -14,7 +14,6 @@ import Logo from "../assets/logo/logo.png";
 import potatoes from "../assets/potatos/potatos.js";
 import "./css/Home.css";
 
-// Define the images array
 const images = [createPhoto, buildPhoto, shadersPhoto, storagePhoto];
 
 const features = [

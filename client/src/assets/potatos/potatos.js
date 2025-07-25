@@ -1,9 +1,15 @@
+import potato1 from "./potato1.png";
+import potato2 from "./potato2.png";
+import potato3 from "./potato3.png";
+import potato4 from "./potato4.png";
+import potato5 from "./potato5.png";
+
 const potatoes = {
-  potato1: require("./potato1.png"),
-  potato2: require("./potato2.png"),
-  potato3: require("./potato3.png"),
-  potato4: require("./potato4.png"),
-  potato5: require("./potato5.png"),
+  potato1,
+  potato2,
+  potato3,
+  potato4,
+  potato5,
 };
 
 export default potatoes;
