@@ -6,3 +6,8 @@
 /stats
 /tmp
 /discord/disabled/
+
+# assets
+/services/assets
+/routes/assets
+/discord/assets
