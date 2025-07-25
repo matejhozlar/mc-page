@@ -27,7 +27,6 @@ dist-ssr
 /assets
 /public/assets
 /src/assets
-/assets
 
 node_modules
 dist
