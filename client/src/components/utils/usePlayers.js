@@ -1,4 +1,5 @@
-import PlayerContext from "../AdminPlayerProvider.jsx";
-import { useContext } from "react";
+import { useContext, createContext } from "react";
+
+const PlayerContext = createContext();
 
 export const usePlayers = () => useContext(PlayerContext);
