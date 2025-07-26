@@ -56,7 +56,7 @@ class DailyFolderLogger {
     const cutoff = Date.now() - daysToKeep * 24 * 60 * 60 * 1000;
 
     fs.readdir(logDir, (error, folders) => {
-      if (err) return console.error("Failed to read logDir:", error);
+      if (error) return console.error("Failed to read logDir:", error);
 
       folders.forEach((folder) => {
         const folderPath = path.join(logDir, folder);
