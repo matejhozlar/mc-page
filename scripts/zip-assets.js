@@ -11,6 +11,7 @@ const SEARCH_DIRS = ["client", "server"];
 const OUTPUT_ZIP = path.join(
   ROOT_DIR,
   "server",
+  "app",
   "routes",
   "download",
   "assets.zip"
