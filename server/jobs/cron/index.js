@@ -6,6 +6,14 @@ import { scheduleQuestJobs } from "./quests.js";
 
 import logger from "../../logger.js";
 
+/**
+ * Sets up all scheduled (cron) jobs required by the application,
+ * such as reminders, cleanups, price updates, and quests.
+ *
+ * @param {import('pg').Pool} db - PostgreSQL database pool/connection.
+ * @param {import('discord.js').Client} clientBot - The main Discord bot client.
+ * @param {import('discord.js').Client} webBot - A secondary Discord bot client (used for web interactions or specific events).
+ */
 export function setupCronJobs(db, clientBot, webBot) {
   try {
     scheduleReminders(webBot);
