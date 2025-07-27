@@ -7,7 +7,7 @@
     "test": "vitest",
     "start": "node server",
     "dev": "nodemon server",
-    "gen:env-vars": "node scripts/env/generateRequiredEnvVars.js",
+    "gen-env": "node scripts/env/generateRequiredEnvVars.js",
     "find-env": "node scripts/env/findEnvUsage.js"
   },
   "keywords": [],
