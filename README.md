@@ -4,6 +4,8 @@
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?logo=postgresql)
 ![Discord](https://img.shields.io/badge/Discord-Integration-7289da?logo=discord&logoColor=white)
+![Minecraft](https://img.shields.io/badge/Minecraft-Server-5E7C16?logo=minecraft&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-Frontend-646CFF?logo=vite&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
 
 Welcome to **Createrington**, a full‑stack community portal that unifies a Minecraft server, Discord community and browser‑based web client into one seamless experience. The project not only provides traditional features like play‑time tracking and whitelist management but also incorporates a novel **memecoin market**, a **wait‑list/application system**, an **OpenAI‑powered assistant** and extensive **role automation** across Discord and fun web games. This README explains the purpose of the project, its architectural components, how to set up and run your own instance, and gives an overview of the REST API.
