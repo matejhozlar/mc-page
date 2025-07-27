@@ -238,3 +238,7 @@ Authentication via JWT and sessions for protected routes.
 MIT License. Not affiliated with Mojang, Microsoft, or Discord.
 
 > **Disclaimer**: The memecoin system is for entertainment only and has no real-world value.
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nodejs,react,postgres,discord,openai,express,js" />
+</p>
