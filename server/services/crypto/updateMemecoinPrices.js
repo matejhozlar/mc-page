@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 
 // utils
-import { sendCrashNotification } from "../../discord/notifiers/crashNotifier.js";
+import { sendCrashNotification } from "../../discord/notifiers/crypto/crashNotifier.js";
 
 export async function updateMemecoinPrices(db, client) {
   try {

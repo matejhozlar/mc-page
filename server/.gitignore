@@ -9,6 +9,6 @@
 
 # assets
 /services/assets
-/routes/assets
+/app/routes/assets
 /discord/assets
-/routes/download
+/app/routes/download

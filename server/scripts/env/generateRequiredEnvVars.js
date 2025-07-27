@@ -13,7 +13,7 @@ function findEnvVarsInFile(filePath) {
 export function generateRequiredEnvVars(outputPath) {
   const allFiles = glob.sync(["**/*.js"], {
     cwd: SOURCE_DIR,
-    ignore: ["node_modules/**", "client/**", "build/**", "dist/**"],
+    ignore: ["node_modules/**", "client/**", "build/**", "dist/**", "index.js"],
     absolute: true,
   });
 

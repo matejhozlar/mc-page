@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import { Rcon } from "rcon-client";
 import fetch from "node-fetch";
-import { verifyNotifyStaff } from "../../services/verifyNotifyStaff.js";
+import { verifyNotifyStaff } from "../../services/notif/verifyNotifyStaff.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
 
