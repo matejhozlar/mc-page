@@ -25,6 +25,7 @@ Welcome to **Createrington**, a full‑stack community portal that unifies a Min
 - [Market & crypto module](#market--crypto-module)
 - [AI assistant](#ai-assistant)
 - [Contributing](#contributing)
+- [Related Projects](#related-projects)
 - [License & disclaimer](#license--disclaimer)
 
 ---
@@ -249,6 +250,15 @@ Authentication via JWT and sessions for protected routes.
 - Open issues or PRs
 - Use ESLint, Prettier, and commit best practices
 - Include tests (Jest)
+
+---
+
+## Related Projects
+
+Here are some companion tools and related repositories that work well with or expand on the Createrington ecosystem:
+
+- [**Createrington Currency**](https://github.com/matejhozlar/createrington-currency) – Minecraft Mod integrated with the website.
+- [**Createrington Live Site**](https://create-rington.com) – Deployed version of the portal, connected to the live Minecraft server.
 
 ---
 
