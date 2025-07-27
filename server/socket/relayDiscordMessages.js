@@ -1,3 +1,11 @@
+/**
+ * Relays Discord messages from a specific channel to connected Socket.IO clients.
+ * Filters out messages from the web bot and sends others to the frontend.
+ *
+ * @param {import("discord.js").Client} client - Discord client instance (main bot).
+ * @param {import("discord.js").Client} webBot - Web Discord bot instance used to post messages.
+ * @param {import("socket.io").Server} io - Initialized Socket.IO server to emit messages to clients.
+ */
 export default function relayDiscordMessages(client, webBot, io) {
   const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
 
