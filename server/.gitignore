@@ -4,8 +4,6 @@
 /logs/
 /services/logs/
 /stats
-/tmp
-/discord/disabled/
 
 # assets
 /services/assets
