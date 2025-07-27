@@ -1,6 +1,7 @@
 import cron from "node-cron";
 import { updateQuestProgress } from "../../services/quests/updateQuestProgress.js";
 import { generateDailyQuestsAndTokenUpdate } from "../../services/quests/generateDailyQuestsAndTokenUpdate.js";
+import { runInProduction } from "./utils/runInProduction.js";
 
 export function scheduleQuestJobs(db, client) {
   const questChannel = process.env.DISCORD_QUESTS_CHANNEL_ID;
@@ -8,7 +9,7 @@ export function scheduleQuestJobs(db, client) {
   cron.schedule(
     "0 * * * *",
     () => {
-      updateQuestProgress(db, client, questChannel);
+      runInProduction(() => updateQuestProgress(db, client, questChannel));
     },
     { timezone: "Europe/Berlin" }
   );
@@ -16,7 +17,9 @@ export function scheduleQuestJobs(db, client) {
   cron.schedule(
     "15 6 * * *",
     () => {
-      generateDailyQuestsAndTokenUpdate(db, client, questChannel);
+      runInProduction(() =>
+        generateDailyQuestsAndTokenUpdate(db, client, questChannel)
+      );
     },
     { timezone: "Europe/Berlin" }
   );

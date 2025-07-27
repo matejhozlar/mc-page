@@ -4,34 +4,36 @@ import { schedulePriceUpdates } from "./priceUpdates.js";
 import { schedulePortfolioSnapshots } from "./portfolio.js";
 import { scheduleQuestJobs } from "./quests.js";
 
+import logger from "../../logger.js";
+
 export function setupCronJobs(db, clientBot, webBot) {
   try {
     scheduleReminders(webBot);
-  } catch (err) {
-    console.error("❌ Failed to scheduleReminders:", err);
+  } catch (error) {
+    logger.error("❌ Failed to scheduleReminders:", error);
   }
 
   try {
     scheduleCleanupJobs(db);
-  } catch (err) {
-    console.error("❌ Failed to scheduleCleanupJobs:", err);
+  } catch (error) {
+    logger.error("❌ Failed to scheduleCleanupJobs:", error);
   }
 
   try {
-    schedulePriceUpdates(db);
-  } catch (err) {
-    console.error("❌ Failed to schedulePriceUpdates:", err);
+    schedulePriceUpdates(db, clientBot);
+  } catch (error) {
+    logger.error("❌ Failed to schedulePriceUpdates:", error);
   }
 
   try {
     schedulePortfolioSnapshots(db);
-  } catch (err) {
-    console.error("❌ Failed to schedulePortfolioSnapshots:", err);
+  } catch (error) {
+    logger.error("❌ Failed to schedulePortfolioSnapshots:", error);
   }
 
   try {
     scheduleQuestJobs(db, clientBot);
-  } catch (err) {
-    console.error("❌ Failed to scheduleQuestJobs:", err);
+  } catch (error) {
+    logger.error("❌ Failed to scheduleQuestJobs:", error);
   }
 }

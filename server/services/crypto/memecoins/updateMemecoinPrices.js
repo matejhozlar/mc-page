@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from "../../../logger.js";
 import {
   EmbedBuilder,
   ActionRowBuilder,
@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 
 // utils
-import { sendCrashNotification } from "../../discord/notifiers/crypto/crashNotifier.js";
+import { sendCrashNotification } from "../../../discord/notifiers/crypto/crashNotifier.js";
 
 export async function updateMemecoinPrices(db, client) {
   try {

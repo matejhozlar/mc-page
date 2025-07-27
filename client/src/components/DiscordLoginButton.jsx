@@ -6,8 +6,8 @@ const DiscordLoginButton = () => {
     const isDev = window.location.hostname === "localhost";
     const redirectUri = encodeURIComponent(
       isDev
-        ? "http://localhost:3000/callback"
-        : "https://create-rington.com/callback"
+        ? "http://localhost:3000/callback-game"
+        : "https://create-rington.com/callback-game"
     );
     const scope = "identify";
     const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&prompt=consent`;
