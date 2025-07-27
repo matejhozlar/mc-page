@@ -2,8 +2,14 @@ import fs from "fs";
 import path from "path";
 import process from "process";
 import glob from "fast-glob";
-import readline from "readline";
 
+/**
+ * Searches for usage of a specific environment variable in the project files.
+ *
+ * @param {string} envVar - The name of the environment variable to search for (e.g., "DB_PASSWORD").
+ * @param {string} [searchDir=process.cwd()] - The directory to start searching from.
+ * @returns {Array<{ file: string, line: number, content: string }>} - List of files and line numbers where the variable is used.
+ */
 const args = process.argv.slice(2);
 const ENV_VAR = args[0];
 

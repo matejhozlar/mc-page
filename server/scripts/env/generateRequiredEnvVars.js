@@ -4,6 +4,13 @@ import glob from "fast-glob";
 
 const SOURCE_DIR = path.resolve(".");
 
+/**
+ * Extracts all unique environment variable keys accessed via `process.env.VAR_NAME`
+ * from a given JavaScript file, ignoring comments and string literals.
+ *
+ * @param {string} filePath - Absolute path to the file being analyzed.
+ * @returns {string[]} - Array of environment variable names found in the file.
+ */
 function findEnvVarsInFile(filePath) {
   let content = fs.readFileSync(filePath, "utf-8");
 
@@ -20,6 +27,12 @@ function findEnvVarsInFile(filePath) {
   return Array.from(matches, (m) => m[1]);
 }
 
+/**
+ * Scans all `.js` files in the project, collects all referenced `process.env.VAR`
+ * variables, and writes them to a JS module as an array export.
+ *
+ * @param {string} outputPath - Path where the result JS file should be written.
+ */
 export function generateRequiredEnvVars(outputPath) {
   const allFiles = glob.sync(["**/*.js"], {
     cwd: SOURCE_DIR,
