@@ -1,7 +1,7 @@
 # Createrington Market & Community Portal
 
-![Node.js](https://img.shields.io/badge/Node.js-20-green?logo=node.js&logoColor=white)
-![React](https://img.shields.io/badge/React-18-blue?logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-22-green?logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-336791?logo=postgresql)
 ![Discord](https://img.shields.io/badge/Discord-Integration-7289da?logo=discord&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
