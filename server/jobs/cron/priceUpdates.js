@@ -1,30 +1,49 @@
 import cron from "node-cron";
-import { updateRingcoinPriceMinutes } from "../../services/crypto/updates/updateRingcoinPriceMinutes.js";
-import { updateRingcoinPriceHourly } from "../../services/crypto/updates/updateRingcoinPriceHourly.js";
-import { updateRingcoinPriceDaily } from "../../services/crypto/updates/updateRingcoinPriceDaily.js";
-import { updateRingcoinPriceWeekly } from "../../services/crypto/updates/updateRingcoinPriceWeekly.js";
-import { updateMemecoinPrices } from "../../services/crypto/memecoins/updateMemecoinPrices.js";
+import { updateStableCoinPrice } from "../../services/crypto/stablecoins/updateStableCoinPrice.js";
 
-export function schedulePriceUpdates(db, clientBot) {
-  cron.schedule("*/10 * * * *", () => updateRingcoinPriceMinutes(db));
-  cron.schedule("1 * * * *", () => updateRingcoinPriceHourly(db), {
-    timezone: "Europe/Berlin",
+/**
+ * Schedules periodic price updates for stablecoins.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL connection pool instance.
+ */
+export function schedulePriceUpdates(db) {
+  // Every 10 minutes — Minutes Snapshot
+  cron.schedule("*/10 * * * *", () => {
+    updateStableCoinPrice(db, "minutes", "RGC");
   });
 
+  // Every hour at minute 1 — Hourly Snapshot
   cron.schedule(
-    "20 6 * * *",
+    "1 * * * *",
     () => {
-      updateRingcoinPriceDaily(db, "RGC");
-      updateRingcoinPriceDaily(db, "PLC");
+      updateStableCoinPrice(db, "hourly", "RGC");
     },
     {
       timezone: "Europe/Berlin",
     }
   );
 
-  cron.schedule("30 4 * * 1", () => updateRingcoinPriceWeekly(db), {
-    timezone: "Europe/Berlin",
-  });
+  // Every day at 06:20 — Daily Snapshot
+  cron.schedule(
+    "20 6 * * *",
+    () => {
+      updateStableCoinPrice(db, "daily", "RGC");
+      updateStableCoinPrice(db, "daily", "PLC");
+    },
+    {
+      timezone: "Europe/Berlin",
+    }
+  );
 
-  cron.schedule("*/30 * * * * *", () => updateMemecoinPrices(db, clientBot));
+  // Every Monday at 04:30 — Weekly Snapshot
+  cron.schedule(
+    "30 4 * * 1",
+    () => {
+      updateStableCoinPrice(db, "weekly", "RGC");
+      updateStableCoinPrice(db, "weekly", "PLC");
+    },
+    {
+      timezone: "Europe/Berlin",
+    }
+  );
 }
