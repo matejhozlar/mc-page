@@ -1,5 +1,11 @@
 import logger from "../../../logger.js";
 
+/**
+ * Deletes memecoins from the database that have a `crashed` timestamp older than 24 hours.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database pool or client instance.
+ * @returns {Promise<void>}
+ */
 export async function deleteCrashedMemecoins(db) {
   try {
     const { rowCount } = await db.query(

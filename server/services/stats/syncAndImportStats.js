@@ -29,6 +29,13 @@ function flattenStats(statsObj) {
   return flat;
 }
 
+/**
+ * Imports a user's stat file into the database and updates both total and daily stats.
+ *
+ * @param {string} uuid - The UUID of the user whose stats are being imported.
+ * @param {string} filePath - The file path to the user's stat JSON file.
+ * @param {import('pg').Pool} db - The PostgreSQL database connection or pool instance.
+ */
 async function importStatsFromFile(uuid, filePath, db) {
   try {
     const userExists = await db.query(
@@ -78,6 +85,12 @@ async function importStatsFromFile(uuid, filePath, db) {
   }
 }
 
+/**
+ * Connects to the remote Minecraft server via SFTP, downloads updated stat files,
+ * and imports them into the database.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL database connection or pool instance.
+ */
 export async function syncAndImportStats(db) {
   const start = Date.now();
   try {

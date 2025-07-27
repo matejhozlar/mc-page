@@ -5,10 +5,21 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from "discord.js";
-
-// utils
 import { sendCrashNotification } from "../../../discord/notifiers/crypto/crashNotifier.js";
 
+/**
+ * Simulates price updates for memecoins and handles crashing logic, price alerts,
+ * hourly snapshots, and history trimming.
+ *
+ * - Crashes tokens priced under $0.002
+ * - Sends DMs on crash or price alert triggers
+ * - Inserts new price and price history records
+ * - Cleans up excess history entries
+ *
+ * @param {import("pg").Pool} db - PostgreSQL pool instance used for DB operations.
+ * @param {import("discord.js").Client} client - Discord client instance used for sending DMs to users.
+ * @returns {Promise<void>}
+ */
 export async function updateMemecoinPrices(db, client) {
   try {
     const { rows: tokens } = await db.query(
@@ -24,6 +35,7 @@ export async function updateMemecoinPrices(db, client) {
       let changePercent;
       let delta;
 
+      // --- Auto-crash logic for near-zero priced tokens
       if (price < 0.002) {
         await db.query(
           `UPDATE crypto_tokens SET price_per_unit = 0, crashed = NOW() WHERE id = $1`,
@@ -35,14 +47,14 @@ export async function updateMemecoinPrices(db, client) {
           rows: [crashedToken],
         } = await db.query(
           `SELECT name, symbol, description, price_per_unit, total_supply
-     FROM crypto_tokens
-     WHERE id = $1`,
+           FROM crypto_tokens
+           WHERE id = $1`,
           [id]
         );
 
         const { rows: alerts } = await db.query(
           `SELECT id, discord_id FROM token_price_alerts
-     WHERE token_symbol = $1`,
+           WHERE token_symbol = $1`,
           [crashedToken.symbol]
         );
 
@@ -71,6 +83,7 @@ export async function updateMemecoinPrices(db, client) {
         continue;
       }
 
+      // --- Simulated price fluctuation
       if (price < 5) {
         changePercent = Math.random() * (0.03 - 0.01) + 0.01;
         delta = price * changePercent * direction;
@@ -101,11 +114,12 @@ export async function updateMemecoinPrices(db, client) {
         [id, newPrice.toFixed(4)]
       );
 
+      // --- Price alerts
       const { rows: alerts } = await db.query(
         `SELECT * FROM token_price_alerts
-   WHERE token_symbol = (
-     SELECT symbol FROM crypto_tokens WHERE id = $1
-   )`,
+         WHERE token_symbol = (
+           SELECT symbol FROM crypto_tokens WHERE id = $1
+         )`,
         [id]
       );
 
@@ -162,6 +176,7 @@ export async function updateMemecoinPrices(db, client) {
         }
       }
 
+      // --- Hourly snapshot
       const { rows } = await db.query(
         `SELECT id FROM token_price_history_minutes
          WHERE token_id = $1
@@ -172,14 +187,14 @@ export async function updateMemecoinPrices(db, client) {
 
       const { rowCount } = await db.query(
         `SELECT 1 FROM token_price_history_hourly
-   WHERE token_id = $1 AND recorded_at > NOW() - INTERVAL '55 minutes'`,
+         WHERE token_id = $1 AND recorded_at > NOW() - INTERVAL '55 minutes'`,
         [id]
       );
 
       if (rowCount === 0) {
         await db.query(
           `INSERT INTO token_price_history_hourly (token_id, price, recorded_at)
-     VALUES ($1, $2, NOW())`,
+           VALUES ($1, $2, NOW())`,
           [id, newPrice.toFixed(4)]
         );
         logger.info(
@@ -189,6 +204,7 @@ export async function updateMemecoinPrices(db, client) {
         );
       }
 
+      // --- Cleanup
       if (rows.length) {
         await db.query(
           `DELETE FROM token_price_history_minutes

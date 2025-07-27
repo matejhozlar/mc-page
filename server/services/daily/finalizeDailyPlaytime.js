@@ -1,3 +1,14 @@
+/**
+ * Finalizes playtime tracking for users with an active session.
+ * - Calculates how many seconds each user has played since their last `session_start`.
+ * - Inserts that duration into the `daily_playtime` table for the previous day.
+ * - Updates each user's `session_start` to the current time.
+ *
+ * Intended to run as a scheduled job once daily (e.g., at 6 AM CET).
+ *
+ * @param {import("pg").Pool} db - PostgreSQL connection pool.
+ * @returns {Promise<void>}
+ */
 export async function finalizeDailyPlaytime(db) {
   try {
     const { rows } = await db.query(`

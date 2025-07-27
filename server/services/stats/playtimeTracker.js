@@ -4,6 +4,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+/**
+ * Starts background tracking of Minecraft player playtime and server activity.
+ * Polls the server every 60 seconds and updates user session data in the database.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL database client or pool.
+ * @param {string} serverIP - The IP address of the Minecraft server.
+ * @param {number} serverPort - The port number of the Minecraft server.
+ */
 export function startPlaytimeTracking(db, serverIP, serverPort) {
   async function syncPlayersInBackground() {
     try {

@@ -1,5 +1,14 @@
 import logger from "../../../logger.js";
 
+/**
+ * Takes a daily snapshot of each user's crypto portfolio value
+ * by summing the value of their current token holdings.
+ *
+ * Inserts a record into the `user_portfolio_history` table for each user.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL pool or client instance for database access.
+ * @returns {Promise<void>}
+ */
 export async function snapshotUserPortfolios(db) {
   try {
     const users = await db.query(

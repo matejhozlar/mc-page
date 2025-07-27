@@ -1,3 +1,17 @@
+/**
+ * @typedef {Object} Quest
+ * @property {string} quest_type - The Minecraft stat category (e.g., "minecraft:crafted", "minecraft:killed").
+ * @property {string} quest_key - The Minecraft item or entity identifier relevant to the quest.
+ * @property {number} target_count - The number of times the player must complete the action.
+ * @property {string} description - Human-readable quest objective.
+ */
+
+/**
+ * A pool of quest definitions for use in a questing system.
+ * Each quest describes an activity (like crafting or killing) tied to a Minecraft stat.
+ *
+ * @type {Quest[]}
+ */
 export const questsPool = [
   {
     quest_type: "minecraft:crafted",

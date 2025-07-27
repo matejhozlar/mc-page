@@ -11,6 +11,17 @@ const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
 let lastRefreshTime = 0;
 let leaderboardMessage = null;
 
+/**
+ * Builds the leaderboard embed and action row based on current top users.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database pool instance.
+ * @returns {Promise<{
+ *   embed: import("discord.js").EmbedBuilder,
+ *   row: import("discord.js").ActionRowBuilder,
+ *   leaderboardData: Array<any>
+ * }>}
+ */
+
 async function fetchMarketLeaderboardEmbed(db) {
   const query = `
     SELECT u.name AS mc_name, u.discord_id,
@@ -52,6 +63,16 @@ async function fetchMarketLeaderboardEmbed(db) {
   return { embed, row, leaderboardData: rows };
 }
 
+/**
+ * Initializes and manages the market leaderboard in a Discord channel.
+ * It sends or updates a leaderboard message with the top 10 richest players.
+ * Also handles role assignment and Hall of Fame announcements.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database pool instance.
+ * @param {import("discord.js").Client} client - Discord.js client instance.
+ * @param {string} channelId - Discord channel ID where the leaderboard will be posted.
+ * @returns {Promise<void>} Resolves after setting up the leaderboard.
+ */
 export async function initMarketLeaderboard(db, client, channelId) {
   const channel = await client.channels.fetch(channelId);
   if (!channel?.isTextBased()) {
@@ -187,6 +208,13 @@ export async function initMarketLeaderboard(db, client, channelId) {
   logger.info("✅ Market Leaderboard initialized.");
 }
 
+/**
+ * Updates the current leaderboard message with fresh market data.
+ * Assumes `leaderboardMessage` was previously initialized.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database pool instance.
+ * @returns {Promise<void>} Resolves when the leaderboard message is updated.
+ */
 export async function updateMarketLeaderboard(db) {
   if (typeof leaderboardMessage?.edit === "function") {
     const { embed, row } = await fetchMarketLeaderboardEmbed(db);

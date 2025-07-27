@@ -1,6 +1,13 @@
 import { EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
 
+/**
+ * Updates the progress of daily shared quests and refreshes the corresponding Discord embed message.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL client or pool instance.
+ * @param {import('discord.js').Client} discordClient - The Discord.js client instance.
+ * @param {string} channelId - The ID of the Discord channel containing the quest message.
+ */
 export async function updateQuestProgress(db, discordClient, channelId) {
   try {
     const { rows: quests } = await db.query(

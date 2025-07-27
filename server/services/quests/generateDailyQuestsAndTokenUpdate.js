@@ -2,6 +2,14 @@ import { questsPool } from "./data/questPool.js";
 import { EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
 
+/**
+ * Handles daily quest generation, reward distribution, and token price adjustments.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL client/connection pool.
+ * @param {import('discord.js').Client} discordClient - The Discord.js client instance.
+ * @param {string} channelId - The Discord channel ID to send updates to.
+ * @param {string} [tokenSymbol='PLC'] - The symbol of the token to reward players with.
+ */
 export async function generateDailyQuestsAndTokenUpdate(
   db,
   discordClient,
@@ -180,6 +188,12 @@ export async function generateDailyQuestsAndTokenUpdate(
   }
 }
 
+/**
+ * Picks a specified number of random quests from the quests pool.
+ *
+ * @param {number} count - Number of quests to select.
+ * @returns {Array} - Array of selected quest objects.
+ */
 function pickRandomQuests(count) {
   const copy = [...questsPool];
   const shuffled = copy.sort(() => Math.random() - 0.5);

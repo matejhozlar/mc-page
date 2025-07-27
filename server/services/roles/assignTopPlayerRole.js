@@ -3,6 +3,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+/**
+ * Assigns the "Top Player" role to the user with the most playtime.
+ * Removes the role from any previous holder if needed.
+ * Sends an announcement to the Hall of Fame channel on change.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL database client or pool.
+ * @param {import('discord.js').Client} discordClient - The Discord.js client instance.
+ */
 export async function assignTopPlayerRole(db, discordClient) {
   try {
     const { rows } = await db.query(`

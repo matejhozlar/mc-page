@@ -60,6 +60,14 @@ const ROLE_TIERS = [
   },
 ];
 
+/**
+ * Assigns a playtime-based Discord role to users based on their total playtime.
+ * Optionally suppresses announcement messages when run initially (e.g., at startup).
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL database pool or client.
+ * @param {import('discord.js').Client} discordClient - The Discord.js client instance.
+ * @param {boolean} [isInitial=false] - Whether this is the initial run (to avoid sending rank-up announcements).
+ */
 export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
   try {
     const result = await db.query(`

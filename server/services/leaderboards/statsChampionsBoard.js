@@ -10,6 +10,16 @@ const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
 let lastRefreshTime = 0;
 let leaderboardMessage = null;
 
+/**
+ * Fetches the latest leaderboard embed and refresh button based on top stat leaders.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database connection pool.
+ * @returns {Promise<{
+ *   embed: import("discord.js").EmbedBuilder,
+ *   row: import("discord.js").ActionRowBuilder<import("discord.js").ButtonBuilder>,
+ *   leaderboardData: Array<{ mc_name: string, discord_id: string, first_place_count: number }>
+ * }>} - Leaderboard visual and data.
+ */
 async function fetchLeaderboardEmbed(db) {
   const query = `
       SELECT u.name AS mc_name, u.discord_id, COUNT(*) AS first_place_count
@@ -51,6 +61,16 @@ async function fetchLeaderboardEmbed(db) {
   return { embed, row, leaderboardData: rows };
 }
 
+/**
+ * Initializes the Stats Champions leaderboard in a specific Discord channel.
+ * Displays top users with the most 1st-place records in player stats.
+ * Also listens for refresh interactions and handles role assignments.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database connection pool.
+ * @param {import("discord.js").Client} client - Discord client instance.
+ * @param {string} channelId - ID of the Discord text channel where the leaderboard will be posted.
+ * @returns {Promise<void>} - Resolves when the leaderboard has been initialized.
+ */
 export async function initStatsChampionsBoard(db, client, channelId) {
   const channel = await client.channels.fetch(channelId);
   if (!channel?.isTextBased()) {
@@ -194,6 +214,12 @@ export async function initStatsChampionsBoard(db, client, channelId) {
   logger.info("✅ Stats Champions Board initialized.");
 }
 
+/**
+ * Refreshes the Stats Champions leaderboard if a message is already initialized.
+ *
+ * @param {import("pg").Pool} db - PostgreSQL database connection pool.
+ * @returns {Promise<void>} - Resolves when the leaderboard has been updated.
+ */
 export async function updateStatsChampionsBoard(db) {
   if (typeof leaderboardMessage?.edit === "function") {
     const { embed, row } = await fetchLeaderboardEmbed(db);
