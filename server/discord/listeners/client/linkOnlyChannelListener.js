@@ -1,12 +1,10 @@
 import logger from "../../../logger.js";
+import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 const LINK_REGEX = /https?:\/\/[^\s]+/i;
 
 export default function setupLinkOnlyChannelWatcher(client) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping link only channel watcher in development");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   const targetChannelId = process.env.DISCORD_MOD_SUGGESTIONS_CHANNEL_ID;
   const modDiscussionChannelId = process.env.DISCORD_MOD_DISCUSSION_CHANNEL_ID;

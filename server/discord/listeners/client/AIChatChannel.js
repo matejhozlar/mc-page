@@ -1,16 +1,14 @@
 import { askAssitant } from "../../../AI/openaiAssistant.js";
 import logger from "../../../logger.js";
 import dotenv from "dotenv";
+import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 dotenv.config();
 
 const DAILY_LIMIT = 50;
 
 export default function setupAIChatListener(client, { db }) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping AI Assistant in development");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   client.on("messageCreate", async (message) => {
     if (message.author.bot) return;

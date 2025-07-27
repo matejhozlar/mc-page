@@ -1,4 +1,5 @@
 import logger from "../logger.js";
+import { exitIfNotProduction } from "../utils/production/onlyInProduction.js";
 
 // Roles
 import { assignTopPlayerRole } from "../services/roles/assignTopPlayerRole.js";
@@ -17,10 +18,7 @@ import {
 const hourlyMs = 60 * 60 * 1000;
 
 export default async function setupClientBot(db, client) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping client bot setup in development mode");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   const leaderboardChannelId = process.env.DISCORD_LEADERBOARDS_CHANNEL_ID;
 

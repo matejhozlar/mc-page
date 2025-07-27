@@ -18,17 +18,27 @@ const OUTPUT_ZIP = path.join(
 );
 const IGNORED_FOLDERS = new Set(["node_modules", "dist", "build", ".git"]);
 
+/**
+ * Recursively searches for directories named 'assets' inside the given base directory,
+ * excluding any directories listed in IGNORED_FOLDERS.
+ *
+ * @param {string} baseDir - Absolute path to start the directory walk from.
+ * @returns {string[]} - An array of full paths to all found 'assets' directories.
+ */
 function findAssetDirs(baseDir) {
   const assetDirs = [];
 
+  /**
+   * Walks through directories recursively to find 'assets' folders.
+   *
+   * @param {string} dir - Current directory being walked.
+   */
   function walk(dir) {
     const files = fs.readdirSync(dir, { withFileTypes: true });
     for (const file of files) {
       const fullPath = path.join(dir, file.name);
       if (file.isDirectory()) {
-        if (IGNORED_FOLDERS.has(file.name)) {
-          continue;
-        }
+        if (IGNORED_FOLDERS.has(file.name)) continue;
         if (file.name === "assets") {
           assetDirs.push(fullPath);
         } else {
@@ -42,6 +52,13 @@ function findAssetDirs(baseDir) {
   return assetDirs;
 }
 
+/**
+ * Zips all discovered 'assets' directories from the SEARCH_DIRS into a single archive file.
+ * The resulting zip is written to OUTPUT_ZIP.
+ *
+ * @async
+ * @returns {Promise<void>} - Resolves when the zip archive is created successfully.
+ */
 async function zipAssets() {
   const zipDir = path.dirname(OUTPUT_ZIP);
 
@@ -79,6 +96,7 @@ async function zipAssets() {
   await archive.finalize();
 }
 
+// Run the zip operation
 zipAssets().catch((error) => {
   console.error("❌ Failed to create zip:", error);
   process.exit(1);

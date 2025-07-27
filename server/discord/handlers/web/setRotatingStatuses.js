@@ -1,5 +1,6 @@
 import { ActivityType } from "discord.js";
 import logger from "../../../logger.js";
+import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 /**
  * Sets up rotating presence statuses on a Discord bot client.
@@ -12,10 +13,7 @@ export default function setRotatingStatuses(
   statuses,
   intervalMs = 60000
 ) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping registering rotating statuses in development");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   if (!Array.isArray(statuses) || statuses.length === 0) {
     logger.warn("⚠️ No rotating statuses provided for setRotatingStatuses");

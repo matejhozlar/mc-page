@@ -1,6 +1,7 @@
 import { status } from "minecraft-server-util";
 import { syncAndImportStats } from "../syncAndImportStats.js";
 import logger from "../../../logger.js";
+import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 /**
  * Starts the periodic stat syncing process.
@@ -9,10 +10,7 @@ import logger from "../../../logger.js";
  * @param {number} serverPort
  */
 export function startStatSyncScheduler(db, serverIP, serverPort) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping stat syncing in development");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   let lastWasZero = false;
   let lastSyncTime = 0;

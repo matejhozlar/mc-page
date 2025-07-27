@@ -1,5 +1,6 @@
 import { sendRconCommand } from "../../../utils/rcon/sendRconCommand.js";
 import logger from "../../../logger.js";
+import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 let voteActive = false;
 let voteCooldownUntil = 0;
@@ -37,10 +38,7 @@ const voteCommands = {
 };
 
 export default function setupVoteListener(webBot, { io }) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping vote listener in development");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   const minecraftChannelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
   const createringtonBotId = process.env.CLIENT_BOT_ID;

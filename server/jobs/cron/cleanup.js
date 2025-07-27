@@ -4,7 +4,7 @@ import { cleanupDailyPlaytime } from "../../services/daily/dailyPlaytimeCleaner.
 import { finalizeDailyPlaytime } from "../../services/daily/finalizeDailyPlaytime.js";
 import { cleanupTokenHistoryTable } from "../../services/crypto/cleanup/cleanupTokenHistory.js";
 import { deleteCrashedMemecoins } from "../../services/crypto/memecoins/deleteCrashedMemecoins.js";
-import { runInProduction } from "./utils/runInProduction.js";
+import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 
 export function scheduleCleanupJobs(db) {
   cron.schedule(
@@ -36,11 +36,9 @@ export function scheduleCleanupJobs(db) {
     timezone: "Europe/Berlin",
   });
 
-  cron.schedule(
-    "0 6 * * *",
-    () => runInProduction(() => finalizeDailyPlaytime(db)),
-    {
+  runOnlyInProduction(() => {
+    cron.schedule("0 6 * * *", () => finalizeDailyPlaytime(db), {
       timezone: "Europe/Berlin",
-    }
-  );
+    });
+  });
 }

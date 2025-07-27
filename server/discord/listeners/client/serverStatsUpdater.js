@@ -1,10 +1,8 @@
 import logger from "../../../logger.js";
+import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 export default function startUpdatingServerStats(client) {
-  if (process.env.NODE_ENV === "development") {
-    logger.info("🛑 Skipping server stats updates in development");
-    return;
-  }
+  if (!exitIfNotProduction()) return;
 
   const guildId = process.env.DISCORD_GUILD_ID;
   const membersChannelId = process.env.DISCORD_MEMBERS_COUNTER_CHANNEL_ID;
