@@ -140,7 +140,7 @@ Createrington is powered by a full-stack modern web architecture:
 
 ### Prerequisites
 
-- Node.js v18+
+- Node.js v20+
 - PostgreSQL DB
 - Discord bot (token, client ID, OAuth)
 - Minecraft server with RCON
