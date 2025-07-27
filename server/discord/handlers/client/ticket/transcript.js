@@ -1,6 +1,14 @@
 import { AttachmentBuilder, EmbedBuilder } from "discord.js";
 import logger from "../../../../logger.js";
 
+/**
+ * Generates a transcript of the last 100 non-bot messages in a ticket channel,
+ * saves it as a text file, and sends it to a designated transcript channel.
+ *
+ * @param {import('discord.js').ButtonInteraction} interaction - The interaction that triggered the transcript generation.
+ * @param {import('discord.js').Client} client - The Discord bot client instance.
+ * @param {import('pg').Pool} db - The PostgreSQL database connection pool.
+ */
 export default async function transcriptTicket(interaction, client, db) {
   try {
     await interaction.deferUpdate();

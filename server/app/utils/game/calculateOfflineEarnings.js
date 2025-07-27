@@ -4,7 +4,23 @@ import {
   autoClickerUpgrades,
 } from "./data/toolData.js";
 
-function calculateOfflineEarnings({
+/**
+ * Calculates offline earnings based on auto-clicking and tool configuration.
+ *
+ * @param {Object} options - The options for calculating earnings.
+ * @param {string|number|Date} options.logoutTime - The timestamp when the user logged out.
+ * @param {number} options.currentTime - The current time as a timestamp in milliseconds.
+ * @param {number} options.autoClickLevel - The user's auto-clicker upgrade level (1–10).
+ * @param {number} options.offlineEarningsLevel - The user's offline earnings upgrade level (1–10).
+ * @param {string} options.tool - The name of the tool used (e.g., "wooden_pickaxe").
+ *
+ * @returns {null | {
+ *   points: number,
+ *   materials: Record<string, number>,
+ *   minutes: number
+ * }} Returns null if no earnings are generated, otherwise returns earned points, materials, and elapsed minutes.
+ */
+export default function calculateOfflineEarnings({
   logoutTime,
   currentTime,
   autoClickLevel,
@@ -48,5 +64,3 @@ function calculateOfflineEarnings({
     minutes: Math.floor(cappedMs / 60000),
   };
 }
-
-export default calculateOfflineEarnings;

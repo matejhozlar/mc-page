@@ -1,5 +1,16 @@
 import jwt from "jsonwebtoken";
 
+/**
+ * Express middleware to verify JWT tokens from the Authorization header.
+ *
+ * - Expects `Authorization: Bearer <token>` format.
+ * - Verifies the token using `process.env.JWT_SECRET`.
+ * - Attaches the decoded payload to `req.user` if valid.
+ *
+ * @param {import('express').Request} req - The incoming HTTP request object.
+ * @param {import('express').Response} res - The HTTP response object.
+ * @param {Function} next - Function to pass control to the next middleware.
+ */
 export default function verifyJWT(req, res, next) {
   const authHeader = req.headers["authorization"];
   if (!authHeader) {

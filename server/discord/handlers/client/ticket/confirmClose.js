@@ -7,6 +7,14 @@ import {
 } from "discord.js";
 import logger from "../../../../logger.js";
 
+/**
+ * Handles the logic to close a ticket: hides the channel from the user,
+ * posts an admin panel with options, and updates the ticket record in the database.
+ *
+ * @param {import('discord.js').ButtonInteraction} interaction - The button interaction that triggered the close.
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @param {import('pg').Pool} db - The PostgreSQL database connection pool or client.
+ */
 export default async function confirmCloseTicket(interaction, client, db) {
   const user = interaction.user;
   const channel = interaction.channel;

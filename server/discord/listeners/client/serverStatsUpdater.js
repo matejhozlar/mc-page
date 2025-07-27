@@ -1,6 +1,12 @@
 import logger from "../../../logger.js";
 import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
+/**
+ * Periodically updates server stat channel names with current member/bot counts.
+ * Only runs in production environment.
+ *
+ * @param {import('discord.js').Client} client - The Discord.js client instance.
+ */
 export default function startUpdatingServerStats(client) {
   if (!exitIfNotProduction()) return;
 

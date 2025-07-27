@@ -3,6 +3,14 @@ import { setTimeout as sleep } from "timers/promises";
 import { announceLotteryWinner } from "./announceLotteryWinner.js";
 import { announceLotteryRefund } from "./announceLotteryRefund.js";
 
+/**
+ * Resolves a lottery after a delay, choosing a winner or refunding participants.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL connection pool.
+ * @param {import('discord.js').Client} webChatClient - The Discord bot client used for sending announcements.
+ * @param {number} [waitMs=120000] - Optional delay before resolving the lottery in milliseconds (default is 2 minutes).
+ * @returns {Promise<void>}
+ */
 export async function startLotteryResolver(db, webChatClient, waitMs = 120000) {
   logger.info("🎲 Lottery resolver started. Waiting...");
 

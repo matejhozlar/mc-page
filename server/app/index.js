@@ -9,6 +9,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "..", "client", "dist");
 
+/**
+ * Initializes and configures an Express application.
+ *
+ * Middleware included:
+ * - JSON body parsing
+ * - CORS with credentials support
+ * - URL-encoded body parsing
+ * - Cookie parsing
+ * - Static file serving for the React frontend
+ *
+ * @returns {import('express').Express} Configured Express application instance
+ */
 export function createApp() {
   const app = express();
 

@@ -20,6 +20,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/**
+ * Notifies the admin via email and Discord about a new waitlist submission.
+ *
+ * @param {Object} submission - The waitlist submission details.
+ * @param {number|string} submission.id - The unique waitlist submission ID.
+ * @param {string} submission.email - The email address of the user.
+ * @param {string} submission.discord_name - The Discord name of the user.
+ * @param {import('discord.js').Client} client - The Discord.js client instance.
+ * @returns {Promise<void>} - Resolves when all notifications are attempted.
+ */
 export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
   const mailOptions = {
     from: `"Createrington" <${process.env.EMAIL_ADDRESS}>`,

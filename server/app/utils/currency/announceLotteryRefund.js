@@ -1,5 +1,13 @@
 import logger from "../../../logger.js";
 
+/**
+ * Announces a lottery refund in the Minecraft channel when only one participant joined.
+ *
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @param {string} participantName - The name of the user who entered the lottery.
+ * @param {number} amount - The amount refunded to the participant.
+ * @returns {Promise<void>}
+ */
 export async function announceLotteryRefund(client, participantName, amount) {
   const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
   const message = `❌ **Lottery Canceled**\nOnly one participant (**${participantName}**) joined.\n💸 Entry fee of $${amount.toLocaleString()} has been refunded.`;

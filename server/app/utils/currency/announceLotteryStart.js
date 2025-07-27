@@ -1,5 +1,12 @@
 import logger from "../../../logger.js";
 
+/**
+ * Announces the start of a lottery in the Minecraft Discord channel.
+ *
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @param {string} hostName - The name of the user hosting the lottery.
+ * @returns {Promise<void>}
+ */
 export async function announceLotteryStart(client, hostName) {
   const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
   const message = `🎲 **Lottery Started**\nHost: **${hostName}**\nType \`/join <amount>\` to participate!\nWinner will be announced in 2 minutes...`;

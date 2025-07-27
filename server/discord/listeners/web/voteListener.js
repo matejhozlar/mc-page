@@ -37,6 +37,13 @@ const voteCommands = {
   },
 };
 
+/**
+ * Sets up a vote listener on the webBot to allow users to vote on Minecraft server time/weather changes.
+ * Only runs in production mode.
+ *
+ * @param {import('discord.js').Client} webBot - The Discord.js client representing the web bot.
+ * @param {{ io: import('socket.io').Server }} context - An object containing a Socket.IO server instance.
+ */
 export default function setupVoteListener(webBot, { io }) {
   if (!exitIfNotProduction()) return;
 

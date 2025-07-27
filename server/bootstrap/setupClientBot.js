@@ -17,6 +17,14 @@ import {
 
 const hourlyMs = 60 * 60 * 1000;
 
+/**
+ * Initializes scheduled jobs and leaderboards for the client Discord bot.
+ * Only runs in production environments.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL database connection pool.
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @returns {Promise<void>}
+ */
 export default async function setupClientBot(db, client) {
   if (!exitIfNotProduction()) return;
 

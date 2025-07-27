@@ -9,6 +9,16 @@ import {
 
 import logger from "../../../../logger.js";
 
+/**
+ * Handles creation of a new support ticket channel for the user.
+ * Ensures only one open ticket per user, assigns permissions,
+ * updates database, and notifies user.
+ *
+ * @param {import('discord.js').Interaction} interaction - The interaction object triggered by the user.
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @param {import('pg').Pool | import('pg').PoolClient} db - PostgreSQL database client or pool.
+ */
+
 export default async function createTicket(interaction, client, db) {
   try {
     const guild = interaction.guild;

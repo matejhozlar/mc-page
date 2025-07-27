@@ -4,10 +4,12 @@ import logger from "../../../logger.js";
 import db from "../../../db/index.js";
 
 /**
- * Registers interaction handling for the client bot
- * @param {import('discord.js'.Client)} client
- * @param {Map<string, object>} commandHandlers
- * @param {Map<string, Function>} ticketHandlers
+ * Registers interaction handling for the client bot.
+ * Handles both slash commands and button interactions.
+ *
+ * @param {import('discord.js').Client} client - The Discord bot client.
+ * @param {Map<string, { execute: Function }>} commandHandlers - Map of command names to their handler objects.
+ * @param {Map<string, Function>} ticketHandlers - Map of button custom IDs to handler functions.
  */
 export default function registerClientInteractionHandler(
   client,

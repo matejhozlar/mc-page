@@ -5,6 +5,16 @@ dotenv.config();
 
 const { CLIENT_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
+/**
+ * Sends a crash notification embed for a token to a Discord channel.
+ *
+ * @param {Object} token - The token that crashed.
+ * @param {string} token.name - The name of the token (e.g., "Shiba").
+ * @param {string} token.symbol - The token symbol (e.g., "SHIB").
+ * @param {string} [token.description] - Optional description of the token.
+ * @param {number|string} token.price_per_unit - The last known price per unit of the token.
+ * @param {number} [token.total_supply] - The total supply of the token.
+ */
 export async function sendCrashNotification(token) {
   const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 

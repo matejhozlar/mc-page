@@ -7,6 +7,13 @@ dotenv.config();
 
 const DAILY_LIMIT = 50;
 
+/**
+ * Sets up a private-message-only AI chat listener on the Discord client.
+ * Users must be registered and under a daily message limit.
+ *
+ * @param {import('discord.js').Client} client - The Discord.js client instance.
+ * @param {{ db: import('pg').Pool }} context - An object containing the PostgreSQL database connection pool.
+ */
 export default function setupAIChatListener(client, { db }) {
   if (!exitIfNotProduction()) return;
 

@@ -3,6 +3,13 @@ import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.
 
 const LINK_REGEX = /https?:\/\/[^\s]+/i;
 
+/**
+ * Watches a designated channel and deletes messages that do not contain links.
+ * Sends a warning message if a non-link message is posted.
+ * Only runs in production.
+ *
+ * @param {import('discord.js').Client} client - The Discord.js client instance.
+ */
 export default function setupLinkOnlyChannelWatcher(client) {
   if (!exitIfNotProduction()) return;
 

@@ -1,6 +1,13 @@
 import { EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../../../logger.js";
 
+/**
+ * Reopens a previously closed ticket by updating permissions and database status.
+ *
+ * @param {import('discord.js').ButtonInteraction} interaction - The button interaction that triggered the reopening.
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @param {import('pg').Pool | import('pg').PoolClient} db - The database connection or client.
+ */
 export default async function reopenTicket(interaction, client, db) {
   const channelId = interaction.channel.id;
 

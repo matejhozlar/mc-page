@@ -1,3 +1,12 @@
+/**
+ * Checks if a user is currently on cooldown for a specific token transaction.
+ *
+ * @param {import('pg').Pool} db - The PostgreSQL database connection pool.
+ * @param {string} userId - The Discord user ID to check cooldown for.
+ * @param {string} tokenId - The token ID associated with the transaction.
+ * @returns {Promise<{ onCooldown: boolean, secondsRemaining: number }>}
+ * An object indicating whether the user is on cooldown and how many seconds remain.
+ */
 export async function getCooldownStatus(db, userId, tokenId) {
   const { rows } = await db.query(
     `SELECT timestamp FROM token_transactions

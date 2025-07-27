@@ -1,5 +1,12 @@
 import { EmbedBuilder } from "discord.js";
 
+/**
+ * Deletes a ticket channel after a short delay and marks it as deleted in the database.
+ *
+ * @param {import('discord.js').ButtonInteraction} interaction - The interaction that triggered the deletion.
+ * @param {import('discord.js').Client} client - The Discord client instance.
+ * @param {import('pg').Pool | import('pg').PoolClient} db - The database connection or client.
+ */
 const deleteTicket = async (interaction, client, db) => {
   await interaction.deferUpdate();
 
