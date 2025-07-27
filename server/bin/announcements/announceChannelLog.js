@@ -7,7 +7,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
+const { CLIENT_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
@@ -69,4 +69,4 @@ client.once("ready", async () => {
   }
 });
 
-client.login(DISCORD_BOT_TOKEN);
+client.login(CLIENT_BOT_TOKEN);

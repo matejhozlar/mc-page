@@ -62,4 +62,4 @@ client.once("ready", async () => {
   }
 });
 
-client.login(process.env.DISCORD_BOT_TOKEN);
+client.login(process.env.CLIENT_BOT_TOKEN);

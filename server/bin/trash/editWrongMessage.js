@@ -7,7 +7,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_LEADERBOARDS_CHANNEL_ID } = process.env;
+const { CLIENT_BOT_TOKEN, DISCORD_LEADERBOARDS_CHANNEL_ID } = process.env;
 
 const MESSAGE_ID_TO_EDIT = "1383941741773852806";
 
@@ -40,4 +40,4 @@ client.once("ready", async () => {
   }
 });
 
-client.login(DISCORD_BOT_TOKEN);
+client.login(CLIENT_BOT_TOKEN);

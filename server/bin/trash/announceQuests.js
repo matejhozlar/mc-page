@@ -7,7 +7,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_QUESTS_CHANNEL_ID, DISCORD_PLAYER_ROLE_ID } =
+const { CLIENT_BOT_TOKEN, DISCORD_QUESTS_CHANNEL_ID, DISCORD_PLAYER_ROLE_ID } =
   process.env;
 
 client.once("ready", async () => {
@@ -57,4 +57,4 @@ client.once("ready", async () => {
   }
 });
 
-client.login(DISCORD_BOT_TOKEN);
+client.login(CLIENT_BOT_TOKEN);

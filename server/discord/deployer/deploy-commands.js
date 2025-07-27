@@ -3,9 +3,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const CLIENT_ID = process.env.CLIENT_BOT_ID;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
-const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()

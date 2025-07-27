@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const TOKEN = process.env.CLIENT_BOT_TOKEN;
 const TARGET_CHANNEL_ID = process.env.DISCORD_BOT_COMMANDS_CHANNEL_ID;
 
 const client = new Client({

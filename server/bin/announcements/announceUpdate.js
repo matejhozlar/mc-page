@@ -7,7 +7,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { DISCORD_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
+const { CLIENT_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
 
 const announcement = {
   title: "🔧 Server Maintenance",
@@ -71,4 +71,4 @@ client.once("ready", async () => {
   }
 });
 
-client.login(DISCORD_BOT_TOKEN);
+client.login(CLIENT_BOT_TOKEN);

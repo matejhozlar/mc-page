@@ -7,7 +7,7 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-const DISCORD_TOKEN = process.env.DISCORD_BOT_TOKEN;
+const DISCORD_TOKEN = process.env.CLIENT_BOT_TOKEN;
 const CHANNEL_ID = process.env.DISCORD_LEADERBOARDS_CHANNEL_ID;
 
 client.once("ready", async () => {

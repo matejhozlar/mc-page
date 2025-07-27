@@ -20,7 +20,7 @@ async function checkMissingDiscordUsers() {
   await db.connect();
   console.log("✅ Connected to DB");
 
-  await client.login(process.env.DISCORD_BOT_TOKEN);
+  await client.login(process.env.CLIENT_BOT_TOKEN);
   console.log(`🤖 Logged in as ${client.user.tag}`);
 
   const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
