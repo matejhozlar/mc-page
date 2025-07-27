@@ -119,8 +119,6 @@ Admin features:
 
 ---
 
----
-
 ## Tech Stack
 
 Createrington is powered by a full-stack modern web architecture:
@@ -133,9 +131,9 @@ Createrington is powered by a full-stack modern web architecture:
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=nodejs,react,postgres,discord,express,js,openai,socketio" />
-  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vite/vite-original.svg" width="42" alt="Vite" />
-  <img src="https://cdn.jsdelivr.net/gh/PKief/vscode-material-icon-theme@main/icons/minecraft-folder-dark.svg" width="42" alt="Minecraft" />
 </p>
+
+---
 
 ## Installation & setup
 
