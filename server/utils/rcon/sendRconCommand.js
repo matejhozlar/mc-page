@@ -4,6 +4,14 @@ import logger from "../../logger.js";
 
 dotenv.config();
 
+/**
+ * Sends a command to a Minecraft server using RCON.
+ *
+ * @param {string} command - The command to send to the server.
+ * @returns {Promise<string>} - The server's response to the command.
+ *
+ * @throws {Error} If the RCON connection or command fails.
+ */
 export async function sendRconCommand(command) {
   try {
     const rcon = await Rcon.connect({

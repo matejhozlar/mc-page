@@ -16,12 +16,29 @@ const db = new pg.Pool({
 const memecoins = JSON.parse(fs.readFileSync("memecoins.json", "utf8"));
 const { DISCORD_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
+/**
+ * Picks a random memecoin and assigns it a random price.
+ *
+ * @returns {Object} Random memecoin with name, symbol, description, and price.
+ */
 function getRandomMemecoin() {
   const coin = memecoins[Math.floor(Math.random() * memecoins.length)];
   const rawPrice = Math.max(Math.random() * 1000, 0.0001);
   return { ...coin, price: parseFloat(rawPrice.toFixed(4)) };
 }
 
+/**
+ * Sends a Discord embed notification about a new memecoin.
+ *
+ * @param {Object} data
+ * @param {string} data.name - The name of the memecoin.
+ * @param {string} data.symbol - The symbol of the memecoin.
+ * @param {string} data.description - A description of the memecoin.
+ * @param {number} data.price - The initial price of the memecoin.
+ * @param {number} data.totalSupply - The total token supply.
+ *
+ * @returns {Promise<void>}
+ */
 async function sendDiscordNotification({
   name,
   symbol,
@@ -63,6 +80,17 @@ async function sendDiscordNotification({
   await client.login(DISCORD_BOT_TOKEN);
 }
 
+/**
+ * Inserts a memecoin into the database and sends a Discord notification.
+ *
+ * @param {Object} data
+ * @param {string} data.name - The name of the memecoin.
+ * @param {string} data.symbol - The memecoin's ticker symbol.
+ * @param {string} data.description - Description of the memecoin.
+ * @param {number} data.price - Starting price per unit.
+ *
+ * @returns {Promise<void>}
+ */
 async function insertMemecoin({ name, symbol, description, price }) {
   try {
     const totalSupply =
