@@ -3,6 +3,7 @@ import path from "path";
 import glob from "fast-glob";
 
 const SOURCE_DIR = path.resolve(".");
+const OUTPUT_PATH = path.resolve("config/env/vars/requiredVars.js");
 
 /**
  * Extracts all unique environment variable keys accessed via `process.env.VAR_NAME`
@@ -30,13 +31,17 @@ function findEnvVarsInFile(filePath) {
 /**
  * Scans all `.js` files in the project, collects all referenced `process.env.VAR`
  * variables, and writes them to a JS module as an array export.
- *
- * @param {string} outputPath - Path where the result JS file should be written.
  */
-export function generateRequiredEnvVars(outputPath) {
+function generateRequiredEnvVars(outputPath) {
   const allFiles = glob.sync(["**/*.js"], {
     cwd: SOURCE_DIR,
-    ignore: ["node_modules/**", "client/**", "build/**", "dist/**", "index.js"],
+    ignore: [
+      "node_modules/**",
+      "client/**",
+      "build/**",
+      "dist/**",
+      "scripts/**",
+    ],
     absolute: true,
   });
 
@@ -47,7 +52,7 @@ export function generateRequiredEnvVars(outputPath) {
       const vars = findEnvVarsInFile(file);
       vars.forEach((v) => envVars.add(v));
     } catch (error) {
-      console.warn(`Skipping unreadable file ${file}: ${error}`);
+      console.warn(`⚠️ Skipping unreadable file ${file}: ${error}`);
     }
   }
 
@@ -57,7 +62,11 @@ export function generateRequiredEnvVars(outputPath) {
     .map((v) => `  "${v}",`)
     .join("\n")}\n];\n\nexport default REQUIRED_VARS;\n`;
 
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, jsContent);
-  console.log(`Wrote ${sortedVars.length} required env vars to ${outputPath}`);
-  process.exit(0);
+  console.log(
+    `✅ Wrote ${sortedVars.length} required env vars to ${outputPath}`
+  );
 }
+
+generateRequiredEnvVars(OUTPUT_PATH);
