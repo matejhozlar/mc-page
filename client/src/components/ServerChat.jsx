@@ -4,11 +4,12 @@ import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { marked } from "marked";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
-const isDev = window.location.hostname === "localhost";
+const socket = io();
 
-const SERVER_URL = isDev ? "http://localhost:3000" : undefined;
-
-const socket = io(SERVER_URL);
+socket.on("connect", () => {
+  console.log("✅ Socket connected (dev):", socket.id);
+  socket.emit("requestChatHistory");
+});
 
 const ServerChat = () => {
   const [messages, setMessages] = useState([]);

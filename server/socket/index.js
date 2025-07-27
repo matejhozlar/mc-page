@@ -12,10 +12,9 @@ import logger from "../logger.js";
  * @returns {void}
  */
 export function setupSocketIO(io, db, client, webBot) {
+  relayDiscordMessages(client, webBot, io);
   io.on("connection", (socket) => {
     logger.info(`New socket connected: ${socket.id}`);
-
     registerSocketHandlers(socket, { db, io, client, webBot });
-    relayDiscordMessages(client, webBot, io);
   });
 }

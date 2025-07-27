@@ -90,7 +90,7 @@ setupSocketIO(io, db, clientBot, webBot);
 
 // ─── Start HTTP Server ───────────────────────────────────
 httpServer.listen(PORT, () => {
-  logger.info(`🚀 Server running on port ${PORT}`);
+  logger.info(`🚀 Server running on http://localhost:${PORT}`);
 });
 
 // ─── Serve React SPA Fallback ────────────────────────────

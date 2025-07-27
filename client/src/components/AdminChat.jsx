@@ -5,11 +5,7 @@ import { usePlayers } from "./utils/usePlayers.js";
 import { marked } from "marked";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
-const isDev = window.location.hostname === "localhost";
-
-const SERVER_URL = isDev ? "http://localhost:3000" : undefined;
-
-const socket = io(SERVER_URL);
+const socket = io();
 
 const AdminServerChat = () => {
   const { players: onlinePlayers = [] } = usePlayers();
