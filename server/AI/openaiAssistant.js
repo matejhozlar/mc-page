@@ -4,6 +4,16 @@ import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../logger.js";
 import fs from "fs/promises";
+
+/**
+ * Sends a question to the Createrington AI assistant and returns the response.
+ *
+ * @param {string} question - The user's question related to the Createrington Minecraft server.
+ * @param {string} [context=""] - Optional prior assistant message context to help inform the reply.
+ *
+ * @returns {Promise<string>} - The assistant's textual response.
+ */
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
