@@ -17,6 +17,7 @@ Welcome to **Createrington**, a full‑stack community portal that unifies a Min
 - [Key features](#key-features)
 - [Architecture overview](#architecture-overview)
 - [Installation & setup](#installation--setup)
+- [Tech Stack](#tech-stack)
 - [Configuration](#configuration)
 - [Running the project](#running-the-project)
 - [API overview](#api-overview)
@@ -117,6 +118,24 @@ Admin features:
 - **Libraries**: React Router, Socket.io-client, Three.js, Chart.js, AOS
 
 ---
+
+---
+
+## Tech Stack
+
+Createrington is powered by a full-stack modern web architecture:
+
+- **Frontend**: React, Vite, AOS, Chart.js, Socket.io-client, Three.js
+- **Backend**: Node.js, Express, PostgreSQL, Discord.js, Multer, RCON
+- **Integrations**: Discord API, OpenAI API, Minecraft server
+- **Auth**: JWT, session cookies
+- **Infrastructure**: Cron jobs, REST API, WebSockets
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=nodejs,react,postgres,discord,express,js,openai,socketio" />
+  <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vite/vite-original.svg" width="42" alt="Vite" />
+  <img src="https://cdn.jsdelivr.net/gh/PKief/vscode-material-icon-theme@main/icons/minecraft-folder-dark.svg" width="42" alt="Minecraft" />
+</p>
 
 ## Installation & setup
 
@@ -240,7 +259,3 @@ Authentication via JWT and sessions for protected routes.
 MIT License. Not affiliated with Mojang, Microsoft, or Discord.
 
 > **Disclaimer**: The memecoin system is for entertainment only and has no real-world value.
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?i=nodejs,react,postgres,discord,express,js" />
-</p>
