@@ -95,6 +95,30 @@ Admin features:
 
 ---
 
+## Screenshots
+
+### Homepage
+
+![Homepage](./docs/screenshots/homepage.png)
+
+### Crypto Market
+
+![Crypto Market](./docs/screenshots/crypto-market.png)
+
+### Crypto Chart
+
+![Crypto Chart](./docs/screenshots/market-chart.png)
+
+### Unified Chat
+
+![Chat](./docs/screenshots/server-chat.png)
+
+### Admin Panel
+
+![Admin Panel](./docs/screenshots/admin-panel.png)
+
+---
+
 ## Architecture overview
 
 ### Server
