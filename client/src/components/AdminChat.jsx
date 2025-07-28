@@ -18,11 +18,50 @@ const AdminServerChat = () => {
   const [zoomedImage, setZoomedImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [adminUser, setAdminUser] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
 
   const chatEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const chatMessagesRef = useRef(null);
   const hasScrolledInitially = useRef(false);
+
+  const onImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const isValidType = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+    ].includes(file.type);
+    const isValidSize = file.size <= 10 * 1024 * 1024;
+
+    if (!isValidType) {
+      setUploadError("❌ Only JPG, PNG, or WEBP images are allowed.");
+      fileInputRef.current.value = "";
+      return;
+    }
+
+    if (!isValidSize) {
+      setUploadError("❌ Image must be under 10MB.");
+      fileInputRef.current.value = "";
+      return;
+    }
+
+    setUploadError(null);
+    setImageFile(file);
+  };
+
+  useEffect(() => {
+    if (!uploadError) return;
+
+    const timeout = setTimeout(() => {
+      setUploadError(null);
+    }, 10000);
+
+    return () => clearTimeout(timeout);
+  }, [uploadError]);
 
   const transformWaypointToLink = (text) => {
     return text.replace(
@@ -388,7 +427,7 @@ const AdminServerChat = () => {
               ref={fileInputRef}
               type="file"
               accept="image/*"
-              onChange={(e) => setImageFile(e.target.files[0])}
+              onChange={onImageChange}
               style={{ display: "none" }}
             />
           </label>
@@ -396,6 +435,10 @@ const AdminServerChat = () => {
             Send
           </button>
         </form>
+
+        {uploadError && (
+          <div className="alert alert-danger mt-2">{uploadError}</div>
+        )}
 
         {cooldownRemaining > 0 && (
           <div className="admin-chat-status">

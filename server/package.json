@@ -9,7 +9,8 @@
     "dev": "nodemon server",
     "gen-env": "node scripts/env/generateRequiredEnvVars.js",
     "find-env": "node scripts/env/findEnvUsage.js",
-    "find-import": "node scripts/dependency/findImportUsage.js"
+    "find-import": "node scripts/dependency/findImportUsage.js",
+    "check-missing-deps": "node scripts/integrity/checkMissingDeps.js"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +25,6 @@
     "dotenv": "^16.5.0",
     "express": "^4.21.2",
     "fast-glob": "^3.3.3",
-    "form-data": "^4.0.4",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",
     "minecraft-server-util": "^5.4.4",
@@ -37,7 +37,6 @@
     "pg": "^8.14.1",
     "puppeteer": "^24.10.1",
     "rcon-client": "^4.2.5",
-    "react-router-dom": "^7.5.0",
     "socket.io": "^4.8.1",
     "ssh2-sftp-client": "^12.0.0",
     "url": "^0.11.4",
