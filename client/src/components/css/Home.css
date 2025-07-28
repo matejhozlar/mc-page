@@ -218,7 +218,6 @@
   color: var(--accent-color);
 }
 
-/* MOD SHOWCASE */
 /* MODPACK SECTION */
 .modpack-section {
   width: 100%;
@@ -543,8 +542,24 @@
   margin-top: 1rem;
 }
 
+.modlist-container a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-block;
+  padding: 0.2rem 0;
+  transition: color 0.2s ease, transform 0.2s ease;
+  word-break: break-word;
+}
+
+.modlist-container a:hover {
+  color: var(--primary-color);
+  transform: translateX((4px));
+  text-decoration: underline;
+}
+
 .modlist-container.expanded {
-  max-height: 2000px; /* large enough to fit full list */
+  max-height: none; /* large enough to fit full list */
   opacity: 1;
 }
 
@@ -686,4 +701,78 @@
     font-weight: 600;
     color: var(--foreground-color);
   }
+}
+
+/* Currency section */
+
+.currency-section {
+  padding: 5rem 2rem;
+  background: linear-gradient(180deg, #0a0a0a 0%, #111 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  color: var(--card-foreground);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+}
+
+.currency-header {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 4rem;
+}
+
+.currency-header h2 {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.currency-header p {
+  font-size: 1.15rem;
+  color: var(--muted-foreground);
+}
+
+.currency-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+.feature-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 2rem;
+  transition: transform 0.2s ease, border 0.3s ease;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--primary-color);
+}
+
+.feature-card h4 {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+
+.currency-footer {
+  margin-top: 4rem;
+  text-align: center;
+}
+
+.currency-footer p {
+  font-size: 1.1rem;
+  color: var(--primary-color);
+  font-weight: 500;
+  max-width: 700px;
+  margin: 0 auto;
 }

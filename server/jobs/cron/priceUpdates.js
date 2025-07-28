@@ -1,5 +1,6 @@
 import cron from "node-cron";
 import { updateStableCoinPrice } from "../../services/crypto/stablecoins/updateStableCoinPrice.js";
+import { updateMemecoinPrices } from "../../services/crypto/memecoins/updateMemecoinPrices.js";
 
 /**
  * Schedules periodic price updates for stablecoins.
@@ -7,6 +8,11 @@ import { updateStableCoinPrice } from "../../services/crypto/stablecoins/updateS
  * @param {import("pg").Pool} db - PostgreSQL connection pool instance.
  */
 export function schedulePriceUpdates(db) {
+  // Every 30 seconds — Memecoin price update
+  cron.schedule("*/30 * * * * *", () => {
+    updateMemecoinPrices(db);
+  });
+
   // Every 10 minutes — Minutes Snapshot
   cron.schedule("*/10 * * * *", () => {
     updateStableCoinPrice(db, "minutes", "RGC");

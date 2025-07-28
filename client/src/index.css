@@ -1546,6 +1546,13 @@ input:checked + .slider:before {
   min-height: 100%;
 }
 
+.market-page-demo {
+  padding: 2rem;
+  color: #f1f1f1;
+  font-family: "Segoe UI", sans-serif;
+  min-height: 100%;
+}
+
 .market-header {
   text-align: center;
   margin-bottom: 2rem;

@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaDiscord, FaRocket, FaPaypal } from "react-icons/fa";
+import MarketStatsDemo from "./MarketStatsDemo.jsx";
 import createPhoto from "../assets/images/create.png";
 import buildPhoto from "../assets/images/build.png";
 import shadersPhoto from "../assets/images/shaders.jpg";
@@ -17,7 +18,7 @@ const images = [createPhoto, buildPhoto, shadersPhoto, storagePhoto];
 
 const features = [
   {
-    title: "Create 6.0.4",
+    title: "Create 6.0.6",
     description:
       "From cogwheels to mechanical presses, Create mod turns Minecraft into an engineering art form. Automate farms, factories, build working trains and manage your storage system!",
   },
@@ -75,8 +76,7 @@ const modCategories = [
     title: "Tech & Automation",
     mods: [
       ["Create", "Mechanical automation at its finest."],
-      ["Applied Energistics 2", "Store and auto-craft with ME systems."],
-      ["FTB Chunks", "Claim and protect your land."],
+      ["Open Parties and Claims", "Claim and protect your land."],
       ["FTB Quests", "Progress and reward system for players."],
       [
         "Server Performance",
@@ -93,6 +93,18 @@ export default function Home() {
   const [modSearch, setModSearch] = useState("");
   const [potatoMode, setPotatoMode] = useState(false);
   const [potatoImage, setPotatoImage] = useState(null);
+  const [modlistHtml, setModlistHtml] = useState("");
+
+  useEffect(() => {
+    fetch("/modlist.html")
+      .then((res) => res.text())
+      .then((html) => {
+        setModlistHtml(html);
+      })
+      .catch((error) => {
+        console.log("Failed to load modlist:", error);
+      });
+  }, []);
 
   useEffect(() => {
     AOS.init({
@@ -112,6 +124,23 @@ export default function Home() {
 
     return () => window.removeEventListener("resize", checkIsMobile);
   }, []);
+
+  function filterModlistHtml(html, query) {
+    if (!query.trim()) return html;
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const items = Array.from(doc.querySelectorAll("li"));
+
+    const filtered = items.filter((li) =>
+      li.textContent.toLowerCase().includes(query.toLowerCase())
+    );
+
+    const ul = document.createElement("ul");
+    filtered.forEach((li) => ul.appendChild(li));
+
+    return ul.outerHTML;
+  }
 
   return (
     <div className="home-page">
@@ -222,11 +251,10 @@ export default function Home() {
           creativity. Build cozy farms with Farmer’s Delight, power intricate
           machines using the Create mod and its many expansions, and shape
           stunning structures with Macaw’s building suite, Chipped, and
-          Rechiseled. Whether you’re organizing with Applied Energistics 2,
-          soaring with the Builders' Jetpack, or fine-tuning your world with
-          immersive shaders and dynamic lighting, every mod is a tool to bring
-          your ideas to life. There's no set path—just a sandbox full of
-          potential.
+          Rechiseled. Whether you're gliding through the skies with the
+          Builders' Jetpack or fine-tuning your world with immersive shaders and
+          dynamic lighting, every mod is a tool to bring your ideas to life.
+          There's no set path—just a sandbox full of potential.
         </p>
       </section>
 
@@ -277,6 +305,51 @@ export default function Home() {
         ))}
       </section>
 
+      <section className="currency-section" data-aos="fade-up">
+        <header className="currency-header">
+          <h2>Createrington Currency</h2>
+          <p>
+            The server’s one-of-a-kind financial system — where carrots, crypto,
+            and coins collide. Trade, invest, and flex your wealth.
+          </p>
+        </header>
+
+        <div className="currency-features">
+          {[
+            {
+              title: "Physical Bills",
+              desc: "Collect, trade, and carry stackable currency items with unique Minecraft textures.",
+            },
+            {
+              title: "Real-Time Sync",
+              desc: "Currency reflects instantly across Minecraft, web, API, and Discord.",
+            },
+            {
+              title: "Games",
+              desc: "Play mini-games on the web or in Minecraft and climb the competitive leaderboards.",
+            },
+            {
+              title: "Crypto Market",
+              desc: "Trade, stake, and earn virtual tokens in a real-time economy..",
+            },
+          ].map((f, i) => (
+            <div className="feature-card" key={i}>
+              <h4>{f.title}</h4>
+              <p>{f.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <MarketStatsDemo />
+
+        <footer className="currency-footer">
+          <p>
+            Whether you’re growing potatoes or trading tokens, Createrington’s
+            economy makes every action feel valuable.
+          </p>
+        </footer>
+      </section>
+
       {/* MOD SHOWCASE */}
       <section className="modpack-section" data-aos="fade-up">
         <div className="modpack-header">
@@ -325,140 +398,24 @@ export default function Home() {
         >
           {showFullModlist ? "Hide" : "Show"}
         </button>
+
         {showFullModlist && (
-          <input
-            type="text"
-            placeholder="Search mods..."
-            className="modlist-search"
-            value={modSearch}
-            onChange={(e) => setModSearch(e.target.value)}
-          />
+          <>
+            <input
+              type="text"
+              placeholder="Search mods..."
+              className="modlist-search"
+              value={modSearch}
+              onChange={(e) => setModSearch(e.target.value)}
+            />
+            <div
+              className={`modlist-container expanded`}
+              dangerouslySetInnerHTML={{
+                __html: filterModlistHtml(modlistHtml, modSearch),
+              }}
+            />
+          </>
         )}
-        <div
-          className={`modlist-container ${
-            showFullModlist ? "expanded" : "collapsed"
-          }`}
-        >
-          <ul>
-            {[
-              "AppleSkin",
-              "Applied Energistics 2",
-              "Applied Energistics 2 Wireless Terminals",
-              "Aquaculture 2",
-              "Architectury API",
-              "Athena",
-              "BSL Shaders",
-              "Borderless Window",
-              "Builders' Jetpack Mod",
-              "Carry On",
-              "Chipped",
-              "Chunk Sending",
-              "Clumps",
-              "Collective",
-              "Complementary Shaders - Reimagined",
-              "Complementary Shaders - Unbound",
-              "Connectivity",
-              "Controlling",
-              "Corn Delight[Forge]",
-              "CoroUtil",
-              "Corpse",
-              "Corpse x Curios API Compat",
-              "Create",
-              "Create : Misc & Things",
-              "Create Confectionery",
-              "Create Encased",
-              "Create Sifting",
-              "Create Stuff 'N Additions",
-              "Create: Dragons Plus",
-              "Create: Enchantment Industry",
-              "Create: Garnished",
-              "Create: Oxidized",
-              "Create: Structures Arise",
-              "Create: Trading Floor",
-              "Cupboard",
-              "Curios API",
-              "Discord & Chat Images",
-              "EMI",
-              "EMI Enchanting",
-              "EMI Loot",
-              "FTB Chunks",
-              "FTB Library",
-              "FTB Quests",
-              "FTB Teams",
-              "Farmer's Delight",
-              "FerriteCore",
-              "FramedBlocks",
-              "Freecam",
-              "Fresh Animations,",
-              "Fusion (Connected ATextures)",
-              "Fzzy Config",
-              "GJEB (GammaJustExtremeBright)",
-              "GuideME",
-              "Inventory Sorter",
-              "Iris Shaders",
-              "Jade Addons",
-              "Jade",
-              "Just Enough Items (JEI)",
-              "Kotlin for Forge",
-              "Lootr",
-              "Macaw's Bridges",
-              "Macaw's Doors",
-              "Macaw's Fences and Walls",
-              "Macaw's Furniture",
-              "Macaw's Lights and Lamps",
-              "Macaw's Paintings",
-              "Macaw's Paths and Pavings",
-              "Macaw's Roofs",
-              "Macaw's Stairs",
-              "Macaw's Trapdoors",
-              "Macaw's Windows",
-              "ModernFix",
-              "Mouse Tweaks",
-              "Mysterious Mountain Lib",
-              "Nature's Compass",
-              "Ok Zoomer - It's Zoom!",
-              "Packet Fixer",
-              "Polymorph",
-              "Quick Right-Click",
-              "ReForgedPlay",
-              "Rechiseled",
-              "Rechiseled: Chipped",
-              "Rechiseled: Create",
-              "Reese's Sodium Options",
-              "Resourceful Lib",
-              "Scarecrows' Territory",
-              "Searchables",
-              "Server Performance - Smooth Chunk Save",
-              "Silent Gear",
-              "Silent Lib (silentlib)",
-              "Simple Voice Chat",
-              "Skin Layers 3D",
-              "Sodium",
-              "Sodium Extra",
-              "Sodium/Embeddium Dynamic Lights",
-              "Sodium/Embeddium Options API",
-              "Sophisticated Backpacks",
-              "Sophisticated Core",
-              "Sound Physics Remastered",
-              "Storage Drawers",
-              "SuperMartijn642's Config Lib",
-              "SuperMartijn642's Core Lib",
-              "TxniLib",
-              "What Are They Up To (Watut)",
-              "Xaero's Minimap",
-              "Xaero's World Map",
-              "[EMF] Entity Model Features",
-              "[ETF] Entity Texture Features",
-              "fix GPU memory leak",
-            ]
-              .filter((mod) =>
-                mod.toLowerCase().includes(modSearch.toLowerCase())
-              )
-              .map((mod, i) => (
-                <li key={i}>{mod}</li>
-              ))}
-          </ul>
-        </div>
       </section>
 
       {/* JOIN CTA */}

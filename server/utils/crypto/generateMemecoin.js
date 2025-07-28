@@ -14,7 +14,7 @@ const db = new pg.Pool({
 });
 
 const memecoins = JSON.parse(fs.readFileSync("memecoins.json", "utf8"));
-const { DISCORD_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
+const { CLIENT_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
 /**
  * Picks a random memecoin and assigns it a random price.
@@ -77,7 +77,7 @@ async function sendDiscordNotification({
     }
   });
 
-  await client.login(DISCORD_BOT_TOKEN);
+  await client.login(CLIENT_BOT_TOKEN);
 }
 
 /**
