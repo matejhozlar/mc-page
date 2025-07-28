@@ -903,6 +903,20 @@ html {
   }
 }
 
+@media (min-width: 769px) {
+  .spinner-overlay {
+    left: 16rem;
+    width: calc(100% - 16rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .spinner-overlay {
+    left: 0;
+    width: 100%;
+  }
+}
+
 /* Loading screen */
 .loading-overlay {
   position: fixed;

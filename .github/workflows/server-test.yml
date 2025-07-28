@@ -2,6 +2,8 @@ name: Test Server
 
 on:
   push:
+    paths:
+      - "server/**"
 
 jobs:
   test-server:
