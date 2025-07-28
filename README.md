@@ -111,7 +111,9 @@ Admin features:
 
 ### Unified Chat
 
-![Chat](./docs/screenshots/server-chat.png)
+![Web Chat](./docs/screenshots/web-chat.png)
+![Discord Chat](./docs/screenshots/discord-chat.png)
+![Minecraft Chat](./docs/screenshots/minecraft-chat.png)
 
 ### Admin Panel
 
