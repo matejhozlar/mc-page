@@ -28,6 +28,7 @@ import CallbackGame from "./components/CallbackGame.jsx";
 import Market from "./components/Market.jsx";
 import CallbackMarket from "./components/CallbackMarket.jsx";
 import TokenChartPage from "./components/TokenChartPage.jsx";
+import Team from "./components/Team.jsx";
 
 function App() {
   return (
@@ -82,6 +83,7 @@ function AppWithRouter() {
               <Route path="/market" element={<Market />} />
               <Route path="/callback-market" element={<CallbackMarket />} />
               <Route path="/chart/:symbol" element={<TokenChartPage />} />
+              <Route path="/team" element={<Team />} />
               <Route
                 path="/admin"
                 element={

@@ -1,0 +1,139 @@
+.team-page {
+  padding: var(--spacing-10);
+  color: var(--foreground-color);
+  max-width: 1000px;
+  margin: auto;
+}
+
+.team-heading {
+  font-size: 2rem;
+  text-align: center;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-2);
+}
+
+.team-intro {
+  text-align: center;
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-8);
+  font-size: 1.05rem;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-6);
+  margin-bottom: var(--spacing-12);
+}
+
+.admin-card {
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--spacing-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-4);
+  transition: border-color 0.3s ease;
+}
+
+.admin-card:hover {
+  border-color: var(--primary-color);
+}
+
+.admin-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.admin-info h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+.admin-role {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent-color);
+}
+
+.admin-description {
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+  margin-top: var(--spacing-2);
+}
+
+/* Bot Section */
+
+/* Bot Section */
+.bot-heading {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.bot-card-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  max-width: 600px;
+  margin: 0 auto var(--spacing-16);
+}
+
+.discord-bot-card {
+  display: flex;
+  align-items: flex-start;
+  background-color: var(--card-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: var(--spacing-5);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.3s ease;
+}
+
+.discord-bot-card:hover {
+  border-color: var(--primary-color);
+}
+
+.bot-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  margin-right: var(--spacing-4);
+  object-fit: cover;
+  box-shadow: 0 0 0 2px var(--border-color);
+}
+
+.bot-info {
+  flex: 1;
+}
+
+.bot-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--spacing-1);
+}
+
+.bot-tag {
+  background-color: var(--muted-color);
+  color: var(--muted-foreground);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bot-description {
+  font-size: 0.95rem;
+  color: var(--muted-foreground);
+}
