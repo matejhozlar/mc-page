@@ -103,7 +103,7 @@ Admin features:
 
 ### Crypto Market
 
-![Crypto Market](./docs/screenshots/crypto-market.png)
+![Crypto Market](./docs/screenshots/market-homepage.png)
 
 ### Crypto Chart
 
