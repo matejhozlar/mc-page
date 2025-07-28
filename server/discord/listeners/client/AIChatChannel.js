@@ -1,4 +1,4 @@
-import { askAssitant } from "../../../AI/openaiAssistant.js";
+import { askAssistant } from "../../../AI/openaiAssistant.js";
 import logger from "../../../logger.js";
 import dotenv from "dotenv";
 import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
@@ -52,7 +52,7 @@ export default function setupAIChatListener(client, { db }) {
       }
 
       await message.channel.sendTyping();
-      const response = await askAssitant(message.content);
+      const response = await askAssistant(message.content);
       await message.reply(response);
 
       await db.query(

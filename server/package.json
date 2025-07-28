@@ -8,7 +8,8 @@
     "start": "node server",
     "dev": "nodemon server",
     "gen-env": "node scripts/env/generateRequiredEnvVars.js",
-    "find-env": "node scripts/env/findEnvUsage.js"
+    "find-env": "node scripts/env/findEnvUsage.js",
+    "find-import": "node scripts/dependency/findImportUsage.js"
   },
   "keywords": [],
   "author": "",

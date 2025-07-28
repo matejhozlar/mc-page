@@ -52,7 +52,7 @@ for (const file of files) {
 if (results.length === 0) {
   console.log(`❌ No usage found for ENV variable "${ENV_VAR}"`);
 } else {
-  console.log(`🔍 Found ${results.length} usage(s) of "${ENV_VAR}":\n`);
+  console.log(`Found ${results.length} usage(s) of "${ENV_VAR}":\n`);
   for (const { file, line, content } of results) {
     const relPath = path.relative(SEARCH_DIR, file).replace(/\\/g, "/");
     console.log(`- ${relPath}:${line} → ${content}`);

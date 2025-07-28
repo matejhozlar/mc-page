@@ -90,7 +90,7 @@ setupSocketIO(io, db, clientBot, webBot);
 
 // ─── Start HTTP Server ───────────────────────────────────
 httpServer.listen(PORT, () => {
-  logger.info(`🚀 Server running on http://localhost:${PORT}`);
+  logger.info(`Server running on http://localhost:${PORT}`);
 });
 
 // ─── Serve React SPA Fallback ────────────────────────────
@@ -116,5 +116,5 @@ process.on("SIGINT", async () => {
 
 // ─── Handle Unhandled Promise Rejections ─────────────────
 process.on("unhandledRejection", (reason) => {
-  logger.error(`🧨 Unhandled promise rejection: ${reason}`);
+  logger.error(`Unhandled promise rejection: ${reason}`);
 });

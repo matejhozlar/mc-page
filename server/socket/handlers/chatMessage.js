@@ -1,7 +1,7 @@
 import logger from "../../logger.js";
 import { sendToMinecraftChat } from "../utils/sendToMinecraftChat.js";
 
-const cooldowns = {};
+const cooldowns = new Map();
 
 /**
  * Handles a chat message sent from web client.
@@ -14,12 +14,12 @@ const cooldowns = {};
 export default async function chatMessageHandler(socket, data, db, io, webBot) {
   const { message, token, authorName } = data;
   const now = Date.now();
-  const lastSent = cooldowns[socket.id] || 0;
+  const lastSent = cooldowns.get(socket.id) || 0;
 
   if (!message || !token) return;
   if (now - lastSent < 10000) return;
 
-  cooldowns[socket.id] = now;
+  cooldowns.set(socket.id, now);
 
   try {
     let displayName = authorName || "web";
@@ -51,4 +51,8 @@ export default async function chatMessageHandler(socket, data, db, io, webBot) {
   } catch (err) {
     logger.error(`❌ Error sending chat message: ${err}`);
   }
+}
+
+export function clearCooldown(socket) {
+  cooldowns.delete(socket.id);
 }

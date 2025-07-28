@@ -1,6 +1,7 @@
 import chatMessageHandler from "./chatMessage.js";
 import requestHistoryHandler from "./requestHistory.js";
 import disconnectHandler from "./disconnect.js";
+import { clearCooldown } from "./chatMessage.js";
 
 export function registerSocketHandlers(socket, { db, io, client, webBot }) {
   socket.on("sendChatMessage", (data) =>
@@ -9,5 +10,8 @@ export function registerSocketHandlers(socket, { db, io, client, webBot }) {
 
   socket.on("requestChatHistory", () => requestHistoryHandler(socket, webBot));
 
-  socket.on("disconnect", () => disconnectHandler(socket));
+  socket.on("disconnect", () => {
+    clearCooldown(socket);
+    disconnectHandler(socket);
+  });
 }

@@ -92,7 +92,7 @@ const Sidebar = () => {
               >
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
-              Server Chat
+              Chat
             </NavLink>
           </li>
           <li className="nav-item">
@@ -112,7 +112,7 @@ const Sidebar = () => {
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
-              Online Players
+              Players
             </NavLink>
           </li>
           <li className="nav-item">
@@ -131,7 +131,7 @@ const Sidebar = () => {
                 <line x1="8" y1="2" x2="8" y2="18" />
                 <line x1="16" y1="6" x2="16" y2="22" />
               </svg>
-              Dynmap
+              Map
             </NavLink>
           </li>
           <li className="nav-item">
@@ -151,7 +151,7 @@ const Sidebar = () => {
                 <line x1="20" y1="8" x2="20" y2="14" />
                 <line x1="23" y1="11" x2="17" y2="11" />
               </svg>
-              Apply to Join
+              Apply
             </NavLink>
           </li>
           <li className="nav-item">

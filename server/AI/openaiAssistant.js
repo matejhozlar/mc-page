@@ -33,7 +33,7 @@ try {
   logger.warn("⚠️ Could not load assistant prompt file, using fallback.");
 }
 
-export async function askAssitant(question, context = "") {
+export async function askAssistant(question, context = "") {
   const messages = [
     { role: "system", content: assistantSystemPrompt },
     ...(context ? [{ role: "assistant", content: context }] : []),
