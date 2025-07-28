@@ -627,7 +627,7 @@
   }
   .main-content {
     margin-left: 0 !important;
-    padding: 1rem !important;
+    padding: 0 !important;
     width: 100% !important;
   }
   .home-page {

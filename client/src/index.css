@@ -154,7 +154,7 @@ html {
   }
   .main-content {
     margin-left: 0 !important;
-    padding: 1rem !important;
+    padding: 0 !important;
     width: 100% !important;
   }
   .home-page {
@@ -2103,11 +2103,17 @@ input:checked + .slider:before {
 }
 
 .profile-left {
-  flex: 0 0 300px;
+  flex: 0 0;
   background: #111;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 600px) {
+  .profile-left {
+    display: none;
+  }
 }
 
 .profile-right {

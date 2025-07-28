@@ -5,7 +5,7 @@ import MarketLoginButton from "./MarketLoginButton.jsx";
 import AnimatedNumber from "./AnimatedNumber.jsx";
 import TokenModal from "./TokenModal.jsx";
 import MarketHeader from "./MarketHeader.jsx";
-import ProfileSkinViewer from "./ProfileSkinViewer.jsx";
+import ResponsiveProfileViewer from "./ResponsiveProfileViewer.jsx";
 import PortfolioHistoryChart from "./PortfolioHistoryChart.jsx";
 import Games from "./Games.jsx";
 import LoadingSpinner from "./LoadingSpinner.jsx";
@@ -334,7 +334,10 @@ function Market() {
           <section className="profile-tab">
             <div className="market-card profile-info enhanced-profile">
               <div className="profile-left">
-                <ProfileSkinViewer username={profile.name} />
+                <ResponsiveProfileViewer
+                  username={profile.name}
+                  uuid={profile.uuid}
+                />
               </div>
 
               <div className="profile-right">
