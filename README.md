@@ -61,7 +61,7 @@ Users can apply via the website. Admins approve applications via:
 
 ### Image uploads & gallery
 
-Players can upload screenshots from the web client. The `/api/upload-image` endpoint handles file uploads using multer and forwards them to a Discord channel.
+Players can upload screenshots from the web client. The `/api/upload-image` endpoint handles file uploads using multer and forwards them to a Discord channel (10MB limit by default).
 
 ### Player statistics & leaderboards
 
@@ -154,10 +154,50 @@ cd server && npm install
 cd ../client && npm install
 ```
 
-### Database setup
+### Database Setup
 
-- Create tables: users, tokens, applications, market, etc.
-- Schema inferred from route files like `currencyMod.js`
+You can set up the PostgreSQL database using the provided schema file or manually following these steps:
+
+#### Option 1: Use Provided Schema
+
+1. **Ensure PostgreSQL is installed and running.**
+
+2. **Create a new database:**
+
+   ```bash
+   createdb mc_server
+   ```
+
+3. **Import schema into the database:**
+
+   ```bash
+   psql -U your_user -d mc_server -f db/init.sql
+   ```
+
+   > Replace `your_user` with your PostgreSQL username.
+
+---
+
+#### Option 2: Manual Setup (for contributors)
+
+You can infer the necessary schema by exploring the relevant route and service files (useful for understanding the data flow):
+
+- **`currencyMod.js`** → Defines logic for currency, transactions, and `user_funds`
+- **`auth.js` / `tokens.js`** → Suggests tables like `users`, `chat_tokens`, `verified_discords`
+- **`applications.js`** → Requires `applications` table with `mc_name`, `dc_name`, etc.
+- **`cryptoMarket.js`** → Needs `crypto_tokens`, `user_tokens`, `token_transactions`
+
+---
+
+### Schema File Location
+
+The full schema (safe for public use) can be found in:
+
+```
+/db/init.sql
+```
+
+Use that file to set up a clean database with all constraints, sequences, indexes, triggers, and foreign keys.
 
 ### Environment variables
 
