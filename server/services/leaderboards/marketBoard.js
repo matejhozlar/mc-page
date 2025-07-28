@@ -48,7 +48,7 @@ async function fetchMarketLeaderboardEmbed(db) {
 
   const embed = new EmbedBuilder()
     .setTitle("📈 Top Market Portfolios")
-    .setDescription(leaderboard || "No data available.")
+    .setDescription(leaderboard || "No data found.")
     .setColor(0xff9900)
     .setFooter({ text: "Updated" })
     .setTimestamp();
