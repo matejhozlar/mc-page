@@ -339,6 +339,7 @@ html {
   color: #d1d5db;
   text-decoration: none;
   background-color: transparent;
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .nav-link:hover {
@@ -349,17 +350,18 @@ html {
 /* Active link uses the same green as your brand "primary-color" */
 .nav-link.active {
   background-color: var(--primary-color) !important;
-  color: var(--primary-foreground) !important; /* typically #fff */
+  color: var(--primary-foreground) !important;
 }
 
 .nav-icon {
   margin-right: var(--spacing-2);
   width: 1.25rem;
   height: 1.25rem;
+  transition: transform 0.2s ease;
 }
 
-.nav-icon-shift {
-  transform: translateX(-2px);
+.nav-link:hover .nav-icon {
+  transform: scale(1.15);
 }
 
 /****************************************************
@@ -1538,6 +1540,10 @@ input:checked + .slider:before {
 }
 
 .nav-link[href="/rules"] .nav-icon {
+  margin-left: -2px;
+}
+
+.nav-link[href="/team"] .nav-icon {
   margin-left: -2px;
 }
 
