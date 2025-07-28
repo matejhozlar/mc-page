@@ -16,7 +16,7 @@ vi.mock("../logger.js", () => ({
 vi.mock("../utils/logError.js", () => ({
   default: (e) => e.message || "error",
 }));
-vi.mock("../app/utils/admin/admin.js", () => ({
+vi.mock("../app/utils/admin.js", () => ({
   isAdmin: vi.fn(),
 }));
 
