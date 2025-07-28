@@ -559,7 +559,7 @@
 }
 
 .modlist-container.expanded {
-  max-height: none; /* large enough to fit full list */
+  max-height: none;
   opacity: 1;
 }
 

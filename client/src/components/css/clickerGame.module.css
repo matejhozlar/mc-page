@@ -256,7 +256,7 @@
   .clicker-canvas {
     width: 100%;
     height: auto;
-    aspect-ratio: 1 / 1; /* Keeps it square on all screens */
+    aspect-ratio: 1 / 1;
     max-width: 100%;
   }
 
