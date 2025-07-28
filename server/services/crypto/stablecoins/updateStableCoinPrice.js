@@ -52,7 +52,7 @@ export async function updateStableCoinPrice(db, interval, tokenSymbol) {
         newPrice = lastPrice - decayRate;
       }
 
-      newPrice = Math.max(0.1, newPrice);
+      newPrice = Math.max(1, newPrice);
 
       await db.query(
         `INSERT INTO token_price_history_minutes (token_id, price) VALUES ($1, $2)`,
