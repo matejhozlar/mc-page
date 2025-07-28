@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import request from "supertest";
 import express from "express";
-import formRoutes from "../routes/forms.js";
+import formRoutes from "../app/routes/forms.js";
 
 vi.mock("../utils/emailAdminOnWaitlist.js", () => ({
   notifyAdminWaitlist: vi.fn(),

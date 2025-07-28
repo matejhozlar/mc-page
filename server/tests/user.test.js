@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import request from "supertest";
 import express from "express";
 import cookieParser from "cookie-parser";
-import playersRoutes from "../routes/user.js";
+import playersRoutes from "../app/routes/user.js";
 
 vi.mock("../logger.js", () => ({
   default: {

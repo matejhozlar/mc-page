@@ -3,7 +3,7 @@ import request from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import playersRoutes from "../routes/verifyToken.js";
+import playersRoutes from "../app/routes/verifyToken.js";
 
 vi.mock("../logger.js", () => ({
   default: {

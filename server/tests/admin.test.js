@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import request from "supertest";
 import express from "express";
 import cookieParser from "cookie-parser";
-import adminRoutes from "../routes/admin.js";
-import { isAdmin } from "../services/admin.js";
+import adminRoutes from "../app/routes/admin.js";
+import { isAdmin } from "../app/utils/admin/admin.js";
 import { Rcon } from "rcon-client";
 
 vi.mock("../logger.js", () => ({
@@ -16,7 +16,7 @@ vi.mock("../logger.js", () => ({
 vi.mock("../utils/logError.js", () => ({
   default: (e) => e.message || "error",
 }));
-vi.mock("../services/admin.js", () => ({
+vi.mock("../app/utils/admin/admin.js", () => ({
   isAdmin: vi.fn(),
 }));
 

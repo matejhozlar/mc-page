@@ -3,9 +3,7 @@ import request from "supertest";
 import express from "express";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
-import logger from "../logger.js";
-import logError from "../utils/logError.js";
-import discordRoutes from "../routes/discordOAuth.js";
+import discordRoutes from "../app/routes/discordOAuth.js";
 import axios from "axios";
 
 vi.mock("axios");

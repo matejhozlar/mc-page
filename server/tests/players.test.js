@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import request from "supertest";
 import express from "express";
-import playersRoutes from "../routes/players.js";
+import playersRoutes from "../app/routes/players.js";
 import { status as mcStatus } from "minecraft-server-util";
 import { status as mockStatus } from "minecraft-server-util";
 import cookieParser from "cookie-parser";
