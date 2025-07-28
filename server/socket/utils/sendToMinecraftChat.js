@@ -1,7 +1,5 @@
 import logger from "../../logger.js";
 
-const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
-
 /**
  * Sends a message to the configured Minecraft Discord chat channel.
  *
@@ -12,12 +10,14 @@ const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
 export async function sendToMinecraftChat(message, webBot) {
   try {
     const guild = await webBot.guilds.fetch(process.env.DISCORD_GUILD_ID);
-    const channel = guild.channels.cache.find(
-      (ch) => ch.name === MINECRAFT_CHANNEL_NAME
+    const channel = guild.channels.cache.get(
+      process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID
     );
 
     if (channel?.isTextBased()) {
       await channel.send(message);
+    } else {
+      logger.warn("⚠️ Channel not found or is not text-based.");
     }
   } catch (err) {
     logger.error(`❌ Failed to send message to Minecraft chat: ${err}`);

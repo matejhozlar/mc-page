@@ -1,35 +1,58 @@
 import logger from "../../logger.js";
+import { Client, TextChannel } from "discord.js";
+import { Socket } from "socket.io";
 
 /**
- * Handles a request from a client to fetch and send the recent chat history
- * from the Discord "minecraft-chat" channel via a Socket.IO connection.
+ * Fetches the last 100 messages from the configured Minecraft chat Discord channel
+ * and sends them to the connected client via Socket.IO.
  *
- * @param {import("socket.io").Socket} socket - The connected socket instance for the client.
- * @param {import("discord.js").Client} webBot - The Discord bot used to access and fetch messages.
+ * Filters:
+ * - All non-bot messages
+ * - Messages from the web bot
+ * - Bot messages matching Minecraft-style format: `<Username>`
+ *
+ * @param {Socket} socket - Socket.IO connection instance.
+ * @param {Client} webBot - Discord.js client instance (the web chat bot).
  * @returns {Promise<void>}
  */
 export default async function requestHistoryHandler(socket, webBot) {
   try {
-    const guild = webBot.guilds.cache.first();
-    const channel = guild?.channels.cache.find(
-      (ch) => ch.name === "minecraft-chat"
+    const channelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
+
+    const channel = /** @type {TextChannel | null} */ (
+      await webBot.channels.fetch(channelId)
     );
 
-    if (!channel?.isTextBased()) return;
+    if (!channel?.isTextBased?.()) {
+      logger.error("❌ Channel not found or is not text-based.");
+      return;
+    }
 
     const messages = await channel.messages.fetch({ limit: 100 });
-    const webBotId = webBot.user.id;
+    const webBotId = webBot.user?.id;
 
     const filtered = [...messages.values()]
       .reverse()
-      .filter((m) => !m.author.bot || m.author.id === webBotId)
-      .map((m) => {
-        const name = m.member?.displayName || m.author.username;
-        return {
-          text:
-            m.author.id === webBotId ? m.content : `[${name}]: ${m.content}`,
-          image: m.attachments.first()?.url || null,
-        };
+      .filter((msg) => {
+        if (!msg.author.bot) return true;
+        if (msg.author.id === webBotId) return true;
+        return msg.content.match(/^`<[^<>]+>`/);
+      })
+      .map((msg) => {
+        const isWebBot = msg.author.id === webBotId;
+        const name = msg.member?.displayName || msg.author.username;
+        const image = msg.attachments.first()?.url || null;
+
+        let authorType = "discord";
+        if (isWebBot) authorType = "web";
+        else if (msg.content.match(/^`<[^<>]+>`/)) authorType = "minecraft";
+
+        const text =
+          isWebBot || authorType === "minecraft"
+            ? msg.content
+            : `[${name}]: ${msg.content}`;
+
+        return { text, image, authorType };
       });
 
     logger.info(`📨 Sending ${filtered.length} messages to client`);

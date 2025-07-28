@@ -9,7 +9,7 @@ import logger from "../../../logger.js";
  * @returns {Promise<void>}
  */
 export async function announceLotteryWinner(client, winnerName, amountWon) {
-  const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
+  const channelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
   const message = `🏆 **Lottery Winner**\nWinner: **${winnerName}**\nPrize: **$${amountWon.toLocaleString()}**\nGG! 🎉`;
 
   try {

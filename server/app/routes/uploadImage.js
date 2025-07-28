@@ -3,15 +3,18 @@ import multer from "multer";
 import { AttachmentBuilder } from "discord.js";
 import logger from "../../logger.js";
 
-export default function uploadImageRoute(
-  io,
-  webChatClient,
-  MINECRAFT_CHANNEL_NAME
-) {
+/**
+ * Handles image uploads from the web chat and relays them to Discord.
+ *
+ * @param {import("socket.io").Server} io - The Socket.IO instance to emit live updates.
+ * @param {import("discord.js").Client} webChatClient - The Discord web bot client.
+ * @returns {import("express").Router}
+ */
+// --- /api/upload-image ---
+export default function uploadImageRoute(io, webChatClient) {
   const router = express.Router();
   const upload = multer({ storage: multer.memoryStorage() });
 
-  // --- /api/upload-image ---
   router.post("/upload-image", upload.single("image"), async (req, res) => {
     const file = req.file;
     const messageText = req.body.message || "";
@@ -32,15 +35,17 @@ export default function uploadImageRoute(
       const guild = await webChatClient.guilds.fetch(
         process.env.DISCORD_GUILD_ID
       );
-      const channel = guild.channels.cache.find(
-        (ch) => ch.name === MINECRAFT_CHANNEL_NAME
+      const channel = guild.channels.cache.get(
+        process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID
       );
 
-      if (!channel || !channel.isTextBased()) {
+      if (!channel?.isTextBased?.()) {
         logger.error(
-          "❌ Image upload failed: Discord channel not found or not text-based"
+          "❌ Image upload failed: Channel not found or not text-based."
         );
-        return res.status(500).json({ error: "Channel not found" });
+        return res
+          .status(500)
+          .json({ error: "Channel not found or not text-based" });
       }
 
       const formattedMessage = `<${authorName}> ${messageText}`;

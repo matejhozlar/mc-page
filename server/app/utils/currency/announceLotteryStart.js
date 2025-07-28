@@ -8,7 +8,7 @@ import logger from "../../../logger.js";
  * @returns {Promise<void>}
  */
 export async function announceLotteryStart(client, hostName) {
-  const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
+  const channelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
   const message = `🎲 **Lottery Started**\nHost: **${hostName}**\nType \`/join <amount>\` to participate!\nWinner will be announced in 2 minutes...`;
 
   try {

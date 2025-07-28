@@ -12,7 +12,7 @@ export async function sendDailyReminder(client) {
 
   const message =
     "💡 Don't forget to do /daily for rewards and complete quests to earn PLC token!";
-  const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
+  const channelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
   try {
     const channel = await client.channels.fetch(channelId);
     if (channel && channel.isTextBased()) {

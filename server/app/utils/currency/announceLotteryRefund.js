@@ -9,7 +9,7 @@ import logger from "../../../logger.js";
  * @returns {Promise<void>}
  */
 export async function announceLotteryRefund(client, participantName, amount) {
-  const channelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
+  const channelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
   const message = `❌ **Lottery Canceled**\nOnly one participant (**${participantName}**) joined.\n💸 Entry fee of $${amount.toLocaleString()} has been refunded.`;
 
   try {

@@ -47,7 +47,7 @@ const voteCommands = {
 export default function setupVoteListener(webBot, { io }) {
   if (!exitIfNotProduction()) return;
 
-  const minecraftChannelId = process.env.DISCORD_MINECRAFT_CHANNEL_ID;
+  const minecraftChannelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
   const createringtonBotId = process.env.CLIENT_BOT_ID;
 
   webBot.on("messageCreate", async (message) => {

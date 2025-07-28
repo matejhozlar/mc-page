@@ -7,15 +7,15 @@
  * @param {import("socket.io").Server} io - Initialized Socket.IO server to emit messages to clients.
  */
 export default function relayDiscordMessages(client, webBot, io) {
-  const MINECRAFT_CHANNEL_NAME = "minecraft-chat";
+  const channelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
 
   client.on("messageCreate", (message) => {
     if (
-      !message.channel ||
-      message.channel.name !== MINECRAFT_CHANNEL_NAME ||
+      message.channelId !== channelId ||
       message.author.id === webBot.user?.id
-    )
+    ) {
       return;
+    }
 
     const displayName = message.member?.displayName || message.author.username;
     const text = `[${displayName}]: ${message.content}`;
