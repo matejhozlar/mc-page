@@ -6,6 +6,9 @@
 
   --card-color: hsl(220, 12%, 18%);
   --card-foreground: hsl(0, 0%, 88%);
+  --card-background: hsl(220, 14%, 15%);
+  --card-hover: hsl(220, 14%, 20%);
+  --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 
   --popover-color: hsl(220, 12%, 18%);
   --popover-foreground: hsl(0, 0%, 88%);
@@ -27,7 +30,8 @@
   --destructive-foreground: hsl(0, 0%, 100%);
 
   --border-color: hsl(220, 13%, 25%);
-  --input-color: hsl(220, 13%, 25%);
+  --input-color: #dcdcdc;
+  --input-background: hsl(220, 14%, 15%);
   --ring-color: hsl(90, 44%, 48%);
 
   --radius: 0.5rem;
@@ -481,7 +485,8 @@ html {
 .player-item {
   display: flex;
   align-items: center;
-  background-color: #2f2f2f;
+  background-color: var(--card-background);
+  box-shadow: var(--card-shadow);
   padding: 0.75rem 1rem;
   border-radius: 0.375rem;
   margin-bottom: 0.5rem;
@@ -489,7 +494,7 @@ html {
 }
 
 .player-item:hover {
-  background-color: #3f3f3f;
+  background-color: var(--card-hover);
 }
 
 .player-avatar {
@@ -542,7 +547,7 @@ html {
 }
 
 .online-players-chat li {
-  background-color: hsl(220, 14%, 15%);
+  background-color: var(--card-background);
   border-radius: 0.375rem;
   padding: 0.5rem;
   transition: background-color 0.2s ease;
@@ -632,11 +637,10 @@ html {
   margin: 30px auto;
   padding: 20px;
   font-family: "Helvetica Neue", Arial, sans-serif;
-  background-color: #2b2b2b;
+  background-color: var(--sidebar-background);
+  box-shadow: var(--card-shadow);
   color: #f1f1f1;
-  border: 1px solid #444;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* Title styling */
@@ -723,10 +727,10 @@ html {
   max-width: 800px;
   margin: 2rem auto;
   padding: 1.5rem;
-  background-color: #1f1f1f;
+  background-color: var(--sidebar-background);
   color: #f1f1f1;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--card-shadow);
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -742,10 +746,6 @@ html {
   margin-top: 2rem;
   margin-bottom: 1rem;
   color: var(--primary-color, hsl(90, 44%, 48%));
-}
-
-.rules-container ol {
-  margin-left: 1.5rem;
 }
 
 .rules-container li {
@@ -764,10 +764,10 @@ html {
   font-style: italic;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .rules-container {
     padding: 1rem;
-    margin: 1rem;
+    margin: 0;
   }
   .rules-container h1 {
     font-size: 1.75rem;
@@ -953,10 +953,19 @@ html {
 .waitlist-input {
   flex: 1;
   padding: 0.5rem;
-  border: 1px solid #555;
   border-radius: 4px;
-  background-color: #2b2b2b;
-  color: #f1f1f1;
+  border: none;
+  background-color: var(--input-background);
+  color: var(--input-color);
+}
+
+.waitlist-input:focus {
+  background-color: var(--input-background);
+  color: var(--input-color);
+}
+
+.waitlist-input::placeholder {
+  color: var(--input-color);
 }
 
 .waitlist-submit {

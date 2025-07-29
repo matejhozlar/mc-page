@@ -186,6 +186,7 @@ const AutocompleteInput = ({ value, onChange, placeholder, suggestions }) => {
     <div ref={ref} style={{ flex: 1, position: "relative" }}>
       <input
         type="text"
+        className="admin-input form-control"
         value={value}
         onChange={(e) => {
           onChange(e.target.value);
@@ -448,6 +449,7 @@ const AdminRconPanel = ({ logs }) => {
               <label className="switch">
                 <input
                   type="checkbox"
+                  className="admin-input form-control"
                   checked={!!isVanished}
                   onChange={(e) => {
                     e.preventDefault();
@@ -470,6 +472,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <AutocompleteInput
               value={targetPlayer}
+              className="admin-input form-control"
               onChange={setTargetPlayer}
               placeholder="Player name"
               suggestions={playerList}
@@ -493,6 +496,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <AutocompleteInput
               value={tpHerePlayer}
+              className="admin-input form-control"
               onChange={setTpHerePlayer}
               placeholder="Player name"
               suggestions={playerList}
@@ -516,6 +520,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <CustomDropdown
               value={gamemode}
+              className="admin-input form-control"
               onChange={setGamemode}
               options={["creative", "survival", "spectator"]}
             />
@@ -537,6 +542,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <AutocompleteInput
               value={banPlayer}
+              className="admin-input form-control"
               onChange={setBanPlayer}
               placeholder="Player name"
               suggestions={playerList}
@@ -560,6 +566,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <AutocompleteInput
               value={unbanPlayer}
+              className="admin-input form-control"
               onChange={setUnbanPlayer}
               placeholder="Player name"
               suggestions={playerList}
@@ -583,6 +590,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <AutocompleteInput
               value={mutePlayer}
+              className="admin-input form-control"
               onChange={setMutePlayer}
               placeholder="Player name"
               suggestions={playerList}
@@ -606,6 +614,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <AutocompleteInput
               value={unmutePlayer}
+              className="admin-input form-control"
               onChange={setUnmutePlayer}
               placeholder="Player name"
               suggestions={playerList}
@@ -632,10 +641,10 @@ const AdminRconPanel = ({ logs }) => {
             <div style={{ flex: 1 }}>
               <input
                 type="text"
+                className="admin-input form-control"
                 value={sayMessage}
                 onChange={(e) => setSayMessage(e.target.value)}
                 placeholder="Your message"
-                className="admin-input"
               />
             </div>
           }
@@ -654,6 +663,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <CustomDropdown
               value={time}
+              className="admin-input form-control"
               onChange={setTime}
               options={["day", "night"]}
             />
@@ -673,6 +683,7 @@ const AdminRconPanel = ({ logs }) => {
           input={
             <CustomDropdown
               value={weather}
+              className="admin-input form-control"
               onChange={setWeather}
               options={["clear", "rain", "thunder"]}
             />

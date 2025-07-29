@@ -11,7 +11,7 @@ import Sidebar from "./components/Sidebar.jsx";
 import MobileNav from "./components/MobileNav.jsx";
 import OnlinePlayers from "./components/OnlinePlayers.jsx";
 import ServerChat from "./components/ServerChat.jsx";
-import ApplyToJoin from "./components/ApplyToJoin.jsx";
+import WaitlistNotice from "./components/WaitlistNotice.jsx";
 import Rules from "./components/Rules.jsx";
 import Home from "./components/Home.jsx";
 import LoadingScreen from "./components/LoadingScreen.jsx";
@@ -72,7 +72,7 @@ function AppWithRouter() {
               <Route path="/" element={<Home />} />
               <Route path="/online-players" element={<OnlinePlayers />} />
               <Route path="/server-chat" element={<ServerChat />} />
-              <Route path="/apply-to-join" element={<ApplyToJoin />} />
+              <Route path="/apply-to-join" element={<WaitlistNotice />} />
               <Route path="/rules" element={<Rules />} />
               <Route path="/blue-map" element={<BlueMapViewer />} />
               <Route path="/login-admin" element={<AdminLoginButton />} />

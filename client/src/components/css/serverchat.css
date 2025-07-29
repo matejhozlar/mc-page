@@ -82,7 +82,7 @@
   gap: 0.5rem;
   padding: 0.5rem;
   border-radius: 4px;
-  background-color: hsl(220, 14%, 15%);
+  background-color: var(--card-background);
   margin-bottom: 0.5rem;
 }
 
@@ -173,19 +173,19 @@
   flex: 1;
   padding: 0.5rem;
   border: none;
-  background-color: hsl(220, 14%, 15%);
-  color: #fff;
+  background-color: var(--input-background);
+  color: var(--input-color);
   border-radius: 4px;
   font-size: 1rem;
 }
 
 .chat-input:focus {
-  background-color: hsl(220, 14%, 15%);
-  color: #fff;
+  background-color: var(--input-background);
+  color: var(--input-color);
 }
 
 .chat-input::placeholder {
-  color: #fff;
+  color: var(--input-color);
 }
 
 .chat-send-button {
