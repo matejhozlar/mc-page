@@ -16,7 +16,9 @@ export async function announceLotteryWinner(client, winnerName, amountWon) {
     const channel = await client.channels.fetch(channelId);
     if (channel && channel.isTextBased()) {
       await channel.send(message);
-      logger.log(`✅ Sent lottery winner announcement to channel ${channelId}`);
+      logger.info(
+        `✅ Sent lottery winner announcement to channel ${channelId}`
+      );
     } else {
       logger.warn(
         `⚠️ Channel ${channelId} is not text-based or doesn't exist.`
