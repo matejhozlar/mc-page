@@ -512,7 +512,7 @@ const ServerChat = () => {
             </div>
           )}
 
-          {verifiedUser ? (
+          {!verifiedUser ? (
             <div className="card p-3 bg-dark border border-warning mt-3">
               <h5 className="text-warning">🔒 Chat Locked</h5>
               <p className="text-light mb-2">
