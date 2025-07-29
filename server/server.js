@@ -41,7 +41,7 @@ import logger from "./logger.js";
 // ─── Discord Bots ────────────────────────────────────────
 import webBot from "./discord/bots/webBot.js"; // Handles web-based Discord actions
 import clientBot from "./discord/bots/clientBot.js"; // Handles internal Discord ops
-import { shutdownBot } from "./discord/utils/shutDownBot.js"; // Unified shutdown util
+import { shutdownBot } from "./discord/utils/shutdownBot.js"; // Unified shutdown util
 
 // ─── Stat Tracking Services ──────────────────────────────
 import { startStatSyncScheduler } from "./services/stats/utils/statSyncScheduler.js";
