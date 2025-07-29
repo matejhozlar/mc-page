@@ -22,7 +22,7 @@
 .server-chat {
   display: flex;
   flex-direction: column;
-  max-height: calc(100vh - 100px);
+  max-height: 100vh;
   height: auto;
   padding: 1rem;
   background-color: #1f1f1f;
@@ -53,8 +53,6 @@
 .server-chat.fullscreen .chat-messages {
   flex: 1;
   overflow-y: auto;
-
-  overflow-y: auto;
   background-color: #2f2f2f;
   padding: 0.75rem;
   border-radius: 4px;
@@ -72,7 +70,7 @@
 }
 
 .chat-messages {
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 200px);
   overflow-y: auto;
   background-color: #2f2f2f;
   padding: 0.75rem;
@@ -229,6 +227,6 @@
   }
 
   .chat-messages {
-    max-height: calc(100vh - 400px) !important;
+    max-height: calc(100vh - 300px) !important;
   }
 }

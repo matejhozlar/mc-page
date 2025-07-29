@@ -383,11 +383,6 @@ const ServerChat = () => {
           </div>
         )}
         <div className="chat-container">
-          <div className="alert alert-warning" role="alert">
-            Chat is not fully implemented yet. There might be some display
-            issues.
-          </div>
-
           <h2 className="d-flex justify-content-between align-items-center">
             Server Chat
             <div className="d-flex gap-2">
