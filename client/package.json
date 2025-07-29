@@ -9,8 +9,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "extract-css": "node scripts/extract-css.mjs",
-    "cleanup-css": "node scripts/cleanup-css.mjs"
+    "cleanup-css": "node scripts/cleanup-css.mjs",
+    "usage-css": "node scripts/usage-css.mjs"
   },
   "dependencies": {
     "aos": "^2.3.4",

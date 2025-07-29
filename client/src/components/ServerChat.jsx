@@ -3,6 +3,7 @@ import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { marked } from "marked";
 import OnlinePlayersInChat from "./OnlinePlayersInChat.jsx";
+import "./css/serverchat.css";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
 const socket = io();
