@@ -60,11 +60,13 @@ jobs:
         run: |
           cd out
           git init
-          git branch -m main
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git remote add origin https://x-access-token:${{ secrets.DEPLOY_TOKEN }}@github.com/matejhozlar/mc-server-prod.git
-          git fetch origin
+
+          git fetch origin main
+          git checkout -b main origin/main
+
           git add .
-          git commit -m "Automated deployment"
-          git push --force origin main
+          git commit -m "Automated deployment on $(date +'%Y-%m-%d %H:%M:%S')"
+          git push origin main
