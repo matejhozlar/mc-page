@@ -549,6 +549,7 @@ html {
 }
 
 /* Container for the server chat component */
+
 .server-chat {
   display: flex;
   flex-direction: column;

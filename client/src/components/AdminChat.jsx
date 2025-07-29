@@ -111,14 +111,24 @@ const AdminServerChat = () => {
 
   useEffect(() => {
     const handleChatMessage = (message) => {
-      const text = typeof message === "string" ? message : message?.text;
+      const text = typeof message === "string" ? message : message?.text ?? "";
       const image = message?.image || null;
 
-      const hasText = text?.trim().length > 0;
-      const hasImage = Boolean(image);
-      if (!hasText && !hasImage) return;
+      const strippedText = text.replace(/^\[Createrington\]:\s*/, "").trim();
 
-      setMessages((prev) => [...prev, message]);
+      const hasText = strippedText.length > 0;
+      const hasImage = Boolean(image);
+
+      if (!hasText && !hasImage) {
+        return;
+      }
+
+      const cleanedMessage = {
+        ...message,
+        text: strippedText,
+      };
+
+      setMessages((prev) => [...prev, cleanedMessage]);
     };
 
     const handleChatHistory = (history) => {
