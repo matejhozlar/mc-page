@@ -129,3 +129,36 @@ describe("GET /api/players", () => {
     expect(res.body.error).toBe("Could not fetch players");
   });
 });
+
+describe("GET /api/playerCount/db", () => {
+  let app;
+  let db;
+
+  beforeEach(() => {
+    db = {
+      query: vi.fn(),
+    };
+
+    app = express();
+    app.use("/api", playersRoutes(db, "localhost", 25565));
+  });
+
+  it("returns total number of users in the DB", async () => {
+    db.query.mockResolvedValueOnce({ rows: [{ count: "42" }] });
+
+    const res = await request(app).get("/api/totalPlayers");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ count: 42 });
+    expect(db.query).toHaveBeenCalledWith("SELECT COUNT(*) FROM users");
+  });
+
+  it("returns 500 on DB failure", async () => {
+    db.query.mockRejectedValueOnce(new Error("Database error"));
+
+    const res = await request(app).get("/api/totalPlayers");
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe("Failed to count users in database");
+  });
+});

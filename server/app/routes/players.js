@@ -73,5 +73,18 @@ export default function playersRoutes(
     }
   });
 
+  // --- /api/totalPlayers ---
+  router.get("/totalPlayers", async (req, res) => {
+    try {
+      const result = await db.query(`SELECT COUNT(*) FROM users`);
+      const count = parseInt(result.rows[0].count, 10);
+
+      res.json({ count });
+    } catch (error) {
+      logger.error(`❌ Error counting users in DB: ${error}`);
+      res.status(500).json({ error: "Failed to count users in database" });
+    }
+  });
+
   return router;
 }
