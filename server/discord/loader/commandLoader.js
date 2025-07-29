@@ -11,6 +11,8 @@ export async function loadCommandHandlers() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
 
+  const isDev = process.env.NODE_ENV !== "production";
+
   const commandsPath = path.join(__dirname, "../commands");
   const commandFiles = fs
     .readdirSync(commandsPath)
@@ -23,11 +25,21 @@ export async function loadCommandHandlers() {
     try {
       const commandModule = await import(pathToFileURL(filePath).href);
 
-      if (commandModule.data && typeof commandModule.execute === "function") {
-        commandHandlers.set(commandModule.data.name, commandModule);
-      } else {
+      const isValid =
+        commandModule.data && typeof commandModule.execute === "function";
+      const isProdOnly = commandModule.prodOnly === true;
+
+      if (!isValid) {
         logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+        continue;
       }
+
+      if (isDev && isProdOnly) {
+        logger.info(`🛑 Skipped production-only command: ${file}`);
+        continue;
+      }
+
+      commandHandlers.set(commandModule.data.name, commandModule);
     } catch (error) {
       logger.error(`❌ Failed to load command ${file}: ${error}`);
     }
