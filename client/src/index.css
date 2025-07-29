@@ -531,9 +531,8 @@ html {
 /* Container for the server chat component */
 
 .online-players-chat {
-  background-color: #1e1e1e;
   border-radius: 0.5rem;
-  max-height: 300px;
+  max-height: auto;
   overflow-y: auto;
 }
 
@@ -543,7 +542,7 @@ html {
 }
 
 .online-players-chat li {
-  background-color: #2b2b2b;
+  background-color: hsl(220, 14%, 15%);
   border-radius: 0.375rem;
   padding: 0.5rem;
   transition: background-color 0.2s ease;
