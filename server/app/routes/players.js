@@ -78,7 +78,7 @@ export default function playersRoutes(
     try {
       const result = await db.query(`SELECT COUNT(*) FROM users`);
       const count = parseInt(result.rows[0].count, 10);
-      const PLAYER_LIMIT = process.env.PLAYER_LIMIT;
+      const PLAYER_LIMIT = parseInt(process.env.PLAYER_LIMIT, 10);
 
       const isFull = count >= PLAYER_LIMIT;
       res.json({ isFull });

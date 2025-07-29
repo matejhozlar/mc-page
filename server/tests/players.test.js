@@ -21,6 +21,10 @@ vi.mock("minecraft-server-util", () => ({
   status: vi.fn(),
 }));
 
+beforeEach(() => {
+  process.env.PLAYER_LIMIT = 35;
+});
+
 describe("GET /api/playerCount", () => {
   let app;
   const serverIP = "127.0.0.1";
@@ -144,7 +148,8 @@ describe("GET /api/playerLimit", () => {
   });
 
   it("returns isFull: true if player count exceeds limit", async () => {
-    db.query.mockResolvedValueOnce({ rows: [{ count: "40" }] }); // > limit 35
+    process.env.PLAYER_LIMIT = "30";
+    db.query.mockResolvedValueOnce({ rows: [{ count: "40" }] });
 
     const res = await request(app).get("/api/playerLimit");
 
@@ -153,8 +158,9 @@ describe("GET /api/playerLimit", () => {
     expect(db.query).toHaveBeenCalledWith("SELECT COUNT(*) FROM users");
   });
 
-  it("returns isFull: false if player count is within limit", async () => {
-    db.query.mockResolvedValueOnce({ rows: [{ count: "28" }] }); // < limit
+  it("returns isFull: false if player count is below limit", async () => {
+    process.env.PLAYER_LIMIT = "50";
+    db.query.mockResolvedValueOnce({ rows: [{ count: "28" }] });
 
     const res = await request(app).get("/api/playerLimit");
 
@@ -169,6 +175,6 @@ describe("GET /api/playerLimit", () => {
     const res = await request(app).get("/api/playerLimit");
 
     expect(res.status).toBe(500);
-    expect(res.body.error).toBe("Failed to determine server capacity");
+    expect(res.body.error).toBe("Failed to evaluate player limit");
   });
 });
