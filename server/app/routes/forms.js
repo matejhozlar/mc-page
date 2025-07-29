@@ -10,7 +10,7 @@ export default function formRoutes(db, client) {
     const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
 
     logger.info(
-      `📨 Application received — MC: ${mcName}, DC: ${dcName}, Age: ${age}`
+      `Application received — MC: ${mcName}, DC: ${dcName}, Age: ${age}`
     );
 
     const insertQuery = `
@@ -42,7 +42,7 @@ export default function formRoutes(db, client) {
   router.post("/wait-list", async (req, res) => {
     const { email, discordName } = req.body;
 
-    logger.info(`📥 Waitlist submission attempt: ${email} / ${discordName}`);
+    logger.info(`Waitlist submission attempt: ${email} / ${discordName}`);
 
     if (!email || !discordName) {
       logger.warn(`❌ Missing email or Discord name in waitlist form.`);

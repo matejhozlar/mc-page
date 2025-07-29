@@ -9,6 +9,24 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("lottery")
+    .setDescription("Start a new lottery with a given amount")
+    .addIntegerOption((option) =>
+      option
+        .setName("amount")
+        .setDescription("Amount to start the lottery with (min 10)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
+    .setName("join")
+    .setDescription("Join the active lottery with a specific amount")
+    .addIntegerOption((option) =>
+      option
+        .setName("amount")
+        .setDescription("Amount to enter into the lottery (min 10)")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("delete")
     .setDescription("Delete up to 100 recent messages (admin/owner only)")
     .addIntegerOption((option) =>

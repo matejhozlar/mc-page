@@ -2,16 +2,16 @@ import logger from "../../../logger.js";
 import { setTimeout as sleep } from "timers/promises";
 import { announceLotteryWinner } from "./announceLotteryWinner.js";
 import { announceLotteryRefund } from "./announceLotteryRefund.js";
-
+import webBot from "../../../discord/bots/webBot.js";
 /**
  * Resolves a lottery after a delay, choosing a winner or refunding participants.
  *
  * @param {import('pg').Pool} db - The PostgreSQL connection pool.
- * @param {import('discord.js').Client} webChatClient - The Discord bot client used for sending announcements.
+ * @param {import('discord.js').Client} webBot - The Discord bot client used for sending announcements.
  * @param {number} [waitMs=120000] - Optional delay before resolving the lottery in milliseconds (default is 2 minutes).
  * @returns {Promise<void>}
  */
-export async function startLotteryResolver(db, webChatClient, waitMs = 120000) {
+export async function startLotteryResolver(db, waitMs = 120000) {
   logger.info("🎲 Lottery resolver started. Waiting...");
 
   await sleep(waitMs);
@@ -37,7 +37,7 @@ export async function startLotteryResolver(db, webChatClient, waitMs = 120000) {
       await client.query(`DELETE FROM lottery_participants`);
       await client.query("COMMIT");
       const only = result.rows[0];
-      await announceLotteryRefund(webChatClient, only.name, only.amount);
+      await announceLotteryRefund(webBot, only.name, only.amount);
       return;
     }
 
@@ -66,7 +66,7 @@ export async function startLotteryResolver(db, webChatClient, waitMs = 120000) {
     await client.query("COMMIT");
 
     logger.info(`🏆 Lottery won by ${winner.name} who gets $${total}`);
-    await announceLotteryWinner(webChatClient, winner.name, total);
+    await announceLotteryWinner(webBot, winner.name, total);
   } catch (error) {
     await client.query("ROLLBACK");
     logger.error(`❌ Lottery resolver failed: ${error}`);

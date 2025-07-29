@@ -12,7 +12,7 @@ import { logTransactions } from "../utils/currency/logTransactions.js";
 import { startLotteryResolver } from "../utils/currency/lotteryResolver.js";
 import { announceLotteryStart } from "../utils/currency/announceLotteryStart.js";
 
-export default function currencyRoutes(db, webChatClient) {
+export default function currencyRoutes(db) {
   const router = express.Router();
 
   router.post("/currency/login", (req, res) => {
@@ -463,8 +463,8 @@ export default function currencyRoutes(db, webChatClient) {
 
       await client.query("COMMIT");
 
-      startLotteryResolver(db, webChatClient);
-      announceLotteryStart(webChatClient, name);
+      startLotteryResolver(db);
+      announceLotteryStart(name);
 
       res.json({ success: true, message: "Lottery started." });
     } catch (error) {
