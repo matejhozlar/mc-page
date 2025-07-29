@@ -130,7 +130,7 @@ describe("GET /api/players", () => {
   });
 });
 
-describe("GET /api/playerCount/db", () => {
+describe("GET /api/playerLimit", () => {
   let app;
   let db;
 
@@ -143,22 +143,32 @@ describe("GET /api/playerCount/db", () => {
     app.use("/api", playersRoutes(db, "localhost", 25565));
   });
 
-  it("returns total number of users in the DB", async () => {
-    db.query.mockResolvedValueOnce({ rows: [{ count: "42" }] });
+  it("returns isFull: true if player count exceeds limit", async () => {
+    db.query.mockResolvedValueOnce({ rows: [{ count: "40" }] }); // > limit 35
 
-    const res = await request(app).get("/api/totalPlayers");
+    const res = await request(app).get("/api/playerLimit");
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ count: 42 });
+    expect(res.body).toEqual({ isFull: true });
+    expect(db.query).toHaveBeenCalledWith("SELECT COUNT(*) FROM users");
+  });
+
+  it("returns isFull: false if player count is within limit", async () => {
+    db.query.mockResolvedValueOnce({ rows: [{ count: "28" }] }); // < limit
+
+    const res = await request(app).get("/api/playerLimit");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ isFull: false });
     expect(db.query).toHaveBeenCalledWith("SELECT COUNT(*) FROM users");
   });
 
   it("returns 500 on DB failure", async () => {
-    db.query.mockRejectedValueOnce(new Error("Database error"));
+    db.query.mockRejectedValueOnce(new Error("DB failure"));
 
-    const res = await request(app).get("/api/totalPlayers");
+    const res = await request(app).get("/api/playerLimit");
 
     expect(res.status).toBe(500);
-    expect(res.body.error).toBe("Failed to count users in database");
+    expect(res.body.error).toBe("Failed to determine server capacity");
   });
 });
