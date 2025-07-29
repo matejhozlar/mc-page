@@ -41,8 +41,6 @@ client.once("ready", async () => {
       .setDescription(
         `Custom Minecraft commands:\n` +
           `🎁 **/daily** — Claim your daily reward\n` +
-          `🎲 **/lottery <amount>** — Start a lottery (min $10)\n` +
-          `🤑 **/join <amount>** — Join the ongoing lottery (min $10)\n` +
           `☀️ **.day** — Starts a voting process for /time set day\n` +
           `🌧️ **.rain** — Starts a voting process for /weather rain\n` +
           `⚡ **.thunder** — Starts a voting process for /weather thunder\n` +
@@ -50,6 +48,8 @@ client.once("ready", async () => {
           `Createrington Currency mod commands (DC):\n` +
           `💰 **/money** — Check your balance\n` +
           `💸 **/pay** — Send money to a player\n` +
+          `🎲 **/lottery <amount>** — Start a lottery (min $10)\n` +
+          `🤑 **/join <amount>** — Join the ongoing lottery (min $10)\n` +
           `🏦 **/baltop** — See the top 10 richest players\n` +
           `🎁 **/daily** — Claim your daily reward\n\n` +
           `Createrington Crypto commands (DC):\n` +
