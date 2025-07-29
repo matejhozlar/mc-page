@@ -73,16 +73,18 @@ export default function playersRoutes(
     }
   });
 
-  // --- /api/totalPlayers ---
-  router.get("/totalPlayers", async (req, res) => {
+  // --- /api/playerLimit ---
+  router.get("/playerLimit", async (req, res) => {
     try {
       const result = await db.query(`SELECT COUNT(*) FROM users`);
       const count = parseInt(result.rows[0].count, 10);
+      const PLAYER_LIMIT = process.env.PLAYER_LIMIT;
 
-      res.json({ count });
+      const isFull = count >= PLAYER_LIMIT;
+      res.json({ isFull });
     } catch (error) {
-      logger.error(`❌ Error counting users in DB: ${error}`);
-      res.status(500).json({ error: "Failed to count users in database" });
+      logger.error(`❌ Error checking player limit: ${error}`);
+      res.status(500).json({ error: "Failed to evaluate player limit" });
     }
   });
 

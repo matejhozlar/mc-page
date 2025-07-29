@@ -1,9 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const WaitlistNotice = () => {
   const [email, setEmail] = useState("");
   const [discordName, setDiscordName] = useState("");
   const [submissionStatus, setSubmissionStatus] = useState("");
+  const [serverFull, setServerFull] = useState(true);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPlayerLimit = async () => {
+      try {
+        const res = await fetch("/api/playerLimit");
+        const data = await res.json();
+        setServerFull(data.isFull);
+      } catch (error) {
+        console.error("Error fetching player limit:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlayerLimit();
+  }, []);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +43,15 @@ const WaitlistNotice = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSubmissionStatus("✅ Thanks! We'll contact you when spots open up.");
+        if (serverFull) {
+          setSubmissionStatus(
+            "✅ Thanks! We've added you to the waitlist. We'll contact you when a spot opens up."
+          );
+        } else {
+          setSubmissionStatus(
+            "✅ Your application has been received! Our admins have been notified and will review it shortly."
+          );
+        }
         setEmail("");
         setDiscordName("");
       } else {
@@ -42,21 +68,50 @@ const WaitlistNotice = () => {
     }
   };
 
+  const renderClosedNotice = () => (
+    <>
+      <h2 className="apply-heading">
+        Server is currently <span style={{ color: "red" }}>Closed</span>
+      </h2>
+      <p>
+        Hey! Thanks for your interest in joining Create-Rington. Right now,
+        we're at full capacity while we test server limits with our current
+        community.
+      </p>
+      <p>
+        We’ll reopen applications as space becomes available — most players
+        rotate out within a week. Feel free to join the waitlist, and we’ll
+        notify you as soon as a spot opens!
+      </p>
+    </>
+  );
+
+  const renderOpenNotice = () => (
+    <>
+      <h2 className="apply-heading">
+        Server is currently <span style={{ color: "#22c55e" }}>Open</span>
+      </h2>
+      <p>
+        Great news — we’re currently accepting new members into the
+        Create-Rington community!
+      </p>
+      <p>
+        Fill out the form below, and we’ll review your submission shortly. We're
+        excited to have new players join us!
+      </p>
+    </>
+  );
+
   return (
     <div className="apply-to-join">
       <div className="waitlist-notice">
-        <h2 className="apply-heading">
-          Server is currently <span style={{ color: "red" }}>Closed</span>
-        </h2>
-        <p>
-          Hey, if you are interested in joining our community — unless you were
-          invited by one of the current players, we’re not accepting new members
-          as of now! We’re testing server limits with our current group.
-        </p>
-        <p>
-          If everything looks good, we’ll reopen for new players soon. Most
-          players rotate out within a week, so spots should open up!
-        </p>
+        {loading ? (
+          <p>Loading server status...</p>
+        ) : serverFull ? (
+          renderClosedNotice()
+        ) : (
+          renderOpenNotice()
+        )}
 
         <form onSubmit={handleEmailSubmit} className="waitlist-form">
           <input
