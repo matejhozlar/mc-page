@@ -3,6 +3,7 @@ import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { marked } from "marked";
 import OnlinePlayersInChat from "./OnlinePlayersInChat.jsx";
+import { motion as Motion } from "framer-motion";
 import "./css/serverchat.css";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
@@ -378,11 +379,16 @@ const ServerChat = () => {
         style={{ display: isFullscreen ? "flex" : "block" }}
       >
         {isFullscreen && (
-          <div className="chat-sidebar">
+          <Motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="chat-sidebar"
+          >
             <OnlinePlayersInChat players={allPlayers} />
-          </div>
+          </Motion.div>
         )}
-        <div className="chat-container">
+        <Motion.div layout className="chat-container">
           <h2 className="d-flex justify-content-between align-items-center">
             Server Chat
             <div className="d-flex gap-2">
@@ -580,7 +586,7 @@ const ServerChat = () => {
               Please wait {cooldownRemaining}s before sending another message.
             </div>
           )}
-        </div>
+        </Motion.div>
       </div>
     </>
   );
