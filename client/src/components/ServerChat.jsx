@@ -2,14 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { marked } from "marked";
+import OnlinePlayersInChat from "./OnlinePlayersInChat.jsx";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
 const socket = io();
-
-socket.on("connect", () => {
-  console.log("✅ Socket connected (dev):", socket.id);
-  socket.emit("requestChatHistory");
-});
 
 const ServerChat = () => {
   const [messages, setMessages] = useState([]);
@@ -22,6 +18,8 @@ const ServerChat = () => {
   const [zoomedImage, setZoomedImage] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [uploadError, setUploadError] = useState(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [allPlayers, setAllPlayers] = useState(null);
   const chatEndRef = useRef(null);
   const hasScrolledInitially = useRef(false);
   const fileInputRef = useRef(null);
@@ -57,6 +55,19 @@ const ServerChat = () => {
     setUploadError(null);
     setImageFile(file);
   };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fullscreenActive = Boolean(document.fullscreenElement);
+      setIsFullscreen(fullscreenActive);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     if (!uploadError) return;
@@ -190,6 +201,7 @@ const ServerChat = () => {
       try {
         const res = await fetch("/api/players");
         const data = await res.json();
+        setAllPlayers(data.players); // ✅ Save players
         const statuses = {};
         data.players.forEach((player) => {
           statuses[player.name] = {
@@ -349,189 +361,221 @@ const ServerChat = () => {
         </div>
       )}
 
-      <div className="server-chat container mt-3">
-        <div className="alert alert-warning" role="alert">
-          Chat is not fully implemented yet. There might be some display issues.
-        </div>
-
-        <h2 className="d-flex justify-content-between align-items-center">
-          Server Chat
-          <button
-            className={`btn btn-sm ${
-              autoScrollEnabled
-                ? "btn-success btn-success-fix"
-                : "btn-outline-secondary"
-            }`}
-            onClick={() => setAutoScrollEnabled((prev) => !prev)}
-          >
-            Auto-Scroll: {autoScrollEnabled ? "On" : "Off"}
-          </button>
-        </h2>
-
-        <div
-          className="chat-messages mb-3"
-          style={{ maxHeight: "400px", overflowY: "auto" }}
-        >
-          {loading ? (
-            <div className="text-center my-5">
-              <div className="spinner-border text-light" role="status">
-                <span className="visually-hidden">Loading chat...</span>
-              </div>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="no-messages">No messages yet.</div>
-          ) : (
-            <>
-              {messages.map((msg, index) => {
-                const parts = getMessageParts(msg);
-                if (!parts) return null;
-
-                const { type, name, content, image } = parts;
-                return (
-                  <div key={index} className={`chat-message message-${type}`}>
-                    {type === "minecraft" && (
-                      <>
-                        <div className="mc-avatar-wrapper">
-                          <img
-                            src={`https://crafatar.com/avatars/${getPlayerUUID(
-                              name
-                            )}?size=32&overlay`}
-                            alt={name}
-                            className="avatar"
-                          />
-                          <span
-                            className={`mc-status-dot ${
-                              playerStatuses[name]?.online
-                                ? "mc-status-online"
-                                : "mc-status-offline"
-                            }`}
-                            title={
-                              playerStatuses[name]?.online
-                                ? "Online"
-                                : "Offline"
-                            }
-                          />
-                        </div>
-                        <strong className="msg-name">{name}</strong> &gt;{" "}
-                        <span dangerouslySetInnerHTML={{ __html: content }} />
-                      </>
-                    )}
-                    {type === "discord" && (
-                      <>
-                        <FaDiscord className="icon discord-icon" />
-                        <strong className="msg-name">{name}</strong> &gt;{" "}
-                        {content}
-                      </>
-                    )}
-                    {type === "web" && (
-                      <>
-                        <FaGlobe className="icon web-icon" />
-                        <strong className="msg-name">{name}</strong> &gt;{" "}
-                        <span dangerouslySetInnerHTML={{ __html: content }} />
-                      </>
-                    )}
-                    {image && (
-                      <div className="chat-image">
-                        <img
-                          src={image}
-                          alt="attachment"
-                          className="chat-image-thumb"
-                          onClick={() => setZoomedImage(image)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-              <div ref={chatEndRef} />
-            </>
-          )}
-        </div>
-
-        {imageFile && (
-          <div className="mt-2">
-            <strong>Image:</strong> {imageFile.name}
-            <button
-              onClick={() => setImageFile(null)}
-              type="button"
-              className="btn btn-sm btn-link text-danger"
-            >
-              Remove
-            </button>
+      <div
+        className={`server-chat container mt-3 ${
+          isFullscreen ? "fullscreen" : ""
+        }`}
+        style={{ display: isFullscreen ? "flex" : "block" }}
+      >
+        {isFullscreen && (
+          <div className="chat-sidebar">
+            <OnlinePlayersInChat players={allPlayers} />
           </div>
         )}
+        <div className="chat-container">
+          <div className="alert alert-warning" role="alert">
+            Chat is not fully implemented yet. There might be some display
+            issues.
+          </div>
 
-        {!verifiedUser ? (
-          <div className="card p-3 bg-dark border border-warning mt-3">
-            <h5 className="text-warning">🔒 Chat Locked</h5>
-            <p className="text-light mb-2">
-              Paste your Discord token to unlock chat:
-            </p>
-            <div className="d-flex">
-              <input
-                type="text"
-                className="form-control me-2"
-                placeholder="Enter your token..."
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-              />
+          <h2 className="d-flex justify-content-between align-items-center">
+            Server Chat
+            <div className="d-flex gap-2">
               <button
-                className="btn btn-warning"
-                onClick={() => verifyToken(tokenInput.trim())}
+                className={`btn btn-sm ${
+                  autoScrollEnabled
+                    ? "btn-success btn-success-fix"
+                    : "btn-outline-secondary"
+                }`}
+                onClick={() => setAutoScrollEnabled((prev) => !prev)}
               >
-                Unlock
+                Auto-Scroll: {autoScrollEnabled ? "On" : "Off"}
+              </button>
+              <button
+                className="fullscreen-toggle btn btn-sm btn-outline-light"
+                onClick={() => {
+                  const elem = document.querySelector(".server-chat");
+                  if (!document.fullscreenElement) {
+                    elem
+                      .requestFullscreen()
+                      .then(() => setIsFullscreen(true))
+                      .catch((err) => console.error("Fullscreen error:", err));
+                  } else {
+                    document.exitFullscreen();
+                    setIsFullscreen(false);
+                  }
+                }}
+              >
+                Toggle Fullscreen
               </button>
             </div>
+          </h2>
+
+          <div className="chat-messages mb-3">
+            {loading ? (
+              <div className="text-center my-5">
+                <div className="spinner-border text-light" role="status">
+                  <span className="visually-hidden">Loading chat...</span>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="no-messages">No messages yet.</div>
+            ) : (
+              <>
+                {messages.map((msg, index) => {
+                  const parts = getMessageParts(msg);
+                  if (!parts) return null;
+
+                  const { type, name, content, image } = parts;
+                  return (
+                    <div key={index} className={`chat-message message-${type}`}>
+                      {type === "minecraft" && (
+                        <>
+                          <div className="mc-avatar-wrapper">
+                            <img
+                              src={`https://crafatar.com/avatars/${getPlayerUUID(
+                                name
+                              )}?size=32&overlay`}
+                              alt={name}
+                              className="avatar"
+                            />
+                            <span
+                              className={`mc-status-dot ${
+                                playerStatuses[name]?.online
+                                  ? "mc-status-online"
+                                  : "mc-status-offline"
+                              }`}
+                              title={
+                                playerStatuses[name]?.online
+                                  ? "Online"
+                                  : "Offline"
+                              }
+                            />
+                          </div>
+                          <strong className="msg-name">{name}</strong> &gt;{" "}
+                          <span dangerouslySetInnerHTML={{ __html: content }} />
+                        </>
+                      )}
+                      {type === "discord" && (
+                        <>
+                          <FaDiscord className="icon discord-icon" />
+                          <strong className="msg-name">{name}</strong> &gt;{" "}
+                          {content}
+                        </>
+                      )}
+                      {type === "web" && (
+                        <>
+                          <FaGlobe className="icon web-icon" />
+                          <strong className="msg-name">{name}</strong> &gt;{" "}
+                          <span dangerouslySetInnerHTML={{ __html: content }} />
+                        </>
+                      )}
+                      {image && (
+                        <div className="chat-image">
+                          <img
+                            src={image}
+                            alt="attachment"
+                            className="chat-image-thumb"
+                            onClick={() => setZoomedImage(image)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                <div ref={chatEndRef} />
+              </>
+            )}
           </div>
-        ) : (
-          <form onSubmit={sendMessage} className="chat-form d-flex">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="chat-input form-control me-2"
-            />
-            <div className="custom-file-input-wrapper d-none d-md-block me-2">
-              <label className="btn btn-secondary mb-0">
-                Upload Image
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={onImageChange}
-                  style={{ display: "none" }}
-                />
-              </label>
+
+          {imageFile && (
+            <div className="mt-2">
+              <strong>Image:</strong> {imageFile.name}
+              <button
+                onClick={() => setImageFile(null)}
+                type="button"
+                className="btn btn-sm btn-link text-danger"
+              >
+                Remove
+              </button>
             </div>
-            <button type="submit" className="chat-send-button btn btn-primary">
-              Send
-            </button>
-          </form>
-        )}
+          )}
 
-        <div className="d-block d-md-none mt-2">
-          <label className="btn btn-secondary w-100">
-            Upload Image
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={onImageChange}
-              style={{ display: "none" }}
-            />
-          </label>
-        </div>
+          {!verifiedUser ? (
+            <div className="card p-3 bg-dark border border-warning mt-3">
+              <h5 className="text-warning">🔒 Chat Locked</h5>
+              <p className="text-light mb-2">
+                Paste your Discord token to unlock chat:
+              </p>
+              <div className="d-flex">
+                <input
+                  type="text"
+                  className="form-control me-2"
+                  placeholder="Enter your token..."
+                  value={tokenInput}
+                  onChange={(e) => setTokenInput(e.target.value)}
+                />
+                <button
+                  className="btn btn-warning"
+                  onClick={() => verifyToken(tokenInput.trim())}
+                >
+                  Unlock
+                </button>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={sendMessage} className="chat-form d-flex">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                className="chat-input form-control me-2"
+              />
+              <div className="custom-file-input-wrapper d-none d-md-block me-2">
+                <label className="btn btn-secondary mb-0">
+                  Upload Image
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={onImageChange}
+                    style={{ display: "none" }}
+                  />
+                </label>
+              </div>
+              <button
+                type="submit"
+                className="chat-send-button btn btn-primary"
+              >
+                Send
+              </button>
+            </form>
+          )}
 
-        {uploadError && (
-          <div className="alert alert-danger mt-2">{uploadError}</div>
-        )}
-
-        {cooldownRemaining > 0 && (
-          <div className="text-warning mt-2">
-            Please wait {cooldownRemaining}s before sending another message.
+          <div className="d-block d-md-none mt-2">
+            <label className="btn btn-secondary w-100">
+              Upload Image
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={onImageChange}
+                style={{ display: "none" }}
+              />
+            </label>
           </div>
-        )}
+
+          {uploadError && (
+            <div className="alert alert-danger mt-2">{uploadError}</div>
+          )}
+
+          {cooldownRemaining > 0 && (
+            <div className="text-warning mt-2">
+              Please wait {cooldownRemaining}s before sending another message.
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
