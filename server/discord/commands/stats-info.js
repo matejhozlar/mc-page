@@ -19,6 +19,8 @@ export const data = new SlashCommandBuilder()
     "Export all known Minecraft stat categories and keys (once per 24h)"
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
   const now = Date.now();

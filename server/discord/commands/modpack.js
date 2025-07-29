@@ -16,6 +16,8 @@ export const data = new SlashCommandBuilder()
   .setName("modpack")
   .setDescription("Get the modpack for Createrington server");
 
+export const prodOnly = true;
+
 export async function execute(interaction) {
   try {
     const userId = interaction.user.id;

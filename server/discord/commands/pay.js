@@ -21,6 +21,8 @@ export const data = new SlashCommandBuilder()
       .setMinValue(1)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const senderDiscordId = interaction.user.id;
   const recipientInput = interaction.options.getString("recipient");

@@ -12,6 +12,8 @@ export const data = new SlashCommandBuilder()
   .setName("daily")
   .setDescription("Claim your daily reward");
 
+export const prodOnly = true;
+
 function getLastReset(now) {
   let resetTime = now.set({ hour: 6, minute: 30, second: 0, millisecond: 0 });
   if (now < resetTime) {

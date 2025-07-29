@@ -23,6 +23,8 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const channelId = interaction.channel.id;
   const userId = interaction.user.id;

@@ -21,6 +21,8 @@ export const data = new SlashCommandBuilder()
   .setName("stats-guide")
   .setDescription("Learn how to use the /stats command with examples");
 
+export const prodOnly = true;
+
 export async function execute(interaction) {
   try {
     const userId = interaction.user.id;

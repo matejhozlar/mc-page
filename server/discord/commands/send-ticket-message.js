@@ -14,6 +14,8 @@ export const data = new SlashCommandBuilder()
   .setName("setup-ticket")
   .setDescription("Sends the ticket creation embed to the ticket channel");
 
+export const prodOnly = true;
+
 export async function execute(interaction) {
   const ticketChannelId = process.env.DISCORD_TICKET_MESSAGE_CHANNEL_ID;
   const ticketChannel = interaction.guild.channels.cache.get(ticketChannelId);

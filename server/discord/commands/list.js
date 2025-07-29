@@ -8,6 +8,8 @@ export const data = new SlashCommandBuilder()
   .setName("list")
   .setDescription("Show currently online players on the Minecraft server");
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
   const now = Date.now();

@@ -15,6 +15,8 @@ export const data = new SlashCommandBuilder()
   .setName("map")
   .setDescription("View the live server map for Createrington");
 
+export const prodOnly = true;
+
 export async function execute(interaction) {
   try {
     const userId = interaction.user.id;

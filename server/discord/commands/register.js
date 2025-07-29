@@ -22,6 +22,8 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const mcName = interaction.options.getString("mc_name");
   const discordId = interaction.user.id;

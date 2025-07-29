@@ -9,6 +9,8 @@ export const data = new SlashCommandBuilder()
   .setName("token")
   .setDescription("Generate a temporary chat token");
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const token = uuidv4();
   const userId = interaction.user.id;

@@ -11,6 +11,8 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const inputName = interaction.options.getString("username");
   const viewerId = interaction.user.id;

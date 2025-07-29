@@ -5,6 +5,8 @@ export const data = new SlashCommandBuilder()
   .setName("market-alert-list")
   .setDescription("View your active market price alerts");
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
 

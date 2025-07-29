@@ -27,6 +27,8 @@ export const data = new SlashCommandBuilder()
       )
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
   const symbol = interaction.options.getString("token").toUpperCase();

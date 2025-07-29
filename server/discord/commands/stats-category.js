@@ -14,6 +14,8 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const userId = interaction.user.id;
   const now = Date.now();

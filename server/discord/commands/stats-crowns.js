@@ -33,6 +33,8 @@ export const data = new SlashCommandBuilder()
       .setRequired(false)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const inputName = interaction.options.getString("mc_name");
   await interaction.deferReply({ flags: MessageFlags.Ephemeral });

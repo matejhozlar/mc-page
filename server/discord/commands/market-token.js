@@ -9,9 +9,6 @@ import logger from "../../logger.js";
 
 dotenv.config();
 
-const COOLDOWN_MS = 10 * 60 * 1000;
-const userCooldowns = new Map();
-
 export const data = new SlashCommandBuilder()
   .setName("market-token")
   .setDescription("Generate a market token chart screenshot")
@@ -21,6 +18,8 @@ export const data = new SlashCommandBuilder()
       .setDescription("Enter the token symbol (e.g., MOO, BTC, ETH)")
       .setRequired(true)
   );
+
+export const prodOnly = true;
 
 async function captureChartScreenshot(symbol) {
   let browser;

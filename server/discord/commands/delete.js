@@ -17,6 +17,8 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction) {
   const member = interaction.member;
   const userId = interaction.user.id;

@@ -11,6 +11,8 @@ export const data = new SlashCommandBuilder()
   .setName("top-playtime")
   .setDescription("Check the top 10 most active players");
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const now = Date.now();
   const remaining = COOLDOWN_MS - (now - lastTopPlaytimeUse);

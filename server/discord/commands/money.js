@@ -8,6 +8,8 @@ export const data = new SlashCommandBuilder()
   .setName("money")
   .setDescription("Check your current balance");
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const discordId = interaction.user.id;
 

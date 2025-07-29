@@ -10,6 +10,8 @@ export const data = new SlashCommandBuilder()
     "Show players with the most 1st-places across all Minecraft stats"
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const now = Date.now();
 

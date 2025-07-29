@@ -18,6 +18,8 @@ export const data = new SlashCommandBuilder()
   .setName("ip")
   .setDescription("Get the Minecraft server IP and connection info");
 
+export const prodOnly = true;
+
 export async function execute(interaction) {
   try {
     const userId = interaction.user.id;

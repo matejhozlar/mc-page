@@ -10,6 +10,8 @@ export const data = new SlashCommandBuilder()
     "Show the total combined playtime of all players on the server"
   );
 
+export const prodOnly = true;
+
 export async function execute(interaction, db) {
   const now = Date.now();
 
