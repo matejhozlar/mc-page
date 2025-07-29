@@ -11,11 +11,11 @@ import rotatingStatuses from "../utils/rotatingStatuses.js";
 // Loaders
 import { registerWebListeners } from "../loader/listenerWebLoader.js";
 
-// Database
-import db from "../../db/index.js";
-
 // IO Sockets
 import { getIO } from "../../socket/io.js";
+
+// Startup notifier
+import { sendBotNotification } from "../notifiers/sendBotNotification.js";
 
 dotenv.config();
 
@@ -31,6 +31,8 @@ const webBot = new Client({
 webBot.once("ready", async () => {
   logger.info(`WebBot logged in as ${webBot.user.tag}`);
   setRotatingStatuses(webBot, rotatingStatuses);
+
+  await sendBotNotification(webBot, "🟢 WebBot is now online.");
 
   try {
     const io = getIO();

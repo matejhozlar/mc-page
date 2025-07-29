@@ -11,19 +11,20 @@
  * ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
  */
 
-// ─── Config & Environment ────────────────────────────────
+// ─── Load Environment Variables ──────────────────────────
 import dotenv from "dotenv";
 dotenv.config();
 
+// ─── Validate Environment Config ─────────────────────────
 import { validateEnv } from "./config/env/validateEnv.js";
 validateEnv(); // Ensure all required env vars are set
 
-// ─── Node.js Core Packages ───────────────────────────────
+// ─── Core Node Modules ───────────────────────────────────
 import http from "http";
 import path from "path";
 import { fileURLToPath } from "url";
 
-// ─── App Setup ────────────────────────────────────────────
+// ─── Application Setup ───────────────────────────────────
 import { createApp } from "./app/index.js";
 import registerRoutes from "./app/routes/index.js";
 
@@ -31,24 +32,25 @@ import registerRoutes from "./app/routes/index.js";
 import { setupSocketIO } from "./socket/index.js";
 import { initIO } from "./socket/io.js";
 
-// ─── Database ────────────────────────────────────────────
+// ─── Database Connection ─────────────────────────────────
 import db from "./db/index.js";
 
-// ─── Logging ─────────────────────────────────────────────
+// ─── Logger Utility ──────────────────────────────────────
 import logger from "./logger.js";
 
 // ─── Discord Bots ────────────────────────────────────────
-import webBot from "./discord/bots/webBot.js"; // For web interaction
-import clientBot from "./discord/bots/clientBot.js"; // For internal usage
+import webBot from "./discord/bots/webBot.js"; // Handles web-based Discord actions
+import clientBot from "./discord/bots/clientBot.js"; // Handles internal Discord ops
+import { shutdownBot } from "./discord/utils/shutDownBot.js"; // Unified shutdown util
 
-// ─── Stat Tracking & Sync ────────────────────────────────
+// ─── Stat Tracking Services ──────────────────────────────
 import { startStatSyncScheduler } from "./services/stats/utils/statSyncScheduler.js";
 import { startPlaytimeTracking } from "./services/stats/playtimeTracker.js";
 
 // ─── Cron Jobs ───────────────────────────────────────────
 import { setupCronJobs } from "./jobs/cron/index.js";
 
-// ─── Paths & Runtime Info ────────────────────────────────
+// ─── Paths & Constants ───────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "client", "dist");
@@ -58,19 +60,20 @@ const serverIP = process.env.SERVER_IP;
 const serverPort = Number(process.env.SERVER_PORT);
 
 // ─── Express App and HTTP Server ─────────────────────────
-const app = createApp();
-const httpServer = http.createServer(app);
+const app = createApp(); // Initialize app with middleware
+const httpServer = http.createServer(app); // Create HTTP server
 
-// ─── Initialize Socket.IO ────────────────────────────────
-const io = initIO(httpServer);
+// ─── Initialize Socket.IO Server ─────────────────────────
+const io = initIO(httpServer); // Bind socket to HTTP server
 
-// ─── Register Express Routes ─────────────────────────────
+// ─── Register REST Routes ────────────────────────────────
 /**
- * @function registerRoutes
- * @param {import('express').Express} app - Express app instance
+ * Sets up API routes with dependencies.
+ *
+ * @param {import('express').Express} app
  * @param {Object} context
  * @param {import('pg').Pool} context.db - PostgreSQL DB instance
- * @param {import('socket.io').Server} context.io - Initialized Socket.IO server
+ * @param {import('socket.io').Server} context.io - Socket.IO server
  * @param {import('discord.js').Client} context.clientBot - Discord bot for internal ops
  * @param {import('discord.js').Client} context.webBot - Discord bot for web interactions
  * @param {string} context.serverIP - IP of the Minecraft server
@@ -78,11 +81,11 @@ const io = initIO(httpServer);
  */
 registerRoutes(app, { db, io, clientBot, webBot, serverIP, serverPort });
 
-// ─── Start Stat Sync & Playtime Tracker ──────────────────
+// ─── Start Game Stat Services ────────────────────────────
 startStatSyncScheduler(db, serverIP, serverPort);
 startPlaytimeTracking(db, serverIP, serverPort);
 
-// ─── Start Cron Jobs ─────────────────────────────────────
+// ─── Launch Cron Jobs ────────────────────────────────────
 setupCronJobs(db, clientBot, webBot);
 
 // ─── Setup WebSocket Channels ────────────────────────────
@@ -90,7 +93,7 @@ setupSocketIO(io, db, clientBot, webBot);
 
 // ─── Start HTTP Server ───────────────────────────────────
 httpServer.listen(PORT, () => {
-  logger.info(`Server running on http://localhost:${PORT}`);
+  logger.info(`🚀 Server running at http://localhost:${PORT}`);
 });
 
 // ─── Serve React SPA Fallback ────────────────────────────
@@ -99,11 +102,32 @@ app.get("/*", (req, res) => {
 });
 
 // ─── Graceful Shutdown Handler ───────────────────────────
+/**
+ * Handles Ctrl+C or `kill` signal. Cleans up resources.
+ */
 process.on("SIGINT", async () => {
   logger.info("🧹 Gracefully shutting down...");
+
   try {
-    await db.end();
+    // Shutdown WebBot with notification
+    await shutdownBot(webBot, {
+      notify: true,
+      name: "WebBot",
+      message: "🔴 WebBot is going offline.",
+    });
+
+    // Shutdown ClientBot without notification
+    await shutdownBot(clientBot, {
+      name: "ClientBot",
+    });
+
+    // Close WebSocket server
     io.close();
+
+    // Close database connection
+    await db.end();
+
+    // Close HTTP server
     httpServer.close(() => {
       logger.info("✅ Server closed. Exiting...");
       process.exit(0);
@@ -114,7 +138,7 @@ process.on("SIGINT", async () => {
   }
 });
 
-// ─── Handle Unhandled Promise Rejections ─────────────────
+// ─── Unhandled Promise Rejection Fallback ────────────────
 process.on("unhandledRejection", (reason) => {
-  logger.error(`Unhandled promise rejection: ${reason}`);
+  logger.error(`🚨 Unhandled promise rejection: ${reason}`);
 });
