@@ -268,7 +268,7 @@ export default function Home() {
             data-aos-delay={i * 100}
           >
             <h3 className="feature-heading">
-              {f.title === "Create 6.0.4" && (
+              {f.title === "Create 6.0.6" && (
                 <img src={smallCog} alt="Cog" className="spinning-cog" />
               )}
               {f.title === "DC Integration" && (

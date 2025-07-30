@@ -28,6 +28,7 @@ import CallbackGame from "./components/CallbackGame.jsx";
 import Market from "./components/Market.jsx";
 import CallbackMarket from "./components/CallbackMarket.jsx";
 import TokenChartPage from "./components/TokenChartPage.jsx";
+import NotFound from "./components/NotFound.jsx";
 import Team from "./components/Team.jsx";
 
 function App() {
@@ -92,6 +93,7 @@ function AppWithRouter() {
                   </PlayerProvider>
                 }
               />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
         </div>
