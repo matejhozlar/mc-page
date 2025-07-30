@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const TOKEN = process.env.CLIENT_BOT_TOKEN;
-const TARGET_CHANNEL_ID = process.env.DISCORD_BOT_COMMANDS_CHANNEL_ID;
+const TARGET_CHANNEL_ID = process.env.DISCORD_TEST_CHANNEL_ID;
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
@@ -40,10 +40,12 @@ client.once("ready", async () => {
       .setTitle("📚 Welcome to the Bot Commands Channel!")
       .setDescription(
         `Custom Minecraft commands:\n` +
-          `☀️ **.day** — Starts a voting process for /time set day\n` +
-          `🌧️ **.rain** — Starts a voting process for /weather rain\n` +
-          `⚡ **.thunder** — Starts a voting process for /weather thunder\n` +
-          `🌤️ **.clear** — Starts a voting process for /weather clear\n\n` +
+          `**/vote**\n` +
+          `☀️ **day** — Starts a voting process for /time set day\n` +
+          `🌙 **night** — Starts a voting process for /time set night\n` +
+          `🌧️ **rain** — Starts a voting process for /weather rain\n` +
+          `⚡ **thunder** — Starts a voting process for /weather thunder\n` +
+          `🌤️ **clear** — Starts a voting process for /weather clear\n\n` +
           `Createrington Currency mod commands (DC & MC):\n` +
           `💰 **/money** — Check your balance\n` +
           `💸 **/pay** — Send money to a player\n` +
