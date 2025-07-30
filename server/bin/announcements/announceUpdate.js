@@ -13,7 +13,7 @@ const announcement = {
   title: "🔧 Server Maintenance",
   description:
     "We’re rolling out a modpack and server update to improve stability, performance and add new mods",
-  startsAt: new Date("2025-06-22T17:00:00+02:00"),
+  startsAt: new Date("2025-07-31T00:00:00+02:00"),
   estimatedMinutes: 120,
 };
 

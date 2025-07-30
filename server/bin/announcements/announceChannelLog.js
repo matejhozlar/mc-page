@@ -18,42 +18,55 @@ client.once("ready", async () => {
     );
 
     const embed = new EmbedBuilder()
-      .setTitle("🛠️ Createrington v0.1.8 Modpack Update")
+      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.2 Modpack Update")
       .setColor(0x00b0f4)
       .setDescription(
-        "A new version of the modpack is now available! Please update to **v0.1.8** to enjoy new content and improvements."
+        "A new version of the modpack is now available! Please update to **v0.1.2** to receive the latest improvements, fixes, and features."
       )
       .addFields(
         {
-          name: "🆕 New Mods",
+          name: "💰 Createrington Currency Mod",
           value: [
-            "- Simple Hats",
-            "- Magic Mirror",
-            "- owo library",
-            "- accessories library",
+            "- Fixed an issue where player data would become invalid when rejoining singleplayer worlds.",
+            "- Introduced the new **/vote** command.",
+          ].join("\n"),
+        },
+        {
+          name: "🗳️ Voting Revamp",
+          value: [
+            "Voting from within Minecraft has been reworked.",
+            "",
+            "New Syntax:",
+            "```",
+            "/vote <input>",
+            "  - day      Start a vote to set the time to day",
+            "  - night    Start a vote to set the time to night",
+            "  - rain     Start a vote to set rain",
+            "  - thunder  Start a vote to set thunder",
+            "  - clear    Start a vote to clear the weather",
+            "```",
           ].join("\n"),
         },
         {
           name: "⬆️ Updated Mods",
-          value: "- Createrington Currency",
+          value: [
+            "- Stam1o Tweaks",
+            "- Createrington Currency",
+            "- Discord Integration",
+          ].join("\n"),
         },
         {
-          name: "🎟️ New Commands",
+          name: "🆕 New Mods",
           value: [
-            "**/lottery <amount>** – Start a server-wide lottery with a minimum of $10. Other players can join using **/join <amount>**.",
-            "- The lottery runs for 2 minutes, after which a random winner is chosen.",
-            "- **Chances of winning are weighted based on the amount each player contributes** – the more you spend, the higher your chances!",
-            "- The winner takes the entire pot.",
-            "- This command has a 30-minute cooldown.",
-            "- Currently available **only in Minecraft** (Discord support coming soon).",
-            "",
-            "**/daily** – Claim your daily reward directly from Minecraft!",
+            "- Prone",
+            "- MrCrayfish Furniture Mod (Refurbished)",
+            "- Framework (Library)",
           ].join("\n"),
         },
         {
           name: "📢 Reminder",
           value:
-            "Please **update the modpack** to the latest version.\nIf you encounter **any bugs or issues**, report them as soon as possible!",
+            "Please update the modpack to the latest version.\nIf you encounter any issues or bugs, let the team know immediately!",
         }
       )
       .setFooter({ text: "Thanks for playing on Createrington!" })
