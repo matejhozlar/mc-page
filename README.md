@@ -396,8 +396,8 @@ Here are some companion tools and related repositories that work well with or ex
 
 ---
 
-## License & disclaimer
+## Disclaimer
 
-MIT License. Not affiliated with Mojang, Microsoft, or Discord.
+Not affiliated with Mojang, Microsoft, or Discord.
 
-> **Disclaimer**: The memecoin system is for entertainment only and has no real-world value.
+> The memecoin system is for entertainment only and has no real-world value.
