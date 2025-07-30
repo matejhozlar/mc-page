@@ -277,7 +277,7 @@ Serve static files from `client/dist` and use a reverse proxy (e.g., Nginx).
 
 This script scans a component-specific CSS file and removes any matching class selectors from the global index.css file, helping avoid duplication and keeping your global styles clean.
 
-### usage-css
+#### usage-css
 
 This script searches your React components for usage of a specific CSS class name and tells you where it's used. It's useful for identifying whether a class is local, shared, or unused, especially during CSS cleanup or refactoring.
 
