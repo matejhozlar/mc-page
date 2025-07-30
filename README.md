@@ -285,8 +285,6 @@ This script searches your React components for usage of a specific CSS class nam
 
 ### Server
 
-## Scripts
-
 | Script                       | Description                          |
 | ---------------------------- | ------------------------------------ |
 | `npm start`                  | Start the production server          |
