@@ -11,6 +11,8 @@ jobs:
     defaults:
       run:
         working-directory: server
+    env:
+      JWT_SECRET: test_secret
 
     steps:
       - name: Checkout repo

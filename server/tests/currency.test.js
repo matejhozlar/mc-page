@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { DateTime } from "luxon";
 
 // Fix secret for test
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || "test-secret";
 
 function createClientMock(responses = []) {
   const query = vi.fn();
