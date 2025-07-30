@@ -22,7 +22,7 @@ export default function registerRoutes(
   app.use("/api", userRoutes(db));
   app.use("/api", adminRoutes(db));
   app.use("/api", gameDataRoutes(db));
-  app.use("/api", currencyRoutes(db, webBot));
+  app.use("/api", currencyRoutes(db, webBot, io));
   app.use("/api", cryptoRoutes(db));
   app.use("/api", assetsRoutes());
 }

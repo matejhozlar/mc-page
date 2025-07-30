@@ -11,10 +11,26 @@ import verifyIP from "../middleware/verifyIP.js";
 import { logTransactions } from "../utils/currency/logTransactions.js";
 import { startLotteryResolver } from "../utils/currency/lotteryResolver.js";
 import { announceLotteryStart } from "../utils/currency/announceLotteryStart.js";
+import { voteCommands } from "../utils/currency/voteCommands.js";
+import { voteState } from "../../discord/listeners/web/votes/voteState.js";
+import { startVote } from "../../discord/listeners/web/voteManager.js";
 
-export default function currencyRoutes(db) {
+function formatDuration(ms) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const parts = [];
+
+  if (minutes > 0) parts.push(`${minutes} minute${minutes !== 1 ? "s" : ""}`);
+  if (seconds > 0 || minutes === 0)
+    parts.push(`${seconds} second${seconds !== 1 ? "s" : ""}`);
+
+  return parts.join(" ");
+}
+
+export default function currencyRoutes(db, webBot, io) {
   const router = express.Router();
 
+  // GET --- /api/currency/login ---
   router.post("/currency/login", (req, res) => {
     const { uuid, name } = req.body;
 
@@ -32,7 +48,7 @@ export default function currencyRoutes(db) {
   router.use("/currency", verifyJWT);
   router.use("/currency", verifyIP);
 
-  // --- /api/currency/balance ---
+  // GET --- /api/currency/balance ---
   router.get("/currency/balance", async (req, res) => {
     const uuid = req.user.uuid;
 
@@ -59,7 +75,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/pay ---
+  // POST --- /api/currency/pay ---
   router.post("/currency/pay", async (req, res) => {
     const { to_uuid, amount } = req.body;
     const from_uuid = req.user.uuid;
@@ -123,13 +139,13 @@ export default function currencyRoutes(db) {
     } catch (error) {
       await client.query("ROLLBACK");
       logger.error(`❌ /currency/send error: ${error}`);
-      res.status(400).json({ error: error });
+      res.status(400).json({ error: error.message });
     } finally {
       client.release();
     }
   });
 
-  // --- /api/currency/deposit ---
+  // POST --- /api/currency/deposit ---
   router.post("/currency/deposit", async (req, res) => {
     const { amount } = req.body;
     const uuid = req.user.uuid;
@@ -172,7 +188,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/withdraw ---
+  // POST --- /api/currency/withdraw ---
   router.post("/currency/withdraw", async (req, res) => {
     const { count, denomination } = req.body;
     const uuid = req.user.uuid;
@@ -241,7 +257,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/top ---
+  // GET --- /api/currency/top ---
   router.get("/currency/top", async (req, res) => {
     try {
       const result = await db.query(
@@ -260,7 +276,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/mob-limit ---
+  // POST --- /api/currency/mob-limit ---
   router.post("/currency/mob-limit", async (req, res) => {
     const uuid = req.user.uuid;
 
@@ -283,7 +299,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/mob-limit GET (check limit)
+  // GET --- /api/currency/mob-limit GET (check limit)
   router.get("/currency/mob-limit", async (req, res) => {
     const uuid = req.user.uuid;
 
@@ -306,7 +322,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // --- /api/currency/daily ---
+  // POST --- /api/currency/daily ---
   router.post("/currency/daily", async (req, res) => {
     const uuid = req.user.uuid;
 
@@ -414,7 +430,7 @@ export default function currencyRoutes(db) {
     }
   });
 
-  // /currency/lottery/start
+  // POST /currency/lottery/start
   router.post("/currency/lottery/start", async (req, res) => {
     const { uuid, name } = req.user;
     const { amount } = req.body;
@@ -470,13 +486,13 @@ export default function currencyRoutes(db) {
     } catch (error) {
       await client.query("ROLLBACK");
       logger.error(`❌ /lottery/start error: ${error}`);
-      res.status(400).json({ error: error });
+      res.status(400).json({ error: error.message || "Something went wrong" });
     } finally {
       client.release();
     }
   });
 
-  // /currency/lottery/join
+  // POST /currency/lottery/join
   router.post("/currency/lottery/join", async (req, res) => {
     const { uuid, name } = req.user;
     const { amount } = req.body;
@@ -540,9 +556,58 @@ export default function currencyRoutes(db) {
     } catch (error) {
       await client.query("ROLLBACK");
       logger.error(`❌ /lottery/join error: ${error}`);
-      res.status(400).json({ error: error });
+      res.status(400).json({ error: error.message });
     } finally {
       client.release();
+    }
+  });
+
+  // POST /currency/vote/start
+  router.post("/currency/vote/start", async (req, res) => {
+    const { name } = req.user;
+    const { voteType } = req.body;
+
+    const voteDetails = voteCommands[voteType];
+    if (!voteDetails) {
+      return res.status(400).json({ error: "Invalid vote type." });
+    }
+
+    const now = Date.now();
+
+    if (voteState.active) {
+      return res.status(400).json({ error: "A vote is already in progress" });
+    }
+
+    if (voteState.cooldownUntil > now) {
+      const remainingMs = voteState.cooldownUntil - now;
+      const waitMsg = formatDuration(remainingMs);
+
+      return res.status(400).json({
+        error: `Please wait ${waitMsg} before starting another vote.`,
+      });
+    }
+
+    try {
+      const discordChannelId = process.env.DISCORD_MINECRAFT_CHAT_CHANNEL_ID;
+      const channel = await webBot.channels.fetch(discordChannelId);
+
+      if (!channel || !channel.isTextBased()) {
+        return res
+          .status(500)
+          .json({ error: "Discord channel not available." });
+      }
+
+      const success = startVote(voteType, voteDetails, channel, io);
+
+      if (!success) {
+        return res.status(400).json({ error: "Failed to start vote." });
+      }
+
+      logger.info(`${name} triggered a vote: ${voteType}`);
+      res.json({ success: true, message: `Vote for ${voteType} started.` });
+    } catch (error) {
+      logger.error(`❌ /vote/start error: ${error}`);
+      res.status(500).json({ error: "Failed to start vote." });
     }
   });
 
