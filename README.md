@@ -21,6 +21,7 @@ Createrington was designed to unify fragmented community platforms. Instead of h
 - [Key features](#key-features)
 - [Architecture overview](#architecture-overview)
 - [Installation & setup](#installation--setup)
+- [Scripts](#scripts)
 - [Tech Stack](#tech-stack)
 - [Configuration](#configuration)
 - [Running the project](#running-the-project)
@@ -258,6 +259,71 @@ cd ../server && NODE_ENV=production npm start
 ```
 
 Serve static files from `client/dist` and use a reverse proxy (e.g., Nginx).
+
+---
+
+## Scripts
+
+### Client
+
+| Script                | Description                       |
+| --------------------- | --------------------------------- |
+| `npm run dev`         | Starts the dev environment        |
+| `npm run build`       | Builds the application            |
+| `npm run cleanup-css` | Cleans up css                     |
+| `npm run usage-css`   | Locates css classes in components |
+
+#### cleanup-css
+
+This script scans a component-specific CSS file and removes any matching class selectors from the global index.css file, helping avoid duplication and keeping your global styles clean.
+
+### usage-css
+
+This script searches your React components for usage of a specific CSS class name and tells you where it's used. It's useful for identifying whether a class is local, shared, or unused, especially during CSS cleanup or refactoring.
+
+---
+
+### Server
+
+## Scripts
+
+| Script                       | Description                          |
+| ---------------------------- | ------------------------------------ |
+| `npm start`                  | Start the production server          |
+| `npm run dev`                | Start dev server with nodemon        |
+| `npm run test`               | Runs the test files                  |
+| `npm run gen-env`            | Generates required env vars          |
+| `npm run find-env`           | Locates env variables in the project |
+| `npm run find-import`        | Locates where is the file imported   |
+| `npm run check-missing-deps` | Locates where is the file imported   |
+
+#### gen-env
+
+This script scans your project’s JavaScript files and extracts all referenced `process.env.VAR_NAME` variables, generating a centralized list of required environment variables. It's perfect for env validation, deployment checks, or documentation purposes.
+
+#### find-env
+
+This script searches your project for exact occurrences of a specific environment variable, `such as process.env.DB_PASSWORD`, and outputs the file, line number, and matching line content.
+
+#### find-import
+
+This script scans your project to find all JavaScript/TypeScript files that import a specific file, such as index.js, utils.ts, or chatMessage.ts.
+
+#### check-missing-deps
+
+This script audits your project for missing and unused dependencies by scanning all import/require statements and comparing them against your `package.json`.
+
+---
+
+### Root
+
+| Script               | Description                 |
+| -------------------- | --------------------------- |
+| `npm run zip:assets` | Start the production server |
+
+#### zip:assets
+
+This script locates all of the assets in the project, zips them into assets.zip file and saves them to `/server/app/routes/download`.
 
 ---
 
