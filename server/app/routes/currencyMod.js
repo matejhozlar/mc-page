@@ -77,8 +77,10 @@ export default function currencyRoutes(db, webBot, io) {
 
   // POST --- /api/currency/pay ---
   router.post("/currency/pay", async (req, res) => {
-    const { to_uuid, amount } = req.body;
-    const from_uuid = req.user.uuid;
+    const { fromUuid, toUuid, amount } = req.body;
+
+    const from_uuid = fromUuid || req.user?.uuid;
+    const to_uuid = toUuid;
 
     if (!from_uuid || !to_uuid || typeof amount !== "number") {
       return res.status(400).json({ error: "Invalid input" });
@@ -104,7 +106,6 @@ export default function currencyRoutes(db, webBot, io) {
 
       const rawSender = senderRes.rows[0].balance;
       const senderBalance = Math.floor(parseFloat(rawSender));
-
       const newSenderBal = senderBalance - amount;
 
       if (senderBalance < amount) {
@@ -126,6 +127,7 @@ export default function currencyRoutes(db, webBot, io) {
       }
 
       await client.query("COMMIT");
+
       await logTransactions(db, {
         uuid: from_uuid,
         action: "pay",
@@ -138,7 +140,7 @@ export default function currencyRoutes(db, webBot, io) {
       res.json({ success: true, new_sender_balance: newSenderBal });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /currency/send error: ${error}`);
+      logger.error(`❌ /currency/pay error: ${error}`);
       res.status(400).json({ error: error.message });
     } finally {
       client.release();
