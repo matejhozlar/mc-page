@@ -28,10 +28,11 @@ client.once("ready", async () => {
           name: "✅ Recommended Setup – CurseForge",
           value: [
             "1. Install the [CurseForge App](https://download.curseforge.com/)",
-            "2. Open CurseForge and search for: `Createrington: Cogs & Steam`",
-            "3. Click **Install**, then **Play** – you're done!",
+            "2. Open this link [Createrington: Cogs & Steam](https://www.curseforge.com/minecraft/modpacks/createrington-cogs-steam)",
+            "3. Click **Install through CurseForge App**, wait for the modpack to download",
+            "4. Then **Play** – you're done!",
+            "Both the main server and the test server are already in your multiplayer tab",
             "",
-            "🔗 Modpack Page: [Createrington on CurseForge](https://www.curseforge.com/minecraft/modpacks/createrington-cogs-steam)",
           ].join("\n"),
         },
         {
