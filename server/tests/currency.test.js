@@ -585,7 +585,7 @@ describe("POST /currency/pay", () => {
   it("returns 400 if amount is zero or negative", async () => {
     const res = await postPay({ to_uuid: "uuid-456", amount: 0 });
     expect(res.status).toBe(400);
-    expect(res.body.error).toBe("Amount must be positive");
+    expect(res.body.error).toBe("Invalid input");
   });
 });
 
