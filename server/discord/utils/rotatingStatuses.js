@@ -6,7 +6,7 @@ const rotatingStatuses = [
   "🧠 Player data analyzed",
   "📡 Monitoring sockets...",
   "📡 WebSocket: Stable",
-  "📁 Modpack v0.1.2 deployed",
+  "📁 Modpack v0.1.3 deployed",
   "⚙️ Monitoring background...",
   "⚙️ Background tasks: OK",
   "📂 Monitoring live logs...",
