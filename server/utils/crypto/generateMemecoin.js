@@ -2,6 +2,7 @@ import pg from "pg";
 import fs from "fs";
 import dotenv from "dotenv";
 import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
+import config from "../../config/index.js";
 
 dotenv.config();
 
@@ -13,6 +14,15 @@ const db = new pg.Pool({
   port: process.env.DB_PORT,
 });
 
+const {
+  INITIAL_PRICE_MAX,
+  INITIAL_PRICE_MIN,
+  TOTAL_SUPPLY_MIN,
+  TOTAL_SUPPLY_MAX,
+} = config.memecoins;
+const { DARK_GOLD } = config.uiColors;
+const PRICE_DECIMALS = 4;
+
 const memecoins = JSON.parse(fs.readFileSync("memeCoins.json", "utf8"));
 const { CLIENT_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
@@ -23,8 +33,11 @@ const { CLIENT_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
  */
 function getRandomMemecoin() {
   const coin = memecoins[Math.floor(Math.random() * memecoins.length)];
-  const rawPrice = Math.max(Math.random() * 1000, 0.0001);
-  return { ...coin, price: parseFloat(rawPrice.toFixed(4)) };
+  const rawPrice = Math.max(
+    Math.random() * INITIAL_PRICE_MAX,
+    INITIAL_PRICE_MIN
+  );
+  return { ...coin, price: parseFloat(rawPrice.toFixed(PRICE_DECIMALS)) };
 }
 
 /**
@@ -54,7 +67,7 @@ async function sendDiscordNotification({
 
       const embed = new EmbedBuilder()
         .setTitle(`🚀 New Memecoin Launched: ${name} (${symbol})`)
-        .setColor(0xffcb05)
+        .setColor(DARK_GOLD)
         .setDescription(description || "No description provided.")
         .addFields(
           { name: "💵 Initial Price", value: `$${price}`, inline: true },
@@ -91,10 +104,12 @@ async function sendDiscordNotification({
  *
  * @returns {Promise<void>}
  */
+
 async function insertMemecoin({ name, symbol, description, price }) {
   try {
     const totalSupply =
-      Math.floor(Math.random() * (10_000_000 - 1_000 + 1)) + 1_000;
+      Math.floor(Math.random() * (TOTAL_SUPPLY_MAX - TOTAL_SUPPLY_MIN + 1)) +
+      TOTAL_SUPPLY_MIN;
     const availableSupply = totalSupply;
 
     await db.query(

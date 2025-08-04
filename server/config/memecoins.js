@@ -50,4 +50,38 @@ export default {
       MAX: 0.3,
     },
   },
+
+  // Initial Price & Supply Settings for New Memecoins
+
+  /**
+   * The maximum randomly generated initial price for a memecoin.
+   * Affects:
+   * - `Math.random() * INITIAL_PRICE_MAX` in `getRandomMemecoin()`
+   * Higher value allows newly generated coins to start with higher prices.
+   */
+  INITIAL_PRICE_MAX: 1000,
+
+  /**
+   * The minimum allowed initial price for a memecoin.
+   * Affects:
+   * - Lower bound in `Math.max(..., INITIAL_PRICE_MIN)`
+   * Prevents memecoins from starting too close to zero.
+   */
+  INITIAL_PRICE_MIN: 0.0001,
+
+  /**
+   * Minimum total supply when generating a memecoin.
+   * Used in:
+   * - `Math.random()` range when assigning total supply.
+   * Higher values reduce scarcity.
+   */
+  TOTAL_SUPPLY_MIN: 1_000,
+
+  /**
+   * Maximum total supply when generating a memecoin.
+   * Used in:
+   * - `Math.random()` range for total supply assignment.
+   * Controls the upper bound of how many tokens a coin can have.
+   */
+  TOTAL_SUPPLY_MAX: 10_000_000,
 };
