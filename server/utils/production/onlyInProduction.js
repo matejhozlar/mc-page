@@ -14,7 +14,20 @@ export function runOnlyInProduction(fn) {
     logger.info(`🛑 Skipped production-only code from: ${relPath}`);
     return;
   }
+  fn();
+}
 
+/**
+ * Runs the given function only if NODE_ENV !== 'production'.
+ *
+ * @param {Function} fn - Code block to run in development.
+ */
+export function runOnlyInDevelopment(fn) {
+  if (process.env.NODE_ENV === "production") {
+    const relPath = getCallerRelativePath();
+    logger.info(`🛑 Skipped development-only code from: ${relPath}`);
+    return;
+  }
   fn();
 }
 
@@ -30,7 +43,6 @@ export function exitIfNotProduction() {
     logger.info(`🛑 Skipped production-only module from: ${relPath}`);
     return false;
   }
-
   return true;
 }
 

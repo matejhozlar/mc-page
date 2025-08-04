@@ -1,13 +1,18 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+import rateLimit from "express-rate-limit";
+import { runOnlyInDevelopment } from "../utils/production/onlyInProduction.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "..", "client", "dist");
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+});
 
 /**
  * Initializes and configures an Express application.
@@ -24,11 +29,15 @@ const reactBuildPath = path.join(__dirname, "..", "..", "client", "dist");
 export function createApp() {
   const app = express();
 
+  app.use("/api", limiter);
   app.use(express.json());
-  app.use(cors({ origin: true, credentials: true }));
-  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
   app.use(express.static(reactBuildPath));
+
+  runOnlyInDevelopment(() => {
+    app.use(cors({ origin: true, credentials: true }));
+  });
 
   return app;
 }
