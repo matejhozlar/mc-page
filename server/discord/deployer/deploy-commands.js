@@ -9,6 +9,15 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("message")
+    .setDescription("Send a custom message to this channel (owner only)")
+    .addStringOption((option) =>
+      option
+        .setName("content")
+        .setDescription("The message to send")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("market")
     .setDescription("Buy or sell tokens on the Createrington market")
     .addSubcommand((sub) =>
