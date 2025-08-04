@@ -9,6 +9,43 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("market")
+    .setDescription("Buy or sell tokens on the Createrington market")
+    .addSubcommand((sub) =>
+      sub
+        .setName("buy")
+        .setDescription("Buy a token by its symbol")
+        .addStringOption((option) =>
+          option
+            .setName("symbol")
+            .setDescription("Symbol of the token to buy (e.g. DOGE)")
+            .setRequired(true)
+        )
+        .addNumberOption((option) =>
+          option
+            .setName("amount")
+            .setDescription("Amount of tokens to buy")
+            .setRequired(true)
+        )
+    )
+    .addSubcommand((sub) =>
+      sub
+        .setName("sell")
+        .setDescription("Sell a token by its symbol")
+        .addStringOption((option) =>
+          option
+            .setName("symbol")
+            .setDescription("Symbol of the token to sell (e.g. DOGE)")
+            .setRequired(true)
+        )
+        .addNumberOption((option) =>
+          option
+            .setName("amount")
+            .setDescription("Amount of tokens to sell")
+            .setRequired(true)
+        )
+    ),
+  new SlashCommandBuilder()
     .setName("profile")
     .setDescription(
       "Show your Minecraft profile: balance, playtime, tokens, and more"
