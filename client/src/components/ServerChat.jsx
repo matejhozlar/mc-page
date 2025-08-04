@@ -30,6 +30,33 @@ const ServerChat = () => {
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [tokenInput, setTokenInput] = useState("");
 
+  useEffect(() => {
+    const checkLoggedInViaCookies = async () => {
+      try {
+        const res = await fetch("/api/user/validate", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if (data.valid && data.name) {
+          setVerifiedUser({
+            name: data.name,
+            discord_id: data.discord_id,
+          });
+          localStorage.setItem("chat_user_name", data.name);
+        }
+      } catch (err) {
+        console.error("Cookie-based login check failed", err);
+      }
+    };
+
+    checkLoggedInViaCookies();
+
+    const localToken = localStorage.getItem("chat_token");
+    if (localToken) {
+      verifyToken(localToken);
+    }
+  }, []);
+
   const onImageChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
