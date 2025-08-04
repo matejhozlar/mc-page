@@ -11,7 +11,7 @@ export const data = new SlashCommandBuilder()
     "Show your Minecraft profile: balance, playtime, tokens, and more"
   );
 
-export const prodOnly = false;
+export const prodOnly = true;
 
 export async function execute(interaction, db) {
   const discordId = interaction.user.id;
