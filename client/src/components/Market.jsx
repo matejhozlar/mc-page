@@ -505,7 +505,7 @@ function Market() {
               {transactionHistory.length === 0 ? (
                 <p>No transactions yet.</p>
               ) : (
-                <table className="transaction-table">
+                <table className="transaction-table responsive-table">
                   <thead>
                     <tr>
                       <th>Type</th>
@@ -519,15 +519,22 @@ function Market() {
                   <tbody>
                     {transactionHistory.map((tx) => (
                       <tr key={tx.id}>
-                        <td className={`buysell tx-type ${tx.type}`}>
+                        <td
+                          className={`buysell tx-type ${tx.type}`}
+                          data-label="Type"
+                        >
                           {tx.type}
                         </td>
-                        <td>
+                        <td data-label="Token">
                           {tx.token_name} ({tx.token_symbol})
                         </td>
-                        <td>{Number(tx.amount).toLocaleString()}</td>
-                        <td>${Number(tx.price_at_transaction).toFixed(2)}</td>
-                        <td>
+                        <td data-label="Amount">
+                          {Number(tx.amount).toLocaleString()}
+                        </td>
+                        <td data-label="Price/Unit">
+                          ${Number(tx.price_at_transaction).toFixed(2)}
+                        </td>
+                        <td data-label="Total">
                           $
                           {Number(
                             tx.price_at_transaction * tx.amount
@@ -536,7 +543,9 @@ function Market() {
                             maximumFractionDigits: 2,
                           })}
                         </td>
-                        <td>{new Date(tx.timestamp).toLocaleString()}</td>
+                        <td data-label="Date">
+                          {new Date(tx.timestamp).toLocaleString()}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
