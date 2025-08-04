@@ -106,7 +106,7 @@ app.get("/*", (req, res) => {
  * Handles Ctrl+C or `kill` signal. Cleans up resources.
  */
 process.on("SIGINT", async () => {
-  logger.info("🧹 Gracefully shutting down...");
+  logger.info("Gracefully shutting down...");
 
   try {
     // Shutdown WebBot with notification
