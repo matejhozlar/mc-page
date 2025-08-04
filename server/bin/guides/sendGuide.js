@@ -54,8 +54,8 @@ client.once("ready", async () => {
           `🏦 **/baltop** — See the top 10 richest players\n` +
           `🎁 **/daily** — Claim your daily reward\n\n` +
           `Createrington Crypto commands (DC):\n` +
-          `💲 **/market buy <symbol> <amount>** — Buy a crypto token` +
-          `💱 **/market sell <symbol> <amount>** — Sell a crypto token` +
+          `💲 **/market buy <symbol> <amount>** — Buy a crypto token\n` +
+          `💱 **/market sell <symbol> <amount>** — Sell a crypto token\n` +
           `🪙 **/market-token <symbol>** — Check live prices and charts for a specific token\n` +
           `💼 **/market-portfolio** — View your portfolio\n` +
           `🔍 **/market-portfolio <name>** — View someone’s public portfolio\n` +
