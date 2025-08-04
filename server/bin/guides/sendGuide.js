@@ -83,6 +83,12 @@ client.once("ready", async () => {
           `🪨 Stone — 0–20h\n🥉 Copper — 20–40h\n⛓️ Iron — 40–60h\n🥇 Gold — 60–100h\n` +
           `💎 Diamond — 100–200h\n🟥 Crimson — 200–300h\n⚪ Silver — 300–400h\n` +
           `⚡ Electrum — 400–1000h\n🔮 Tyrian — 1000+ hours\n\n` +
+          `🕒 **Membership Duration Roles** — Show off how long you've been with us!\n` +
+          `👶 **Newcomer** (0–30 days) — Welcome to the community!\n` +
+          `🧭 **Adventurer** (31–90 days) — You're exploring and settling in.\n` +
+          `🛡️ **Regular** (91–180 days) — A familiar face and valued member.\n` +
+          `🏅 **Veteran** (181–365 days) — You've been here through thick and thin.\n` +
+          `🌟 **Legend** (1+ year) — A true pillar of the community!\n\n` +
           `🏆 **The Sleepless** — Awarded to the player with the most total playtime!\n` +
           `👑 **One Above All** — Awarded to the player with most 1st-place stat finishes!\n\n` +
           `🎮 Grind and show off your rank in Discord!\n\n` +
