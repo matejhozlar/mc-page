@@ -11,7 +11,7 @@ export const data = new SlashCommandBuilder()
     "Show your Minecraft profile: balance, playtime, tokens, and more"
   );
 
-export const prodOnly = true;
+export const prodOnly = false;
 
 export async function execute(interaction, db) {
   const discordId = interaction.user.id;
@@ -88,15 +88,15 @@ export async function execute(interaction, db) {
       .setColor(0x00ae86)
       .setTitle(`${name}'s Createrington Profile`)
       .setDescription(
-        `**💰 Balance:** $${formattedBalance}\n` +
-          `**🕒 Playtime:** ${hours}h ${minutes}m\n` +
-          `**📊 Portfolio:** ${portfolioValue}\n` +
-          `**📡 Status:** ${
+        `**💰 Balance:**\n$${formattedBalance}\n` +
+          `**🕒 Playtime:**\n${hours}h ${minutes}m\n` +
+          `**📊 Portfolio:**\n${portfolioValue}\n` +
+          `**📡 Status:**\n${
             online
               ? "🟢 Online"
               : `🔴 Last seen: ${DateTime.fromJSDate(last_seen).toRelative()}`
           }\n` +
-          `**📅 Joined:** ${DateTime.fromJSDate(first_joined).toLocaleString(
+          `**📅 Joined:**\n${DateTime.fromJSDate(first_joined).toLocaleString(
             DateTime.DATE_MED
           )}`
       )
