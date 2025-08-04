@@ -6,6 +6,7 @@ import {
   ButtonStyle,
 } from "discord.js";
 import { sendCrashNotification } from "../../../discord/notifiers/crypto/crashNotifier.js";
+import config from "../../../config/index.js";
 
 /**
  * Simulates price updates for memecoins and handles crashing logic, price alerts,
@@ -20,6 +21,11 @@ import { sendCrashNotification } from "../../../discord/notifiers/crypto/crashNo
  * @param {import("discord.js").Client} client - Discord client instance used for sending DMs to users.
  * @returns {Promise<void>}
  */
+const { UPWARD_BIAS, VOLATILITY, CRASH_PRICE_THRESHOLD } = config.memecoins;
+const { LOW, MID, HIGH } = VOLATILITY;
+const PRICE_DECIMALS = 4;
+const ALERT_DM_DELAY_MS = 300;
+
 export async function updateMemecoinPrices(db, client) {
   try {
     const { rows: tokens } = await db.query(
@@ -31,12 +37,11 @@ export async function updateMemecoinPrices(db, client) {
       const price = parseFloat(token.price_per_unit);
       if (!Number.isFinite(price)) continue;
 
-      let direction = Math.random() < 0.505 ? 1 : -1;
+      let direction = Math.random() < UPWARD_BIAS ? 1 : -1;
       let changePercent;
       let delta;
 
-      // --- Auto-crash logic for near-zero priced tokens
-      if (price < 0.002) {
+      if (price < CRASH_PRICE_THRESHOLD) {
         await db.query(
           `UPDATE crypto_tokens SET price_per_unit = 0, crashed = NOW() WHERE id = $1`,
           [id]
@@ -83,18 +88,20 @@ export async function updateMemecoinPrices(db, client) {
         continue;
       }
 
-      // --- Simulated price fluctuation
-      if (price < 5) {
-        changePercent = Math.random() * (0.03 - 0.01) + 0.01;
+      if (price < LOW.PRICE_THRESHOLD) {
+        changePercent = Math.random() * (LOW.MAX - LOW.MIN) + LOW.MIN;
         delta = price * changePercent * direction;
       } else {
         let maxPercent;
-        if (price < 1000) {
-          maxPercent = 0.1;
-        } else if (price < 10000) {
-          maxPercent = 0.1 - ((price - 1000) / 9000) * 0.07;
+        if (price < MID.PRICE_THRESHOLD) {
+          maxPercent = MID.MAX;
+        } else if (price < HIGH.PRICE_THRESHOLD) {
+          const scale =
+            (price - MID.PRICE_THRESHOLD) /
+            (HIGH.PRICE_THRESHOLD - MID.PRICE_THRESHOLD);
+          maxPercent = MID.MAX - scale * (MID.MAX - HIGH.MAX);
         } else {
-          maxPercent = 0.03;
+          maxPercent = HIGH.MAX;
         }
 
         changePercent = Math.random() * maxPercent;
@@ -105,16 +112,15 @@ export async function updateMemecoinPrices(db, client) {
 
       await db.query(
         `UPDATE crypto_tokens SET price_per_unit = $1 WHERE id = $2`,
-        [newPrice.toFixed(4), id]
+        [newPrice.toFixed(PRICE_DECIMALS), id]
       );
 
       await db.query(
         `INSERT INTO token_price_history_minutes (token_id, price, recorded_at)
          VALUES ($1, $2, NOW())`,
-        [id, newPrice.toFixed(4)]
+        [id, newPrice.toFixed(PRICE_DECIMALS)]
       );
 
-      // --- Price alerts
       const { rows: alerts } = await db.query(
         `SELECT * FROM token_price_alerts
          WHERE token_symbol = (
@@ -142,7 +148,7 @@ export async function updateMemecoinPrices(db, client) {
               `**${
                 alert.token_symbol
               }** has ${triggerDirectionText} your target of **$${newPrice.toFixed(
-                4
+                PRICE_DECIMALS
               )}**!\n\nYou have been automatically unsubscribed from this alert.`
             )
             .setColor(0x57f287)
@@ -168,7 +174,9 @@ export async function updateMemecoinPrices(db, client) {
           logger.info(
             `✅ Sent alert to ${alert.discord_id} for ${alert.token_symbol}`
           );
-          await new Promise((resolve) => setTimeout(resolve, 300));
+          await new Promise((resolve) =>
+            setTimeout(resolve, ALERT_DM_DELAY_MS)
+          );
         } catch (error) {
           logger.warn(
             `⚠️ Failed to send alert DM to ${alert.discord_id}: ${error}`
@@ -176,7 +184,6 @@ export async function updateMemecoinPrices(db, client) {
         }
       }
 
-      // --- Hourly snapshot
       const { rows } = await db.query(
         `SELECT id FROM token_price_history_minutes
          WHERE token_id = $1
@@ -195,16 +202,15 @@ export async function updateMemecoinPrices(db, client) {
         await db.query(
           `INSERT INTO token_price_history_hourly (token_id, price, recorded_at)
            VALUES ($1, $2, NOW())`,
-          [id, newPrice.toFixed(4)]
+          [id, newPrice.toFixed(PRICE_DECIMALS)]
         );
         logger.info(
           `🕐 Hourly snapshot added for memecoin ID ${id}: $${newPrice.toFixed(
-            4
+            PRICE_DECIMALS
           )}`
         );
       }
 
-      // --- Cleanup
       if (rows.length) {
         await db.query(
           `DELETE FROM token_price_history_minutes
