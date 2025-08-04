@@ -189,27 +189,9 @@ html {
   }
 }
 
-.mobile-nav {
-  display: none;
-}
-
 @media (max-width: 768px) {
   body {
     padding-bottom: 3rem;
-  }
-
-  .mobile-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 3.25rem;
-    background-color: #111;
-    border-top: 1px solid #333;
-    z-index: 9999;
   }
 
   .main-content {
@@ -220,41 +202,6 @@ html {
   .app-container {
     height: calc(100vh - 3.25rem) !important;
     min-height: 0 !important;
-  }
-
-  .mobile-nav-link {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0;
-    text-align: center;
-    color: #fff;
-    font-size: 0.75rem;
-    text-decoration: none;
-    height: 100%;
-    box-sizing: border-box;
-  }
-
-  .mobile-nav-link svg {
-    display: block;
-    width: 24px;
-    height: 24px;
-    stroke-width: 2.25;
-    margin: 0 auto;
-  }
-
-  .mobile-nav-link:hover {
-    background-color: #222;
-  }
-
-  .mobile-nav-link.active {
-    background-color: var(--primary-color);
-    color: var(--primary-foreground);
-    transform: scale(1.1);
-    border-radius: 6px;
   }
 }
 
@@ -803,60 +750,6 @@ html {
 .player-lastseen {
   font-size: 0.85rem;
   color: #aaa;
-}
-
-/* Loading Spinner */
-
-.spinner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(14, 14, 14, 0.9);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.spinner-box {
-  text-align: center;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 1rem;
-  border: 6px solid var(--muted-color);
-  border-top: 6px solid var(--primary-color);
-  border-radius: 50%;
-  animation: spin-spinner 0.8s linear infinite;
-}
-
-.spinner-box p {
-  font-size: 1rem;
-  color: var(--foreground-color);
-}
-
-@keyframes spin-spinner {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (min-width: 769px) {
-  .spinner-overlay {
-    left: 16rem;
-    width: calc(100% - 16rem);
-  }
-}
-
-@media (max-width: 768px) {
-  .spinner-overlay {
-    left: 0;
-    width: 100%;
-  }
 }
 
 /* Loading screen */

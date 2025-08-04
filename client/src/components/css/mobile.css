@@ -1,0 +1,97 @@
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3.25rem;
+    background-color: #111;
+    border-top: 1px solid #333;
+    z-index: 9999;
+  }
+
+  .mobile-nav-link {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+    text-align: center;
+    color: #fff;
+    font-size: 0.75rem;
+    text-decoration: none;
+    height: 100%;
+    box-sizing: border-box;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+
+  .mobile-nav-link svg {
+    display: block;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2.25;
+    margin: 0 auto;
+  }
+
+  .mobile-nav-link:hover {
+    background-color: #222;
+  }
+
+  .mobile-nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--primary-foreground);
+    transform: scale(1.1);
+    border-radius: 6px;
+  }
+
+  .more-panel {
+    position: fixed;
+    bottom: 3.25rem;
+    left: 0;
+    right: 0;
+    background-color: #1a1a1a;
+    border-top: 1px solid #333;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 0;
+    animation: fadeIn 0.2s ease-in-out;
+  }
+
+  .more-link {
+    padding: 0.75rem 1rem;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .more-link:hover {
+    background-color: #222;
+  }
+
+  .online-players {
+    padding-bottom: 3.25rem;
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}

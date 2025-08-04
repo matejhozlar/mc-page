@@ -1,3 +1,5 @@
+import "./css/loadingspinner.css";
+
 const LoadingSpinner = ({ message }) => {
   return (
     <div className="spinner-overlay">
