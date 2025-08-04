@@ -18,16 +18,16 @@ client.once("ready", async () => {
     );
 
     const embed = new EmbedBuilder()
-      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.3 Modpack Update")
+      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.4 Modpack Update")
       .setColor(0x00b0f4)
       .setDescription(
-        "A new version of the modpack is now available! Please update to **v0.1.3** to receive the latest improvements, fixes, and features."
+        "A new version of the modpack is now available! Please update to **v0.1.4** to receive the latest improvements, fixes, and features."
       )
       .addFields(
         {
           name: "⚙️ NeoForge Updated",
           value:
-            "The NeoForge loader has been updated from **21.1.172** to **21.1.197** for improved stability and mod compatibility.",
+            "The NeoForge loader has been updated from **21.1.194** to **21.1.197** for improved stability and mod compatibility.",
         },
         {
           name: "🆕 New Mods",
@@ -39,6 +39,7 @@ client.once("ready", async () => {
             "- Athena (Library)",
             "- AFKStatus",
             "- Chipped",
+            " Caelus API",
             "- Elytra slot (Curious)",
           ].join("\n"),
         },
