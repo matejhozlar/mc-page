@@ -1,6 +1,7 @@
 import pg from "pg";
 import dotenv from "dotenv";
 import logger from "../logger.js";
+import config from "../config/index.js";
 
 /**
  * PostgreSQL database pool instance using environment variables.
@@ -21,14 +22,16 @@ import logger from "../logger.js";
 
 dotenv.config();
 
+const { IDLE_TIMEOUT_MS, CONNECTION_TIMEOUT_MS } = config.db;
+
 const db = new pg.Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
   database: process.env.DB_DATABASE,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: IDLE_TIMEOUT_MS,
+  connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
 });
 
 try {

@@ -7,6 +7,7 @@ import {
   ActionRowBuilder,
   ButtonStyle,
 } from "discord.js";
+import config from "../../../config/index.js";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASSWORD,
   },
 });
+
+const { LIME_GREEN } = config.uiColors;
 
 /**
  * Notifies the admin via email and Discord about a new waitlist submission.
@@ -71,7 +74,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
         { name: "💬 Discord", value: discord_name || "Unknown" },
         { name: "📧 Email", value: email || "Unknown" }
       )
-      .setColor(0x2ecc71)
+      .setColor(LIME_GREEN)
       .setTimestamp();
 
     const row = new ActionRowBuilder().addComponents(

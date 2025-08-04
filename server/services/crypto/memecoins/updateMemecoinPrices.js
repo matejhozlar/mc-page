@@ -22,6 +22,7 @@ import config from "../../../config/index.js";
  * @returns {Promise<void>}
  */
 const { UPWARD_BIAS, VOLATILITY, CRASH_PRICE_THRESHOLD } = config.memecoins;
+const { LIME_GREEN } = config.uiColors;
 const { LOW, MID, HIGH } = VOLATILITY;
 const PRICE_DECIMALS = 4;
 const ALERT_DM_DELAY_MS = 300;
@@ -151,7 +152,7 @@ export async function updateMemecoinPrices(db, client) {
                 PRICE_DECIMALS
               )}**!\n\nYou have been automatically unsubscribed from this alert.`
             )
-            .setColor(0x57f287)
+            .setColor(LIME_GREEN)
             .setFooter({ text: "Createrington Market Alert System" })
             .setTimestamp();
 
