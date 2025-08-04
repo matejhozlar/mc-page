@@ -39,7 +39,7 @@ client.once("ready", async () => {
             "- Athena (Library)",
             "- AFKStatus",
             "- Chipped",
-            " Caelus API",
+            "- Caelus API",
             "- Elytra slot (Curious)",
           ].join("\n"),
         },
