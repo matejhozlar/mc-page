@@ -6,10 +6,7 @@ import {
   MessageFlags,
 } from "discord.js";
 import logger from "../../logger.js";
-
-const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
-let lastRefreshTime = 0;
-let leaderboardMessage = null;
+import config from "../../config/index.js";
 
 /**
  * Fetches the latest leaderboard embed and refresh button based on top stat leaders.
@@ -21,6 +18,12 @@ let leaderboardMessage = null;
  *   leaderboardData: Array<{ mc_name: string, discord_id: string, first_place_count: number }>
  * }>} - Leaderboard visual and data.
  */
+
+const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
+let lastRefreshTime = 0;
+let leaderboardMessage = null;
+const { PURPLE, LIME_GREEN } = config.uiColors;
+
 async function fetchLeaderboardEmbed(db) {
   const query = `
       SELECT u.name AS mc_name, u.discord_id, COUNT(*) AS first_place_count
@@ -48,7 +51,7 @@ async function fetchLeaderboardEmbed(db) {
   const embed = new EmbedBuilder()
     .setTitle("🏆 Stat Champions: Most 1st Places across all stats")
     .setDescription(leaderboard || "No data found.")
-    .setColor(0x9b59b6)
+    .setColor(PURPLE)
     .setFooter({ text: "Updated" })
     .setTimestamp();
 
@@ -173,7 +176,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
             .setDescription(
               `🎉 <@${topId}> is now **The Champion** with **${first_place_count}** 1st-places!\n\nAll hail **${topName}**! 👑`
             )
-            .setColor(0x00ff4c)
+            .setColor(LIME_GREEN)
             .setThumbnail(topMember.displayAvatarURL())
             .setFooter({ text: "Hall of Fame Update" })
             .setTimestamp();
