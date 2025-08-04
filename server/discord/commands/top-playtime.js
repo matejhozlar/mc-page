@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, MessageFlags } from "discord.js";
+import { SlashCommandBuilder, MessageFlags, EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
 
@@ -54,9 +54,17 @@ export async function execute(interaction, db) {
       })
       .join("\n");
 
-    return await interaction.reply({
-      content: `🏆 **Top 10 Most Active Players**\n\n${formattedList}`,
-    });
+    const embed = new EmbedBuilder()
+      .setTitle("🏆 Top 10 Most Active Players")
+      .setDescription(formattedList)
+      .setColor(0xffd700)
+      .setFooter({
+        text: "Based on total playtime",
+        iconURL: interaction.client.user.displayAvatarURL(),
+      })
+      .setTimestamp();
+
+    return await interaction.reply({ embeds: [embed] });
   } catch (error) {
     logger.error(`❌ /top-playtime command failed: ${error}`);
     return await interaction.reply({
