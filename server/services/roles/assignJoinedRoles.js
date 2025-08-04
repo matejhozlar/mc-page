@@ -37,9 +37,9 @@ const ROLE_TIERS = [
 /**
  * Assigns membership duration roles based on first_joined date.
  * @param {import('pg').Pool} db
- * @param {Client} discordClient
+ * @param {Client} clientBot
  */
-export async function assignMembershipDurationRoles(db, discordClient) {
+export async function assignMembershipDurationRoles(db, clientBot) {
   try {
     const { rows: users } = await db.query(`
       SELECT discord_id, first_joined
@@ -47,9 +47,7 @@ export async function assignMembershipDurationRoles(db, discordClient) {
       WHERE discord_id IS NOT NULL AND first_joined IS NOT NULL
     `);
 
-    const guild = await discordClient.guilds.fetch(
-      process.env.DISCORD_GUILD_ID
-    );
+    const guild = await clientBot.guilds.fetch(process.env.DISCORD_GUILD_ID);
     const now = new Date();
 
     for (const user of users) {
