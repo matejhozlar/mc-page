@@ -7,12 +7,12 @@ import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js"
  * @param {import('pg').Pool} db
  * @param {Client} discordClient
  */
-export function scheduleMembershipDurationRoleAssignment(db, discordClient) {
+export function scheduleMembershipDurationRoleAssignment(db, clientBot) {
   runOnlyInProduction(() => {
     cron.schedule(
       "15 0 * * *",
       () => {
-        assignMembershipDurationRoles(db, discordClient);
+        assignMembershipDurationRoles(db, clientBot);
       },
       {
         timezone: "Europe/Berlin",
