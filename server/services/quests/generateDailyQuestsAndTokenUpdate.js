@@ -1,6 +1,7 @@
 import { questsPool } from "./data/questPool.js";
 import { EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 /**
  * Handles daily quest generation, reward distribution, and token price adjustments.
@@ -10,6 +11,22 @@ import logger from "../../logger.js";
  * @param {string} channelId - The Discord channel ID to send updates to.
  * @param {string} [tokenSymbol='PLC'] - The symbol of the token to reward players with.
  */
+
+const {
+  DAILY_QUEST_COUNT,
+  MAX_BASE_REWARD,
+  PRICE_PENALTY_MULTIPLIER,
+  MAX_PRICE_BONUS,
+  MAX_PLAYTIME_FOR_BONUS,
+  MAX_PLC_PRICE,
+  MIN_PLC_PRICE,
+} = config.quests;
+
+const { GREEN, ORANGE } = config.uiColors;
+
+const SECONDS_IN_HOUR = 3600;
+const PRICE_DECIMALS = 6;
+
 export async function generateDailyQuestsAndTokenUpdate(
   db,
   discordClient,
@@ -23,7 +40,7 @@ export async function generateDailyQuestsAndTokenUpdate(
     const completedQuests = quests.filter(
       (q) => q.progress_count >= q.target_count
     );
-    const completionRatio = completedQuests.length / 3;
+    const completionRatio = completedQuests.length / DAILY_QUEST_COUNT;
 
     const { rows: playtimeRows } = await db.query(
       `SELECT uuid, seconds_played FROM daily_playtime`
@@ -31,8 +48,11 @@ export async function generateDailyQuestsAndTokenUpdate(
     const rewards = [];
 
     for (const row of playtimeRows) {
-      const playHours = row.seconds_played / 3600;
-      const baseReward = Math.min((playHours / 3) * 100, 100);
+      const playHours = row.seconds_played / SECONDS_IN_HOUR;
+      const baseReward = Math.min(
+        (playHours / DAILY_QUEST_COUNT) * MAX_BASE_REWARD,
+        MAX_BASE_REWARD
+      );
       const finalReward = baseReward * completionRatio;
 
       if (finalReward > 0) {
@@ -54,7 +74,7 @@ export async function generateDailyQuestsAndTokenUpdate(
       const rewardChannel = await discordClient.channels.fetch(channelId);
       const rewardEmbed = new EmbedBuilder()
         .setTitle("🏅 Rewards for Yesterday")
-        .setColor("#27ae60")
+        .setColor(GREEN)
         .setDescription(
           "Here are the token rewards distributed for yesterday's efforts:"
         )
@@ -72,7 +92,7 @@ export async function generateDailyQuestsAndTokenUpdate(
     }
 
     let totalPlaytime = playtimeRows.reduce(
-      (acc, row) => acc + row.seconds_played / 3600,
+      (acc, row) => acc + row.seconds_played / SECONDS_IN_HOUR,
       0
     );
     const { rows: tokenRows } = await db.query(
@@ -93,17 +113,22 @@ export async function generateDailyQuestsAndTokenUpdate(
     let newPrice;
 
     if (completedQuests.length === 0) {
-      newPrice = Math.max(currentPrice * 0.9, 1);
+      newPrice = Math.max(
+        currentPrice * PRICE_PENALTY_MULTIPLIER,
+        MIN_PLC_PRICE
+      );
     } else {
       const bonus = Math.min(
-        0.15 * completionRatio * Math.min(totalPlaytime / 8, 1),
-        0.15
+        MAX_PRICE_BONUS *
+          completionRatio *
+          Math.min(totalPlaytime / MAX_PLAYTIME_FOR_BONUS, 1),
+        MAX_PRICE_BONUS
       );
       newPrice = currentPrice + bonus;
     }
 
-    newPrice = Math.min(Math.max(newPrice, 1), 5);
-    newPrice = Number(newPrice.toFixed(6));
+    newPrice = Math.min(Math.max(newPrice, MIN_PLC_PRICE), MAX_PLC_PRICE);
+    newPrice = Number(newPrice.toFixed(PRICE_DECIMALS));
 
     await db.query(
       `UPDATE crypto_tokens SET price_per_unit = $1 WHERE id = $2`,
@@ -151,11 +176,11 @@ export async function generateDailyQuestsAndTokenUpdate(
     await db.query(`DELETE FROM daily_shared_quests`);
     await db.query(`DELETE FROM daily_player_stats`);
 
-    const newQuests = pickRandomQuests(3);
+    const newQuests = pickRandomQuests(DAILY_QUEST_COUNT);
     const questChannel = await discordClient.channels.fetch(channelId);
     const embed = new EmbedBuilder()
       .setTitle("🎯 Daily Shared Quests")
-      .setColor("#f39c12")
+      .setColor(ORANGE)
       .setDescription("Complete the following quests today to earn PLC tokens!")
       .setTimestamp();
 

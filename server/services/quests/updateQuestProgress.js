@@ -1,5 +1,6 @@
 import { EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 /**
  * Updates the progress of daily shared quests and refreshes the corresponding Discord embed message.
@@ -8,6 +9,9 @@ import logger from "../../logger.js";
  * @param {import('discord.js').Client} discordClient - The Discord.js client instance.
  * @param {string} channelId - The ID of the Discord channel containing the quest message.
  */
+
+const { ORANGE } = config.uiColors;
+
 export async function updateQuestProgress(db, discordClient, channelId) {
   try {
     const { rows: quests } = await db.query(
@@ -54,7 +58,7 @@ export async function updateQuestProgress(db, discordClient, channelId) {
 
     const embed = new EmbedBuilder()
       .setTitle("🎯 Daily Shared Quests")
-      .setColor("#f39c12")
+      .setColor(ORANGE)
       .setDescription("Complete the following quests today to earn PLC tokens!")
       .setTimestamp();
 
