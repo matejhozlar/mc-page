@@ -1,4 +1,5 @@
 import logger from "../../../logger.js";
+import config from "../../../config/index.js";
 
 /**
  * Updates stablecoin price and stores historical data.
@@ -7,9 +8,17 @@ import logger from "../../../logger.js";
  * @param {"minutes"|"hourly"|"daily"|"weekly"} interval - Snapshot interval type.
  * @param {string} tokenSymbol - Token symbol (e.g., "RGC")
  */
+
+const {
+  DEFAULT_LAST_PRICE,
+  PLAYER_ACTIVITY_INTERVAL,
+  INFLATION_RATE_PER_PLAYER,
+  DECAY_RATE,
+  FLOOR_PRICE,
+} = config.stablecoins;
+
 export async function updateStableCoinPrice(db, interval, tokenSymbol) {
   try {
-    // Always resolve tokenId and price from tokenSymbol
     const { rows } = await db.query(
       `SELECT id, price_per_unit FROM crypto_tokens WHERE symbol = $1 LIMIT 1`,
       [tokenSymbol]
@@ -40,19 +49,20 @@ export async function updateStableCoinPrice(db, interval, tokenSymbol) {
         [tokenId]
       );
 
-      const lastPrice = Number(lastPriceRes.rows[0]?.price || 1);
+      const lastPrice = Number(
+        lastPriceRes.rows[0]?.price || DEFAULT_LAST_PRICE
+      );
       let newPrice;
 
       if (delta > 0) {
-        const activePlayers = delta / 300;
-        const change = activePlayers * 0.00025;
+        const activePlayers = delta / PLAYER_ACTIVITY_INTERVAL;
+        const change = activePlayers * INFLATION_RATE_PER_PLAYER;
         newPrice = lastPrice + change;
       } else {
-        const decayRate = 0.00005;
-        newPrice = lastPrice - decayRate;
+        newPrice = lastPrice - DECAY_RATE;
       }
 
-      newPrice = Math.max(1, newPrice);
+      newPrice = Math.max(FLOOR_PRICE, newPrice);
 
       await db.query(
         `INSERT INTO token_price_history_minutes (token_id, price) VALUES ($1, $2)`,
