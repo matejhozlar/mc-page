@@ -1,5 +1,5 @@
 import React from "react";
-import "./css/team.css";
+import "./css/Team.css";
 
 const admins = [
   {

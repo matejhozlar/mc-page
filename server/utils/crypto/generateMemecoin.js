@@ -13,7 +13,7 @@ const db = new pg.Pool({
   port: process.env.DB_PORT,
 });
 
-const memecoins = JSON.parse(fs.readFileSync("memecoins.json", "utf8"));
+const memecoins = JSON.parse(fs.readFileSync("memeCoins.json", "utf8"));
 const { CLIENT_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
 /**
