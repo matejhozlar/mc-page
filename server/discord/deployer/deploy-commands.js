@@ -9,6 +9,11 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("profile")
+    .setDescription(
+      "Show your Minecraft profile: balance, playtime, tokens, and more"
+    ),
+  new SlashCommandBuilder()
     .setName("lottery")
     .setDescription("Start a new lottery with a given amount")
     .addIntegerOption((option) =>
