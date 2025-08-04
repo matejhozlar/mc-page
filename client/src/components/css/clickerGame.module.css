@@ -900,3 +900,28 @@
   transform: translateX(-1px);
   z-index: 2;
 }
+
+.blockedMessage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  height: 100vh;
+  text-align: center;
+  color: white;
+}
+
+.blockedHeading {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.blockedText {
+  font-size: 1rem;
+  max-width: 480px;
+  line-height: 1.6;
+  opacity: 0.85;
+}

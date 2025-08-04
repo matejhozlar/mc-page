@@ -62,8 +62,22 @@ const ClickerGame = () => {
   const [crateScrollX, setCrateScrollX] = useState(0);
   const [showFinalMessage, setShowFinalMessage] = useState(false);
   const [crateFinalIndex, setCrateFinalIndex] = useState(null);
+  const [isMobileBlocked, setIsMobileBlocked] = useState(false);
+  const [initialCheckDone, setInitialCheckDone] = useState(false);
 
   const ignoreClickRef = useRef(false);
+
+  useEffect(() => {
+    const checkSize = () => {
+      const isTooSmall = window.innerWidth < 768;
+      setIsMobileBlocked(isTooSmall);
+      setInitialCheckDone(true);
+    };
+
+    checkSize();
+    window.addEventListener("resize", checkSize);
+    return () => window.removeEventListener("resize", checkSize);
+  }, []);
 
   const crateOnlyTools = new Set(["crimson_iron_pick"]);
 
@@ -1028,6 +1042,21 @@ const ClickerGame = () => {
   }
 
   if (!allowed) return null;
+
+  if (!initialCheckDone) return null;
+
+  if (isMobileBlocked) {
+    return (
+      <div className={styles.blockedMessage}>
+        <h2 className={styles.blockedHeading}>
+          This game is not available on mobile or tablet devices.
+        </h2>
+        <p className={styles.blockedText}>
+          Please use a device with a wider screen to play.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
