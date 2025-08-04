@@ -1,8 +1,10 @@
 import logger from "../../logger.js";
 import { SlashCommandBuilder, MessageFlags, EmbedBuilder } from "discord.js";
+import config from "../../config/index.js";
 
 let lastPlaytimeServerUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { GOLD } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("server-playtime")
@@ -60,7 +62,7 @@ export async function execute(interaction, db) {
           inline: true,
         }
       )
-      .setColor(0x3498db)
+      .setColor(GOLD)
       .setFooter({ text: "All-time playtime of every registered player" });
 
     lastPlaytimeServerUse = now;

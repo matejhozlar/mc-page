@@ -85,7 +85,6 @@ export async function execute(interaction, db) {
       content: `🎉 You started a new lottery with $${amount}!`,
     });
 
-    // Run side effects async
     announceLotteryStart(name).catch((err) =>
       logger.error("❌ announceLotteryStart failed:", err)
     );

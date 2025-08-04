@@ -2,8 +2,11 @@ import { SlashCommandBuilder, MessageFlags, EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
 import { DateTime } from "luxon";
+import config from "../../config/index.js";
 
 dotenv.config();
+
+const { LIME_GREEN } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("profile")
@@ -85,7 +88,7 @@ export async function execute(interaction, db) {
     await client.query("COMMIT");
 
     const embed = new EmbedBuilder()
-      .setColor(0x00ae86)
+      .setColor(LIME_GREEN)
       .setTitle(`${name}'s Createrington Profile`)
       .setDescription(
         `**💰 Balance:**\n$${formattedBalance}\n` +

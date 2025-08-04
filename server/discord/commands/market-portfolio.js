@@ -1,5 +1,8 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
+
+const { GOLD } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("market-portfolio")
@@ -73,7 +76,7 @@ export async function execute(interaction, db) {
         value: `$${totalValue.toFixed(2)}`,
         inline: false,
       })
-      .setColor(0xffcb05)
+      .setColor(GOLD)
       .setFooter({ text: "Createrington Market" })
       .setTimestamp();
 

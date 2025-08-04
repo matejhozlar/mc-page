@@ -4,4 +4,8 @@ export default {
   GOLD: "#FFD700",
   PURPLE: "#9B59B6",
   LIME_GREEN: "#00FF4C",
+  EMERALD_GREEN: "#2ECC71",
+  DARK_GRAY: "#2F3136",
+  RED: "#FF4D4F",
+  BLUE: "#3498DB",
 };

@@ -1,9 +1,11 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const channelCooldowns = new Map();
 const COOLDOWN_MS = 60 * 60 * 1000;
 const SPAM_CHANNEL_ID = process.env.DISCORD_BOT_SPAM_CHANNEL_ID;
+const { GOLD } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("stats")
@@ -100,7 +102,7 @@ export async function execute(interaction, db) {
     const embed = new EmbedBuilder()
       .setTitle(`🏆 Top 5 for: ${displayTitle}`)
       .setDescription(leaderboard)
-      .setColor(0xf1c40f)
+      .setColor(GOLD)
       .setFooter({
         text: "Stat Leaderboard",
         iconURL: interaction.client.user.displayAvatarURL(),

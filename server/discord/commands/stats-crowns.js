@@ -14,12 +14,14 @@ import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 60 * 60 * 1000;
+const { ORANGE } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("stats-crowns")
@@ -92,7 +94,7 @@ export async function execute(interaction, db) {
               totalCrowns === 1 ? "" : "s"
             }!`
       )
-      .setColor(0xe67e22)
+      .setColor(ORANGE)
       .setFooter({
         text: "Stat Crown Report",
         iconURL: interaction.client.user.displayAvatarURL(),

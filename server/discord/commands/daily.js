@@ -2,10 +2,11 @@ import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
 import { DateTime } from "luxon";
+import config from "../../config/index.js";
 
 dotenv.config();
 
-const DAILY_REWARD_AMOUNT = 50;
+const DAILY_REWARD_AMOUNT = config.daily;
 const TIMEZONE = "Europe/Berlin";
 
 export const data = new SlashCommandBuilder()

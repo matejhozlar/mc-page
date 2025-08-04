@@ -1,11 +1,13 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
+import config from "../../config/index.js";
 
 dotenv.config();
 
 let lastBalTopUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { GOLD } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("baltop")
@@ -54,7 +56,7 @@ export async function execute(interaction, db) {
     const embed = new EmbedBuilder()
       .setTitle("🏆 Balance Top 10")
       .setDescription(leaderboard)
-      .setColor(0xf1c40f);
+      .setColor(GOLD);
 
     return await interaction.reply({ embeds: [embed] });
   } catch (error) {

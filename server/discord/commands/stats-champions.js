@@ -1,8 +1,10 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const GLOBAL_COOLDOWN_MS = 60 * 60 * 1000;
 let lastGlobalExecution = 0;
+const { PURPLE } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("stats-champions")
@@ -59,7 +61,7 @@ export async function execute(interaction, db) {
     const embed = new EmbedBuilder()
       .setTitle("🏆 Stat Champions: Most 1st Places")
       .setDescription(leaderboard)
-      .setColor(0x9b59b6)
+      .setColor(PURPLE)
       .setFooter({
         text: "Overall Stat Leaderboard",
         iconURL: interaction.client.user.displayAvatarURL(),

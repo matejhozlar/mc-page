@@ -8,11 +8,13 @@ import {
 } from "discord.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
+import config from "../../config/index.js";
 
 dotenv.config();
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { DARK_GRAY } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("ip")
@@ -40,7 +42,7 @@ export async function execute(interaction) {
 
     const embed = new EmbedBuilder()
       .setTitle("🌐 Createrington Server Info")
-      .setColor(0x2f3136)
+      .setColor(DARK_GRAY)
       .setDescription("Use the IP below to join the Minecraft server.")
       .addFields(
         {

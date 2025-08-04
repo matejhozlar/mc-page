@@ -1,11 +1,13 @@
 import { SlashCommandBuilder, MessageFlags, EmbedBuilder } from "discord.js";
 import logger from "../../logger.js";
 import dotenv from "dotenv";
+import config from "../../config/index.js";
 
 dotenv.config();
 
 let lastTopPlaytimeUse = 0;
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { GOLD } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("top-playtime")
@@ -57,7 +59,7 @@ export async function execute(interaction, db) {
     const embed = new EmbedBuilder()
       .setTitle("🏆 Top 10 Most Active Players")
       .setDescription(formattedList)
-      .setColor(0xffd700)
+      .setColor(GOLD)
       .setFooter({
         text: "Based on total playtime",
         iconURL: interaction.client.user.displayAvatarURL(),

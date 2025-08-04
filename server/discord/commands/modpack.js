@@ -8,9 +8,11 @@ import {
   Message,
 } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { DARK_GRAY } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("modpack")
@@ -41,7 +43,7 @@ export async function execute(interaction) {
       .setDescription(
         "Download the Createrington modpack through CurseForge with just 1 click."
       )
-      .setColor(0x2f3136)
+      .setColor(DARK_GRAY)
       .setURL("https://www.curseforge.com/minecraft/modpacks/create-rington")
       .setFooter({
         text: "Requires CurseForge installed on your device",

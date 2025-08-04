@@ -7,9 +7,11 @@ import {
   MessageFlags,
 } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { DARK_GRAY } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("map")
@@ -38,7 +40,7 @@ export async function execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle("🗺️ Live Server Map")
       .setDescription("Explore the Createrington world in real time.")
-      .setColor(0x2f3136)
+      .setColor(DARK_GRAY)
       .setURL("https://create-rington.com/bluemap")
       .setFooter({
         text: "Requires JavaScript — works best on desktop browsers.",
@@ -47,7 +49,7 @@ export async function execute(interaction) {
     const button = new ButtonBuilder()
       .setLabel("Open Map")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com/bluemap");
+      .setURL("https://create-rington.com/blue-map");
 
     const row = new ActionRowBuilder().addComponents(button);
 

@@ -1,6 +1,8 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
-import dotenv from "dotenv";
 import logger from "../../logger.js";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const ADMIN_ROLE_ID = process.env.DISCORD_ADMIN_ROLE_ID;
 const OWNER_ROLE_ID = process.env.DISCORD_OWNER_ROLE_ID;

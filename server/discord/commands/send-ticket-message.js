@@ -7,8 +7,11 @@ import {
   MessageFlags,
 } from "discord.js";
 import dotenv from "dotenv";
+import config from "../../config/index.js";
 
 dotenv.config();
+
+const { DARK_GRAY } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("setup-ticket")
@@ -35,7 +38,7 @@ export async function execute(interaction) {
     .setDescription(
       "To create a ticket, click the **Create ticket** button below."
     )
-    .setColor(0x2f3136)
+    .setColor(DARK_GRAY)
     .addFields({
       name: "Need help?",
       value: "Click the button below to open a private support thread.",

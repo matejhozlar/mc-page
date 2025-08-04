@@ -1,8 +1,10 @@
 import { SlashCommandBuilder, EmbedBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const userCooldowns = new Map();
 const COOLDOWN_MS = 10 * 60 * 1000;
+const { EMERALD_GREEN } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("stats-category")
@@ -79,7 +81,7 @@ export async function execute(interaction, db) {
     const embed = new EmbedBuilder()
       .setTitle(`📊 Top Players: ${capitalizedType}`)
       .setDescription(leaderboard)
-      .setColor(0x2ecc71)
+      .setColor(EMERALD_GREEN)
       .setFooter({
         text: "Stat Category Leaderboard",
         iconURL: interaction.client.user.displayAvatarURL(),

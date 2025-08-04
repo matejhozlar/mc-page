@@ -6,8 +6,11 @@ import {
 import puppeteer from "puppeteer";
 import dotenv from "dotenv";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 dotenv.config();
+
+const { RED, BLUE } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("market-token")
@@ -27,13 +30,13 @@ async function captureChartScreenshot(symbol) {
     logger.info("Launching Puppeteer...");
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/chromium-browser", // Path to installed Chromium
+      executablePath: "/usr/bin/chromium-browser",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-gpu",
         "--disable-dev-shm-usage",
-        "--ignore-certificate-errors", // trust any cert
+        "--ignore-certificate-errors",
       ],
     });
 
@@ -95,7 +98,7 @@ export async function execute(interaction, db) {
 
     const tokenInfo = rows[0];
     const isCrashed = tokenInfo && Number(tokenInfo.price_per_unit) === 0;
-    const embedColor = isCrashed ? 0xff4d4f : 0x3498db;
+    const embedColor = isCrashed ? RED : BLUE;
 
     await interaction.deferReply();
 

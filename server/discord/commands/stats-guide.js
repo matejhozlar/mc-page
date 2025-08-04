@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
 import logger from "../../logger.js";
+import config from "../../config/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,6 +17,7 @@ dotenv.config();
 
 const COOLDOWN_MS = 10 * 60 * 1000;
 const userCooldowns = new Map();
+const { BLUE } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("stats-guide")
@@ -86,7 +88,7 @@ export async function execute(interaction) {
         value: `Once per hour per channel\nOr use it freely in <#${spamChannelId}>`,
       })
       .setImage("attachment://full_command.png")
-      .setColor(0x3498db)
+      .setColor(BLUE)
       .setFooter({ text: "Stat Guide" });
 
     await interaction.reply({
