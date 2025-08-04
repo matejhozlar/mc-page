@@ -14,7 +14,7 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-export const prodOnly = false;
+export const prodOnly = true;
 
 /**
  * @param {import("discord.js").ChatInputCommandInteraction} interaction
