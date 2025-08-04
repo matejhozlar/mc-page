@@ -20,7 +20,7 @@ const {
   TOTAL_SUPPLY_MIN,
   TOTAL_SUPPLY_MAX,
 } = config.memecoins;
-const { DARK_GOLD } = config.uiColors;
+const { GOLD } = config.uiColors;
 const PRICE_DECIMALS = 4;
 
 const memecoins = JSON.parse(fs.readFileSync("memeCoins.json", "utf8"));
@@ -67,7 +67,7 @@ async function sendDiscordNotification({
 
       const embed = new EmbedBuilder()
         .setTitle(`🚀 New Memecoin Launched: ${name} (${symbol})`)
-        .setColor(DARK_GOLD)
+        .setColor(GOLD)
         .setDescription(description || "No description provided.")
         .addFields(
           { name: "💵 Initial Price", value: `$${price}`, inline: true },

@@ -6,10 +6,7 @@ import {
   MessageFlags,
 } from "discord.js";
 import logger from "../../logger.js";
-
-const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
-let lastRefreshTime = 0;
-let leaderboardMessage = null;
+import config from "../../config/index.js";
 
 /**
  * Builds the leaderboard embed and action row based on current top users.
@@ -21,6 +18,12 @@ let leaderboardMessage = null;
  *   leaderboardData: Array<any>
  * }>}
  */
+
+const REFRESH_COOLDOWN_MS = 10 * 60 * 1000;
+const PRICE_DECIMALS = 2;
+const { GOLD } = config.uiColors;
+let lastRefreshTime = 0;
+let leaderboardMessage = null;
 
 async function fetchMarketLeaderboardEmbed(db) {
   const query = `
@@ -41,7 +44,7 @@ async function fetchMarketLeaderboardEmbed(db) {
   const leaderboard = rows
     .map((row, i) => {
       const prefix = medals[i] || `#${i + 1}`;
-      const value = parseFloat(row.total_value || 0).toFixed(2);
+      const value = parseFloat(row.total_value || 0).toFixed(PRICE_DECIMALS);
       return `${prefix} **${row.mc_name}** — $${value}`;
     })
     .join("\n");
@@ -49,7 +52,7 @@ async function fetchMarketLeaderboardEmbed(db) {
   const embed = new EmbedBuilder()
     .setTitle("📈 Top Market Portfolios")
     .setDescription(leaderboard || "No data found.")
-    .setColor(0xff9900)
+    .setColor(GOLD)
     .setFooter({ text: "Updated" })
     .setTimestamp();
 
@@ -164,9 +167,9 @@ export async function initMarketLeaderboard(db, client, channelId) {
             .setDescription(
               `🏆 <@${topId}> now holds the **largest portfolio** at **$${parseFloat(
                 total_value
-              ).toFixed(2)}**!\nLong live **${topName}**! 🪙`
+              ).toFixed(PRICE_DECIMALS)}**!\nLong live **${topName}**! 🪙`
             )
-            .setColor(0xff9900)
+            .setColor(GOLD)
             .setThumbnail(topMember.displayAvatarURL())
             .setFooter({ text: "Hall of Fame — Market Leader" })
             .setTimestamp();
