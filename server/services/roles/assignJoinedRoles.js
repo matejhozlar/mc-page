@@ -1,12 +1,5 @@
-import cron from "node-cron";
 import logger from "../../logger.js";
-import { Client } from "discord.js"; // Assuming discord.js v14
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc.js";
-import timezone from "dayjs/plugin/timezone.js";
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { Client } from "discord.js";
 
 const ROLE_TIERS = [
   {
@@ -57,7 +50,7 @@ export async function assignMembershipDurationRoles(db, discordClient) {
     const guild = await discordClient.guilds.fetch(
       process.env.DISCORD_GUILD_ID
     );
-    const now = dayjs().tz("Europe/Berlin");
+    const now = new Date();
 
     for (const user of users) {
       const member = await guild.members
@@ -65,25 +58,24 @@ export async function assignMembershipDurationRoles(db, discordClient) {
         .catch(() => null);
       if (!member) continue;
 
-      const joinedDate = dayjs(user.first_joined).tz("Europe/Berlin");
-      const daysInServer = now.diff(joinedDate, "day");
+      const joinedDate = new Date(user.first_joined);
+
+      const diffTime = now.getTime() - joinedDate.getTime();
+      const daysInServer = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
       const targetTier = ROLE_TIERS.find(
         (tier) => daysInServer >= tier.minDays && daysInServer <= tier.maxDays
       );
       if (!targetTier) continue;
 
-      // Check if user already has target role
       if (member.roles.cache.has(targetTier.id)) continue;
 
-      // Remove all tier roles
       const tierRoleIds = ROLE_TIERS.map((t) => t.id);
       const rolesToRemove = member.roles.cache.filter((role) =>
         tierRoleIds.includes(role.id)
       );
       await member.roles.remove(rolesToRemove).catch(logger.error);
 
-      // Add target role
       await member.roles.add(targetTier.id).catch(logger.error);
 
       logger.info(
