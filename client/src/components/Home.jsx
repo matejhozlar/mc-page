@@ -360,7 +360,7 @@ export default function Home() {
           View the full curated list of mods included in our pack. Visit our
           modpack page on
           <a
-            href="https://www.curseforge.com/minecraft/modpacks/create-rington"
+            href="https://www.curseforge.com/minecraft/modpacks/createrington-cogs-steam"
             target="_blank"
             rel="noopener noreferrer"
           >
