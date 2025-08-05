@@ -2,7 +2,7 @@ import React from "react";
 
 const MarketLoginButton = () => {
   const handleLogin = () => {
-    const clientId = "1367925825420267565";
+    const clientId = "1382106807128031372";
     const isDev = window.location.hostname === "localhost";
     const redirectUri = encodeURIComponent(
       isDev

@@ -178,8 +178,6 @@ export default function discordOAuthRoutes(db) {
 
     const redirectUri = getRedirectUri("MARKET_LOGIN_REDIRECT_URI");
 
-    logger.info(`redirect URI: ${redirectUri}`);
-
     try {
       const tokenRes = await axios.post(
         "https://discord.com/api/oauth2/token",
@@ -213,7 +211,7 @@ export default function discordOAuthRoutes(db) {
           .json({ error: "User not registered for market access." });
       }
 
-      res.cookie("market_session", discordId, {
+      res.cookie("user_session", discordId, {
         httpOnly: true,
         secure: true,
         sameSite: "Strict",
