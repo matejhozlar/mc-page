@@ -18,8 +18,8 @@ const commands = [
         .setRequired(true)
     ),
   new SlashCommandBuilder()
-    .setName("market")
-    .setDescription("Buy or sell tokens on the Createrington market")
+    .setName("crypto")
+    .setDescription("Buy or sell tokens on the Createrington crypto")
     .addSubcommand((sub) =>
       sub
         .setName("buy")
@@ -87,8 +87,8 @@ const commands = [
         .setRequired(true)
     ),
   new SlashCommandBuilder()
-    .setName("market-portfolio")
-    .setDescription("View a user's market portfolio")
+    .setName("crypto-portfolio")
+    .setDescription("View a user's crypto portfolio")
     .addStringOption((option) =>
       option
         .setName("username")
@@ -96,11 +96,11 @@ const commands = [
         .setRequired(false)
     ),
   new SlashCommandBuilder()
-    .setName("market-alert-list")
-    .setDescription("View your active market price alerts"),
+    .setName("crypto-alert-list")
+    .setDescription("View your active crypto price alerts"),
   new SlashCommandBuilder()
-    .setName("market-alert-remove")
-    .setDescription("Remove your market alert for a specific token")
+    .setName("crypto-alert-remove")
+    .setDescription("Remove your crypto alert for a specific token")
     .addStringOption((option) =>
       option
         .setName("token")
@@ -108,7 +108,7 @@ const commands = [
         .setRequired(true)
     ),
   new SlashCommandBuilder()
-    .setName("market-alert")
+    .setName("crypto-alert")
     .setDescription("Get notified when a token reaches a certain price")
     .addStringOption((option) =>
       option
@@ -133,8 +133,8 @@ const commands = [
         )
     ),
   new SlashCommandBuilder()
-    .setName("market-token")
-    .setDescription("Generate a market token chart screenshot")
+    .setName("crypto-token")
+    .setDescription("Generate a crypto token chart screenshot")
     .addStringOption((option) =>
       option
         .setName("symbol")
