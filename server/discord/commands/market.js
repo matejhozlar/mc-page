@@ -3,8 +3,8 @@ import logger from "../../logger.js";
 import { getCooldownStatus } from "../../app/utils/crypto/isOnCooldown.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("market")
-  .setDescription("Buy or sell tokens on the Createrington market")
+  .setName("crypto")
+  .setDescription("Buy or sell tokens on the Createrington crypto")
   .addSubcommand((sub) =>
     sub
       .setName("buy")
@@ -87,7 +87,7 @@ export async function execute(interaction, db) {
       await handleSell(interaction, db, userId, token.symbol, amount);
     }
   } catch (error) {
-    logger.error(`❌ /market ${subcommand} failed: ${error}`);
+    logger.error(`❌ /crypto ${subcommand} failed: ${error}`);
     return await interaction.reply({
       content: `⚠️ Failed to ${subcommand} tokens. Please try again later.`,
       flags: MessageFlags.Ephemeral,

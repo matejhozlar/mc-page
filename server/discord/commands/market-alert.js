@@ -2,7 +2,7 @@ import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import logger from "../../logger.js";
 
 export const data = new SlashCommandBuilder()
-  .setName("market-alert")
+  .setName("crypto-alert")
   .setDescription("Get notified when a token reaches a certain price")
   .addStringOption((option) =>
     option

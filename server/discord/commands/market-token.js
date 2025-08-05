@@ -13,8 +13,8 @@ dotenv.config();
 const { RED, BLUE } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
-  .setName("market-token")
-  .setDescription("Generate a market token chart screenshot")
+  .setName("crypto-token")
+  .setDescription("Generate a crypto token chart screenshot")
   .addStringOption((option) =>
     option
       .setName("symbol")
@@ -115,11 +115,11 @@ export async function execute(interaction, db) {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle(`📊 Market Token Chart — ${symbol}`)
+      .setTitle(`📊 Crypto Token Chart — ${symbol}`)
       .setDescription(`Here is the generated chart for **${symbol}**.`)
       .setImage(`attachment://chart_${symbol}.png`)
       .setColor(embedColor)
-      .setFooter({ text: "Createrington Market" });
+      .setFooter({ text: "Createrington Crypto" });
 
     await interaction.editReply({
       embeds: [embed],
@@ -128,7 +128,7 @@ export async function execute(interaction, db) {
 
     logger.info(`✅ Chart for ${symbol} sent to Discord.`);
   } catch (error) {
-    logger.error(`❌ Error executing market-token command: ${error}`);
+    logger.error(`❌ /crypto-token failed: ${error}`);
     try {
       await interaction.editReply({
         content: `⚠️ Something went wrong. Try again later.`,

@@ -5,8 +5,8 @@ import config from "../../config/index.js";
 const { GOLD } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
-  .setName("market-portfolio")
-  .setDescription("View a user's market portfolio")
+  .setName("crypto-portfolio")
+  .setDescription("View a user's crypto portfolio")
   .addStringOption((option) =>
     option
       .setName("username")
@@ -69,7 +69,7 @@ export async function execute(interaction, db) {
     });
 
     const embed = new EmbedBuilder()
-      .setTitle(`📊 ${username}'s Market Portfolio`)
+      .setTitle(`📊 ${username}'s Crypto Portfolio`)
       .setDescription(tokenLines.join("\n"))
       .addFields({
         name: "💰 Total Value",
@@ -77,12 +77,12 @@ export async function execute(interaction, db) {
         inline: false,
       })
       .setColor(GOLD)
-      .setFooter({ text: "Createrington Market" })
+      .setFooter({ text: "Createrington Crypto" })
       .setTimestamp();
 
     return await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`❌ /market-portfolio failed: ${error}`);
+    logger.error(`❌ /crypto-portfolio failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Failed to load portfolio. Please try again later.",
       flags: MessageFlags.Ephemeral,
