@@ -27,6 +27,7 @@ import { fileURLToPath } from "url";
 // ─── Application Setup ───────────────────────────────────
 import { createApp } from "./app/index.js";
 import registerRoutes from "./app/routes/index.js";
+import { createVisitTracker } from "./app/middleware/visitTracker.js";
 
 // ─── Socket.IO Setup ─────────────────────────────────────
 import { setupSocketIO } from "./socket/index.js";
@@ -95,6 +96,9 @@ setupSocketIO(io, db, clientBot, webBot);
 httpServer.listen(PORT, () => {
   logger.info(`🚀 Server running at http://localhost:${PORT}`);
 });
+
+// ─── Visit Tracker ───────────────────────────────────────
+app.use(createVisitTracker(db));
 
 // ─── Serve React SPA Fallback ────────────────────────────
 app.get("/*", (req, res) => {
