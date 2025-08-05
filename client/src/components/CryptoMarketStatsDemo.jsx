@@ -29,13 +29,13 @@ function CryptoMarketStatsDemo() {
   }, [balance]);
 
   return (
-    <div className="market-page-demo" style={{ padding: 30 }}>
-      <header className="market-header">
-        <h1 className="market-title">Createrington Crypto</h1>
+    <div className="crypto-page-demo" style={{ padding: 30 }}>
+      <header className="crypto-header">
+        <h1 className="crypto-title">Createrington Crypto</h1>
       </header>
 
-      <section className="market-overview">
-        <div className="market-card user-card">
+      <section className="crypto-overview">
+        <div className="crypto-card user-card">
           <div className="user-card-glow" />
           <div className="user-top">
             <img
@@ -68,7 +68,7 @@ function CryptoMarketStatsDemo() {
           </div>
         </div>
 
-        <div className="market-card balance-card">
+        <div className="crypto-card balance-card">
           <div className="balance-card-glow" />
           <h2>
             $
@@ -78,9 +78,9 @@ function CryptoMarketStatsDemo() {
         </div>
       </section>
 
-      <section className="market-bottom-wrapper">
-        <div className="market-bottom-section">
-          <div className="market-card balance-card">
+      <section className="crypto-bottom-wrapper">
+        <div className="crypto-bottom-section">
+          <div className="crypto-card balance-card">
             <h2>
               $
               <AnimatedNumber value={balance} />
@@ -88,7 +88,7 @@ function CryptoMarketStatsDemo() {
             <p>In-Game Balance</p>
           </div>
 
-          <div className="market-card balance-card">
+          <div className="crypto-card balance-card">
             <h2>
               <AnimatedNumber
                 value={tokenCount}

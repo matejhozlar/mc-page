@@ -161,7 +161,7 @@ html {
     padding: 0 !important;
     width: 100% !important;
   }
-  .market-page {
+  .crypto-page {
     padding-bottom: 5rem !important;
   }
   .admin-panel-container {
@@ -1385,8 +1385,8 @@ input:checked + .slider:before {
   margin-left: -2px;
 }
 
-/* Market */
-.market-page {
+/* crypto */
+.crypto-page {
   background-color: #0c0f14;
   padding: 2rem;
   color: #f1f1f1;
@@ -1394,31 +1394,31 @@ input:checked + .slider:before {
   min-height: 100%;
 }
 
-.market-page-demo {
+.crypto-page-demo {
   padding: 2rem;
   color: #f1f1f1;
   font-family: "Segoe UI", sans-serif;
   min-height: 100%;
 }
 
-.market-header {
+.crypto-header {
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.market-title {
+.crypto-title {
   color: #c5ff47;
   font-size: 2.5rem;
   margin-bottom: 0.25rem;
   text-shadow: 0 0 8px rgba(197, 255, 71, 0.4);
 }
 
-.market-subtitle {
+.crypto-subtitle {
   font-size: 1.1rem;
   color: #aaa;
 }
 
-.market-overview {
+.crypto-overview {
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
@@ -1426,7 +1426,7 @@ input:checked + .slider:before {
   margin-bottom: 2rem;
 }
 
-.market-card {
+.crypto-card {
   background-color: #161b22;
   border: 1px solid #2a2f38;
   border-radius: 12px;
@@ -1603,7 +1603,7 @@ input:checked + .slider:before {
   margin-bottom: 0px;
 }
 
-.market-login-required {
+.crypto-login-required {
   text-align: center;
   font-size: 1.25rem;
   margin-top: 3rem;
@@ -1812,7 +1812,7 @@ input:checked + .slider:before {
   color: #8fff8f;
 }
 
-.market-nav {
+.crypto-nav {
   display: flex;
   justify-content: center;
   gap: 2rem;
@@ -1821,7 +1821,7 @@ input:checked + .slider:before {
   padding-bottom: 0.5rem;
 }
 
-.market-tab {
+.crypto-tab {
   padding: 0.5rem 1.25rem;
   background-color: transparent;
   border: none;
@@ -1832,17 +1832,17 @@ input:checked + .slider:before {
   transition: color 0.3s ease, border-bottom 0.3s ease;
 }
 
-.market-tab:hover {
+.crypto-tab:hover {
   color: #f1f1f1;
 }
 
-.market-tab.active {
+.crypto-tab.active {
   color: #ffcb05;
   border-bottom: 2px solid #ffcb05;
   font-weight: bold;
 }
 
-.market-header-bar {
+.crypto-header-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1850,7 +1850,7 @@ input:checked + .slider:before {
   padding: 0 2rem;
 }
 
-.market-logo-icon {
+.crypto-logo-icon {
   font-size: 2rem;
 }
 
@@ -2096,7 +2096,7 @@ input:checked + .slider:before {
   color: black;
 }
 
-.market-bottom-section {
+.crypto-bottom-section {
   display: flex;
   justify-content: center;
   align-items: stretch;
@@ -2105,7 +2105,7 @@ input:checked + .slider:before {
   flex-wrap: wrap;
 }
 
-.market-bottom-section .market-card {
+.crypto-bottom-section .crypto-card {
   flex: 1 1 300px;
   max-width: 2000px;
 }

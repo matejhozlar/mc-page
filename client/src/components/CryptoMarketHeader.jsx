@@ -2,21 +2,21 @@ import React from "react";
 
 function CryptoMarketHeader({ activeTab, setActiveTab }) {
   return (
-    <div className="market-nav-header">
+    <div className="crypto-nav-header">
       <button
-        className={`market-tab ${activeTab === "crypto" ? "active" : ""}`}
+        className={`crypto-tab ${activeTab === "crypto" ? "active" : ""}`}
         onClick={() => setActiveTab("crypto")}
       >
         Crypto
       </button>
       <button
-        className={`market-tab ${activeTab === "profile" ? "active" : ""}`}
+        className={`crypto-tab ${activeTab === "profile" ? "active" : ""}`}
         onClick={() => setActiveTab("profile")}
       >
         Profile
       </button>
       <button
-        className={`market-tab ${activeTab === "minigames" ? "active" : ""}`}
+        className={`crypto-tab ${activeTab === "minigames" ? "active" : ""}`}
         onClick={() => setActiveTab("minigames")}
       >
         Games

@@ -145,7 +145,7 @@ function CryptoMarket() {
 
   if (!isLoggedIn) {
     return (
-      <div className="market-login-required">
+      <div className="crypto-login-required">
         <p>You must be logged in to access the market.</p>
         <MarketLoginButton />
       </div>
@@ -158,9 +158,9 @@ function CryptoMarket() {
 
   return (
     <>
-      <div className="market-page">
-        <div className="market-header-bar">
-          <span className="market-logo-icon">🪙</span>
+      <div className="crypto-page">
+        <div className="crypto-header-bar">
+          <span className="crypto-logo-icon">🪙</span>
           <CryptoMarketHeader
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -173,15 +173,15 @@ function CryptoMarket() {
         )}
         {activeTab === "crypto" && (
           <>
-            <header className="market-header">
-              <h1 className="market-title">Createrington Crypto</h1>
-              <p className="market-subtitle">
+            <header className="crypto-header">
+              <h1 className="crypto-title">Createrington Crypto</h1>
+              <p className="crypto-subtitle">
                 Trade crypto tokens with your Minecraft currency
               </p>
             </header>
 
-            <section className="market-overview">
-              <div className="market-card user-card">
+            <section className="crypto-overview">
+              <div className="crypto-card user-card">
                 <div className="user-card-glow" />
                 <div className="user-top">
                   <img
@@ -217,7 +217,7 @@ function CryptoMarket() {
                 </div>
               </div>
 
-              <div className="market-card balance-card">
+              <div className="crypto-card balance-card">
                 <div className="balance-card-glow" />
                 <h2>
                   $
@@ -228,9 +228,9 @@ function CryptoMarket() {
                 <p>Total Net-Worth</p>
               </div>
             </section>
-            <section className="market-bottom-wrapper">
-              <div className="market-bottom-section">
-                <div className="market-card balance-card">
+            <section className="crypto-bottom-wrapper">
+              <div className="crypto-bottom-section">
+                <div className="crypto-card balance-card">
                   <h2>
                     $
                     <AnimatedNumber value={animatedBalance} />
@@ -238,7 +238,7 @@ function CryptoMarket() {
                   <p>In-Game Balance</p>
                 </div>
 
-                <div className="market-card balance-card">
+                <div className="crypto-card balance-card">
                   <h2>
                     <AnimatedNumber
                       value={Number(calculateOwnedTokenCount(profile.tokens))}
@@ -328,7 +328,7 @@ function CryptoMarket() {
 
         {activeTab === "profile" && (
           <section className="profile-tab">
-            <div className="market-card profile-info enhanced-profile">
+            <div className="crypto-card profile-info enhanced-profile">
               <div className="profile-left">
                 <ResponsiveProfileViewer
                   username={profile.name}
@@ -379,7 +379,7 @@ function CryptoMarket() {
               </div>
             </div>
 
-            <div className="market-card portfolio-history-card">
+            <div className="crypto-card portfolio-history-card">
               <div
                 style={{
                   display: "flex",
@@ -418,7 +418,7 @@ function CryptoMarket() {
                 </p>
               )}
             </div>
-            <div className="market-card owned-tokens">
+            <div className="crypto-card owned-tokens">
               <h2 style={{ marginBottom: "1rem" }}>Owned Tokens</h2>
               <div className="token-grid">
                 {profile.tokens?.length ? (
@@ -479,7 +479,7 @@ function CryptoMarket() {
                 )}
               </div>
             </div>
-            <div className="market-card transaction-history">
+            <div className="crypto-card transaction-history">
               <div
                 style={{
                   display: "flex",

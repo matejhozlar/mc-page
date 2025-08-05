@@ -117,9 +117,9 @@ const MobileNav = () => {
           </svg>
           Players
         </NavLink>
-        <NavLink to="/market" className="mobile-nav-link">
+        <NavLink to="/crypto" className="mobile-nav-link">
           <Coins className="nav-icon" />
-          Market
+          Crypto
         </NavLink>
         <NavLink to="/apply-to-join" className="mobile-nav-link">
           <svg
