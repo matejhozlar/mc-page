@@ -16,7 +16,7 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("🔔 Market Alert System")
+      .setTitle("🔔 Crypto Alert System")
       .setColor(0xffcb05)
       .setDescription(
         "Get notified when your favorite tokens hit your target price — powered by **Createrington Bot**!\n\n" +
@@ -24,16 +24,16 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "/market-alert",
+          name: "/crypto-alert",
           value:
             "Set a price alert for a token (e.g. `RGC` at `$0.25` optional: `Above`/`Below`). You’ll get a DM when the price is hit.",
         },
         {
-          name: "/market-alert-remove",
+          name: "/crypto-alert-remove",
           value: "Remove an alert for a specific token.",
         },
         {
-          name: "/market-alert-list",
+          name: "/crypto-alert-list",
           value: "View all of your currently active alerts.",
         },
         {
@@ -46,9 +46,9 @@ client.once("ready", async () => {
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 Market alert guide sent!");
-  } catch (err) {
-    console.error("❌ Failed to send market alert guide:", err);
+    console.log("📣 Crypto alert guide sent!");
+  } catch (error) {
+    console.error("❌ Failed to send Crypto alert guide:", error);
   } finally {
     client.destroy();
     process.exit(0);

@@ -46,7 +46,7 @@ client.once("ready", async () => {
         {
           name: "Important",
           value:
-            "❗ **PLC cannot be bought**. It must be **earned** through gameplay. You can only **sell** your earned PLC on the market.",
+            "❗ **PLC cannot be bought**. It must be **earned** through gameplay. You can only **sell** your earned PLC on the crypto market.",
         }
       )
       .setFooter({ text: "Happy trading on Createrington!" })

@@ -54,14 +54,14 @@ client.once("ready", async () => {
           `🏦 **/baltop** — See the top 10 richest players\n` +
           `🎁 **/daily** — Claim your daily reward\n\n` +
           `Createrington Crypto commands (DC):\n` +
-          `💲 **/market buy <symbol> <amount>** — Buy a crypto token\n` +
-          `💱 **/market sell <symbol> <amount>** — Sell a crypto token\n` +
-          `🪙 **/market-token <symbol>** — Check live prices and charts for a specific token\n` +
-          `💼 **/market-portfolio** — View your portfolio\n` +
-          `🔍 **/market-portfolio <name>** — View someone’s public portfolio\n` +
-          `🔔 **/market-alert <symbol> <price> <direction>** — Get notified when a token reaches a price\n` +
-          `❌ **/market-alert-remove <symbol>** — Remove a price alert for a token\n` +
-          `📋 **/market-alert-list** — View all your active price alerts\n` +
+          `💲 **/crypto buy <symbol> <amount>** — Buy a crypto token\n` +
+          `💱 **/crypto sell <symbol> <amount>** — Sell a crypto token\n` +
+          `🪙 **/crypto-token <symbol>** — Check live prices and charts for a specific token\n` +
+          `💼 **/crypto-portfolio** — View your portfolio\n` +
+          `🔍 **/crypto-portfolio <name>** — View someone’s public portfolio\n` +
+          `🔔 **/crypto-alert <symbol> <price> <direction>** — Get notified when a token reaches a price\n` +
+          `❌ **/crypto-alert-remove <symbol>** — Remove a price alert for a token\n` +
+          `📋 **/crypto-alert-list** — View all your active price alerts\n` +
           `More crypto commands coming soon to both Discord and Minecraft!\n\n` +
           `Here’s how you can interact with me:\n` +
           `🌐 **/ip** — Get the Createrington Server IP\n` +

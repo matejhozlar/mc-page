@@ -16,22 +16,22 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("🪙 Createrington Market Guide")
+      .setTitle("🪙 Createrington Crypto Guide")
       .setColor(0xffcb05)
       .setDescription(
-        "Welcome to the **Createrington Market** — trade tokens using your Minecraft balance and grow your wealth!"
+        "Welcome to the **Createrington Crypto** — trade tokens using your Minecraft balance and grow your wealth!"
       )
       .addFields(
         {
           name: "🔐 Getting Started",
           value: [
             "- Log in on the website [Here](https://create-rington.com)",
-            "- Go to the **Market** tab to begin trading.",
+            "- Go to the **Crypto** tab to begin trading.",
             "- Click on a token to buy or sell.",
           ].join("\n"),
         },
         {
-          name: "📈 Market Overview",
+          name: "📈 Crypto Overview",
           value: [
             "- Each token has a live price that changes over time.",
             "- You’ll see details like: **Price**, **Supply**, **Ownership**, and **Price History**.",
@@ -91,9 +91,9 @@ client.once("ready", async () => {
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 Market guide sent!");
+    console.log("📣 Crypto guide sent!");
   } catch (err) {
-    console.error("❌ Failed to send market guide:", err);
+    console.error("❌ Failed to send crypto guide:", err);
   } finally {
     client.destroy();
     process.exit(0);
