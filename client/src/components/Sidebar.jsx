@@ -73,6 +73,12 @@ const Sidebar = () => {
             </NavLink>
           </li>
           <li className="nav-item">
+            <NavLink to="/market" className="nav-link">
+              <Coins className="nav-icon" />
+              Market
+            </NavLink>
+          </li>
+          <li className="nav-item">
             <NavLink to="/crypto" className="nav-link">
               <Coins className="nav-icon" />
               Crypto

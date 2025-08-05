@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-import LoadingSpinner from "./LoadingSpinner.jsx";
+import LoadingSpinner from "../LoadingSpinner.jsx";
 
 const CallbackCryptoMarket = () => {
   useEffect(() => {

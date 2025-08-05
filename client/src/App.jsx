@@ -19,17 +19,20 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import FloatingHomeIcon from "./components/FloatingHomeButton.jsx";
 import BlueMapViewer from "./components/BlueMap.jsx";
 import AdminLoginButton from "./components/AdminLoginButton.jsx";
-import Callback from "./components/Callback.jsx";
+import Callback from "./components/callbacks/Callback.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
 import { PlayerProvider } from "./components/AdminPlayerProvider.jsx";
 import ClickerGame from "./components/clickerGame/ClickerGame.jsx";
 import DiscordLoginButton from "./components/DiscordLoginButton.jsx";
-import CallbackGame from "./components/CallbackGame.jsx";
+import CallbackGame from "./components/callbacks/CallbackGame.jsx";
 import CryptoMarket from "./components/CryptoMarket.jsx";
-import CallbackCryptoMarket from "./components/CallbackCryptoMarket.jsx";
+import CallbackCryptoMarket from "./components/callbacks/CallbackCryptoMarket.jsx";
 import TokenChartPage from "./components/TokenChartPage.jsx";
 import NotFound from "./components/NotFound.jsx";
 import Team from "./components/Team.jsx";
+import MarketLoginButton from "./components/MarketLoginButton.jsx";
+import CallbackMarket from "./components/callbacks/CallbackMarket.jsx";
+import Market from "./components/Market.jsx";
 
 function App() {
   return (
@@ -96,6 +99,9 @@ function AppWithRouter() {
                   </PlayerProvider>
                 }
               />
+              <Route path="/callback-market" element={<CallbackMarket />} />
+              <Route path="/market-login" element={<MarketLoginButton />} />
+              <Route path="/market" element={<Market />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

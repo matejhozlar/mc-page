@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
 
-import LoadingSpinner from "./LoadingSpinner.jsx";
+// components
+import LoadingSpinner from "../LoadingSpinner.jsx";
 
-const CallbackGame = () => {
+const Callback = () => {
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
-    fetch("/api/discord/callback-game", {
+    fetch("/api/discord/callback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
@@ -17,8 +18,8 @@ const CallbackGame = () => {
         return res.json();
       })
       .then(() => {
-        window.history.replaceState({}, document.title, "/game");
-        window.location.href = "/game";
+        window.history.replaceState({}, document.title, "/admin");
+        window.location.href = "/admin";
       })
       .catch(() => {
         alert("Login failed or unauthorized.");
@@ -29,4 +30,4 @@ const CallbackGame = () => {
   return <LoadingSpinner message="Logging in via Discord..." />;
 };
 
-export default CallbackGame;
+export default Callback;
