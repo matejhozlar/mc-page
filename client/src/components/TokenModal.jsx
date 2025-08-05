@@ -74,7 +74,7 @@ function TokenModal({
     token.symbol === "PLC" ? ["7d"] : ["1h", "24h", "7d", "30d", "all"];
 
   const handleTransaction = async (type) => {
-    const endpoint = type === "buy" ? "/api/market/buy" : "/api/market/sell";
+    const endpoint = type === "buy" ? "/api/crypto/buy" : "/api/crypto/sell";
 
     if (type === "buy" && token.symbol === "PLC") {
       setError(
@@ -157,7 +157,7 @@ function TokenModal({
 
     const fetchTokenTVL = async () => {
       try {
-        const res = await fetch(`/api/market/tvl/${token.id}`, {
+        const res = await fetch(`/api/crypto/tvl/${token.id}`, {
           credentials: "include",
         });
         const data = await res.json();
@@ -197,7 +197,7 @@ function TokenModal({
     const fetchHistory = async () => {
       try {
         const res = await fetch(
-          `/api/market/token-history/${token.id}?range=${selectedRange}`,
+          `/api/crypto/token-history/${token.id}?range=${selectedRange}`,
           { credentials: "include" }
         );
         const data = await res.json();
@@ -240,7 +240,7 @@ function TokenModal({
   useEffect(() => {
     const fetchDistribution = async () => {
       try {
-        const res = await fetch(`/api/market/token-distribution/${token.id}`, {
+        const res = await fetch(`/api/crypto/token-distribution/${token.id}`, {
           credentials: "include",
         });
         const data = await res.json();

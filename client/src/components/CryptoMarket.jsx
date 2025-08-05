@@ -32,8 +32,8 @@ function CryptoMarket() {
     try {
       const [profileRes, tokensRes, userTokensRes] = await Promise.all([
         fetch("/api/user/full-profile", { credentials: "include" }),
-        fetch("/api/market/tokens", { credentials: "include" }),
-        fetch("/api/market/user-tokens", { credentials: "include" }),
+        fetch("/api/crypto/tokens", { credentials: "include" }),
+        fetch("/api/crypto/user-tokens", { credentials: "include" }),
       ]);
 
       const profileData = await profileRes.json();
@@ -50,7 +50,7 @@ function CryptoMarket() {
   const fetchTransactionHistory = async () => {
     setIsRefreshingHistory(true);
     try {
-      const res = await fetch("/api/market/transaction-history", {
+      const res = await fetch("/api/crypto/transaction-history", {
         credentials: "include",
       });
       const data = await res.json();
@@ -83,11 +83,11 @@ function CryptoMarket() {
       .then((res) => res.json())
       .then(setProfile);
 
-    fetch("/api/market/tokens", { credentials: "include" })
+    fetch("/api/crypto/tokens", { credentials: "include" })
       .then((res) => res.json())
       .then(setTokens);
 
-    fetch("/api/market/user-tokens", { credentials: "include" })
+    fetch("/api/crypto/user-tokens", { credentials: "include" })
       .then((res) => res.json())
       .then((data) => setProfile((prev) => ({ ...prev, tokens: data })));
 
@@ -101,7 +101,7 @@ function CryptoMarket() {
 
   const fetchPortfolioHistory = async (range = "7d") => {
     try {
-      const res = await fetch(`/api/market/portfolio-history?range=${range}`, {
+      const res = await fetch(`/api/crypto/portfolio-history?range=${range}`, {
         credentials: "include",
       });
       const data = await res.json();

@@ -7,21 +7,21 @@ import { getCooldownStatus } from "../utils/crypto/isOnCooldown.js";
 export default function cryptoRoutes(db) {
   const router = express.Router();
 
-  // --- /api/market/tokens ---
-  router.get("/market/tokens", async (req, res) => {
+  // --- /api/crypto/tokens ---
+  router.get("/crypto/tokens", async (req, res) => {
     try {
       const result = await db.query(
         `SELECT id, name, symbol, total_supply, price_per_unit, description, available_supply, is_memecoin, crashed FROM crypto_tokens ORDER BY id ASC`
       );
       res.json(result.rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch market tokens: ${error}`);
+      logger.error(`❌ Failed to fetch crypto tokens: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
 
-  // --- /api/market/buy ---
-  router.post("/market/buy", async (req, res) => {
+  // --- /api/crypto/buy ---
+  router.post("/crypto/buy", async (req, res) => {
     const userId = req.cookies.user_session;
     const { tokenId, amount } = req.body;
 
@@ -135,8 +135,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/user-tokens ---
-  router.get("/market/user-tokens", async (req, res) => {
+  // --- /api/crypto/user-tokens ---
+  router.get("/crypto/user-tokens", async (req, res) => {
     const userId = req.cookies.user_session;
 
     if (!userId) {
@@ -166,7 +166,7 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  router.post("/market/sell", async (req, res) => {
+  router.post("/crypto/sell", async (req, res) => {
     const userId = req.cookies.user_session;
     const { tokenId, amount } = req.body;
 
@@ -267,8 +267,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/transaction-history ---
-  router.get("/market/transaction-history", async (req, res) => {
+  // --- /api/crypto/transaction-history ---
+  router.get("/crypto/transaction-history", async (req, res) => {
     const userId = req.cookies.user_session;
 
     if (!userId) {
@@ -303,8 +303,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/token-history/:tokenId ---
-  router.get("/market/token-history/:tokenId", async (req, res) => {
+  // --- /api/crypto/token-history/:tokenId ---
+  router.get("/crypto/token-history/:tokenId", async (req, res) => {
     const tokenId = req.params.tokenId;
     const range = req.query.range || "all";
 
@@ -369,8 +369,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/portfolio-history ---
-  router.get("/market/portfolio-history", async (req, res) => {
+  // --- /api/crypto/portfolio-history ---
+  router.get("/crypto/portfolio-history", async (req, res) => {
     const userId = req.cookies.user_session;
     const range = req.query.range || "30d";
 
@@ -409,8 +409,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/token-distribution/:tokenId ---
-  router.get("/market/token-distribution/:tokenId", async (req, res) => {
+  // --- /api/crypto/token-distribution/:tokenId ---
+  router.get("/crypto/token-distribution/:tokenId", async (req, res) => {
     const tokenId = req.params.tokenId;
 
     try {
@@ -432,8 +432,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/token-history-by-symbol/:symbol ---
-  router.get("/market/token-history-by-symbol/:symbol", async (req, res) => {
+  // --- /api/crypto/token-history-by-symbol/:symbol ---
+  router.get("/crypto/token-history-by-symbol/:symbol", async (req, res) => {
     const symbol = req.params.symbol;
     const range = req.query.range || "all";
 
@@ -514,8 +514,8 @@ export default function cryptoRoutes(db) {
     }
   });
 
-  // --- /api/market/tvl/:tokenId ---
-  router.get("/market/tvl/:tokenId", async (req, res) => {
+  // --- /api/crypto/tvl/:tokenId ---
+  router.get("/crypto/tvl/:tokenId", async (req, res) => {
     const tokenId = req.params.tokenId;
 
     try {

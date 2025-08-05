@@ -32,9 +32,9 @@ function TokenChartPage() {
     const fetchData = async () => {
       try {
         const [tokensRes, historyRes] = await Promise.all([
-          fetch("/api/market/tokens", { credentials: "include" }),
+          fetch("/api/crypto/tokens", { credentials: "include" }),
           fetch(
-            `/api/market/token-history-by-symbol/${symbol}?range=${range}`,
+            `/api/crypto/token-history-by-symbol/${symbol}?range=${range}`,
             {
               credentials: "include",
             }
