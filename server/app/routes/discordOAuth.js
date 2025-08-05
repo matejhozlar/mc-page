@@ -11,18 +11,18 @@ export default function discordOAuthRoutes(db) {
     return process.env[fullKey];
   }
 
-  // --- /api//discord/callback-market ---
-  router.post("/discord/callback-market", async (req, res) => {
+  // --- /api//discord/callback-crypto ---
+  router.post("/discord/callback-crypto", async (req, res) => {
     const code = req.body.code;
 
-    const redirectUri = getRedirectUri("MARKET_LOGIN_REDIRECT_URI");
+    const redirectUri = getRedirectUri("CRYPTO_LOGIN_REDIRECT_URI");
 
     try {
       const tokenRes = await axios.post(
         "https://discord.com/api/oauth2/token",
         new URLSearchParams({
-          client_id: process.env.MARKET_LOGIN_CLIENT_ID,
-          client_secret: process.env.MARKET_LOGIN_CLIENT_SECRET,
+          client_id: process.env.CRYPTO_LOGIN_CLIENT_ID,
+          client_secret: process.env.CRYPTO_LOGIN_CLIENT_SECRET,
           grant_type: "authorization_code",
           code,
           redirect_uri: redirectUri,
