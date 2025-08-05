@@ -3,8 +3,12 @@ import logger from "../../logger.js";
 import dotenv from "dotenv";
 import { announceLotteryStart } from "../../app/utils/currency/announceLotteryStart.js";
 import { startLotteryResolver } from "../../app/utils/currency/lotteryResolver.js";
+import config from "../../config/index.js";
 
 dotenv.config();
+
+let LAST_LOTTERY_TIME = 0;
+const { LOTTERY_COOLDOWN_MS } = config.currency;
 
 export const data = new SlashCommandBuilder()
   .setName("lottery")
@@ -19,6 +23,19 @@ export const data = new SlashCommandBuilder()
 export const prodOnly = true;
 
 export async function execute(interaction, db) {
+  const now = Date.now();
+  if (now - LAST_LOTTERY_TIME < LOTTERY_COOLDOWN_MS) {
+    const remaining = Math.ceil(
+      (LOTTERY_COOLDOWN_MS - (now - LAST_LOTTERY_TIME)) / 1000
+    );
+    const minutes = Math.floor(remaining / 60);
+    const seconds = remaining % 60;
+    return await interaction.reply({
+      content: `⏳ A lottery was recently started. Please wait ${minutes}m ${seconds}s before starting another one.`,
+      flags: MessageFlags.Ephemeral,
+    });
+  }
+
   const discordId = interaction.user.id;
   const amount = interaction.options.getInteger("amount");
 
@@ -91,6 +108,7 @@ export async function execute(interaction, db) {
     startLotteryResolver(db).catch((err) =>
       logger.error("❌ startLotteryResolver failed:", err)
     );
+    LAST_LOTTERY_TIME = Date.now();
   } catch (error) {
     await client.query("ROLLBACK");
     logger.error(`❌ /lottery command failed: ${error}`);

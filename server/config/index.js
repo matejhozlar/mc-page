@@ -4,6 +4,7 @@ import uiColors from "./uiColors.js";
 import stablecoins from "./stablecoins.js";
 import db from "./db.js";
 import daily from "./daily.js";
+import currency from "./currency.js";
 
 export default {
   memecoins,
@@ -12,4 +13,5 @@ export default {
   stablecoins,
   db,
   daily,
+  currency,
 };
