@@ -17,7 +17,12 @@ const {
   FLOOR_PRICE,
 } = config.stablecoins;
 
-export async function updateStableCoinPrice(db, interval, tokenSymbol) {
+export async function updateStableCoinPrice(
+  db,
+  interval,
+  tokenSymbol,
+  io = null
+) {
   try {
     const { rows } = await db.query(
       `SELECT id, price_per_unit FROM crypto_tokens WHERE symbol = $1 LIMIT 1`,
@@ -73,6 +78,19 @@ export async function updateStableCoinPrice(db, interval, tokenSymbol) {
         `UPDATE crypto_tokens SET price_per_unit = $1 WHERE id = $2`,
         [newPrice, tokenId]
       );
+
+      if (io && interval === "minutes") {
+        const {
+          rows: [updatedToken],
+        } = await db.query(
+          `SELECT id, name, symbol, price_per_unit, available_supply, crashed
+            FROM crypto_tokens
+            WHERE id = $1`,
+          [tokenId]
+        );
+
+        io.emit("token:update", updatedToken);
+      }
 
       const changeStr =
         delta > 0

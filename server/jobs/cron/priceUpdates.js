@@ -15,7 +15,7 @@ export function schedulePriceUpdates(db, clientBot, io) {
 
   // Every 10 minutes — Minutes Snapshot
   cron.schedule("*/10 * * * *", () => {
-    updateStableCoinPrice(db, "minutes", "RGC");
+    updateStableCoinPrice(db, "minutes", "RGC", io);
   });
 
   // Every hour at minute 1 — Hourly Snapshot
