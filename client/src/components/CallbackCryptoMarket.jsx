@@ -6,7 +6,7 @@ const CallbackCryptoMarket = () => {
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
-    fetch("/api/discord/callback-market", {
+    fetch("/api/discord/callback-crypto", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code }),
@@ -17,8 +17,8 @@ const CallbackCryptoMarket = () => {
         return res.json();
       })
       .then(() => {
-        window.history.replaceState({}, document.title, "/market");
-        window.location.href = "/market";
+        window.history.replaceState({}, document.title, "/crypto");
+        window.location.href = "/crypto";
       })
       .catch(() => {
         alert("Login failed or unauthorized.");

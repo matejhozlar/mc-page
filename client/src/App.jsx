@@ -81,9 +81,9 @@ function AppWithRouter() {
               <Route path="/callback" element={<Callback />} />
               <Route path="/game" element={<ClickerGame />} />
               <Route path="/callback-game" element={<CallbackGame />} />
-              <Route path="/market" element={<CryptoMarket />} />
+              <Route path="/crypto" element={<CryptoMarket />} />
               <Route
-                path="/callback-market"
+                path="/callback-crypto"
                 element={<CallbackCryptoMarket />}
               />
               <Route path="/chart/:symbol" element={<TokenChartPage />} />
