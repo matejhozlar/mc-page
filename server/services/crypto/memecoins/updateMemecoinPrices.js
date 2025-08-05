@@ -18,7 +18,7 @@ import config from "../../../config/index.js";
  * - Cleans up excess history entries
  *
  * @param {import("pg").Pool} db - PostgreSQL pool instance used for DB operations.
- * @param {import("discord.js").Client} client - Discord client instance used for sending DMs to users.
+ * @param {import("discord.js").Client} clientBot - Discord client instance used for sending DMs to users.
  * @returns {Promise<void>}
  */
 const { UPWARD_BIAS, VOLATILITY, CRASH_PRICE_THRESHOLD } = config.memecoins;
@@ -27,7 +27,7 @@ const { LOW, MID, HIGH } = VOLATILITY;
 const PRICE_DECIMALS = 4;
 const ALERT_DM_DELAY_MS = 300;
 
-export async function updateMemecoinPrices(db, client) {
+export async function updateMemecoinPrices(db, clientBot, io) {
   try {
     const { rows: tokens } = await db.query(
       `SELECT id, price_per_unit FROM crypto_tokens WHERE is_memecoin = true AND price_per_unit > 0`
@@ -66,7 +66,7 @@ export async function updateMemecoinPrices(db, client) {
 
         for (const alert of alerts) {
           try {
-            const user = await client.users.fetch(alert.discord_id);
+            const user = await clientBot.users.fetch(alert.discord_id);
             await user.send(
               `💀 Your alert for **${crashedToken.symbol}** has been cancelled — the token has **auto-crashed to $0**.`
             );
@@ -116,6 +116,18 @@ export async function updateMemecoinPrices(db, client) {
         [newPrice.toFixed(PRICE_DECIMALS), id]
       );
 
+      if (newPrice.toFixed(PRICE_DECIMALS) !== price.toFixed(PRICE_DECIMALS)) {
+        const {
+          rows: [updatedToken],
+        } = await db.query(
+          `SELECT id, name, symbol, price_per_unit, available_supply, crashed
+     FROM crypto_tokens
+     WHERE id = $1`,
+          [id]
+        );
+        io.emit("token:update", updatedToken);
+      }
+
       await db.query(
         `INSERT INTO token_price_history_minutes (token_id, price, recorded_at)
          VALUES ($1, $2, NOW())`,
@@ -140,7 +152,7 @@ export async function updateMemecoinPrices(db, client) {
 
       for (const alert of triggeredAlerts) {
         try {
-          const user = await client.users.fetch(alert.discord_id);
+          const user = await clientBot.users.fetch(alert.discord_id);
           const triggerDirectionText =
             alert.direction === "below" ? "dropped below" : "reached";
           const embed = new EmbedBuilder()

@@ -86,7 +86,7 @@ startStatSyncScheduler(db, serverIP, serverPort);
 startPlaytimeTracking(db, serverIP, serverPort);
 
 // ─── Launch Cron Jobs ────────────────────────────────────
-setupCronJobs(db, clientBot, webBot);
+setupCronJobs(db, clientBot, webBot, io);
 
 // ─── Setup WebSocket Channels ────────────────────────────
 setupSocketIO(io, db, clientBot, webBot);

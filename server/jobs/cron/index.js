@@ -15,7 +15,7 @@ import logger from "../../logger.js";
  * @param {import('discord.js').Client} clientBot - The main Discord bot client.
  * @param {import('discord.js').Client} webBot - A secondary Discord bot client (used for web interactions or specific events).
  */
-export function setupCronJobs(db, clientBot, webBot) {
+export function setupCronJobs(db, clientBot, webBot, io) {
   try {
     scheduleReminders(webBot);
   } catch (error) {
@@ -29,7 +29,7 @@ export function setupCronJobs(db, clientBot, webBot) {
   }
 
   try {
-    schedulePriceUpdates(db, clientBot);
+    schedulePriceUpdates(db, clientBot, io);
   } catch (error) {
     logger.error("❌ Failed to schedulePriceUpdates:", error);
   }

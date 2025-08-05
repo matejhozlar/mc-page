@@ -10,6 +10,9 @@ import PortfolioHistoryChart from "./PortfolioHistoryChart.jsx";
 import Games from "./Games.jsx";
 import LoadingSpinner from "./LoadingSpinner.jsx";
 
+// hooks
+import useTokenUpdates from "../hooks/market/useTokenUpdates.js";
+
 function Market() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,6 +25,8 @@ function Market() {
   const [portfolioHistory, setPortfolioHistory] = useState([]);
   const [portfolioRange, setPortfolioRange] = useState("7d");
   const [animatedBalance, setAnimatedBalance] = useState(0);
+
+  useTokenUpdates(setTokens);
 
   const fetchFreshData = async () => {
     try {
@@ -110,18 +115,6 @@ function Market() {
     if (!isLoggedIn) return;
     fetchPortfolioHistory(portfolioRange);
   }, [isLoggedIn, portfolioRange]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      fetch("/api/market/tokens", { credentials: "include" })
-        .then((res) => res.json())
-        .then(setTokens)
-        .catch((err) =>
-          console.error("❌ Failed to refresh token prices:", err)
-        );
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   function calculatePortfolioValue(userTokens = [], marketTokens = []) {
     if (!Array.isArray(userTokens)) return "0.00";

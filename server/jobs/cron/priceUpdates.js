@@ -7,10 +7,10 @@ import { updateMemecoinPrices } from "../../services/crypto/memecoins/updateMeme
  *
  * @param {import("pg").Pool} db - PostgreSQL connection pool instance.
  */
-export function schedulePriceUpdates(db) {
+export function schedulePriceUpdates(db, clientBot, io) {
   // Every 30 seconds — Memecoin price update
   cron.schedule("*/30 * * * * *", () => {
-    updateMemecoinPrices(db);
+    updateMemecoinPrices(db, clientBot, io);
   });
 
   // Every 10 minutes — Minutes Snapshot
