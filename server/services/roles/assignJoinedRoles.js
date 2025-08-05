@@ -81,7 +81,7 @@ export async function assignMembershipDurationRoles(db, clientBot) {
       );
 
       const channel = guild.channels.cache.get(
-        process.env.DISCORD_ANNOUNCEMENTS_CHANNEL_ID
+        process.env.DISCORD_HALL_OF_FAME_CHANNEL_ID
       );
       if (channel?.isTextBased()) {
         await channel.send(
