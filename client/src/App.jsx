@@ -8,6 +8,7 @@ import {
 
 // components
 import Sidebar from "./components/Sidebar.jsx";
+import SidebarProvider from "./components/SidebarProvider.jsx";
 import MobileNav from "./components/MobileNav.jsx";
 import OnlinePlayers from "./components/OnlinePlayers.jsx";
 import ServerChat from "./components/ServerChat.jsx";
@@ -37,7 +38,9 @@ import Market from "./components/Market.jsx";
 function App() {
   return (
     <Router>
-      <AppWithRouter />
+      <SidebarProvider>
+        <AppWithRouter />
+      </SidebarProvider>
     </Router>
   );
 }
