@@ -17,7 +17,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: insert_user_funds(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: insert_user_funds(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.insert_user_funds() RETURNS trigger
@@ -33,8 +33,10 @@ END;
 $$;
 
 
+ALTER FUNCTION public.insert_user_funds() OWNER TO postgres;
+
 --
--- Name: sync_user_funds(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: sync_user_funds(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
 CREATE FUNCTION public.sync_user_funds() RETURNS trigger
@@ -51,12 +53,14 @@ END;
 $$;
 
 
+ALTER FUNCTION public.sync_user_funds() OWNER TO postgres;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: admins; Type: TABLE; Schema: public; Owner: -
+-- Name: admins; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.admins (
@@ -67,8 +71,10 @@ CREATE TABLE public.admins (
 );
 
 
+ALTER TABLE public.admins OWNER TO postgres;
+
 --
--- Name: admins_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: admins_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.admins_id_seq
@@ -80,15 +86,17 @@ CREATE SEQUENCE public.admins_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.admins_id_seq OWNER TO postgres;
+
 --
--- Name: admins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: admins_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.admins_id_seq OWNED BY public.admins.id;
 
 
 --
--- Name: ai_message_log; Type: TABLE; Schema: public; Owner: -
+-- Name: ai_message_log; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.ai_message_log (
@@ -99,8 +107,10 @@ CREATE TABLE public.ai_message_log (
 );
 
 
+ALTER TABLE public.ai_message_log OWNER TO postgres;
+
 --
--- Name: ai_message_log_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: ai_message_log_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.ai_message_log_id_seq
@@ -112,15 +122,17 @@ CREATE SEQUENCE public.ai_message_log_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.ai_message_log_id_seq OWNER TO postgres;
+
 --
--- Name: ai_message_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: ai_message_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.ai_message_log_id_seq OWNED BY public.ai_message_log.id;
 
 
 --
--- Name: applications; Type: TABLE; Schema: public; Owner: -
+-- Name: applications; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.applications (
@@ -135,8 +147,10 @@ CREATE TABLE public.applications (
 );
 
 
+ALTER TABLE public.applications OWNER TO postgres;
+
 --
--- Name: applications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: applications_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.applications_id_seq
@@ -148,15 +162,17 @@ CREATE SEQUENCE public.applications_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.applications_id_seq OWNER TO postgres;
+
 --
--- Name: applications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: applications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.applications_id_seq OWNED BY public.applications.id;
 
 
 --
--- Name: chat_tokens; Type: TABLE; Schema: public; Owner: -
+-- Name: chat_tokens; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.chat_tokens (
@@ -167,8 +183,10 @@ CREATE TABLE public.chat_tokens (
 );
 
 
+ALTER TABLE public.chat_tokens OWNER TO postgres;
+
 --
--- Name: clicker_game_data; Type: TABLE; Schema: public; Owner: -
+-- Name: clicker_game_data; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.clicker_game_data (
@@ -188,8 +206,10 @@ CREATE TABLE public.clicker_game_data (
 );
 
 
+ALTER TABLE public.clicker_game_data OWNER TO postgres;
+
 --
--- Name: crypto_tokens; Type: TABLE; Schema: public; Owner: -
+-- Name: crypto_tokens; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.crypto_tokens (
@@ -205,8 +225,10 @@ CREATE TABLE public.crypto_tokens (
 );
 
 
+ALTER TABLE public.crypto_tokens OWNER TO postgres;
+
 --
--- Name: crypto_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: crypto_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.crypto_tokens_id_seq
@@ -218,15 +240,17 @@ CREATE SEQUENCE public.crypto_tokens_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.crypto_tokens_id_seq OWNER TO postgres;
+
 --
--- Name: crypto_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: crypto_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.crypto_tokens_id_seq OWNED BY public.crypto_tokens.id;
 
 
 --
--- Name: currency_transactions; Type: TABLE; Schema: public; Owner: -
+-- Name: currency_transactions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.currency_transactions (
@@ -245,8 +269,10 @@ CREATE TABLE public.currency_transactions (
 );
 
 
+ALTER TABLE public.currency_transactions OWNER TO postgres;
+
 --
--- Name: currency_transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: currency_transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.currency_transactions_id_seq
@@ -258,15 +284,17 @@ CREATE SEQUENCE public.currency_transactions_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.currency_transactions_id_seq OWNER TO postgres;
+
 --
--- Name: currency_transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: currency_transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.currency_transactions_id_seq OWNED BY public.currency_transactions.id;
 
 
 --
--- Name: daily_player_stats; Type: TABLE; Schema: public; Owner: -
+-- Name: daily_player_stats; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.daily_player_stats (
@@ -278,8 +306,10 @@ CREATE TABLE public.daily_player_stats (
 );
 
 
+ALTER TABLE public.daily_player_stats OWNER TO postgres;
+
 --
--- Name: daily_playtime; Type: TABLE; Schema: public; Owner: -
+-- Name: daily_playtime; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.daily_playtime (
@@ -289,8 +319,10 @@ CREATE TABLE public.daily_playtime (
 );
 
 
+ALTER TABLE public.daily_playtime OWNER TO postgres;
+
 --
--- Name: daily_rewards; Type: TABLE; Schema: public; Owner: -
+-- Name: daily_rewards; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.daily_rewards (
@@ -299,8 +331,10 @@ CREATE TABLE public.daily_rewards (
 );
 
 
+ALTER TABLE public.daily_rewards OWNER TO postgres;
+
 --
--- Name: daily_shared_quests; Type: TABLE; Schema: public; Owner: -
+-- Name: daily_shared_quests; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.daily_shared_quests (
@@ -315,8 +349,10 @@ CREATE TABLE public.daily_shared_quests (
 );
 
 
+ALTER TABLE public.daily_shared_quests OWNER TO postgres;
+
 --
--- Name: daily_shared_quests_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: daily_shared_quests_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.daily_shared_quests_id_seq
@@ -328,15 +364,17 @@ CREATE SEQUENCE public.daily_shared_quests_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.daily_shared_quests_id_seq OWNER TO postgres;
+
 --
--- Name: daily_shared_quests_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: daily_shared_quests_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.daily_shared_quests_id_seq OWNED BY public.daily_shared_quests.id;
 
 
 --
--- Name: job_history; Type: TABLE; Schema: public; Owner: -
+-- Name: job_history; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.job_history (
@@ -346,8 +384,10 @@ CREATE TABLE public.job_history (
 );
 
 
+ALTER TABLE public.job_history OWNER TO postgres;
+
 --
--- Name: job_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: job_history_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.job_history_id_seq
@@ -359,15 +399,17 @@ CREATE SEQUENCE public.job_history_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.job_history_id_seq OWNER TO postgres;
+
 --
--- Name: job_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: job_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.job_history_id_seq OWNED BY public.job_history.id;
 
 
 --
--- Name: leaderboard_messages; Type: TABLE; Schema: public; Owner: -
+-- Name: leaderboard_messages; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.leaderboard_messages (
@@ -378,8 +420,10 @@ CREATE TABLE public.leaderboard_messages (
 );
 
 
+ALTER TABLE public.leaderboard_messages OWNER TO postgres;
+
 --
--- Name: leaderboard_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: leaderboard_messages_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.leaderboard_messages_id_seq
@@ -391,15 +435,17 @@ CREATE SEQUENCE public.leaderboard_messages_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.leaderboard_messages_id_seq OWNER TO postgres;
+
 --
--- Name: leaderboard_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: leaderboard_messages_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.leaderboard_messages_id_seq OWNED BY public.leaderboard_messages.id;
 
 
 --
--- Name: lottery_participants; Type: TABLE; Schema: public; Owner: -
+-- Name: lottery_participants; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.lottery_participants (
@@ -412,8 +458,10 @@ CREATE TABLE public.lottery_participants (
 );
 
 
+ALTER TABLE public.lottery_participants OWNER TO postgres;
+
 --
--- Name: lottery_participants_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: lottery_participants_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.lottery_participants_id_seq
@@ -425,15 +473,17 @@ CREATE SEQUENCE public.lottery_participants_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.lottery_participants_id_seq OWNER TO postgres;
+
 --
--- Name: lottery_participants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: lottery_participants_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.lottery_participants_id_seq OWNED BY public.lottery_participants.id;
 
 
 --
--- Name: memecoin_tax_tracker; Type: TABLE; Schema: public; Owner: -
+-- Name: memecoin_tax_tracker; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.memecoin_tax_tracker (
@@ -442,8 +492,10 @@ CREATE TABLE public.memecoin_tax_tracker (
 );
 
 
+ALTER TABLE public.memecoin_tax_tracker OWNER TO postgres;
+
 --
--- Name: memecoin_tax_tracker_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: memecoin_tax_tracker_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.memecoin_tax_tracker_id_seq
@@ -455,15 +507,17 @@ CREATE SEQUENCE public.memecoin_tax_tracker_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.memecoin_tax_tracker_id_seq OWNER TO postgres;
+
 --
--- Name: memecoin_tax_tracker_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: memecoin_tax_tracker_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.memecoin_tax_tracker_id_seq OWNED BY public.memecoin_tax_tracker.id;
 
 
 --
--- Name: mob_limit_reached; Type: TABLE; Schema: public; Owner: -
+-- Name: mob_limit_reached; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.mob_limit_reached (
@@ -472,8 +526,10 @@ CREATE TABLE public.mob_limit_reached (
 );
 
 
+ALTER TABLE public.mob_limit_reached OWNER TO postgres;
+
 --
--- Name: player_stats; Type: TABLE; Schema: public; Owner: -
+-- Name: player_stats; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.player_stats (
@@ -485,8 +541,10 @@ CREATE TABLE public.player_stats (
 );
 
 
+ALTER TABLE public.player_stats OWNER TO postgres;
+
 --
--- Name: rcon_logs; Type: TABLE; Schema: public; Owner: -
+-- Name: rcon_logs; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.rcon_logs (
@@ -498,8 +556,10 @@ CREATE TABLE public.rcon_logs (
 );
 
 
+ALTER TABLE public.rcon_logs OWNER TO postgres;
+
 --
--- Name: rcon_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: rcon_logs_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.rcon_logs_id_seq
@@ -511,15 +571,17 @@ CREATE SEQUENCE public.rcon_logs_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.rcon_logs_id_seq OWNER TO postgres;
+
 --
--- Name: rcon_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: rcon_logs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.rcon_logs_id_seq OWNED BY public.rcon_logs.id;
 
 
 --
--- Name: server_playtime_snapshots; Type: TABLE; Schema: public; Owner: -
+-- Name: server_playtime_snapshots; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.server_playtime_snapshots (
@@ -529,8 +591,10 @@ CREATE TABLE public.server_playtime_snapshots (
 );
 
 
+ALTER TABLE public.server_playtime_snapshots OWNER TO postgres;
+
 --
--- Name: server_playtime_snapshots_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: server_playtime_snapshots_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.server_playtime_snapshots_id_seq
@@ -542,15 +606,17 @@ CREATE SEQUENCE public.server_playtime_snapshots_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.server_playtime_snapshots_id_seq OWNER TO postgres;
+
 --
--- Name: server_playtime_snapshots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: server_playtime_snapshots_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.server_playtime_snapshots_id_seq OWNED BY public.server_playtime_snapshots.id;
 
 
 --
--- Name: ticket_counter; Type: TABLE; Schema: public; Owner: -
+-- Name: ticket_counter; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.ticket_counter (
@@ -559,8 +625,10 @@ CREATE TABLE public.ticket_counter (
 );
 
 
+ALTER TABLE public.ticket_counter OWNER TO postgres;
+
 --
--- Name: ticket_counter_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: ticket_counter_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.ticket_counter_id_seq
@@ -572,15 +640,17 @@ CREATE SEQUENCE public.ticket_counter_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.ticket_counter_id_seq OWNER TO postgres;
+
 --
--- Name: ticket_counter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: ticket_counter_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.ticket_counter_id_seq OWNED BY public.ticket_counter.id;
 
 
 --
--- Name: tickets; Type: TABLE; Schema: public; Owner: -
+-- Name: tickets; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.tickets (
@@ -596,8 +666,10 @@ CREATE TABLE public.tickets (
 );
 
 
+ALTER TABLE public.tickets OWNER TO postgres;
+
 --
--- Name: tickets_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: tickets_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.tickets_id_seq
@@ -609,15 +681,17 @@ CREATE SEQUENCE public.tickets_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.tickets_id_seq OWNER TO postgres;
+
 --
--- Name: tickets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: tickets_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.tickets_id_seq OWNED BY public.tickets.id;
 
 
 --
--- Name: token_metrics; Type: TABLE; Schema: public; Owner: -
+-- Name: token_metrics; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_metrics (
@@ -629,8 +703,10 @@ CREATE TABLE public.token_metrics (
 );
 
 
+ALTER TABLE public.token_metrics OWNER TO postgres;
+
 --
--- Name: token_metrics_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_metrics_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_metrics_id_seq
@@ -642,15 +718,17 @@ CREATE SEQUENCE public.token_metrics_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_metrics_id_seq OWNER TO postgres;
+
 --
--- Name: token_metrics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_metrics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_metrics_id_seq OWNED BY public.token_metrics.id;
 
 
 --
--- Name: token_price_alerts; Type: TABLE; Schema: public; Owner: -
+-- Name: token_price_alerts; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_price_alerts (
@@ -663,8 +741,10 @@ CREATE TABLE public.token_price_alerts (
 );
 
 
+ALTER TABLE public.token_price_alerts OWNER TO postgres;
+
 --
--- Name: token_price_alerts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_price_alerts_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_price_alerts_id_seq
@@ -676,15 +756,17 @@ CREATE SEQUENCE public.token_price_alerts_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_price_alerts_id_seq OWNER TO postgres;
+
 --
--- Name: token_price_alerts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_price_alerts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_price_alerts_id_seq OWNED BY public.token_price_alerts.id;
 
 
 --
--- Name: token_price_history_daily; Type: TABLE; Schema: public; Owner: -
+-- Name: token_price_history_daily; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_price_history_daily (
@@ -695,8 +777,10 @@ CREATE TABLE public.token_price_history_daily (
 );
 
 
+ALTER TABLE public.token_price_history_daily OWNER TO postgres;
+
 --
--- Name: token_price_history_daily_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_price_history_daily_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_price_history_daily_id_seq
@@ -708,15 +792,17 @@ CREATE SEQUENCE public.token_price_history_daily_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_price_history_daily_id_seq OWNER TO postgres;
+
 --
--- Name: token_price_history_daily_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_price_history_daily_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_price_history_daily_id_seq OWNED BY public.token_price_history_daily.id;
 
 
 --
--- Name: token_price_history_hourly; Type: TABLE; Schema: public; Owner: -
+-- Name: token_price_history_hourly; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_price_history_hourly (
@@ -727,8 +813,10 @@ CREATE TABLE public.token_price_history_hourly (
 );
 
 
+ALTER TABLE public.token_price_history_hourly OWNER TO postgres;
+
 --
--- Name: token_price_history_hourly_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_price_history_hourly_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_price_history_hourly_id_seq
@@ -740,15 +828,17 @@ CREATE SEQUENCE public.token_price_history_hourly_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_price_history_hourly_id_seq OWNER TO postgres;
+
 --
--- Name: token_price_history_hourly_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_price_history_hourly_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_price_history_hourly_id_seq OWNED BY public.token_price_history_hourly.id;
 
 
 --
--- Name: token_price_history_minutes; Type: TABLE; Schema: public; Owner: -
+-- Name: token_price_history_minutes; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_price_history_minutes (
@@ -759,8 +849,10 @@ CREATE TABLE public.token_price_history_minutes (
 );
 
 
+ALTER TABLE public.token_price_history_minutes OWNER TO postgres;
+
 --
--- Name: token_price_history_minutes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_price_history_minutes_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_price_history_minutes_id_seq
@@ -772,15 +864,17 @@ CREATE SEQUENCE public.token_price_history_minutes_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_price_history_minutes_id_seq OWNER TO postgres;
+
 --
--- Name: token_price_history_minutes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_price_history_minutes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_price_history_minutes_id_seq OWNED BY public.token_price_history_minutes.id;
 
 
 --
--- Name: token_price_history_weekly; Type: TABLE; Schema: public; Owner: -
+-- Name: token_price_history_weekly; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_price_history_weekly (
@@ -791,8 +885,10 @@ CREATE TABLE public.token_price_history_weekly (
 );
 
 
+ALTER TABLE public.token_price_history_weekly OWNER TO postgres;
+
 --
--- Name: token_price_history_weekly_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_price_history_weekly_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_price_history_weekly_id_seq
@@ -804,15 +900,17 @@ CREATE SEQUENCE public.token_price_history_weekly_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_price_history_weekly_id_seq OWNER TO postgres;
+
 --
--- Name: token_price_history_weekly_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_price_history_weekly_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_price_history_weekly_id_seq OWNED BY public.token_price_history_weekly.id;
 
 
 --
--- Name: token_transactions; Type: TABLE; Schema: public; Owner: -
+-- Name: token_transactions; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.token_transactions (
@@ -827,8 +925,10 @@ CREATE TABLE public.token_transactions (
 );
 
 
+ALTER TABLE public.token_transactions OWNER TO postgres;
+
 --
--- Name: token_transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: token_transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.token_transactions_id_seq
@@ -840,15 +940,17 @@ CREATE SEQUENCE public.token_transactions_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.token_transactions_id_seq OWNER TO postgres;
+
 --
--- Name: token_transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: token_transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.token_transactions_id_seq OWNED BY public.token_transactions.id;
 
 
 --
--- Name: user_funds; Type: TABLE; Schema: public; Owner: -
+-- Name: user_funds; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.user_funds (
@@ -860,8 +962,10 @@ CREATE TABLE public.user_funds (
 );
 
 
+ALTER TABLE public.user_funds OWNER TO postgres;
+
 --
--- Name: user_portfolio_history; Type: TABLE; Schema: public; Owner: -
+-- Name: user_portfolio_history; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.user_portfolio_history (
@@ -872,8 +976,10 @@ CREATE TABLE public.user_portfolio_history (
 );
 
 
+ALTER TABLE public.user_portfolio_history OWNER TO postgres;
+
 --
--- Name: user_portfolio_history_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: user_portfolio_history_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.user_portfolio_history_id_seq
@@ -885,15 +991,17 @@ CREATE SEQUENCE public.user_portfolio_history_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.user_portfolio_history_id_seq OWNER TO postgres;
+
 --
--- Name: user_portfolio_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: user_portfolio_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.user_portfolio_history_id_seq OWNED BY public.user_portfolio_history.id;
 
 
 --
--- Name: user_tokens; Type: TABLE; Schema: public; Owner: -
+-- Name: user_tokens; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.user_tokens (
@@ -904,8 +1012,10 @@ CREATE TABLE public.user_tokens (
 );
 
 
+ALTER TABLE public.user_tokens OWNER TO postgres;
+
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.users (
@@ -920,8 +1030,10 @@ CREATE TABLE public.users (
 );
 
 
+ALTER TABLE public.users OWNER TO postgres;
+
 --
--- Name: verified_discords; Type: TABLE; Schema: public; Owner: -
+-- Name: verified_discords; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.verified_discords (
@@ -929,8 +1041,45 @@ CREATE TABLE public.verified_discords (
 );
 
 
+ALTER TABLE public.verified_discords OWNER TO postgres;
+
 --
--- Name: waitlist_emails; Type: TABLE; Schema: public; Owner: -
+-- Name: visits; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.visits (
+    id integer NOT NULL,
+    date date DEFAULT CURRENT_DATE NOT NULL,
+    count integer DEFAULT 1 NOT NULL
+);
+
+
+ALTER TABLE public.visits OWNER TO postgres;
+
+--
+-- Name: visits_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.visits_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.visits_id_seq OWNER TO postgres;
+
+--
+-- Name: visits_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.visits_id_seq OWNED BY public.visits.id;
+
+
+--
+-- Name: waitlist_emails; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.waitlist_emails (
@@ -942,8 +1091,10 @@ CREATE TABLE public.waitlist_emails (
 );
 
 
+ALTER TABLE public.waitlist_emails OWNER TO postgres;
+
 --
--- Name: waitlist_emails_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: waitlist_emails_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE public.waitlist_emails_id_seq
@@ -955,176 +1106,185 @@ CREATE SEQUENCE public.waitlist_emails_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.waitlist_emails_id_seq OWNER TO postgres;
+
 --
--- Name: waitlist_emails_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: waitlist_emails_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
 --
 
 ALTER SEQUENCE public.waitlist_emails_id_seq OWNED BY public.waitlist_emails.id;
 
 
 --
--- Name: admins id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: admins id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.admins ALTER COLUMN id SET DEFAULT nextval('public.admins_id_seq'::regclass);
 
 
 --
--- Name: ai_message_log id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: ai_message_log id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.ai_message_log ALTER COLUMN id SET DEFAULT nextval('public.ai_message_log_id_seq'::regclass);
 
 
 --
--- Name: applications id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: applications id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.applications ALTER COLUMN id SET DEFAULT nextval('public.applications_id_seq'::regclass);
 
 
 --
--- Name: crypto_tokens id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: crypto_tokens id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.crypto_tokens ALTER COLUMN id SET DEFAULT nextval('public.crypto_tokens_id_seq'::regclass);
 
 
 --
--- Name: currency_transactions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: currency_transactions id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.currency_transactions ALTER COLUMN id SET DEFAULT nextval('public.currency_transactions_id_seq'::regclass);
 
 
 --
--- Name: daily_shared_quests id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: daily_shared_quests id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.daily_shared_quests ALTER COLUMN id SET DEFAULT nextval('public.daily_shared_quests_id_seq'::regclass);
 
 
 --
--- Name: job_history id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: job_history id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.job_history ALTER COLUMN id SET DEFAULT nextval('public.job_history_id_seq'::regclass);
 
 
 --
--- Name: leaderboard_messages id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: leaderboard_messages id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.leaderboard_messages ALTER COLUMN id SET DEFAULT nextval('public.leaderboard_messages_id_seq'::regclass);
 
 
 --
--- Name: lottery_participants id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: lottery_participants id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.lottery_participants ALTER COLUMN id SET DEFAULT nextval('public.lottery_participants_id_seq'::regclass);
 
 
 --
--- Name: memecoin_tax_tracker id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: memecoin_tax_tracker id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.memecoin_tax_tracker ALTER COLUMN id SET DEFAULT nextval('public.memecoin_tax_tracker_id_seq'::regclass);
 
 
 --
--- Name: rcon_logs id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: rcon_logs id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.rcon_logs ALTER COLUMN id SET DEFAULT nextval('public.rcon_logs_id_seq'::regclass);
 
 
 --
--- Name: server_playtime_snapshots id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: server_playtime_snapshots id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.server_playtime_snapshots ALTER COLUMN id SET DEFAULT nextval('public.server_playtime_snapshots_id_seq'::regclass);
 
 
 --
--- Name: ticket_counter id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: ticket_counter id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.ticket_counter ALTER COLUMN id SET DEFAULT nextval('public.ticket_counter_id_seq'::regclass);
 
 
 --
--- Name: tickets id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: tickets id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets ALTER COLUMN id SET DEFAULT nextval('public.tickets_id_seq'::regclass);
 
 
 --
--- Name: token_metrics id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_metrics id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_metrics ALTER COLUMN id SET DEFAULT nextval('public.token_metrics_id_seq'::regclass);
 
 
 --
--- Name: token_price_alerts id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_price_alerts id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_alerts ALTER COLUMN id SET DEFAULT nextval('public.token_price_alerts_id_seq'::regclass);
 
 
 --
--- Name: token_price_history_daily id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_price_history_daily id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_daily ALTER COLUMN id SET DEFAULT nextval('public.token_price_history_daily_id_seq'::regclass);
 
 
 --
--- Name: token_price_history_hourly id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_price_history_hourly id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_hourly ALTER COLUMN id SET DEFAULT nextval('public.token_price_history_hourly_id_seq'::regclass);
 
 
 --
--- Name: token_price_history_minutes id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_price_history_minutes id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_minutes ALTER COLUMN id SET DEFAULT nextval('public.token_price_history_minutes_id_seq'::regclass);
 
 
 --
--- Name: token_price_history_weekly id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_price_history_weekly id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_weekly ALTER COLUMN id SET DEFAULT nextval('public.token_price_history_weekly_id_seq'::regclass);
 
 
 --
--- Name: token_transactions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: token_transactions id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_transactions ALTER COLUMN id SET DEFAULT nextval('public.token_transactions_id_seq'::regclass);
 
 
 --
--- Name: user_portfolio_history id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: user_portfolio_history id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_portfolio_history ALTER COLUMN id SET DEFAULT nextval('public.user_portfolio_history_id_seq'::regclass);
 
 
 --
--- Name: waitlist_emails id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: visits id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.visits ALTER COLUMN id SET DEFAULT nextval('public.visits_id_seq'::regclass);
+
+
+--
+-- Name: waitlist_emails id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.waitlist_emails ALTER COLUMN id SET DEFAULT nextval('public.waitlist_emails_id_seq'::regclass);
 
 
 --
--- Name: admins admins_discord_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: admins admins_discord_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.admins
@@ -1132,7 +1292,7 @@ ALTER TABLE ONLY public.admins
 
 
 --
--- Name: admins admins_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: admins admins_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.admins
@@ -1140,7 +1300,7 @@ ALTER TABLE ONLY public.admins
 
 
 --
--- Name: ai_message_log ai_message_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: ai_message_log ai_message_log_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.ai_message_log
@@ -1148,7 +1308,7 @@ ALTER TABLE ONLY public.ai_message_log
 
 
 --
--- Name: applications applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: applications applications_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.applications
@@ -1156,7 +1316,7 @@ ALTER TABLE ONLY public.applications
 
 
 --
--- Name: chat_tokens chat_tokens_discord_id_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: chat_tokens chat_tokens_discord_id_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.chat_tokens
@@ -1164,7 +1324,7 @@ ALTER TABLE ONLY public.chat_tokens
 
 
 --
--- Name: chat_tokens chat_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: chat_tokens chat_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.chat_tokens
@@ -1172,7 +1332,7 @@ ALTER TABLE ONLY public.chat_tokens
 
 
 --
--- Name: clicker_game_data clicker_game_data_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: clicker_game_data clicker_game_data_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.clicker_game_data
@@ -1180,7 +1340,7 @@ ALTER TABLE ONLY public.clicker_game_data
 
 
 --
--- Name: crypto_tokens crypto_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: crypto_tokens crypto_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.crypto_tokens
@@ -1188,7 +1348,7 @@ ALTER TABLE ONLY public.crypto_tokens
 
 
 --
--- Name: crypto_tokens crypto_tokens_symbol_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: crypto_tokens crypto_tokens_symbol_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.crypto_tokens
@@ -1196,7 +1356,7 @@ ALTER TABLE ONLY public.crypto_tokens
 
 
 --
--- Name: currency_transactions currency_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: currency_transactions currency_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.currency_transactions
@@ -1204,7 +1364,7 @@ ALTER TABLE ONLY public.currency_transactions
 
 
 --
--- Name: daily_player_stats daily_player_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: daily_player_stats daily_player_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.daily_player_stats
@@ -1212,7 +1372,7 @@ ALTER TABLE ONLY public.daily_player_stats
 
 
 --
--- Name: daily_playtime daily_playtime_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: daily_playtime daily_playtime_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.daily_playtime
@@ -1220,7 +1380,7 @@ ALTER TABLE ONLY public.daily_playtime
 
 
 --
--- Name: daily_rewards daily_rewards_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: daily_rewards daily_rewards_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.daily_rewards
@@ -1228,7 +1388,7 @@ ALTER TABLE ONLY public.daily_rewards
 
 
 --
--- Name: daily_shared_quests daily_shared_quests_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: daily_shared_quests daily_shared_quests_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.daily_shared_quests
@@ -1236,7 +1396,7 @@ ALTER TABLE ONLY public.daily_shared_quests
 
 
 --
--- Name: daily_shared_quests daily_shared_quests_quest_date_quest_type_quest_key_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: daily_shared_quests daily_shared_quests_quest_date_quest_type_quest_key_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.daily_shared_quests
@@ -1244,7 +1404,7 @@ ALTER TABLE ONLY public.daily_shared_quests
 
 
 --
--- Name: job_history job_history_job_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: job_history job_history_job_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.job_history
@@ -1252,7 +1412,7 @@ ALTER TABLE ONLY public.job_history
 
 
 --
--- Name: job_history job_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: job_history job_history_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.job_history
@@ -1260,7 +1420,7 @@ ALTER TABLE ONLY public.job_history
 
 
 --
--- Name: leaderboard_messages leaderboard_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: leaderboard_messages leaderboard_messages_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.leaderboard_messages
@@ -1268,7 +1428,7 @@ ALTER TABLE ONLY public.leaderboard_messages
 
 
 --
--- Name: leaderboard_messages leaderboard_messages_type_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: leaderboard_messages leaderboard_messages_type_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.leaderboard_messages
@@ -1276,7 +1436,7 @@ ALTER TABLE ONLY public.leaderboard_messages
 
 
 --
--- Name: lottery_participants lottery_participants_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: lottery_participants lottery_participants_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.lottery_participants
@@ -1284,7 +1444,7 @@ ALTER TABLE ONLY public.lottery_participants
 
 
 --
--- Name: memecoin_tax_tracker memecoin_tax_tracker_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: memecoin_tax_tracker memecoin_tax_tracker_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.memecoin_tax_tracker
@@ -1292,7 +1452,7 @@ ALTER TABLE ONLY public.memecoin_tax_tracker
 
 
 --
--- Name: mob_limit_reached mob_limit_reached_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: mob_limit_reached mob_limit_reached_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.mob_limit_reached
@@ -1300,7 +1460,7 @@ ALTER TABLE ONLY public.mob_limit_reached
 
 
 --
--- Name: player_stats player_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: player_stats player_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.player_stats
@@ -1308,7 +1468,7 @@ ALTER TABLE ONLY public.player_stats
 
 
 --
--- Name: rcon_logs rcon_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: rcon_logs rcon_logs_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.rcon_logs
@@ -1316,7 +1476,7 @@ ALTER TABLE ONLY public.rcon_logs
 
 
 --
--- Name: server_playtime_snapshots server_playtime_snapshots_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: server_playtime_snapshots server_playtime_snapshots_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.server_playtime_snapshots
@@ -1324,7 +1484,7 @@ ALTER TABLE ONLY public.server_playtime_snapshots
 
 
 --
--- Name: ticket_counter ticket_counter_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: ticket_counter ticket_counter_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.ticket_counter
@@ -1332,7 +1492,7 @@ ALTER TABLE ONLY public.ticket_counter
 
 
 --
--- Name: tickets tickets_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: tickets tickets_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.tickets
@@ -1340,7 +1500,7 @@ ALTER TABLE ONLY public.tickets
 
 
 --
--- Name: token_metrics token_metrics_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_metrics token_metrics_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_metrics
@@ -1348,7 +1508,7 @@ ALTER TABLE ONLY public.token_metrics
 
 
 --
--- Name: token_price_alerts token_price_alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_alerts token_price_alerts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_alerts
@@ -1356,7 +1516,7 @@ ALTER TABLE ONLY public.token_price_alerts
 
 
 --
--- Name: token_price_history_daily token_price_history_daily_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_daily token_price_history_daily_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_daily
@@ -1364,7 +1524,7 @@ ALTER TABLE ONLY public.token_price_history_daily
 
 
 --
--- Name: token_price_history_hourly token_price_history_hourly_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_hourly token_price_history_hourly_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_hourly
@@ -1372,7 +1532,7 @@ ALTER TABLE ONLY public.token_price_history_hourly
 
 
 --
--- Name: token_price_history_minutes token_price_history_minutes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_minutes token_price_history_minutes_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_minutes
@@ -1380,7 +1540,7 @@ ALTER TABLE ONLY public.token_price_history_minutes
 
 
 --
--- Name: token_price_history_weekly token_price_history_weekly_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_weekly token_price_history_weekly_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_weekly
@@ -1388,7 +1548,7 @@ ALTER TABLE ONLY public.token_price_history_weekly
 
 
 --
--- Name: token_transactions token_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: token_transactions token_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_transactions
@@ -1396,7 +1556,7 @@ ALTER TABLE ONLY public.token_transactions
 
 
 --
--- Name: users unique_discord_id; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: users unique_discord_id; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.users
@@ -1404,7 +1564,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: user_funds user_funds_discord_id_unique; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_funds user_funds_discord_id_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_funds
@@ -1412,7 +1572,7 @@ ALTER TABLE ONLY public.user_funds
 
 
 --
--- Name: user_funds user_funds_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_funds user_funds_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_funds
@@ -1420,7 +1580,7 @@ ALTER TABLE ONLY public.user_funds
 
 
 --
--- Name: user_portfolio_history user_portfolio_history_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_portfolio_history user_portfolio_history_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_portfolio_history
@@ -1428,7 +1588,7 @@ ALTER TABLE ONLY public.user_portfolio_history
 
 
 --
--- Name: user_tokens user_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: user_tokens user_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_tokens
@@ -1436,7 +1596,7 @@ ALTER TABLE ONLY public.user_tokens
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.users
@@ -1444,7 +1604,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: verified_discords verified_discords_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: verified_discords verified_discords_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.verified_discords
@@ -1452,7 +1612,23 @@ ALTER TABLE ONLY public.verified_discords
 
 
 --
--- Name: waitlist_emails waitlist_emails_email_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: visits visits_date_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.visits
+    ADD CONSTRAINT visits_date_key UNIQUE (date);
+
+
+--
+-- Name: visits visits_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.visits
+    ADD CONSTRAINT visits_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: waitlist_emails waitlist_emails_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.waitlist_emails
@@ -1460,7 +1636,7 @@ ALTER TABLE ONLY public.waitlist_emails
 
 
 --
--- Name: waitlist_emails waitlist_emails_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: waitlist_emails waitlist_emails_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.waitlist_emails
@@ -1468,35 +1644,35 @@ ALTER TABLE ONLY public.waitlist_emails
 
 
 --
--- Name: idx_user_tokens_discord_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_user_tokens_discord_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX idx_user_tokens_discord_id ON public.user_tokens USING btree (discord_id);
 
 
 --
--- Name: idx_users_discord_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_users_discord_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
 CREATE INDEX idx_users_discord_id ON public.users USING btree (discord_id);
 
 
 --
--- Name: users trigger_insert_user_funds; Type: TRIGGER; Schema: public; Owner: -
+-- Name: users trigger_insert_user_funds; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER trigger_insert_user_funds AFTER INSERT ON public.users FOR EACH ROW EXECUTE FUNCTION public.insert_user_funds();
 
 
 --
--- Name: users trigger_update_user_funds; Type: TRIGGER; Schema: public; Owner: -
+-- Name: users trigger_update_user_funds; Type: TRIGGER; Schema: public; Owner: postgres
 --
 
 CREATE TRIGGER trigger_update_user_funds AFTER UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION public.sync_user_funds();
 
 
 --
--- Name: clicker_game_data clicker_game_data_discord_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: clicker_game_data clicker_game_data_discord_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.clicker_game_data
@@ -1504,7 +1680,7 @@ ALTER TABLE ONLY public.clicker_game_data
 
 
 --
--- Name: player_stats player_stats_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: player_stats player_stats_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.player_stats
@@ -1512,7 +1688,7 @@ ALTER TABLE ONLY public.player_stats
 
 
 --
--- Name: token_metrics token_metrics_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_metrics token_metrics_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_metrics
@@ -1520,7 +1696,7 @@ ALTER TABLE ONLY public.token_metrics
 
 
 --
--- Name: token_price_history_daily token_price_history_daily_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_daily token_price_history_daily_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_daily
@@ -1528,7 +1704,7 @@ ALTER TABLE ONLY public.token_price_history_daily
 
 
 --
--- Name: token_price_history_hourly token_price_history_hourly_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_hourly token_price_history_hourly_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_hourly
@@ -1536,7 +1712,7 @@ ALTER TABLE ONLY public.token_price_history_hourly
 
 
 --
--- Name: token_price_history_minutes token_price_history_minutes_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_minutes token_price_history_minutes_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_minutes
@@ -1544,7 +1720,7 @@ ALTER TABLE ONLY public.token_price_history_minutes
 
 
 --
--- Name: token_price_history_weekly token_price_history_weekly_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_price_history_weekly token_price_history_weekly_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_price_history_weekly
@@ -1552,7 +1728,7 @@ ALTER TABLE ONLY public.token_price_history_weekly
 
 
 --
--- Name: token_transactions token_transactions_discord_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_transactions token_transactions_discord_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_transactions
@@ -1560,7 +1736,7 @@ ALTER TABLE ONLY public.token_transactions
 
 
 --
--- Name: token_transactions token_transactions_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: token_transactions token_transactions_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.token_transactions
@@ -1568,7 +1744,7 @@ ALTER TABLE ONLY public.token_transactions
 
 
 --
--- Name: user_funds user_funds_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_funds user_funds_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_funds
@@ -1576,7 +1752,7 @@ ALTER TABLE ONLY public.user_funds
 
 
 --
--- Name: user_tokens user_tokens_discord_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_tokens user_tokens_discord_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_tokens
@@ -1584,7 +1760,7 @@ ALTER TABLE ONLY public.user_tokens
 
 
 --
--- Name: user_tokens user_tokens_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: user_tokens user_tokens_token_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.user_tokens
