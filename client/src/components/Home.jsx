@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaDiscord, FaRocket, FaPaypal } from "react-icons/fa";
-import MarketStatsDemo from "./MarketStatsDemo.jsx";
+import CryptoMarketStatsDemo from "./CryptoMarketStatsDemo.jsx";
 import createPhoto from "../assets/images/create.png";
 import buildPhoto from "../assets/images/build.png";
 import shadersPhoto from "../assets/images/shaders.jpg";
@@ -340,7 +340,7 @@ export default function Home() {
           ))}
         </div>
 
-        <MarketStatsDemo />
+        <CryptoMarketStatsDemo />
 
         <footer className="currency-footer">
           <p>

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 import LoadingSpinner from "./LoadingSpinner.jsx";
 
-const CallbackMarket = () => {
+const CallbackCryptoMarket = () => {
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("code");
 
@@ -29,4 +29,4 @@ const CallbackMarket = () => {
   return <LoadingSpinner message="Logging in via Discord..." />;
 };
 
-export default CallbackMarket;
+export default CallbackCryptoMarket;

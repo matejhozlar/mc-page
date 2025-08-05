@@ -25,8 +25,8 @@ import { PlayerProvider } from "./components/AdminPlayerProvider.jsx";
 import ClickerGame from "./components/clickerGame/ClickerGame.jsx";
 import DiscordLoginButton from "./components/DiscordLoginButton.jsx";
 import CallbackGame from "./components/CallbackGame.jsx";
-import Market from "./components/Market.jsx";
-import CallbackMarket from "./components/CallbackMarket.jsx";
+import CryptoMarket from "./components/CryptoMarket.jsx";
+import CallbackCryptoMarket from "./components/CallbackCryptoMarket.jsx";
 import TokenChartPage from "./components/TokenChartPage.jsx";
 import NotFound from "./components/NotFound.jsx";
 import Team from "./components/Team.jsx";
@@ -81,8 +81,11 @@ function AppWithRouter() {
               <Route path="/callback" element={<Callback />} />
               <Route path="/game" element={<ClickerGame />} />
               <Route path="/callback-game" element={<CallbackGame />} />
-              <Route path="/market" element={<Market />} />
-              <Route path="/callback-market" element={<CallbackMarket />} />
+              <Route path="/market" element={<CryptoMarket />} />
+              <Route
+                path="/callback-market"
+                element={<CallbackCryptoMarket />}
+              />
               <Route path="/chart/:symbol" element={<TokenChartPage />} />
               <Route path="/team" element={<Team />} />
               <Route

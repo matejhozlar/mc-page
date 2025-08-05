@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import MarketLoginButton from "./MarketLoginButton.jsx";
+import MarketLoginButton from "./CryptoMarketLoginButton.jsx";
 
 // components
 import AnimatedNumber from "./AnimatedNumber.jsx";
 import TokenModal from "./TokenModal.jsx";
-import MarketHeader from "./MarketHeader.jsx";
+import CryptoMarketHeader from "./CryptoMarketHeader.jsx";
 import ResponsiveProfileViewer from "./ResponsiveProfileViewer.jsx";
 import PortfolioHistoryChart from "./PortfolioHistoryChart.jsx";
 import Games from "./Games.jsx";
@@ -13,13 +13,13 @@ import LoadingSpinner from "./LoadingSpinner.jsx";
 // hooks
 import useTokenUpdates from "../hooks/market/useTokenUpdates.js";
 
-function Market() {
+function CryptoMarket() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
   const [tokens, setTokens] = useState([]);
   const [selectedToken, setSelectedToken] = useState(null);
-  const [activeTab, setActiveTab] = useState("market");
+  const [activeTab, setActiveTab] = useState("crypto");
   const [transactionHistory, setTransactionHistory] = useState([]);
   const [isRefreshingHistory, setIsRefreshingHistory] = useState(false);
   const [portfolioHistory, setPortfolioHistory] = useState([]);
@@ -161,17 +161,20 @@ function Market() {
       <div className="market-page">
         <div className="market-header-bar">
           <span className="market-logo-icon">🪙</span>
-          <MarketHeader activeTab={activeTab} setActiveTab={setActiveTab} />
+          <CryptoMarketHeader
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+          />
         </div>
         {activeTab === "minigames" && (
           <>
             <Games />
           </>
         )}
-        {activeTab === "market" && (
+        {activeTab === "crypto" && (
           <>
             <header className="market-header">
-              <h1 className="market-title">Createrington Market</h1>
+              <h1 className="market-title">Createrington Crypto</h1>
               <p className="market-subtitle">
                 Trade crypto tokens with your Minecraft currency
               </p>
@@ -564,4 +567,4 @@ function Market() {
   );
 }
 
-export default Market;
+export default CryptoMarket;

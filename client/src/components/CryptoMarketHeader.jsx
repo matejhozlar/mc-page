@@ -1,13 +1,13 @@
 import React from "react";
 
-function MarketHeader({ activeTab, setActiveTab }) {
+function CryptoMarketHeader({ activeTab, setActiveTab }) {
   return (
     <div className="market-nav-header">
       <button
-        className={`market-tab ${activeTab === "market" ? "active" : ""}`}
-        onClick={() => setActiveTab("market")}
+        className={`market-tab ${activeTab === "crypto" ? "active" : ""}`}
+        onClick={() => setActiveTab("crypto")}
       >
-        Market
+        Crypto
       </button>
       <button
         className={`market-tab ${activeTab === "profile" ? "active" : ""}`}
@@ -25,4 +25,4 @@ function MarketHeader({ activeTab, setActiveTab }) {
   );
 }
 
-export default MarketHeader;
+export default CryptoMarketHeader;

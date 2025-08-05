@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import AnimatedNumber from "./AnimatedNumber.jsx";
 
-function MarketStatsDemo() {
+function CryptoMarketStatsDemo() {
   // Static user info
   const [baseProfile] = useState(() => ({
     name: "saunhardy",
@@ -108,4 +108,4 @@ function MarketStatsDemo() {
   );
 }
 
-export default MarketStatsDemo;
+export default CryptoMarketStatsDemo;
