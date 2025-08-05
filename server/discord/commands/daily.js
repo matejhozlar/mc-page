@@ -6,7 +6,7 @@ import config from "../../config/index.js";
 
 dotenv.config();
 
-const DAILY_REWARD_AMOUNT = config.daily;
+const { DAILY_REWARD_AMOUNT } = config.daily;
 const TIMEZONE = "Europe/Berlin";
 
 export const data = new SlashCommandBuilder()
