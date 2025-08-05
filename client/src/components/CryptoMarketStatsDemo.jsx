@@ -31,7 +31,7 @@ function CryptoMarketStatsDemo() {
   return (
     <div className="market-page-demo" style={{ padding: 30 }}>
       <header className="market-header">
-        <h1 className="market-title">Createrington Market</h1>
+        <h1 className="market-title">Createrington Crypto</h1>
       </header>
 
       <section className="market-overview">
