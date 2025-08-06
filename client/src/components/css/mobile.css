@@ -3,6 +3,10 @@
 }
 
 @media (max-width: 768px) {
+  .company-profile-page {
+    padding-bottom: 3.25rem;
+  }
+
   .mobile-nav {
     display: flex;
     justify-content: space-between;

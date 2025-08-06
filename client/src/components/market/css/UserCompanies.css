@@ -1,0 +1,84 @@
+.user-companies-section {
+  margin-top: 2rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.companies-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.create-company-button {
+  background-color: var(--button-background);
+  color: var(--default-color);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  text-decoration: none;
+}
+
+.create-company-button:hover {
+  background-color: var(--button-hover);
+}
+
+.create-company-button:disabled {
+  background-color: var(--button-disabled-color);
+  cursor: not-allowed;
+}
+
+.company-plus-icon {
+  transform: translateY(-1px);
+}
+
+.company-briefcase-icon {
+  margin-right: 10px;
+  transform: translateY(-1px);
+}
+
+.company-store-icon {
+  margin-right: 10px;
+  transform: translateY(-1px);
+}
+
+.company-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.company-card {
+  background: #1f2937;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #0003;
+  display: flex;
+  gap: 1rem;
+}
+
+.company-logo-wrapper {
+  flex-shrink: 0;
+}
+
+.company-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.company-info h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.company-info .small {
+  font-size: 0.85rem;
+  color: #aaa;
+}

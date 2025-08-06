@@ -34,6 +34,7 @@ import Team from "./components/Team.jsx";
 import MarketLoginButton from "./components/MarketLoginButton.jsx";
 import CallbackMarket from "./components/callbacks/CallbackMarket.jsx";
 import Market from "./components/market/Market.jsx";
+import CompanyPage from "./components/market/company/CompanyPage.jsx";
 
 function App() {
   return (
@@ -105,6 +106,10 @@ function AppWithRouter() {
               <Route path="/callback-market" element={<CallbackMarket />} />
               <Route path="/market-login" element={<MarketLoginButton />} />
               <Route path="/market" element={<Market />} />
+              <Route
+                path="/market/company/:companyId"
+                element={<CompanyPage />}
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>

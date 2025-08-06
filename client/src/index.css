@@ -133,6 +133,10 @@ html {
   max-width: 100%;
 }
 
+p {
+  margin: 0;
+}
+
 .app-container {
   display: flex;
   min-height: 100vh;

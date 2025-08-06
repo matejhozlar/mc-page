@@ -1,0 +1,184 @@
+/* Page Container */
+.company-profile-page {
+  color: var(--default-color);
+}
+
+/* Header */
+.company-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--sidebar-background);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+/* Logo + Meta */
+.company-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.company-banner-logo {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.company-meta h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.company-details {
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+  color: #aaa;
+}
+
+/* Balance */
+.company-balance {
+  font-size: 1.2rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--default-color);
+}
+
+.percentage-change {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  gap: 0.3rem;
+  margin-left: 0.5rem;
+}
+
+.percent-change.up {
+  color: #4ade80;
+}
+
+.percent-change.down {
+  color: #f87171;
+}
+
+/* Banner Image */
+.company-banner-image,
+.company-banner-img {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+/* Description Box */
+.company-description-box {
+  background: var(--sidebar-background);
+  padding: 2rem;
+  border-radius: 12px;
+  line-height: 1.6;
+  font-size: 1rem;
+  box-shadow: var(--card-shadow);
+}
+
+.company-description-box h1,
+.company-description-box h2,
+.company-description-box h3 {
+  color: var(--sidebar-accent);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.company-description-box p {
+  margin: 1rem 0;
+}
+
+.company-description-box ul {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.company-description-box ul li {
+  margin-bottom: 0.5rem;
+  list-style-type: disc;
+}
+
+.company-description-box a {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.company-description-box code {
+  background-color: var(--muted-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+/* Shops Section */
+.company-content {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: var(--sidebar-background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+/* Team Section */
+.company-team {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: var(--sidebar-background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+.company-content h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  color: var(--sidebar-accent);
+}
+
+.company-team h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  color: var(--sidebar-accent);
+}
+
+.team-member {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.team-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  background-color: #333;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+.team-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.team-info strong {
+  font-size: 1rem;
+  color: var(--default-color);
+  margin-bottom: 0.2rem;
+}
+
+.team-joined {
+  font-size: 0.85rem;
+  color: #888;
+}
