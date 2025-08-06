@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
 import CompanyNameInput from "./steps/CompanyNameInput.jsx";
 import CompanyDescriptionInput from "./steps/CompanyDescriptionInput.jsx";
 import CompanyLogoUpload from "./steps/CompanyLogoUpload.jsx";
 import CompanyBannerUpload from "./steps/CompanyBannerUpload.jsx";
 import CompanyGalleryUpload from "./steps/CompanyGalleryUpload.jsx";
 import SubmitCompanyButton from "./steps/SubmitCompanyButton.jsx";
+
 import "../css/CreateCompanyWizard.css";
 
 const CreateCompanyPage = () => {
+  const location = useLocation();
+
   const [form, setForm] = useState({
     name: "",
     short_description: "",
@@ -16,6 +21,12 @@ const CreateCompanyPage = () => {
     banner: null,
     gallery: [],
   });
+
+  useEffect(() => {
+    if (location.state?.form) {
+      setForm(location.state.form);
+    }
+  }, [location.state]);
 
   const updateField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));

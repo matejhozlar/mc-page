@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import CompanyBalanceChart from "./components/CompanyBalanceChart.jsx";
 import CompanyGallery from "./components/CompanyGallery.jsx";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
+import NotFound from "../../NotFound.jsx";
 import "../css/CompanyPage.css";
 
 const CompanyPage = () => {
@@ -80,6 +81,7 @@ const CompanyPage = () => {
 
   if (loading) return <LoadingSpinner message="Loading company...>" />;
   if (!company) return <p className="error">Company not found.</p>;
+  if (!company.name) return <NotFound />;
 
   return (
     <div className="company-profile-page">

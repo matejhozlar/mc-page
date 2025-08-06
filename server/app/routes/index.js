@@ -10,6 +10,7 @@ import currencyRoutes from "./currencyMod.js";
 import cryptoRoutes from "./cryptoMod.js";
 import assetsRoutes from "./assets.js";
 import marketRoutes from "./marketRoutes.js";
+import companySubmissionRoutes from "./companySubmissionRoutes.js";
 
 export default function registerRoutes(
   app,
@@ -27,4 +28,5 @@ export default function registerRoutes(
   app.use("/api", cryptoRoutes(db));
   app.use("/api", assetsRoutes());
   app.use("/api", marketRoutes(db));
+  app.use("/api", companySubmissionRoutes(db));
 }

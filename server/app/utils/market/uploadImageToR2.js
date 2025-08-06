@@ -11,7 +11,6 @@ const s3 = new S3Client({
   credentials: {
     accessKeyId: process.env.R2_ACCESS_KEY_ID,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-    sessionToken: process.env.R2_TOKEN || undefined,
   },
 });
 
@@ -22,14 +21,14 @@ const s3 = new S3Client({
  * @param {string} destinationPath - The destination path (e.g. "company-assets/123/logo").
  * @returns {Promise<string>} - The public URL to the uploaded file.
  */
-export async function uploadImageToR2(file, destinationPath) {
+export async function uploadImageToR2(file, destinationPath, filename = null) {
   if (!file?.buffer || !file.mimetype || !file.originalname) {
     throw new Error("Invalid file provided");
   }
 
-  const ext = path.extname(file.originalname);
-  const uniqueName = `${uuidv4()}${ext}`;
-  const key = `${destinationPath}/${uniqueName}`;
+  const ext = path.extname(file.originalname).toLowerCase();
+  const safeFilename = filename || `${uuidv4()}${ext}`;
+  const key = `${destinationPath}/${safeFilename}`;
 
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME,
@@ -40,6 +39,6 @@ export async function uploadImageToR2(file, destinationPath) {
 
   await s3.send(command);
 
-  const publicUrl = `https://${process.env.R2_BUCKET_NAME}.${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com/${key}`;
+  const publicUrl = `https://market-assets.create-rington.com/${key}`;
   return publicUrl;
 }
