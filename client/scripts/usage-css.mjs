@@ -8,15 +8,15 @@ if (!classNameArg) {
   process.exit(1);
 }
 
-const COMPONENT_DIRS = ["./src/components", "./src/components/clickerGame"];
-
 const CLASS_NAME = classNameArg.trim();
 const results = [];
 
+/**
+ * Extracts classNames from JSX content and checks if CLASS_NAME is used.
+ */
 const extractExactMatches = (content) => {
   const classNames = new Set();
 
-  // Match className="..." or className='...'
   const simpleRegex = /className\s*=\s*(?:"([^"]+)"|'([^']+)')/g;
   let match;
   while ((match = simpleRegex.exec(content))) {
@@ -24,37 +24,40 @@ const extractExactMatches = (content) => {
     raw.split(/\s+/).forEach((cls) => classNames.add(cls));
   }
 
-  // Match className={`...`} with possible interpolations
   const backtickRegex = /className\s*=\s*{`([^`]*)`}/g;
   while ((match = backtickRegex.exec(content))) {
-    const raw = match[1].replace(/\${[^}]+}/g, ""); // remove interpolations
+    const raw = match[1].replace(/\${[^}]+}/g, "");
     raw.split(/\s+/).forEach((cls) => classNames.add(cls));
   }
 
   return classNames.has(CLASS_NAME);
 };
 
+/**
+ * Recursively scans directories for .jsx and .tsx files.
+ */
 const scanDirectory = async (dir) => {
-  try {
-    const files = await fs.readdir(dir);
-    for (const file of files) {
-      const fullPath = path.join(dir, file);
-      if (file.endsWith(".jsx") || file.endsWith(".tsx")) {
-        const content = await fs.readFile(fullPath, "utf-8");
-        if (extractExactMatches(content)) {
-          results.push(fullPath);
-        }
+  const entries = await fs.readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      await scanDirectory(fullPath); // recurse into subdirectory
+    } else if (
+      entry.isFile() &&
+      (entry.name.endsWith(".jsx") || entry.name.endsWith(".tsx"))
+    ) {
+      const content = await fs.readFile(fullPath, "utf-8");
+      if (extractExactMatches(content)) {
+        results.push(fullPath);
       }
     }
-  } catch (err) {
-    console.error(`❌ Failed to read directory ${dir}:`, err.message);
   }
 };
 
 const main = async () => {
-  for (const dir of COMPONENT_DIRS) {
-    await scanDirectory(dir);
-  }
+  await scanDirectory("./src");
 
   if (results.length === 0) {
     console.log(`🔍 Class "${CLASS_NAME}" was not found in any component.`);

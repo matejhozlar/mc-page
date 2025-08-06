@@ -1,8 +1,9 @@
 const CompanyNameInput = ({ value, onChange }) => (
-  <div className="form-group">
+  <div className="create-form-group">
     <label>Company Name *</label>
     <input
       type="text"
+      className="form-control"
       required
       maxLength={255}
       value={value}
