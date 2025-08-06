@@ -10,6 +10,8 @@
   --card-hover: hsl(220, 14%, 20%);
   --card-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 
+  --base-color: #fff;
+
   --popover-color: hsl(220, 12%, 18%);
   --popover-foreground: hsl(0, 0%, 88%);
 

@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
-import MarketLoginButton from "./MarketLoginButton.jsx";
-import LoadingSpinner from "./LoadingSpinner.jsx";
+import MarketLoginButton from "../MarketLoginButton.jsx";
+import LoadingSpinner from "../LoadingSpinner.jsx";
+
+// Context - Data
+import MarketUserProvider from "./context/MarketUserProvider.jsx";
+
+// Components
+import Dashboard from "./dashboard/Dashboard.jsx";
 
 function Market() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -25,7 +31,11 @@ function Market() {
     );
   }
 
-  return <div>Hello World</div>;
+  return (
+    <MarketUserProvider>
+      <Dashboard />
+    </MarketUserProvider>
+  );
 }
 
 export default Market;

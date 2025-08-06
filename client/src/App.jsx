@@ -33,7 +33,7 @@ import NotFound from "./components/NotFound.jsx";
 import Team from "./components/Team.jsx";
 import MarketLoginButton from "./components/MarketLoginButton.jsx";
 import CallbackMarket from "./components/callbacks/CallbackMarket.jsx";
-import Market from "./components/Market.jsx";
+import Market from "./components/market/Market.jsx";
 
 function App() {
   return (
