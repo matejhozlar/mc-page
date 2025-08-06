@@ -1,6 +1,6 @@
-import { useMarketUser } from "../../../hooks/market/marketUserContext.js";
-import "../css/MarketUserProfile.css";
-import LoadingSpinner from "../../LoadingSpinner.jsx";
+import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
+import "../../css/MarketUserProfile.css";
+import LoadingSpinner from "../../../LoadingSpinner.jsx";
 
 const MarketUserProfile = () => {
   const { user, loading } = useMarketUser();

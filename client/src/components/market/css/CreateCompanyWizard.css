@@ -1,0 +1,37 @@
+.create-company-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--sidebar-background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #1e1e1e;
+  color: white;
+}
+
+.preview-gallery img {
+  margin-right: 0.5rem;
+  border-radius: 6px;
+}
+
+.submit-company-btn {
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  border: none;
+  background: var(--primary-color);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}

@@ -1,6 +1,6 @@
-import { useMarketUser } from "../../../hooks/market/marketUserContext.js";
+import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
 import { Plus, Store } from "lucide-react";
-import "../css/UserCompanies.css";
+import "../../css/UserCompanies.css";
 
 const UserShops = () => {
   const { user, loading } = useMarketUser();

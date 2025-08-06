@@ -1,7 +1,7 @@
-import { useMarketUser } from "../../../hooks/market/marketUserContext.js";
+import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
 import { Plus, Briefcase } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import "../css/UserCompanies.css";
+import "../../css/UserCompanies.css";
 
 const UserCompanies = () => {
   const { user, loading } = useMarketUser();
@@ -36,7 +36,11 @@ const UserCompanies = () => {
           <p>You don't belong to any companies yet.</p>
         ) : (
           companies.map((company) => (
-            <div key={company.id} className="company-card">
+            <NavLink
+              to={`/market/company/${company.id}`}
+              key={company.id}
+              className="company-card"
+            >
               <div className="company-logo-wrapper">
                 <img
                   src={company.image_urls?.[0] || "/default-company.png"}
@@ -46,12 +50,12 @@ const UserCompanies = () => {
               </div>
               <div className="company-info">
                 <h3>{company.name}</h3>
-                <p>{company.description || "No description provided."}</p>
+                <p>{company.short_description || "No description provided."}</p>
                 <p className="small">
                   {company.shop_count} shops • Role: {company.role}
                 </p>
               </div>
-            </div>
+            </NavLink>
           ))
         )}
       </div>

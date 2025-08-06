@@ -47,7 +47,7 @@
 
 .company-cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, 1fr);
   gap: 1.5rem;
   margin-top: 1rem;
   width: 100%;
@@ -55,12 +55,24 @@
 
 .company-card {
   background: #1f2937;
-  color: white;
+  color: #fff;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 0 10px #0003;
   display: flex;
   gap: 1rem;
+  text-decoration: none; /* REMOVE underline */
+  transition: background 0.2s;
+}
+
+.company-card:hover {
+  background: #2c3e50;
+}
+
+.company-card h3,
+.company-card p {
+  margin: 0;
+  color: inherit;
 }
 
 .company-logo-wrapper {

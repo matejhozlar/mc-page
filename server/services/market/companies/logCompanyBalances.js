@@ -1,4 +1,4 @@
-import logger from "../../logger.js";
+import logger from "../../../logger.js";
 
 /**
  * Logs the current balance of each company into `company_balance_history`,

@@ -4,6 +4,7 @@ import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import CompanyBalanceChart from "./components/CompanyBalanceChart.jsx";
 import CompanyGallery from "./components/CompanyGallery.jsx";
+import LoadingSpinner from "../../LoadingSpinner.jsx";
 import "../css/CompanyPage.css";
 
 const CompanyPage = () => {
@@ -77,7 +78,7 @@ const CompanyPage = () => {
     fetchBalanceHistory();
   }, [companyId]);
 
-  if (loading) return <p className="loading">Loading company...</p>;
+  if (loading) return <LoadingSpinner message="Loading company...>" />;
   if (!company) return <p className="error">Company not found.</p>;
 
   return (

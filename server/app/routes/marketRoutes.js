@@ -38,6 +38,7 @@ export default function marketRoutes(db) {
            c.id,
            c.name,
            c.description,
+           c.short_description,
            c.created_at,
            cm.role,
            (
