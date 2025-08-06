@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import CompanyPreview from "./CompanyPreview.jsx";
+import SubmitFinalCompanyButton from "./SubmitFinalCompanyButton.jsx";
 
 const CompanyPreviewPage = () => {
   const { state } = useLocation();
@@ -20,12 +21,19 @@ const CompanyPreviewPage = () => {
   return (
     <div className="company-preview-page">
       <CompanyPreview form={form} />
-      <button
-        onClick={() => navigate("/market/create-company", { state: { form } })}
-        className="create-back-button"
-      >
-        ← Go Back & Edit
-      </button>
+
+      <div className="preview-actions">
+        <button
+          onClick={() =>
+            navigate("/market/create-company", { state: { form } })
+          }
+          className="create-back-button"
+        >
+          ← Back
+        </button>
+
+        <SubmitFinalCompanyButton form={form} />
+      </div>
     </div>
   );
 };

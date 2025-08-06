@@ -20,8 +20,9 @@ const CompanyLogoUpload = ({ logo, onChange }) => {
 
   return (
     <div className="create-form-group">
+      <p>Company Logo</p>
       <label htmlFor="logo-upload" className="custom-upload-button">
-        Upload Logo
+        Upload
       </label>
       <input
         id="logo-upload"

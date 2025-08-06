@@ -130,7 +130,7 @@ const CompanyPage = () => {
         </div>
       </div>
       {/* Banner */}
-      {company.banner_url ? (
+      {company.banner_url && (
         <div className="company-banner-image">
           <img
             src={company.banner_url}
@@ -138,12 +138,6 @@ const CompanyPage = () => {
             className="company-banner-img"
           />
         </div>
-      ) : (
-        <img
-          src="/assets/market/default/default-banner.png"
-          alt="Company banner"
-          className="company-banner-img"
-        />
       )}
       {/* Description*/}
       {company.description && (

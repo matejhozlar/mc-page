@@ -77,7 +77,6 @@
   height: auto;
   object-fit: cover;
   display: block;
-  aspect-ratio: 2 / 1;
   overflow: hidden;
   box-shadow: var(--card-shadow);
 }

@@ -31,8 +31,9 @@ const CompanyGalleryUpload = ({ images, onChange }) => {
 
   return (
     <div className="create-form-group">
+      <p>Gallery Images (up to 5)</p>
       <label htmlFor="gallery-upload" className="custom-upload-button">
-        Upload Gallery Images (up to 5)
+        Upload
       </label>
       <input
         id="gallery-upload"

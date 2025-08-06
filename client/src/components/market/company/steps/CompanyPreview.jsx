@@ -1,5 +1,4 @@
 import ReactMarkdown from "react-markdown";
-import SubmitFinalCompanyButton from "./SubmitFinalCompanyButton";
 
 const CompanyPreview = ({ form }) => {
   return (
@@ -18,23 +17,21 @@ const CompanyPreview = ({ form }) => {
           />
           <div className="company-meta">
             <h1>{form.name}</h1>
-            <p>{form.short_description || "No short description."}</p>
+            <p>{form.short_description || "Preview"}</p>
           </div>
         </div>
       </div>
 
       {/* Banner */}
-      <div className="company-banner-image">
-        <img
-          src={
-            form.banner
-              ? URL.createObjectURL(form.banner)
-              : "/assets/market/default/default-banner.png"
-          }
-          alt="Banner"
-          className="company-banner-img"
-        />
-      </div>
+      {form.banner && (
+        <div className="company-banner-image">
+          <img
+            src={URL.createObjectURL(form.banner)}
+            alt="Banner"
+            className="company-banner-img"
+          />
+        </div>
+      )}
 
       {/* Description */}
       {form.description && (
@@ -61,9 +58,6 @@ const CompanyPreview = ({ form }) => {
           </div>
         </div>
       )}
-
-      {/* Final Submit */}
-      <SubmitFinalCompanyButton form={form} />
     </>
   );
 };

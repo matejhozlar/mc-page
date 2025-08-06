@@ -31,6 +31,10 @@
   color: var(--input-color);
 }
 
+.create-form-group p {
+  margin-bottom: 1rem;
+}
+
 .preview-gallery img {
   margin-right: 0.5rem;
   border-radius: 6px;
@@ -39,11 +43,11 @@
 .submit-company-btn {
   padding: 0.75rem 1.5rem;
   font-weight: bold;
+  width: 100%;
   border: none;
   background-color: var(--button-background);
   color: var(--button-color);
   border-radius: 8px;
-  cursor: pointer;
 }
 
 .submit-company-btn:hover {
@@ -84,17 +88,22 @@
 }
 
 .create-back-button {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  border: none;
   background-color: red;
   color: var(--button-color);
-  border-radius: 6px;
+  border-radius: 8px;
   text-align: center;
-  transition: background 0.2s;
-  margin-bottom: 0.5rem;
 }
 
 .create-back-button:hover {
   background-color: #f87171;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1rem;
 }
