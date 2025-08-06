@@ -37,7 +37,7 @@
 }
 
 .gameButton.disabled {
-  background-color: #444;
+  background-color: var(--button-disabled-color);
   color: #aaa;
   cursor: not-allowed;
   box-shadow: none;

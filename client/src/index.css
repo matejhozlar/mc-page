@@ -64,6 +64,12 @@
   --spacing-10: 2.5rem;
   --spacing-12: 3rem;
   --spacing-16: 4rem;
+
+  /* Buttons */
+  --button-background: hsl(90, 44%, 48%);
+  --button-color: #fff;
+  --button-hover: hsl(90, 44%, 60%);
+  --button-disabled-color: #888;
 }
 
 html.scroll-override,
@@ -652,8 +658,8 @@ html {
 
 /* Submit button styling */
 .submit-button {
-  background-color: var(--primary-color);
-  color: #ffffff;
+  background-color: var(--button-background);
+  color: var(--button-color);
   border: none;
   padding: 12px 20px;
   font-size: 1rem;
@@ -667,7 +673,7 @@ html {
 /* Hover and focus states for the button */
 .submit-button:hover,
 .submit-button:focus {
-  background-color: var(--primary-color-hover);
+  background-color: var(--button-hover);
 }
 
 .rules-container {
@@ -993,20 +999,20 @@ html {
   width: 140px;
   font-weight: bold;
   border-radius: 6px;
-  background-color: var(--primary-color);
-  color: #fff;
+  background-color: var(--button-background);
+  color: var(--button-color);
   border: none;
   font-size: 0.95rem;
   transition: background-color 0.2s ease;
 }
 
 .admin-command-button:hover {
-  background-color: var(--primary-color-hover);
+  background-color: var(--button-hover);
 }
 
 .admin-refresh-button {
-  background-color: var(--primary-color);
-  color: #fff;
+  background-color: var(--button-background);
+  color: var(--button-color);
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -1015,11 +1021,11 @@ html {
 }
 
 .admin-refresh-button:hover {
-  background-color: var(--primary-color-hover);
+  background-color: var(--button-hover);
 }
 
 .admin-refresh-button:disabled {
-  background-color: #888;
+  background-color: var(--button-disabled-color);
   cursor: not-allowed;
   opacity: 0.7;
 }
@@ -1527,7 +1533,7 @@ input:checked + .slider:before {
   border: 1px solid #2c2e35;
   border-radius: 12px;
   padding: 1rem;
-  color: #fff;
+  color: var(--button-color);
   text-align: left;
   width: 100%;
   max-width: 240px;
@@ -1725,7 +1731,7 @@ input:checked + .slider:before {
 
 .token-buy-button {
   margin-top: 1rem;
-  background-color: #8dc926;
+  background-color: var(--button-background);
   color: #000;
   font-weight: bold;
   border: none;
@@ -1735,7 +1741,7 @@ input:checked + .slider:before {
 }
 
 .token-buy-button:hover {
-  background-color: #aaff55;
+  background-color: var(--button-hover);
 }
 
 .token-modal {
@@ -2040,7 +2046,7 @@ input:checked + .slider:before {
   padding: 4px 12px;
   font-size: 0.9rem;
   background-color: #222;
-  color: #fff;
+  color: var(--button-color);
   border: 1px solid #555;
   border-radius: 5px;
   transition: background-color 0.2s ease, transform 0.2s ease;
@@ -2087,7 +2093,7 @@ input:checked + .slider:before {
   padding: 6px 12px;
   border: 1px solid #ccc;
   background: #222;
-  color: white;
+  color: var(--button-color);
   border-radius: 4px;
 }
 
@@ -2127,7 +2133,7 @@ input:checked + .slider:before {
 .portfolio-range-buttons button {
   padding: 6px 12px;
   background-color: #1e1e1e;
-  color: #fff;
+  color: var(--button-color);
   border: 1px solid #444;
   border-radius: 4px;
   cursor: pointer;
