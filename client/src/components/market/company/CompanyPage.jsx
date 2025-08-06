@@ -2,6 +2,8 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import CompanyBalanceChart from "./components/CompanyBalanceChart.jsx";
+import CompanyGallery from "./components/CompanyGallery.jsx";
 import "../css/CompanyPage.css";
 
 const CompanyPage = () => {
@@ -11,6 +13,7 @@ const CompanyPage = () => {
   const [members, setMembers] = useState(null);
   const [loading, setLoading] = useState(true);
   const [percentChange, setPercentChange] = useState(null);
+  const [balanceHistory, setBalanceHistory] = useState([]);
 
   useEffect(() => {
     const fetchCompany = async () => {
@@ -43,6 +46,7 @@ const CompanyPage = () => {
         const data = await res.json();
 
         const history = data.history;
+        setBalanceHistory(history);
         if (history.length >= 2) {
           const first = history[0].balance;
           const last = history[history.length - 1].balance;
@@ -141,15 +145,24 @@ const CompanyPage = () => {
       {/* Description*/}
       {company.description && (
         <div className="company-description-box">
-          <h2>Description</h2>
+          <h2 className="company-section-title">Description</h2>
           <ReactMarkdown>{company.description}</ReactMarkdown>
         </div>
+      )}
+
+      {/* Gallery */}
+      {company.gallery_urls && company.gallery_urls.length > 0 && (
+        <CompanyGallery images={company.gallery_urls} />
       )}
 
       <div className="company-content">
         <h2>Company Shops</h2>
         <p>This company has {company.shop_count} shop(s).</p>
       </div>
+      {/* Networth History */}
+      {balanceHistory.length > 0 && (
+        <CompanyBalanceChart history={balanceHistory} />
+      )}
       {/* Team */}
       {members.length > 0 && (
         <div className="company-team">

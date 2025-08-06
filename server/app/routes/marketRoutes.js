@@ -167,20 +167,26 @@ export default function marketRoutes(db) {
           SELECT COUNT(*) FROM shops WHERE company_id = c.id
         ) AS shop_count,
         (
-           SELECT url
-           FROM company_images
-           WHERE company_id = c.id AND type = 'logo'
+          SELECT url
+          FROM company_images
+          WHERE company_id = c.id AND type = 'logo'
           ORDER BY position
           LIMIT 1
         ) AS logo_url,
-         (
+        (
           SELECT url
           FROM company_images
-           WHERE company_id = c.id AND type = 'banner'
-           ORDER BY position
-           LIMIT 1
-         ) AS banner_url
-       FROM companies c
+          WHERE company_id = c.id AND type = 'banner'
+          ORDER BY position
+          LIMIT 1
+        ) AS banner_url,
+        (
+          SELECT ARRAY_AGG(url ORDER BY position)
+          FROM company_images
+          WHERE company_id = c.id AND type = 'gallery'
+          LIMIT 5
+        ) AS gallery_urls
+      FROM companies c
       JOIN users u ON c.founder_uuid = u.uuid
       WHERE c.id = $1
       LIMIT 1`,
