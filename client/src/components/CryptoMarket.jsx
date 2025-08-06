@@ -11,7 +11,7 @@ import Games from "./Games.jsx";
 import LoadingSpinner from "./LoadingSpinner.jsx";
 
 // hooks
-import useTokenUpdates from "../hooks/market/useTokenUpdates.js";
+import useTokenUpdates from "../hooks/crypto/useTokenUpdates.js";
 
 function CryptoMarket() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
