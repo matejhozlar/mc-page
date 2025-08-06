@@ -4,6 +4,7 @@ import { schedulePriceUpdates } from "./priceUpdates.js";
 import { schedulePortfolioSnapshots } from "./portfolio.js";
 import { scheduleQuestJobs } from "./quests.js";
 import { scheduleMembershipDurationRoleAssignment } from "./roles.js";
+import { scheduleCompanyUpdates } from "./companies.js";
 
 import logger from "../../logger.js";
 
@@ -53,5 +54,11 @@ export function setupCronJobs(db, clientBot, webBot, io) {
       "❌ Failed to scheduleMembershipDurationRoleAssignment:",
       error
     );
+  }
+
+  try {
+    scheduleCompanyUpdates(db);
+  } catch (error) {
+    logger.error("❌ Failed to scheduleCompanyUpdates:", error);
   }
 }
