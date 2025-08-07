@@ -37,6 +37,8 @@ import Market from "./components/market/Market.jsx";
 import CompanyPage from "./components/market/company/CompanyPage.jsx";
 import CreateCompanyWizard from "./components/market/company/CreateCompanyWizard.jsx";
 import CompanyPreviewPage from "./components/market/company/steps/CompanyPreviewPage.jsx";
+import Dashboard from "./components/market/dashboard/Dashboard.jsx";
+import Companies from "./components/market/company/Companies.jsx";
 
 function App() {
   return (
@@ -107,7 +109,10 @@ function AppWithRouter() {
               />
               <Route path="/callback-market" element={<CallbackMarket />} />
               <Route path="/market-login" element={<MarketLoginButton />} />
-              <Route path="/market" element={<Market />} />
+              <Route path="/market" element={<Market />}>
+                <Route index element={<Dashboard />} />
+                <Route path="companies" element={<Companies />} />
+              </Route>
               <Route
                 path="/market/company/:companyId"
                 element={<CompanyPage />}

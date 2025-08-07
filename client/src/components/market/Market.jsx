@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import MarketLoginButton from "../MarketLoginButton.jsx";
 import LoadingSpinner from "../LoadingSpinner.jsx";
 
 // Context - Data
 import MarketUserProvider from "./context/MarketUserProvider.jsx";
-
-// Components
-import Dashboard from "./dashboard/Dashboard.jsx";
 
 function Market() {
   const [isLoggedIn, setIsLoggedIn] = useState(null);
@@ -33,7 +31,7 @@ function Market() {
 
   return (
     <MarketUserProvider>
-      <Dashboard />
+      <Outlet />
     </MarketUserProvider>
   );
 }
