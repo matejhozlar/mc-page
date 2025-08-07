@@ -100,7 +100,7 @@ export default function marketRoutes(db) {
         shops,
       });
     } catch (err) {
-      logger.error(`❌ /market/me error: ${err}`);
+      logger.error(`❌ /market/me error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -143,8 +143,8 @@ export default function marketRoutes(db) {
       );
 
       res.status(201).json(company);
-    } catch (err) {
-      logger.error(`❌ Failed to create company: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Failed to create company: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -202,8 +202,8 @@ export default function marketRoutes(db) {
       }
 
       res.json(company);
-    } catch (err) {
-      logger.error(`❌ Failed to fetch company ${req.params.id}: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch company ${req.params.id}: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -229,9 +229,9 @@ export default function marketRoutes(db) {
       }
 
       res.json({ company_id: companyId, balance: parseFloat(row.balance) });
-    } catch (err) {
+    } catch (error) {
       logger.error(
-        `❌ Failed to fetch balance for company ${companyId}: ${err}`
+        `❌ Failed to fetch balance for company ${companyId}: ${error}`
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -261,9 +261,9 @@ export default function marketRoutes(db) {
           recorded_at: row.recorded_at,
         })),
       });
-    } catch (err) {
+    } catch (error) {
       logger.error(
-        `❌ Failed to fetch balance history for company ${companyId}: ${err}`
+        `❌ Failed to fetch balance history for company ${companyId}: ${error}`
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -296,9 +296,9 @@ export default function marketRoutes(db) {
         company_id: companyId,
         members: rows,
       });
-    } catch (err) {
+    } catch (error) {
       logger.error(
-        `❌ Failed to fetch members for company ${companyId}: ${err}`
+        `❌ Failed to fetch members for company ${companyId}: ${error}`
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -328,8 +328,8 @@ export default function marketRoutes(db) {
     `);
 
       res.json({ companies: rows });
-    } catch (err) {
-      logger.error("❌ Failed to fetch all companies:", err);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch all companies: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -374,8 +374,8 @@ export default function marketRoutes(db) {
         pending_companies: pendingCompanies,
         rejected_companies: rejectedCompanies,
       });
-    } catch (err) {
-      logger.error(`❌ Failed to fetch user requests: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch user requests: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -409,8 +409,33 @@ export default function marketRoutes(db) {
       }
 
       res.status(200).json({ success: true });
-    } catch (err) {
-      logger.error("❌ Failed to delete rejected company:", err);
+    } catch (error) {
+      logger.error(`❌ Failed to delete rejected company: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/market/pending-companies
+  router.get("/market/pending-companies", async (req, res) => {
+    try {
+      const { rows } = await db.query(
+        `SELECT
+        pc.id,
+        pc.name,
+        pc.description,
+        pc.status,
+        pc.created_at,
+        pc.founder_uuid,
+        u.name AS owner_name,
+        pc.logo_url
+      FROM pending_companies pc
+      JOIN users u ON pc.founder_uuid = u.uuid
+      ORDER BY pc.created_at ASC`
+      );
+
+      res.json(rows);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch pending companies: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });

@@ -43,7 +43,10 @@ const UserCompanies = () => {
             >
               <div className="company-logo-wrapper">
                 <img
-                  src={company.image_urls?.[0] || "/default-company.png"}
+                  src={
+                    company.image_urls?.[0] ||
+                    "assets/market/default/default-logo.png"
+                  }
                   alt={`${company.name} logo`}
                   className="company-logo"
                 />

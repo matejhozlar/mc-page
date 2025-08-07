@@ -4,7 +4,7 @@
   left: 0;
   height: 100vh;
   width: 100vw;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--popup-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,12 +12,12 @@
 }
 
 .delete-modal {
-  background: var(--background-color);
+  background-color: var(--popup-background-color);
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 0 10px #000;
+  box-shadow: var(--popup-shadow);
   text-align: center;
 }
 
@@ -41,10 +41,10 @@
 
 .delete-modal-btn-cancel {
   background: #444;
-  color: white;
+  color: var(--button-color);
 }
 
 .delete-modal-btn-confirm {
-  background: #e53935;
-  color: white;
+  background: var(--button-error-background);
+  color: var(--button-color);
 }

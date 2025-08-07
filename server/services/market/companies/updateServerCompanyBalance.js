@@ -34,7 +34,7 @@ export async function updateServerCompanyBalance(db) {
     );
 
     const taxRes = await db.query(`
-      SELECT COALESCE(tax_collected, 0) AS total_collected
+      SELECT COALESCE(total_collected, 0) AS total_collected
       FROM memecoin_tax_tracker
       WHERE id = 1
     `);

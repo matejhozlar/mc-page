@@ -78,6 +78,11 @@
   --error-color: #f87171;
   --success-color: hsl(90, 44%, 48%);
   --success-hover: hsl(90, 44%, 60%);
+
+  /* Pop Ups */
+  --popup-background: rgba(0, 0, 0, 0.7);
+  --popup-background-color: hsl(220, 14%, 12%);
+  --popup-shadow: 0 0 10px #000;
 }
 
 html.scroll-override,

@@ -12,89 +12,70 @@ const CompanyPage = () => {
   const { companyId } = useParams();
   const [balance, setBalance] = useState(null);
   const [company, setCompany] = useState(null);
-  const [members, setMembers] = useState(null);
+  const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [percentChange, setPercentChange] = useState(null);
   const [balanceHistory, setBalanceHistory] = useState([]);
   const [visitor, setVisitor] = useState(null);
 
   useEffect(() => {
-    const fetchCompany = async () => {
+    const fetchAll = async () => {
       try {
-        const res = await fetch(`/api/market/company/${companyId}`);
-        const data = await res.json();
-        setCompany(data);
-      } catch (err) {
-        console.error("Failed to load company", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+        const [companyRes, balanceRes, historyRes, membersRes, visitorRes] =
+          await Promise.all([
+            fetch(`/api/market/company/${companyId}`),
+            fetch(`/api/market/company/${companyId}/balance`),
+            fetch(`/api/market/company/${companyId}/balance/history`),
+            fetch(`/api/market/company/${companyId}/members`),
+            fetch("/api/market/me", { credentials: "include" }),
+          ]);
 
-    const fetchAllBalanceData = async () => {
-      try {
-        const [balanceRes, historyRes] = await Promise.all([
-          fetch(`/api/market/company/${companyId}/balance`),
-          fetch(`/api/market/company/${companyId}/balance/history`),
+        const [
+          companyData,
+          balanceData,
+          historyData,
+          membersData,
+          visitorData,
+        ] = await Promise.all([
+          companyRes.json(),
+          balanceRes.json(),
+          historyRes.json(),
+          membersRes.json(),
+          visitorRes.json(),
         ]);
 
-        const balanceData = await balanceRes.json();
-        const historyData = await historyRes.json();
+        setCompany(companyData);
+        setBalance(balanceData.balance);
+        setVisitor(visitorData);
+        setMembers(membersData.members || []);
 
         const rawHistory = historyData.history || [];
-        const latestBalance = balanceData.balance;
-
-        setBalance(latestBalance);
-
         const now = new Date();
         const updatedHistory = [
           ...rawHistory,
           {
-            balance: latestBalance,
+            balance: balanceData.balance,
             recorded_at: now.toISOString(),
           },
         ];
-
         setBalanceHistory(updatedHistory);
 
         if (updatedHistory.length >= 2) {
           const first = updatedHistory[0].balance;
           const last = updatedHistory[updatedHistory.length - 1].balance;
-
           if (first !== 0) {
             const change = ((last - first) / first) * 100;
             setPercentChange(change);
           }
         }
-      } catch (error) {
-        console.error("❌ Failed to fetch balance and history:", error);
+      } catch (err) {
+        console.error("❌ Failed to fetch company data:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    const fetchMembers = async () => {
-      try {
-        const res = await fetch(`/api/market/company/${companyId}/members`);
-        const data = await res.json();
-        setMembers(data.members || []);
-      } catch (error) {
-        console.error("Failed to fetch company members", error);
-      }
-    };
-
-    const fetchVisitor = async () => {
-      try {
-        const res = await fetch("/api/market/me", { credentials: "include" });
-        const data = await res.json();
-        setVisitor(data);
-      } catch (error) {
-        console.error("Failed to fetch current user", error);
-      }
-    };
-
-    fetchVisitor();
-    fetchMembers();
-    fetchCompany();
-    fetchAllBalanceData();
+    fetchAll();
   }, [companyId]);
 
   if (loading) return <LoadingSpinner message="Loading company...>" />;

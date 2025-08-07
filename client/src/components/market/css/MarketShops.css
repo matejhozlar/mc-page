@@ -1,0 +1,9 @@
+.shops-coming-soon {
+  height: 100%;
+  display: flex;
+  font-size: 3rem;
+  font-weight: 500;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+}

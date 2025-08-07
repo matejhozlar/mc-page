@@ -7,6 +7,29 @@ import { v4 as uuidv4 } from "uuid";
 import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+
+const r2 = new S3Client({
+  region: process.env.R2_REGION,
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
+
+async function deleteR2Object(key) {
+  try {
+    await r2.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: key,
+      })
+    );
+  } catch (err) {
+    logger.warn(`⚠️ Failed to delete R2 object ${key}: ${err.message}`);
+  }
+}
 
 export default function adminRoutes(db) {
   const router = express.Router();
@@ -367,6 +390,248 @@ export default function adminRoutes(db) {
     } catch (error) {
       logger.error(`❌ Failed to fetch waitlist: ${error}`);
       res.status(500).json({ error: "Failed to load waitlist" });
+    }
+  });
+
+  router.get("/admin/pending-companies/:id", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const { rows } = await db.query(
+        `SELECT
+        pc.id,
+        pc.name,
+        pc.description,
+        pc.short_description,
+        pc.created_at,
+        pc.logo_url,
+        pc.banner_url,
+        pc.gallery_urls,
+        pc.founder_uuid,
+        u.name AS owner_name
+      FROM pending_companies pc
+      JOIN users u ON pc.founder_uuid = u.uuid
+      WHERE pc.id = $1`,
+        [id]
+      );
+
+      if (!rows.length) {
+        return res.status(404).json({ error: "Pending company not found" });
+      }
+
+      res.json(rows[0]);
+    } catch (err) {
+      logger.error(`❌ Failed to fetch pending company ${id}: ${err}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/admin/pending-companies/:id/approve
+  router.post("/admin/pending-companies/:id/approve", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const {
+        rows: [adminUser],
+      } = await db.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+
+      if (!adminUser) {
+        return res.status(404).json({ error: "Admin user not found" });
+      }
+
+      const adminUuid = adminUser.uuid;
+
+      const {
+        rows: [pending],
+      } = await db.query(
+        `SELECT * FROM pending_companies WHERE id = $1 AND status = 'pending'`,
+        [id]
+      );
+
+      if (!pending) {
+        return res
+          .status(404)
+          .json({ error: "Pending company not found or already processed" });
+      }
+
+      await db.query(
+        `UPDATE pending_companies
+       SET status = 'approved', reviewed_at = NOW(), reviewed_by = $1
+       WHERE id = $2`,
+        [adminUuid, id]
+      );
+
+      await db.query(
+        `INSERT INTO companies (id, founder_uuid, name, description, short_description, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          pending.id,
+          pending.founder_uuid,
+          pending.name,
+          pending.description,
+          pending.short_description,
+          pending.created_at,
+        ]
+      );
+
+      await db.query(
+        `INSERT INTO company_funds (company_id, balance)
+       VALUES ($1, 0)`,
+        [pending.id]
+      );
+
+      await db.query(
+        `INSERT INTO company_members (user_uuid, company_id, role)
+       VALUES ($1, $2, 'Founder')`,
+        [pending.founder_uuid, pending.id]
+      );
+
+      const imageInsertPromises = [];
+
+      if (pending.logo_url) {
+        imageInsertPromises.push(
+          db.query(
+            `INSERT INTO company_images (company_id, url, type, position)
+       VALUES ($1, $2, 'logo', 0)`,
+            [pending.id, pending.logo_url]
+          )
+        );
+      }
+
+      if (pending.banner_url) {
+        imageInsertPromises.push(
+          db.query(
+            `INSERT INTO company_images (company_id, url, type, position)
+       VALUES ($1, $2, 'banner', 0)`,
+            [pending.id, pending.banner_url]
+          )
+        );
+      }
+
+      if (Array.isArray(pending.gallery_urls)) {
+        pending.gallery_urls.forEach((url, index) => {
+          if (url) {
+            imageInsertPromises.push(
+              db.query(
+                `INSERT INTO company_images (company_id, url, type, position)
+           VALUES ($1, $2, 'gallery', $3)`,
+                [pending.id, url, index]
+              )
+            );
+          }
+        });
+      }
+
+      await Promise.all(imageInsertPromises);
+
+      res.status(200).json({ success: true });
+    } catch (error) {
+      logger.error(`❌ Failed to approve company ${id}: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/admin/pending-companies/:id/reject
+  router.post("/admin/pending-companies/:id/reject", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    const { reason } = req.body;
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    if (!reason || typeof reason !== "string" || reason.trim() === "") {
+      return res.status(400).json({ error: "Rejection reason is required" });
+    }
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const {
+        rows: [pending],
+      } = await db.query(
+        `SELECT * FROM pending_companies WHERE id = $1 AND status = 'pending'`,
+        [id]
+      );
+
+      if (!pending) {
+        return res
+          .status(404)
+          .json({ error: "Pending company not found or already processed" });
+      }
+
+      const extractKey = (url) => {
+        const prefix = "https://market-assets.create-rington.com/";
+        return url?.startsWith(prefix) ? url.substring(prefix.length) : null;
+      };
+
+      const allKeys = [
+        extractKey(pending.logo_url),
+        extractKey(pending.banner_url),
+        ...(pending.gallery_urls || []).map(extractKey),
+      ].filter(Boolean);
+
+      await Promise.all(allKeys.map(deleteR2Object));
+
+      await db.query(
+        `INSERT INTO rejected_companies (id, founder_uuid, name, reason, rejected_at)
+       VALUES ($1, $2, $3, $4, NOW())`,
+        [pending.id, pending.founder_uuid, pending.name, reason.trim()]
+      );
+
+      await db.query(`DELETE FROM pending_companies WHERE id = $1`, [id]);
+
+      res.status(200).json({ success: true });
+    } catch (error) {
+      logger.error(`❌ Failed to reject company ${id}: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // --- GET /api/admin/pending-companies ---
+  router.get("/admin/pending-companies", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const { rows } = await db.query(
+        `SELECT
+        pc.id,
+        pc.name,
+        pc.short_description,
+        pc.created_at,
+        pc.logo_url,
+        u.name AS owner_name
+      FROM pending_companies pc
+      JOIN users u ON pc.founder_uuid = u.uuid
+      WHERE pc.status = 'pending'
+      ORDER BY pc.created_at ASC`
+      );
+
+      res.json({ companies: rows });
+    } catch (err) {
+      logger.error(`❌ Failed to fetch pending companies: ${err}`);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 

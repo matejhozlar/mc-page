@@ -1,7 +1,10 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import StatusPopupModal from "../../../modals/StatusPopupModal";
 
 const SubmitFinalCompanyButton = ({ form }) => {
   const navigate = useNavigate();
+  const [popup, setPopup] = useState(null);
 
   const handleSubmit = async () => {
     const body = new FormData();
@@ -22,20 +25,37 @@ const SubmitFinalCompanyButton = ({ form }) => {
       const data = await res.json();
 
       if (res.ok) {
-        navigate(`/market/company/pending/${data.company_id}`);
+        setPopup({
+          type: "success",
+          message: "Company submitted successfully!",
+        });
+        setTimeout(() => navigate(`/market/requests`), 1500);
       } else {
-        alert(data.error || "Failed to submit company.");
+        setPopup({
+          type: "error",
+          message: data.error || "Failed to submit company.",
+        });
       }
     } catch (err) {
       console.error(err);
-      alert("Unexpected error occurred.");
+      setPopup({ type: "error", message: "Unexpected error occurred." });
     }
   };
 
   return (
-    <button onClick={handleSubmit} className="submit-company-btn">
-      Submit Company
-    </button>
+    <>
+      <button onClick={handleSubmit} className="submit-company-btn">
+        Submit Company
+      </button>
+
+      {popup && (
+        <StatusPopupModal
+          type={popup.type}
+          message={popup.message}
+          onClose={() => setPopup(null)}
+        />
+      )}
+    </>
   );
 };
 

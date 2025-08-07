@@ -41,6 +41,7 @@ import Dashboard from "./components/market/dashboard/Dashboard.jsx";
 import Companies from "./components/market/company/Companies.jsx";
 import MarketRequests from "./components/market/requests/MarketRequests.jsx";
 import MarketShops from "./components/market/shops/MarketShops.jsx";
+import PendingCompanyReview from "./components/market/company/PendingCompanyReview.jsx";
 
 function App() {
   return (
@@ -108,6 +109,10 @@ function AppWithRouter() {
                     <AdminPanel />
                   </PlayerProvider>
                 }
+              />
+              <Route
+                path="/admin/company-review/:companyId"
+                element={<PendingCompanyReview />}
               />
               <Route path="/callback-market" element={<CallbackMarket />} />
               <Route path="/market-login" element={<MarketLoginButton />} />

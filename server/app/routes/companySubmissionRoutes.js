@@ -22,7 +22,8 @@ export default function submissionRoutes(db) {
     ]),
     async (req, res) => {
       try {
-        const { name, description, short_description } = req.body;
+        const rawName = (req.body.name || "").trim();
+        const { description, short_description } = req.body;
         const discord_id = req.cookies.user_session;
 
         if (!discord_id) {
@@ -35,40 +36,57 @@ export default function submissionRoutes(db) {
           `SELECT uuid FROM users WHERE discord_id = $1`,
           [discord_id]
         );
-
-        if (userResult.rows.length === 0) {
+        if (userResult.rowCount === 0) {
           return res.status(404).json({ error: "User not found." });
         }
-
         const founder_uuid = userResult.rows[0].uuid;
 
-        const existingPending = await db.query(
-          `SELECT id FROM pending_companies WHERE founder_uuid = $1 LIMIT 1`,
-          [founder_uuid]
-        );
-
-        if (existingPending.rowCount > 0) {
-          return res.status(400).json({
-            error: "You already have a pending company submission.",
-          });
+        if (!rawName || rawName.length > 255) {
+          return res.status(400).json({ error: "Invalid company name." });
         }
 
-        if (!name || name.length > 255) {
-          return res.status(400).json({ error: "Invalid company name." });
+        const existingPendingByFounder = await db.query(
+          `SELECT id FROM pending_companies
+         WHERE founder_uuid = $1 AND status = 'pending'
+         LIMIT 1`,
+          [founder_uuid]
+        );
+        if (existingPendingByFounder.rowCount > 0) {
+          return res
+            .status(400)
+            .json({ error: "You already have a pending company submission." });
+        }
+
+        const nameTakenLive = await db.query(
+          `SELECT 1 FROM companies WHERE LOWER(name) = LOWER($1) LIMIT 1`,
+          [rawName]
+        );
+
+        const nameTakenPending = await db.query(
+          `SELECT 1 FROM pending_companies
+         WHERE LOWER(name) = LOWER($1) AND status = 'pending'
+         LIMIT 1`,
+          [rawName]
+        );
+
+        if (nameTakenLive.rowCount > 0 || nameTakenPending.rowCount > 0) {
+          return res.status(409).json({
+            error: "A company with this name already exists or is pending.",
+          });
         }
 
         const customId = await generateUniqueCompanyId(db);
 
         await db.query(
-          `INSERT INTO pending_companies (
-            id, founder_uuid, name, description, short_description
-          ) VALUES ($1, $2, $3, $4, $5)`,
-          [customId, founder_uuid, name, description, short_description]
+          `INSERT INTO pending_companies
+           (id, founder_uuid, name, description, short_description)
+         VALUES ($1, $2, $3, $4, $5)`,
+          [customId, founder_uuid, rawName, description, short_description]
         );
 
-        const logo = req.files["logo"]?.[0];
-        const banner = req.files["banner"]?.[0];
-        const gallery = Object.keys(req.files)
+        const logo = req.files?.["logo"]?.[0];
+        const banner = req.files?.["banner"]?.[0];
+        const gallery = Object.keys(req.files || {})
           .filter((k) => k.startsWith("gallery_"))
           .map((k) => req.files[k][0]);
 
@@ -109,12 +127,17 @@ export default function submissionRoutes(db) {
         await db.query(
           `UPDATE pending_companies
            SET logo_url = $1, banner_url = $2, gallery_urls = $3
-           WHERE id = $4`,
+         WHERE id = $4`,
           [logoUrl, bannerUrl, galleryUrls, customId]
         );
 
         res.status(200).json({ success: true, company_id: customId });
       } catch (error) {
+        if (error && error.code === "23505") {
+          return res.status(409).json({
+            error: "A company with this name already exists or is pending.",
+          });
+        }
         logger.error(`❌ Failed to submit company: ${error}`);
         res.status(500).json({ error: "Failed to submit company." });
       }

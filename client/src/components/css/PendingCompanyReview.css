@@ -1,0 +1,95 @@
+.admin-review-form {
+  margin-top: 2rem;
+  padding: 10px;
+}
+
+.admin-review-textarea {
+  width: 100%;
+  min-height: 300px;
+  resize: vertical;
+  padding: 1.25rem 1rem;
+  background-color: #111827;
+  color: #e5e7eb;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-family: "Segoe UI", "Roboto", "Helvetica", sans-serif;
+  box-shadow: 0 0 0 2px transparent;
+  transition: box-shadow 0.2s ease;
+}
+
+.admin-review-textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.admin-review-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin-review-buttons button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: 1;
+  padding: 0.75rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.admin-review-approve {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.admin-review-reject {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.admin-review-buttons button svg {
+  flex-shrink: 0;
+}
+
+.admin-review-shift {
+  transform: translateY(1px);
+}
+
+.review-company-banner-logo {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #1f2937;
+  border: 2px solid #374151;
+}
+
+.review-company-banner-image img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-top: 1rem;
+}
+
+.review-company-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.review-company-gallery img {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #2c2c2c;
+}

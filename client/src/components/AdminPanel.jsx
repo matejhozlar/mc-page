@@ -6,6 +6,7 @@ import AdminRconPanel from "./AdminRconPanel.jsx";
 import AdminUsersTable from "./AdminUsersTable.jsx";
 import AdminWaitlistTable from "./AdminWaitlistTable.jsx";
 import LoadingSpinner from "./LoadingSpinner.jsx";
+import AdminCompanyApprovals from "./AdminCompanyApproval.jsx";
 
 // utils
 import { AdminConsoleContext } from "./utils/AdminConsoleContext.js";
@@ -146,6 +147,8 @@ const AdminPanel = () => {
         </div>
         <AdminWaitlistTable />
       </AdminConsoleContext.Provider>
+
+      <AdminCompanyApprovals />
 
       <AdminUsersTable />
       <button className="admin-logout-btn" onClick={handleLogout}>

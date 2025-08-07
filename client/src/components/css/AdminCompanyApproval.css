@@ -1,0 +1,70 @@
+.admin-approvals-wrapper {
+  margin: 2rem 0;
+}
+
+.admin-approvals-list {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-approvals-item {
+  display: flex;
+  align-items: flex-start;
+  background: #1f2937;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.admin-approvals-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 4px;
+  object-fit: cover;
+  background: #111;
+}
+
+.admin-approvals-info {
+  flex-grow: 1;
+}
+
+.admin-approvals-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 200px;
+}
+
+.admin-approvals-actions textarea {
+  resize: vertical;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  background: #2c2c2c;
+  border: none;
+  color: white;
+}
+
+.admin-approvals-actions button {
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+}
+
+.admin-approvals-actions button:first-of-type {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.admin-approvals-actions button:last-of-type {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.admin-empty-message {
+  color: #ccc;
+  font-style: italic;
+}

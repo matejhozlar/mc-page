@@ -3,7 +3,7 @@ import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { marked } from "marked";
 import OnlinePlayersInChat from "./OnlinePlayersInChat.jsx";
 import { motion as Motion } from "framer-motion";
-import "./css/serverchat.css";
+import "./css/ServerChat.css";
 import socket from "../socket/socket.js";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
