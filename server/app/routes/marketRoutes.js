@@ -355,7 +355,7 @@ export default function marketRoutes(db) {
       }
 
       const { rows: pendingCompanies } = await db.query(
-        `SELECT id, name, status, created_at
+        `SELECT id, name, status, created_at, fee_required
        FROM pending_companies
        WHERE founder_uuid = $1
        ORDER BY created_at DESC`,
@@ -437,6 +437,157 @@ export default function marketRoutes(db) {
     } catch (error) {
       logger.error(`❌ Failed to fetch pending companies: ${error}`);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/market/pending-companies/:id/pay
+  router.post("/market/pending-companies/:id/pay", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const {
+        rows: [user],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const {
+        rows: [pending],
+      } = await client.query(
+        `SELECT * FROM pending_companies
+       WHERE id = $1 AND founder_uuid = $2 AND status = 'awaiting_funds'
+       FOR UPDATE`,
+        [id, user.uuid]
+      );
+      if (!pending) {
+        await client.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ error: "Awaiting funds request not found" });
+      }
+
+      const fee = Number(pending.fee_required ?? 0);
+
+      const {
+        rows: [funds],
+      } = await client.query(
+        `SELECT balance FROM user_funds WHERE uuid = $1 FOR UPDATE`,
+        [user.uuid]
+      );
+      const balance = Number(funds?.balance ?? 0);
+      if (balance < fee) {
+        await client.query("ROLLBACK");
+        return res.status(409).json({
+          error: "Insufficient funds",
+          code: "AWAITING_FUNDS",
+          required: fee,
+          balance,
+        });
+      }
+
+      const {
+        rows: [exists],
+      } = await client.query(`SELECT 1 FROM companies WHERE id = $1 LIMIT 1`, [
+        pending.id,
+      ]);
+      if (exists) {
+        await client.query("ROLLBACK");
+        return res.status(409).json({ error: "Company already finalized" });
+      }
+
+      await client.query(
+        `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
+        [fee, user.uuid]
+      );
+
+      await client.query(
+        `UPDATE pending_companies
+         SET status = 'approved',
+             reviewed_at = COALESCE(reviewed_at, NOW()),
+             fee_required = NULL,
+             fee_checked_at = NULL
+       WHERE id = $1`,
+        [id]
+      );
+
+      try {
+        await client.query(
+          `INSERT INTO companies (id, founder_uuid, name, description, short_description, created_at)
+         VALUES ($1,$2,$3,$4,$5,$6)`,
+          [
+            pending.id,
+            pending.founder_uuid,
+            pending.name,
+            pending.description,
+            pending.short_description,
+            pending.created_at,
+          ]
+        );
+      } catch (error) {
+        if (error?.code === "23505") {
+          await client.query("ROLLBACK");
+          return res.status(409).json({ error: "Company already finalized" });
+        }
+        throw error;
+      }
+
+      await client.query(
+        `INSERT INTO company_funds (company_id, balance) VALUES ($1, 0)`,
+        [pending.id]
+      );
+      await client.query(
+        `INSERT INTO company_members (user_uuid, company_id, role) VALUES ($1,$2,'Founder')`,
+        [pending.founder_uuid, pending.id]
+      );
+
+      const imageInserts = [];
+      if (pending.logo_url)
+        imageInserts.push(
+          client.query(
+            `INSERT INTO company_images (company_id, url, type, position)
+           VALUES ($1,$2,'logo',0)`,
+            [pending.id, pending.logo_url]
+          )
+        );
+      if (pending.banner_url)
+        imageInserts.push(
+          client.query(
+            `INSERT INTO company_images (company_id, url, type, position)
+           VALUES ($1,$2,'banner',0)`,
+            [pending.id, pending.banner_url]
+          )
+        );
+      (pending.gallery_urls ?? []).forEach((u, i) => {
+        if (u)
+          imageInserts.push(
+            client.query(
+              `INSERT INTO company_images (company_id, url, type, position)
+             VALUES ($1,$2,'gallery',$3)`,
+              [pending.id, u, i]
+            )
+          );
+      });
+      await Promise.all(imageInserts);
+
+      await client.query("COMMIT");
+      return res.json({ success: true, company_id: pending.id });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ Pay & finalize error: ${error}`);
+      return res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
     }
   });
 

@@ -188,3 +188,53 @@
 .market-rejection-expanded {
   overflow: hidden;
 }
+
+.market-request-awaiting {
+  color: #facc15;
+}
+
+.market-awaiting-item {
+  background: #2a2a1b;
+  border: 1px solid #f59e0b33;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.market-awaiting-item:hover {
+  background: #3a321b;
+}
+
+.market-pay-amount {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fbbf24;
+  margin-right: 0.75rem;
+}
+
+.market-pay-btn {
+  background: #f59e0b;
+  color: #1f2937;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.market-pay-btn:hover {
+  background: #fbbf24;
+}
+
+.market-pay-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.market-awaiting-footnote {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #e9d5ff99;
+}

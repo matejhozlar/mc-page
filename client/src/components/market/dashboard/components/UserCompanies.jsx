@@ -1,15 +1,25 @@
+import { useState } from "react";
 import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
 import { Plus, Briefcase } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import "../../css/UserCompanies.css";
+import StatusPopupModal from "../../../modals/StatusPopupModal.jsx";
 
 const UserCompanies = () => {
   const { user, loading } = useMarketUser();
+  const [showModal, setShowModal] = useState(false);
 
   if (loading) return <p>Loading companies...</p>;
   if (!user) return <p>Error loading companies.</p>;
 
   const { companies, company_count, max_companies } = user;
+
+  const handleCreateClick = (e) => {
+    if (company_count >= max_companies) {
+      e.preventDefault();
+      setShowModal(true);
+    }
+  };
 
   return (
     <div className="user-companies-section">
@@ -23,9 +33,7 @@ const UserCompanies = () => {
           className={`create-company-button ${
             company_count >= max_companies ? "disabled" : ""
           }`}
-          onClick={(e) => {
-            if (company_count >= max_companies) e.preventDefault();
-          }}
+          onClick={handleCreateClick}
         >
           <Plus className="company-plus-icon" /> Create
         </NavLink>
@@ -71,6 +79,14 @@ const UserCompanies = () => {
           ))
         )}
       </div>
+
+      {showModal && (
+        <StatusPopupModal
+          type="error"
+          message={`You can only create up to ${max_companies} companies.`}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };

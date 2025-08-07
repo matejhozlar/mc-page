@@ -1,12 +1,20 @@
 import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
 import { Plus, Store } from "lucide-react";
+import { useState } from "react";
+import StatusPopupModal from "../../../modals/StatusPopupModal.jsx";
 import "../../css/UserCompanies.css";
 
 const UserShops = () => {
   const { user, loading } = useMarketUser();
+  const [showModal, setShowModal] = useState(false);
 
   if (loading) return <p>Loading shops...</p>;
   if (!user) return <p>Error loading shops.</p>;
+
+  const handleCreateClick = (e) => {
+    e.preventDefault();
+    setShowModal(true);
+  };
 
   const { shops } = user;
 
@@ -17,10 +25,7 @@ const UserShops = () => {
           <Store size={32} className="company-store-icon" />
           Your Shops
         </h2>
-        <button
-          className="create-company-button"
-          onClick={() => alert("Shop creation coming soon...")}
-        >
+        <button className="create-company-button" onClick={handleCreateClick}>
           <Plus className="company-plus-icon" /> Create
         </button>
       </div>
@@ -50,6 +55,13 @@ const UserShops = () => {
           ))
         )}
       </div>
+      {showModal && (
+        <StatusPopupModal
+          type="error"
+          message={`This feature is not available yet`}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };

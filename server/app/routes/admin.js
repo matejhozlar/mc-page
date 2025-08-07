@@ -8,6 +8,7 @@ import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getCompanyCreationFee } from "../utils/market/fees/getCompanyCreationFee.js";
 
 const r2 = new S3Client({
   region: process.env.R2_REGION,
@@ -437,114 +438,69 @@ export default function adminRoutes(db) {
   router.post("/admin/pending-companies/:id/approve", async (req, res) => {
     const discordId = req.cookies.admin_session;
     const id = parseInt(req.params.id, 10);
-
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
 
+    const client = await db.connect();
     try {
       const isAdminUser = await isAdmin(db, discordId);
       if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
 
+      await client.query("BEGIN");
+
       const {
         rows: [adminUser],
-      } = await db.query(
+      } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
         [discordId]
       );
 
-      if (!adminUser) {
-        return res.status(404).json({ error: "Admin user not found" });
-      }
-
-      const adminUuid = adminUser.uuid;
-
       const {
         rows: [pending],
-      } = await db.query(
-        `SELECT * FROM pending_companies WHERE id = $1 AND status = 'pending'`,
+      } = await client.query(
+        `SELECT * FROM pending_companies
+       WHERE id = $1 AND status IN ('pending','awaiting_funds')
+       FOR UPDATE`,
         [id]
       );
-
       if (!pending) {
+        await client.query("ROLLBACK");
         return res
           .status(404)
           .json({ error: "Pending company not found or already processed" });
       }
 
-      await db.query(
+      const {
+        rows: [cnt],
+      } = await client.query(
+        `SELECT COUNT(*)::int AS n FROM companies WHERE founder_uuid = $1`,
+        [pending.founder_uuid]
+      );
+      const alreadyOwned = cnt?.n ?? 0;
+
+      const fee = getCompanyCreationFee(alreadyOwned);
+
+      await client.query(
         `UPDATE pending_companies
-       SET status = 'approved', reviewed_at = NOW(), reviewed_by = $1
-       WHERE id = $2`,
-        [adminUuid, id]
+         SET status = 'awaiting_funds',
+             fee_required = $1,
+             fee_checked_at = NOW(),
+             reviewed_at = NOW(),
+             reviewed_by = $2
+       WHERE id = $3`,
+        [fee, adminUser.uuid, id]
       );
 
-      await db.query(
-        `INSERT INTO companies (id, founder_uuid, name, description, short_description, created_at)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          pending.id,
-          pending.founder_uuid,
-          pending.name,
-          pending.description,
-          pending.short_description,
-          pending.created_at,
-        ]
-      );
-
-      await db.query(
-        `INSERT INTO company_funds (company_id, balance)
-       VALUES ($1, 0)`,
-        [pending.id]
-      );
-
-      await db.query(
-        `INSERT INTO company_members (user_uuid, company_id, role)
-       VALUES ($1, $2, 'Founder')`,
-        [pending.founder_uuid, pending.id]
-      );
-
-      const imageInsertPromises = [];
-
-      if (pending.logo_url) {
-        imageInsertPromises.push(
-          db.query(
-            `INSERT INTO company_images (company_id, url, type, position)
-       VALUES ($1, $2, 'logo', 0)`,
-            [pending.id, pending.logo_url]
-          )
-        );
-      }
-
-      if (pending.banner_url) {
-        imageInsertPromises.push(
-          db.query(
-            `INSERT INTO company_images (company_id, url, type, position)
-       VALUES ($1, $2, 'banner', 0)`,
-            [pending.id, pending.banner_url]
-          )
-        );
-      }
-
-      if (Array.isArray(pending.gallery_urls)) {
-        pending.gallery_urls.forEach((url, index) => {
-          if (url) {
-            imageInsertPromises.push(
-              db.query(
-                `INSERT INTO company_images (company_id, url, type, position)
-           VALUES ($1, $2, 'gallery', $3)`,
-                [pending.id, url, index]
-              )
-            );
-          }
-        });
-      }
-
-      await Promise.all(imageInsertPromises);
-
-      res.status(200).json({ success: true });
+      await client.query("COMMIT");
+      return res
+        .status(200)
+        .json({ success: true, status: "awaiting_funds", required: fee });
     } catch (error) {
-      logger.error(`❌ Failed to approve company ${id}: ${error}`);
+      await client.query("ROLLBACK");
+      logger.error(`❌ Admin approve->awaiting_funds error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
     }
   });
 
