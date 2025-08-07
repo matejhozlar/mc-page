@@ -49,7 +49,16 @@ const UserCompanies = () => {
                 />
               </div>
               <div className="company-info">
-                <h3>{company.name}</h3>
+                <div className="company-header-row">
+                  <h3>{company.name}</h3>
+                  <p className="card-company-balance">
+                    $
+                    {Number(company.balance || 0).toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </p>
+                </div>
                 <p>{company.short_description || "No description provided."}</p>
                 <p className="small">
                   {company.shop_count} shops • Role: {company.role}

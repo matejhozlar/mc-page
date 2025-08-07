@@ -30,28 +30,36 @@ const CompanyPage = () => {
       }
     };
 
-    const fetchBalance = async () => {
+    const fetchAllBalanceData = async () => {
       try {
-        const res = await fetch(`/api/market/company/${companyId}/balance`);
-        const data = await res.json();
-        setBalance(data.balance);
-      } catch (err) {
-        console.error("Failed to fetch company balance", err);
-      }
-    };
+        const [balanceRes, historyRes] = await Promise.all([
+          fetch(`/api/market/company/${companyId}/balance`),
+          fetch(`/api/market/company/${companyId}/balance/history`),
+        ]);
 
-    const fetchBalanceHistory = async () => {
-      try {
-        const res = await fetch(
-          `/api/market/company/${companyId}/balance/history`
-        );
-        const data = await res.json();
+        const balanceData = await balanceRes.json();
+        const historyData = await historyRes.json();
 
-        const history = data.history;
-        setBalanceHistory(history);
-        if (history.length >= 2) {
-          const first = history[0].balance;
-          const last = history[history.length - 1].balance;
+        const rawHistory = historyData.history || [];
+        const latestBalance = balanceData.balance;
+
+        setBalance(latestBalance);
+
+        // Append latest balance as "today"
+        const now = new Date();
+        const updatedHistory = [
+          ...rawHistory,
+          {
+            balance: latestBalance,
+            recorded_at: now.toISOString(),
+          },
+        ];
+
+        setBalanceHistory(updatedHistory);
+
+        if (updatedHistory.length >= 2) {
+          const first = updatedHistory[0].balance;
+          const last = updatedHistory[updatedHistory.length - 1].balance;
 
           if (first !== 0) {
             const change = ((last - first) / first) * 100;
@@ -59,7 +67,7 @@ const CompanyPage = () => {
           }
         }
       } catch (err) {
-        console.error("Failed to fetch balance history", err);
+        console.error("❌ Failed to fetch balance and history:", err);
       }
     };
 
@@ -75,8 +83,7 @@ const CompanyPage = () => {
 
     fetchMembers();
     fetchCompany();
-    fetchBalance();
-    fetchBalanceHistory();
+    fetchAllBalanceData();
   }, [companyId]);
 
   if (loading) return <LoadingSpinner message="Loading company...>" />;
@@ -104,7 +111,7 @@ const CompanyPage = () => {
         {/* Balance */}
         <div className="company-balance">
           {balance !== null ? (
-            <p>
+            <p className="company-balance-percentage">
               ${Number(balance).toFixed(2)}
               {percentChange !== null && (
                 <span

@@ -94,3 +94,16 @@
   font-size: 0.85rem;
   color: #aaa;
 }
+
+.company-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.card-company-balance {
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--button-disabled-color) !important;
+}

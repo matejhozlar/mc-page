@@ -1,6 +1,27 @@
 import ReactMarkdown from "react-markdown";
+import { useMemo } from "react";
+import CompanyBalanceChart from "../components/CompanyBalanceChart.jsx";
 
 const CompanyPreview = ({ form }) => {
+  const balanceHistory = useMemo(() => {
+    const base = 10000;
+    let last = base;
+    const history = Array.from({ length: 7 }, (_, i) => {
+      const change = (Math.random() - 0.5) * 500;
+      last += change;
+      return {
+        recorded_at: new Date(Date.now() - (6 - i) * 86400000).toISOString(),
+        balance: Math.max(0, last.toFixed(2)),
+      };
+    });
+    return history;
+  }, []);
+
+  const mockBalance =
+    balanceHistory.length > 0
+      ? balanceHistory[balanceHistory.length - 1].balance
+      : 0;
+
   return (
     <>
       {/* Header */}
@@ -16,9 +37,18 @@ const CompanyPreview = ({ form }) => {
             className="company-banner-logo"
           />
           <div className="company-meta">
-            <h1>{form.name}</h1>
+            <h1>{form.name || "Company Name"}</h1>
             <p>{form.short_description || "Preview"}</p>
           </div>
+        </div>
+        {/* Balance */}
+        <div className="company-balance">
+          <p>
+            $
+            {Number(mockBalance).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            })}
+          </p>
         </div>
       </div>
 
@@ -39,6 +69,11 @@ const CompanyPreview = ({ form }) => {
           <h2 className="company-section-title">Description</h2>
           <ReactMarkdown>{form.description}</ReactMarkdown>
         </div>
+      )}
+
+      {/* Net Worth Chart */}
+      {balanceHistory.length > 0 && (
+        <CompanyBalanceChart history={balanceHistory} />
       )}
 
       {/* Gallery */}

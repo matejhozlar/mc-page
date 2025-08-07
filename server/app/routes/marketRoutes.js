@@ -35,21 +35,24 @@ export default function marketRoutes(db) {
 
       const companiesResult = await db.query(
         `SELECT 
-           c.id,
-           c.name,
-           c.description,
-           c.short_description,
-           c.created_at,
-           cm.role,
-           (
-             SELECT COUNT(*) FROM shops s WHERE s.company_id = c.id
-           ) AS shop_count,
-           (
-             SELECT ARRAY_AGG(url ORDER BY position)
-             FROM company_images
-             WHERE company_id = c.id AND type = 'logo'
-             LIMIT 1
-           ) AS image_urls
+            c.id,
+            c.name,
+            c.description,
+            c.short_description,
+            c.created_at,
+            cm.role,
+            (
+              SELECT COUNT(*) FROM shops s WHERE s.company_id = c.id
+            ) AS shop_count,
+            (
+              SELECT balance FROM company_funds cf WHERE cf.company_id = c.id
+            ) AS balance,
+            (
+              SELECT ARRAY_AGG(url ORDER BY position)
+              FROM company_images
+              WHERE company_id = c.id AND type = 'logo'
+              LIMIT 1
+            ) AS image_urls
          FROM companies c
          JOIN company_members cm ON cm.company_id = c.id
          WHERE cm.user_uuid = $1`,
@@ -297,6 +300,36 @@ export default function marketRoutes(db) {
       logger.error(
         `❌ Failed to fetch members for company ${companyId}: ${err}`
       );
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/market/companies/all
+  router.get("/market/companies/all", async (req, res) => {
+    try {
+      const { rows } = await db.query(`
+      SELECT
+        c.id,
+        c.name,
+        c.short_description,
+        c.created_at,
+        u.name AS founder_name,
+        (
+          SELECT balance FROM company_funds WHERE company_id = c.id
+        ) AS balance,
+        (
+          SELECT ARRAY_AGG(url ORDER BY position)
+          FROM company_images
+          WHERE company_id = c.id AND type = 'logo'
+          LIMIT 1
+        ) AS image_urls
+      FROM companies c
+      JOIN users u ON u.uuid = c.founder_uuid
+    `);
+
+      res.json({ companies: rows });
+    } catch (err) {
+      logger.error("❌ Failed to fetch all companies:", err);
       res.status(500).json({ error: "Internal server error" });
     }
   });
