@@ -1,0 +1,190 @@
+.market-requests-page {
+  padding: 2rem;
+}
+
+.market-requests-page h2 {
+  margin-bottom: 20px;
+  color: var(--default-color);
+}
+
+.market-request-section {
+  margin-bottom: 2rem;
+}
+
+.market-request-section h2 {
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.25rem;
+}
+
+.market-request-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.market-request-item {
+  background: #1f2937;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.market-request-item:hover {
+  background: #2c3e50;
+}
+
+.market-request-approved {
+  color: var(--success-color);
+}
+
+.market-request-rejected {
+  color: var(--error-color);
+}
+
+.market-request-meta {
+  color: #999;
+  font-size: 0.875rem;
+  margin-left: 0.5rem;
+}
+
+.market-request-date {
+  font-size: 0.875rem;
+  color: #ccc;
+}
+
+.market-empty {
+  color: #aaa;
+  font-style: italic;
+}
+
+.rejection-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.rejection-modal-content {
+  background: #1f1f1f;
+  color: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 10px #000;
+}
+
+.rejection-modal-reason-box {
+  background: #2c2c2c;
+  padding: 1rem;
+  border-radius: 4px;
+  font-style: italic;
+  color: #e57373;
+  margin: 1rem 0;
+  white-space: pre-wrap;
+}
+
+.rejection-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.rejection-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+}
+
+.rejection-btn-delete {
+  background-color: #e53935;
+  color: white;
+}
+
+.rejection-btn-close {
+  background-color: #444;
+  color: white;
+}
+
+.market-request-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.market-request-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.market-request-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.market-request-date {
+  font-size: 0.875rem;
+  color: #ccc;
+}
+
+.market-expand-btn {
+  background: none;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.market-rejection-expanded {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.market-rejection-label {
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  color: var(--error-color);
+}
+
+.market-rejection-box {
+  padding: 0.75rem;
+  border-radius: 4px;
+  color: var(--error-color);
+  font-style: italic;
+  white-space: pre-wrap;
+}
+
+.market-delete-btn {
+  margin-top: 1rem;
+  background-color: var(--button-error-background);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.market-rejection-expanded {
+  overflow: hidden;
+}

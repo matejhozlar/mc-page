@@ -82,7 +82,7 @@
 }
 
 .upload-error {
-  color: #f87171;
+  color: var(--error-color);
   font-size: 0.875rem;
   margin-top: 0.5rem;
 }

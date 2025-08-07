@@ -39,6 +39,8 @@ import CreateCompanyWizard from "./components/market/company/CreateCompanyWizard
 import CompanyPreviewPage from "./components/market/company/steps/CompanyPreviewPage.jsx";
 import Dashboard from "./components/market/dashboard/Dashboard.jsx";
 import Companies from "./components/market/company/Companies.jsx";
+import MarketRequests from "./components/market/requests/MarketRequests.jsx";
+import MarketShops from "./components/market/shops/MarketShops.jsx";
 
 function App() {
   return (
@@ -112,6 +114,8 @@ function AppWithRouter() {
               <Route path="/market" element={<Market />}>
                 <Route index element={<Dashboard />} />
                 <Route path="companies" element={<Companies />} />
+                <Route path="requests" element={<MarketRequests />} />
+                <Route path="shops" element={<MarketShops />} />
               </Route>
               <Route
                 path="/market/company/:companyId"

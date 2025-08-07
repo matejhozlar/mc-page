@@ -72,6 +72,12 @@
   --button-color: #fff;
   --button-hover: hsl(90, 44%, 60%);
   --button-disabled-color: #888;
+  --button-error-background: #e53935;
+
+  /* Error */
+  --error-color: #f87171;
+  --success-color: hsl(90, 44%, 48%);
+  --success-hover: hsl(90, 44%, 60%);
 }
 
 html.scroll-override,

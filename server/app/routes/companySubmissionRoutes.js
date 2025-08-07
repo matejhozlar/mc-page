@@ -42,6 +42,17 @@ export default function submissionRoutes(db) {
 
         const founder_uuid = userResult.rows[0].uuid;
 
+        const existingPending = await db.query(
+          `SELECT id FROM pending_companies WHERE founder_uuid = $1 LIMIT 1`,
+          [founder_uuid]
+        );
+
+        if (existingPending.rowCount > 0) {
+          return res.status(400).json({
+            error: "You already have a pending company submission.",
+          });
+        }
+
         if (!name || name.length > 255) {
           return res.status(400).json({ error: "Invalid company name." });
         }
@@ -61,7 +72,6 @@ export default function submissionRoutes(db) {
           .filter((k) => k.startsWith("gallery_"))
           .map((k) => req.files[k][0]);
 
-        // Helper to extract extension
         const ext = (file) => path.extname(file.originalname).toLowerCase();
 
         const logoUrl = logo

@@ -3,7 +3,14 @@ import { NavLink } from "react-router-dom";
 import logo from "../assets/logo/logo.png";
 import { FaPaypal } from "react-icons/fa";
 import { FiHome } from "react-icons/fi";
-import { Coins, Store, ArrowLeftCircle, Briefcase } from "lucide-react";
+import {
+  Coins,
+  Store,
+  ArrowLeftCircle,
+  Briefcase,
+  ClipboardList,
+  LayoutDashboard,
+} from "lucide-react";
 import useSidebar from "./utils/useSidebar.js";
 
 const Sidebar = () => {
@@ -211,7 +218,7 @@ const Sidebar = () => {
                   className="nav-link"
                   onClick={() => setSidebarMode("market")}
                 >
-                  <Store className="nav-icon" />
+                  <LayoutDashboard className="nav-icon" />
                   Dashboard
                 </NavLink>
               </li>
@@ -219,6 +226,18 @@ const Sidebar = () => {
                 <NavLink to="/market/companies" className="nav-link">
                   <Briefcase className="nav-icon" />
                   Companies
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/market/shops" className="nav-link">
+                  <Store className="nav-icon" />
+                  Shops
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/market/requests" className="nav-link">
+                  <ClipboardList className="nav-icon" />
+                  Requests
                 </NavLink>
               </li>
               <li className="nav-item">

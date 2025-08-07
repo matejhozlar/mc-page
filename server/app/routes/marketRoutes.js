@@ -334,5 +334,86 @@ export default function marketRoutes(db) {
     }
   });
 
+  // GET /api/market/requests
+  router.get("/market/requests", async (req, res) => {
+    const discordId = req.cookies.user_session;
+
+    if (!discordId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { rows: pendingCompanies } = await db.query(
+        `SELECT id, name, status, created_at
+       FROM pending_companies
+       WHERE founder_uuid = $1
+       ORDER BY created_at DESC`,
+        [user.uuid]
+      );
+
+      const { rows: rejectedCompanies } = await db.query(
+        `SELECT id, name, reason, rejected_at
+       FROM rejected_companies
+       WHERE founder_uuid = $1
+       ORDER BY rejected_at DESC`,
+        [user.uuid]
+      );
+
+      res.json({
+        pending_companies: pendingCompanies,
+        rejected_companies: rejectedCompanies,
+      });
+    } catch (err) {
+      logger.error(`❌ Failed to fetch user requests: ${err}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // DELETE /api/market/rejected-companies/:id
+  router.delete("/market/rejected-companies/:id", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const companyId = parseInt(req.params.id, 10);
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(companyId)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+
+      const { rowCount } = await db.query(
+        `DELETE FROM rejected_companies
+       WHERE id = $1 AND founder_uuid = $2`,
+        [companyId, user.uuid]
+      );
+
+      if (rowCount === 0) {
+        return res
+          .status(404)
+          .json({ error: "Rejected request not found or not yours." });
+      }
+
+      res.status(200).json({ success: true });
+    } catch (err) {
+      logger.error("❌ Failed to delete rejected company:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }

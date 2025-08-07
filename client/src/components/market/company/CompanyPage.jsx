@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Settings, Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import CompanyBalanceChart from "./components/CompanyBalanceChart.jsx";
 import CompanyGallery from "./components/CompanyGallery.jsx";
@@ -16,6 +16,7 @@ const CompanyPage = () => {
   const [loading, setLoading] = useState(true);
   const [percentChange, setPercentChange] = useState(null);
   const [balanceHistory, setBalanceHistory] = useState([]);
+  const [visitor, setVisitor] = useState(null);
 
   useEffect(() => {
     const fetchCompany = async () => {
@@ -45,7 +46,6 @@ const CompanyPage = () => {
 
         setBalance(latestBalance);
 
-        // Append latest balance as "today"
         const now = new Date();
         const updatedHistory = [
           ...rawHistory,
@@ -66,8 +66,8 @@ const CompanyPage = () => {
             setPercentChange(change);
           }
         }
-      } catch (err) {
-        console.error("❌ Failed to fetch balance and history:", err);
+      } catch (error) {
+        console.error("❌ Failed to fetch balance and history:", error);
       }
     };
 
@@ -76,11 +76,22 @@ const CompanyPage = () => {
         const res = await fetch(`/api/market/company/${companyId}/members`);
         const data = await res.json();
         setMembers(data.members || []);
-      } catch (err) {
-        console.error("Failed to fetch company members", err);
+      } catch (error) {
+        console.error("Failed to fetch company members", error);
       }
     };
 
+    const fetchVisitor = async () => {
+      try {
+        const res = await fetch("/api/market/me", { credentials: "include" });
+        const data = await res.json();
+        setVisitor(data);
+      } catch (error) {
+        console.error("Failed to fetch current user", error);
+      }
+    };
+
+    fetchVisitor();
     fetchMembers();
     fetchCompany();
     fetchAllBalanceData();
@@ -89,9 +100,26 @@ const CompanyPage = () => {
   if (loading) return <LoadingSpinner message="Loading company...>" />;
   if (!company) return <p className="error">Company not found.</p>;
   if (!company.name) return <NotFound />;
+  if (!visitor) return <p className="error">Visitor not found.</p>;
+
+  const isFounder =
+    visitor?.companies?.some(
+      (c) => c.id === company.id && c.role === "Founder"
+    ) ?? false;
 
   return (
     <div className="company-profile-page">
+      {/* Owner Dashboard */}
+      {isFounder && (
+        <div className="company-owner-dashboard">
+          <button className="dashboard-button">
+            <Settings size={16} className="dashboard-button-shift" /> Manage
+          </button>
+          <button className="dashboard-button">
+            <Pencil size={16} className="dashboard-button-shift" /> Edit
+          </button>
+        </div>
+      )}
       {/* Header */}
       <div className="company-banner">
         <div className="company-banner-left">
@@ -136,6 +164,7 @@ const CompanyPage = () => {
           )}
         </div>
       </div>
+
       {/* Banner */}
       {company.banner_url && (
         <div className="company-banner-image">

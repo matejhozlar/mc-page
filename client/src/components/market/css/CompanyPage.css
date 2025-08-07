@@ -252,3 +252,38 @@
   margin-left: 0.5rem;
   font-size: 1.1rem;
 }
+
+.company-owner-dashboard {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dashboard-button:first-child {
+  margin-left: auto;
+}
+
+.dashboard-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+  background-color: var(--button-background);
+  color: var(--default-color);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dashboard-button-shift {
+  transform: translateY(1px);
+}
+
+.dashboard-button:hover {
+  background-color: var(--button-hover);
+}
