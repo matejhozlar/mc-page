@@ -334,6 +334,10 @@ p {
   transition: transform 0.2s ease;
 }
 
+.nav-icon-shift {
+  transform: translateY(-1px);
+}
+
 .nav-link:hover .nav-icon {
   transform: scale(1.15);
 }

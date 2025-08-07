@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { Coins } from "lucide-react";
+import { Coins, Store, Briefcase } from "lucide-react";
 import "./css/mobile.css";
 
 const MobileNav = () => {
@@ -23,6 +23,22 @@ const MobileNav = () => {
     <>
       {moreOpen && (
         <div className="more-panel">
+          <NavLink
+            to="/market"
+            className="more-link"
+            onClick={() => setMoreOpen(false)}
+          >
+            <Store className="nav-icon nav-icon-shift" />
+            Market
+          </NavLink>
+          <NavLink
+            to="/market/companies"
+            className="more-link"
+            onClick={() => setMoreOpen(false)}
+          >
+            <Briefcase className="nav-icon nav-icon-shift" />
+            Companies
+          </NavLink>
           <NavLink
             to="/blue-map"
             className="more-link"
