@@ -32,6 +32,11 @@ async function deleteR2Object(key) {
   }
 }
 
+function keyFromPublicUrl(url) {
+  const prefix = "https://market-assets.create-rington.com/";
+  return url?.startsWith(prefix) ? url.slice(prefix.length) : null;
+}
+
 export default function adminRoutes(db) {
   const router = express.Router();
 
@@ -644,6 +649,131 @@ export default function adminRoutes(db) {
     } catch (err) {
       logger.error(`❌ Failed to fetch company edit ${editId}: ${err}`);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/admin/company-edits/:id/approve
+  router.post("/admin/company-edits/:id/approve", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    const client = await db.connect();
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      await client.query("BEGIN");
+
+      const {
+        rows: [adminUser],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+
+      const {
+        rows: [edit],
+      } = await client.query(
+        `SELECT * FROM company_edits WHERE id = $1 AND status = 'pending' FOR UPDATE`,
+        [id]
+      );
+      if (!edit) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Edit not found or processed" });
+      }
+
+      const fee = 100;
+
+      await client.query(
+        `UPDATE company_edits
+         SET status = 'awaiting_funds',
+             fee_required = $1,
+             fee_checked_at = NOW(),
+             reviewed_at = NOW(),
+             reviewed_by = $2
+       WHERE id = $3`,
+        [fee, adminUser.uuid, id]
+      );
+
+      await client.query("COMMIT");
+      return res.json({
+        success: true,
+        status: "awaiting_funds",
+        required: fee,
+      });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ Edit approve->awaiting_funds error: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  });
+
+  // POST /api/admin/company-edits/:id/reject
+  router.post("/admin/company-edits/:id/reject", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    const { reason } = req.body;
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    if (!reason || !reason.trim())
+      return res.status(400).json({ error: "Reason required" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const {
+        rows: [edit],
+      } = await db.query(
+        `SELECT * FROM company_edits WHERE id = $1 AND status = 'pending'`,
+        [id]
+      );
+      if (!edit) {
+        return res.status(404).json({ error: "Edit not found or processed" });
+      }
+
+      const keys = [
+        keyFromPublicUrl(edit.logo_path),
+        keyFromPublicUrl(edit.banner_path),
+        ...(edit.gallery_paths ?? []).map(keyFromPublicUrl),
+      ].filter(Boolean);
+
+      await Promise.all(
+        keys.map((Key) =>
+          r2
+            .send(
+              new DeleteObjectCommand({
+                Bucket: process.env.R2_BUCKET_NAME,
+                Key,
+              })
+            )
+            .catch((e) =>
+              logger.warn(`⚠️ R2 delete failed for ${Key}: ${e.message}`)
+            )
+        )
+      );
+
+      await db.query(
+        `INSERT INTO rejected_company_edits (id, company_id, editor_uuid, reason)
+       VALUES ($1,$2,$3,$4)
+       ON CONFLICT (id) DO NOTHING`,
+        [edit.id, edit.company_id, edit.editor_uuid, reason.trim()]
+      );
+
+      await db.query(
+        `UPDATE company_edits SET status='rejected', reason=$1, reviewed_at=NOW() WHERE id=$2`,
+        [reason.trim(), id]
+      );
+
+      return res.json({ success: true });
+    } catch (err) {
+      logger.error(`❌ Reject company edit ${id}: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 

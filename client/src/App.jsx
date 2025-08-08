@@ -43,6 +43,7 @@ import MarketRequests from "./components/market/requests/MarketRequests.jsx";
 import MarketShops from "./components/market/shops/MarketShops.jsx";
 import PendingCompanyReview from "./components/market/company/PendingCompanyReview.jsx";
 import EditCompanyWizard from "./components/market/company/EditCompanyWizard.jsx";
+import EditCompanyReview from "./components/market/company/EditCompanyReview.jsx";
 
 function App() {
   return (
@@ -114,6 +115,10 @@ function AppWithRouter() {
               <Route
                 path="/admin/company-review/:companyId"
                 element={<PendingCompanyReview />}
+              />
+              <Route
+                path="/admin/company-edit-review/:editId"
+                element={<EditCompanyReview />}
               />
               <Route path="/callback-market" element={<CallbackMarket />} />
               <Route path="/market-login" element={<MarketLoginButton />} />

@@ -1,8 +1,59 @@
 import express from "express";
-import { saveLocalImage } from "../utils/market/saveLocalImage.js";
 import upload from "../middleware/multer.js";
-import path from "path";
 import logger from "../../logger.js";
+import path from "path";
+import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
+import {
+  S3Client,
+  CopyObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
+import url from "url";
+
+const r2 = new S3Client({
+  region: process.env.R2_REGION,
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
+
+const PUBLIC_BASE = "https://market-assets.create-rington.com/";
+const BUCKET = process.env.R2_BUCKET_NAME;
+
+function keyFromPublicUrl(publicUrl) {
+  if (!publicUrl || typeof publicUrl !== "string") return null;
+  if (!publicUrl.startsWith(PUBLIC_BASE)) return null;
+  return publicUrl.slice(PUBLIC_BASE.length);
+}
+
+async function moveR2Object(srcUrl, destKey) {
+  const srcKey = keyFromPublicUrl(srcUrl);
+  if (!srcKey) return null;
+
+  await r2.send(
+    new CopyObjectCommand({
+      Bucket: BUCKET,
+      CopySource: `${BUCKET}/${encodeURI(srcKey)}`,
+      Key: destKey,
+    })
+  );
+
+  await r2.send(
+    new DeleteObjectCommand({
+      Bucket: BUCKET,
+      Key: srcKey,
+    })
+  );
+
+  return `${PUBLIC_BASE}${destKey}`;
+}
+
+function extFromKey(key) {
+  const idx = key.lastIndexOf(".");
+  return idx >= 0 ? key.slice(idx) : ".png";
+}
 
 export default function marketRoutes(db) {
   const router = express.Router();
@@ -668,46 +719,26 @@ export default function marketRoutes(db) {
             if (f?.buffer) gallery_paths.push(f);
           });
 
-        const base =
-          process.env.LOCAL_ASSETS_DIR ||
-          path.resolve(process.cwd(), "uploads");
-        const companySubdir = path.join("edits", String(companyId));
+        const basePath = `company-edits/${companyId}`;
 
         if (logo) {
           const ext = path.extname(logo.originalname) || ".png";
-          const saved = await saveLocalImage(
-            logo.buffer,
-            base,
-            companySubdir,
-            `logo${ext}`
-          );
-          logo_path = `/uploads/${saved.relative}`;
+          logo_path = await uploadImageToR2(logo, basePath, `logo${ext}`);
         }
 
         if (banner) {
           const ext = path.extname(banner.originalname) || ".png";
-          const saved = await saveLocalImage(
-            banner.buffer,
-            base,
-            companySubdir,
-            `banner${ext}`
-          );
-          banner_path = `/uploads/${saved.relative}`;
+          banner_path = await uploadImageToR2(banner, basePath, `banner${ext}`);
         }
 
         if (gallery_paths.length) {
-          galleryPathsSaved = [];
-          for (let i = 0; i < gallery_paths.length; i++) {
-            const gf = gallery_paths[i];
-            const ext = path.extname(gf.originalname) || ".png";
-            const saved = await saveLocalImage(
-              gf.buffer,
-              base,
-              path.join(companySubdir, "gallery"),
-              `gallery-${i}${ext}`
-            );
-            galleryPathsSaved.push(`/uploads/${saved.relative}`);
-          }
+          const galleryBase = `${basePath}/gallery`;
+          galleryPathsSaved = await Promise.all(
+            gallery_paths.map((gf, i) => {
+              const ext = path.extname(gf.originalname) || ".png";
+              return uploadImageToR2(gf, galleryBase, `gallery-${i}${ext}`);
+            })
+          );
         }
 
         const {
@@ -754,31 +785,289 @@ export default function marketRoutes(db) {
       );
       if (!user) return res.status(404).json({ error: "User not found" });
 
-      const { rows: edits } = await db.query(
-        `SELECT e.id, e.company_id, c.name, e.status, e.created_at
-          FROM company_edits e
-          JOIN companies c ON e.company_id = c.id
-          WHERE e.editor_uuid = $1
-          ORDER BY e.created_at DESC`,
+      const { rows: openEdits } = await db.query(
+        `SELECT e.id, e.company_id, c.name, e.status, e.created_at, e.fee_required
+       FROM company_edits e
+       JOIN companies c ON e.company_id = c.id
+       WHERE e.editor_uuid = $1
+       AND e.status IN ('pending','awaiting_funds')
+       ORDER BY e.created_at DESC`,
         [user.uuid]
       );
 
-      const editsWithType = edits.map((e) => ({
-        ...e,
-        type: "edit",
-      }));
+      const { rows: rejectedEdits } = await db.query(
+        `SELECT e.id, e.company_id, c.name, 'rejected'::text AS status,
+              r.reason, r.rejected_at AS created_at  -- align with UI
+       FROM company_edits e
+       JOIN companies c ON e.company_id = c.id
+       JOIN rejected_company_edits r ON r.id = e.id
+       WHERE e.editor_uuid = $1
+       AND e.status = 'rejected'
+       ORDER BY r.rejected_at DESC`,
+        [user.uuid]
+      );
+
+      const { rows: approvedEdits } = await db.query(
+        `SELECT e.id, e.company_id, c.name, e.status, e.created_at
+       FROM company_edits e
+       JOIN companies c ON e.company_id = c.id
+       WHERE e.editor_uuid = $1
+       AND e.status = 'approved'
+       ORDER BY e.created_at DESC`,
+        [user.uuid]
+      );
+
+      const tag = (rows) => rows.map((r) => ({ ...r, type: "edit" }));
 
       return res.json({
-        pending_edits: editsWithType.filter((e) => e.status === "pending"),
-        awaiting_funds_edits: editsWithType.filter(
-          (e) => e.status === "awaiting_funds"
+        pending_edits: tag(openEdits.filter((e) => e.status === "pending")),
+        awaiting_funds_edits: tag(
+          openEdits.filter((e) => e.status === "awaiting_funds")
         ),
-        rejected_edits: editsWithType.filter((e) => e.status === "rejected"),
-        approved_edits: editsWithType.filter((e) => e.status === "approved"),
+        rejected_edits: tag(rejectedEdits),
+        approved_edits: tag(approvedEdits),
       });
     } catch (error) {
       logger.error(`❌ Failed to fetch company edits: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // DELETE /api/market/rejected-edits/:id
+  router.delete("/market/rejected-edits/:id", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const editId = parseInt(req.params.id, 10);
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(editId)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const { rows: owned } = await db.query(
+        `SELECT 1
+       FROM company_edits e
+       WHERE e.id = $1
+         AND e.editor_uuid = $2
+         AND e.status = 'rejected'
+       LIMIT 1`,
+        [editId, user.uuid]
+      );
+      if (!owned.length) {
+        return res
+          .status(404)
+          .json({ error: "Rejected edit not found or not yours." });
+      }
+
+      await db.query(`DELETE FROM rejected_company_edits WHERE id = $1`, [
+        editId,
+      ]);
+      await db.query(`DELETE FROM company_edits WHERE id = $1`, [editId]);
+
+      return res.json({ success: true });
+    } catch (error) {
+      logger.error(`❌ Failed to delete rejected edit ${editId}: ${error}`);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/market/company-edits/:id/pay
+  router.post("/market/company-edits/:id/pay", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const {
+        rows: [user],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const {
+        rows: [edit],
+      } = await client.query(
+        `SELECT * FROM company_edits WHERE id=$1 AND status='awaiting_funds' FOR UPDATE`,
+        [id]
+      );
+      if (!edit) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Awaiting funds edit not found" });
+      }
+
+      const {
+        rows: [founderRow],
+      } = await client.query(
+        `SELECT 1 FROM company_members WHERE company_id=$1 AND user_uuid=$2 AND role='Founder'`,
+        [edit.company_id, user.uuid]
+      );
+      if (!founderRow) {
+        await client.query("ROLLBACK");
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const fee = Number(edit.fee_required ?? 0) || 100;
+
+      const {
+        rows: [funds],
+      } = await client.query(
+        `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
+        [edit.company_id]
+      );
+      const balance = Number(funds?.balance ?? 0);
+      if (balance < fee) {
+        await client.query("ROLLBACK");
+        return res.status(409).json({
+          error: "Insufficient company funds",
+          required: fee,
+          balance,
+        });
+      }
+
+      await client.query(
+        `UPDATE company_funds SET balance = balance - $1 WHERE company_id = $2`,
+        [fee, edit.company_id]
+      );
+
+      // Text updates
+      if (edit.name) {
+        await client.query(`UPDATE companies SET name=$1 WHERE id=$2`, [
+          edit.name,
+          edit.company_id,
+        ]);
+      }
+      if (edit.short_description) {
+        await client.query(
+          `UPDATE companies SET short_description=$1 WHERE id=$2`,
+          [edit.short_description, edit.company_id]
+        );
+      }
+      if (edit.description !== null) {
+        await client.query(`UPDATE companies SET description=$1 WHERE id=$2`, [
+          edit.description,
+          edit.company_id,
+        ]);
+      }
+
+      // --- Move any uploaded images from company-edits/... to company-assets/... ---
+      const assetBase = `company-assets/${edit.company_id}`;
+
+      let newLogoUrl = null;
+      let newBannerUrl = null;
+      let newGalleryUrls = [];
+
+      if (edit.logo_path) {
+        const srcKey = keyFromPublicUrl(edit.logo_path);
+        const ext = srcKey ? extFromKey(srcKey) : ".png";
+        newLogoUrl = await moveR2Object(
+          edit.logo_path,
+          `${assetBase}/logo${ext}`
+        );
+      }
+
+      if (edit.banner_path) {
+        const srcKey = keyFromPublicUrl(edit.banner_path);
+        const ext = srcKey ? extFromKey(srcKey) : ".png";
+        newBannerUrl = await moveR2Object(
+          edit.banner_path,
+          `${assetBase}/banner${ext}`
+        );
+      }
+
+      if (Array.isArray(edit.gallery_paths) && edit.gallery_paths.length) {
+        // Fully replace gallery if new gallery paths provided
+        await client.query(
+          `DELETE FROM company_images WHERE company_id=$1 AND type='gallery'`,
+          [edit.company_id]
+        );
+
+        const moved = [];
+        for (let i = 0; i < edit.gallery_paths.length; i++) {
+          const u = edit.gallery_paths[i];
+          if (!u) continue;
+          const srcKey = keyFromPublicUrl(u);
+          const ext = srcKey ? extFromKey(srcKey) : ".png";
+          const destKey = `${assetBase}/gallery/gallery-${i}${ext}`;
+          const movedUrl = await moveR2Object(u, destKey);
+          if (movedUrl) moved.push(movedUrl);
+        }
+        newGalleryUrls = moved;
+      }
+
+      // --- Write final image URLs (company-assets/...) into company_images ---
+      const upserts = [];
+
+      if (newLogoUrl) {
+        await client.query(
+          `DELETE FROM company_images WHERE company_id=$1 AND type='logo'`,
+          [edit.company_id]
+        );
+        upserts.push(
+          client.query(
+            `INSERT INTO company_images (company_id, url, type, position) VALUES ($1,$2,'logo',0)`,
+            [edit.company_id, newLogoUrl]
+          )
+        );
+      }
+
+      if (newBannerUrl) {
+        await client.query(
+          `DELETE FROM company_images WHERE company_id=$1 AND type='banner'`,
+          [edit.company_id]
+        );
+        upserts.push(
+          client.query(
+            `INSERT INTO company_images (company_id, url, type, position) VALUES ($1,$2,'banner',0)`,
+            [edit.company_id, newBannerUrl]
+          )
+        );
+      }
+
+      if (newGalleryUrls.length) {
+        newGalleryUrls.forEach((url, i) => {
+          upserts.push(
+            client.query(
+              `INSERT INTO company_images (company_id, url, type, position) VALUES ($1,$2,'gallery',$3)`,
+              [edit.company_id, url, i]
+            )
+          );
+        });
+      }
+
+      await Promise.all(upserts);
+
+      await client.query(
+        `UPDATE company_edits
+       SET status='approved',
+           fee_required=NULL,
+           fee_checked_at=NULL
+       WHERE id=$1`,
+        [id]
+      );
+
+      await client.query("COMMIT");
+      return res.json({ success: true, company_id: edit.company_id });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ Pay & apply edit error: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
     }
   });
 
