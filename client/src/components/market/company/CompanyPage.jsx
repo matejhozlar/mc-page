@@ -93,6 +93,11 @@ const CompanyPage = () => {
       (c) => c.id === company.id && c.role === "Founder"
     ) ?? false;
 
+  const sanitizeUuid = (id = "") => id.toString().trim().replace(/-/g, "");
+
+  const getAvatarUrl = (uuid) =>
+    `https://crafatar.com/avatars/${sanitizeUuid(uuid)}?size=40&overlay`;
+
   return (
     <div className="company-profile-page">
       {/* Owner Dashboard */}
@@ -196,7 +201,7 @@ const CompanyPage = () => {
             {members.map((member) => (
               <li key={member.uuid} className="team-member">
                 <img
-                  src={`https://crafatar.com/avatars/${member.uuid}?size=40&default=MHF_Steve`}
+                  src={getAvatarUrl(member.uuid)}
                   alt={`${member.name}'s avatar`}
                   className="team-avatar"
                 />

@@ -660,6 +660,10 @@ export default function marketRoutes(db, clientBot) {
         [pending.id]
       );
       await client.query(
+        `INSERT INTO company_balance_history (company_id, balance) VALUES ($1, 0)`,
+        [pending.id]
+      );
+      await client.query(
         `INSERT INTO company_members (user_uuid, company_id, role) VALUES ($1,$2,'Founder')`,
         [pending.founder_uuid, pending.id]
       );
@@ -1243,30 +1247,22 @@ export default function marketRoutes(db, clientBot) {
         });
       }
 
-      const {
-        rows: [companyFunds],
-      } = await client.query(
+      await client.query(
         `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
         [companyId]
       );
-      const companyBal = Number(companyFunds?.balance ?? 0);
 
       await client.query(
         `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
         [amt, user.uuid]
       );
+
       const {
         rows: [updatedCompany],
       } = await client.query(
         `UPDATE company_funds SET balance = balance + $1 WHERE company_id = $2
        RETURNING balance`,
         [amt, companyId]
-      );
-
-      await client.query(
-        `INSERT INTO company_balance_history (company_id, balance, recorded_at)
-       VALUES ($1, $2, NOW())`,
-        [companyId, updatedCompany.balance]
       );
 
       await client.query("COMMIT");

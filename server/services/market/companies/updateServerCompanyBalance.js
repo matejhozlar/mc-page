@@ -7,8 +7,7 @@ import logger from "../../../logger.js";
  *  - All user balances from `user_funds`
  *  - Total value of all tokens held by users (`user_tokens.amount * crypto_tokens.price_per_unit`)
  *  - The `tax_collected` value from `memecoin_tax_tracker` (only row with id = 1)
- *
- * If a record for company_id = 1000 already exists, it is updated. Otherwise, it is inserted.
+ *  - Balances of all other companies in `company_funds` (excluding ID 1000)
  *
  * @param {import("pg").Pool} db - PostgreSQL database pool.
  * @returns {Promise<void>}
@@ -27,9 +26,8 @@ export async function updateServerCompanyBalance(db) {
       JOIN crypto_tokens ct ON ut.token_id = ct.id
     `);
     const totalTokenValue = tokenRes.rows.reduce(
-      (acc, { amount, price_per_unit }) => {
-        return acc + Number(amount) * Number(price_per_unit);
-      },
+      (acc, { amount, price_per_unit }) =>
+        acc + Number(amount) * Number(price_per_unit),
       0
     );
 
@@ -40,7 +38,17 @@ export async function updateServerCompanyBalance(db) {
     `);
     const taxCollected = Number(taxRes.rows[0]?.total_collected || 0);
 
-    const totalBalance = totalUserFunds + totalTokenValue + taxCollected;
+    const companyFundsRes = await db.query(`
+      SELECT COALESCE(SUM(balance), 0) AS total_other_companies
+      FROM company_funds
+      WHERE company_id != 1000
+    `);
+    const totalOtherCompanies = Number(
+      companyFundsRes.rows[0].total_other_companies
+    );
+
+    const totalBalance =
+      totalUserFunds + totalTokenValue + taxCollected + totalOtherCompanies;
 
     await db.query(
       `
@@ -57,9 +65,9 @@ export async function updateServerCompanyBalance(db) {
         2
       )}`
     );
-  } catch (err) {
+  } catch (error) {
     logger.error(
-      `❌ Failed to update main server company balance: ${err.message}`
+      `❌ Failed to update main server company balance: ${error.message}`
     );
   }
 }
