@@ -209,6 +209,268 @@ CREATE TABLE public.clicker_game_data (
 ALTER TABLE public.clicker_game_data OWNER TO postgres;
 
 --
+-- Name: companies; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.companies (
+    id integer NOT NULL,
+    founder_uuid uuid,
+    name text NOT NULL,
+    description character varying(10000),
+    created_at timestamp without time zone DEFAULT now(),
+    short_description character varying(128),
+    CONSTRAINT chk_company_id_range CHECK (((id >= 1000) AND (id <= 9999)))
+);
+
+
+ALTER TABLE public.companies OWNER TO postgres;
+
+--
+-- Name: companies_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.companies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.companies_id_seq OWNER TO postgres;
+
+--
+-- Name: companies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.companies_id_seq OWNED BY public.companies.id;
+
+
+--
+-- Name: company_balance_history; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_balance_history (
+    id integer NOT NULL,
+    company_id integer,
+    balance numeric(20,8) NOT NULL,
+    recorded_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.company_balance_history OWNER TO postgres;
+
+--
+-- Name: company_balance_history_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.company_balance_history_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.company_balance_history_id_seq OWNER TO postgres;
+
+--
+-- Name: company_balance_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.company_balance_history_id_seq OWNED BY public.company_balance_history.id;
+
+
+--
+-- Name: company_edits; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_edits (
+    id bigint NOT NULL,
+    company_id integer,
+    editor_uuid uuid,
+    name text,
+    description text,
+    short_description character varying(128),
+    logo_path text,
+    banner_path text,
+    gallery_paths text[],
+    status text DEFAULT 'pending'::text,
+    created_at timestamp without time zone DEFAULT now(),
+    reviewed_at timestamp without time zone,
+    reviewed_by uuid,
+    fee_required numeric(20,8),
+    fee_checked_at timestamp without time zone,
+    reason text
+);
+
+
+ALTER TABLE public.company_edits OWNER TO postgres;
+
+--
+-- Name: company_edits_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.company_edits_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.company_edits_id_seq OWNER TO postgres;
+
+--
+-- Name: company_edits_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.company_edits_id_seq OWNED BY public.company_edits.id;
+
+
+--
+-- Name: company_funds; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_funds (
+    company_id integer NOT NULL,
+    balance numeric(20,8) DEFAULT 0 NOT NULL
+);
+
+
+ALTER TABLE public.company_funds OWNER TO postgres;
+
+--
+-- Name: company_images; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_images (
+    id integer NOT NULL,
+    company_id integer,
+    url text NOT NULL,
+    type text DEFAULT 'gallery'::text,
+    "position" integer DEFAULT 0,
+    uploaded_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.company_images OWNER TO postgres;
+
+--
+-- Name: company_images_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.company_images_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.company_images_id_seq OWNER TO postgres;
+
+--
+-- Name: company_images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.company_images_id_seq OWNED BY public.company_images.id;
+
+
+--
+-- Name: company_interest_ledger; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_interest_ledger (
+    id bigint NOT NULL,
+    company_id integer NOT NULL,
+    interest_amount numeric(20,8) NOT NULL,
+    rate_per_hour numeric(12,8) NOT NULL,
+    balance_before numeric(20,8) NOT NULL,
+    balance_after numeric(20,8) NOT NULL,
+    created_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.company_interest_ledger OWNER TO postgres;
+
+--
+-- Name: company_interest_ledger_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.company_interest_ledger_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.company_interest_ledger_id_seq OWNER TO postgres;
+
+--
+-- Name: company_interest_ledger_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.company_interest_ledger_id_seq OWNED BY public.company_interest_ledger.id;
+
+
+--
+-- Name: company_members; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_members (
+    user_uuid uuid NOT NULL,
+    company_id integer NOT NULL,
+    role text DEFAULT 'member'::text,
+    joined_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.company_members OWNER TO postgres;
+
+--
+-- Name: company_transactions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.company_transactions (
+    id integer NOT NULL,
+    company_id integer,
+    user_uuid uuid,
+    type text,
+    amount numeric(20,8),
+    created_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.company_transactions OWNER TO postgres;
+
+--
+-- Name: company_transactions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.company_transactions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.company_transactions_id_seq OWNER TO postgres;
+
+--
+-- Name: company_transactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.company_transactions_id_seq OWNED BY public.company_transactions.id;
+
+
+--
 -- Name: crypto_tokens; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -374,6 +636,90 @@ ALTER SEQUENCE public.daily_shared_quests_id_seq OWNED BY public.daily_shared_qu
 
 
 --
+-- Name: item_categories; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.item_categories (
+    id integer NOT NULL,
+    name text NOT NULL
+);
+
+
+ALTER TABLE public.item_categories OWNER TO postgres;
+
+--
+-- Name: item_categories_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.item_categories_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.item_categories_id_seq OWNER TO postgres;
+
+--
+-- Name: item_categories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.item_categories_id_seq OWNED BY public.item_categories.id;
+
+
+--
+-- Name: item_category_map; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.item_category_map (
+    item_id integer NOT NULL,
+    category_id integer NOT NULL
+);
+
+
+ALTER TABLE public.item_category_map OWNER TO postgres;
+
+--
+-- Name: items; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.items (
+    id integer NOT NULL,
+    shop_id integer,
+    name text NOT NULL,
+    description text,
+    price numeric(10,2),
+    created_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.items OWNER TO postgres;
+
+--
+-- Name: items_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.items_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.items_id_seq OWNER TO postgres;
+
+--
+-- Name: items_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.items_id_seq OWNED BY public.items.id;
+
+
+--
 -- Name: job_history; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -529,6 +875,53 @@ CREATE TABLE public.mob_limit_reached (
 ALTER TABLE public.mob_limit_reached OWNER TO postgres;
 
 --
+-- Name: pending_companies; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pending_companies (
+    id integer NOT NULL,
+    founder_uuid uuid,
+    name text NOT NULL,
+    description text,
+    short_description character varying(128),
+    logo_url text,
+    banner_url text,
+    gallery_urls text[],
+    created_at timestamp without time zone DEFAULT now(),
+    status text DEFAULT 'pending'::text,
+    reviewed_at timestamp without time zone,
+    reviewed_by uuid,
+    fee_required numeric(20,8),
+    fee_checked_at timestamp without time zone,
+    CONSTRAINT chk_id_range CHECK (((id >= 1000) AND (id <= 9999)))
+);
+
+
+ALTER TABLE public.pending_companies OWNER TO postgres;
+
+--
+-- Name: pending_companies_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.pending_companies_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.pending_companies_id_seq OWNER TO postgres;
+
+--
+-- Name: pending_companies_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.pending_companies_id_seq OWNED BY public.pending_companies.id;
+
+
+--
 -- Name: player_stats; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -581,6 +974,36 @@ ALTER SEQUENCE public.rcon_logs_id_seq OWNED BY public.rcon_logs.id;
 
 
 --
+-- Name: rejected_companies; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rejected_companies (
+    id integer NOT NULL,
+    founder_uuid uuid,
+    name text NOT NULL,
+    reason text NOT NULL,
+    rejected_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.rejected_companies OWNER TO postgres;
+
+--
+-- Name: rejected_company_edits; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rejected_company_edits (
+    id bigint NOT NULL,
+    company_id integer NOT NULL,
+    editor_uuid uuid NOT NULL,
+    reason text NOT NULL,
+    rejected_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.rejected_company_edits OWNER TO postgres;
+
+--
 -- Name: server_playtime_snapshots; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -613,6 +1036,82 @@ ALTER TABLE public.server_playtime_snapshots_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.server_playtime_snapshots_id_seq OWNED BY public.server_playtime_snapshots.id;
+
+
+--
+-- Name: shop_images; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shop_images (
+    id integer NOT NULL,
+    shop_id integer,
+    url text NOT NULL,
+    type text DEFAULT 'gallery'::text,
+    "position" integer DEFAULT 0,
+    uploaded_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.shop_images OWNER TO postgres;
+
+--
+-- Name: shop_images_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.shop_images_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.shop_images_id_seq OWNER TO postgres;
+
+--
+-- Name: shop_images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.shop_images_id_seq OWNED BY public.shop_images.id;
+
+
+--
+-- Name: shops; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shops (
+    id integer NOT NULL,
+    company_id integer,
+    name text NOT NULL,
+    description text,
+    is_paid boolean DEFAULT false,
+    created_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.shops OWNER TO postgres;
+
+--
+-- Name: shops_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.shops_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.shops_id_seq OWNER TO postgres;
+
+--
+-- Name: shops_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.shops_id_seq OWNED BY public.shops.id;
 
 
 --
@@ -1137,6 +1636,41 @@ ALTER TABLE ONLY public.applications ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: company_balance_history id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_balance_history ALTER COLUMN id SET DEFAULT nextval('public.company_balance_history_id_seq'::regclass);
+
+
+--
+-- Name: company_edits id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_edits ALTER COLUMN id SET DEFAULT nextval('public.company_edits_id_seq'::regclass);
+
+
+--
+-- Name: company_images id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_images ALTER COLUMN id SET DEFAULT nextval('public.company_images_id_seq'::regclass);
+
+
+--
+-- Name: company_interest_ledger id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_interest_ledger ALTER COLUMN id SET DEFAULT nextval('public.company_interest_ledger_id_seq'::regclass);
+
+
+--
+-- Name: company_transactions id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_transactions ALTER COLUMN id SET DEFAULT nextval('public.company_transactions_id_seq'::regclass);
+
+
+--
 -- Name: crypto_tokens id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1155,6 +1689,20 @@ ALTER TABLE ONLY public.currency_transactions ALTER COLUMN id SET DEFAULT nextva
 --
 
 ALTER TABLE ONLY public.daily_shared_quests ALTER COLUMN id SET DEFAULT nextval('public.daily_shared_quests_id_seq'::regclass);
+
+
+--
+-- Name: item_categories id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_categories ALTER COLUMN id SET DEFAULT nextval('public.item_categories_id_seq'::regclass);
+
+
+--
+-- Name: items id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items ALTER COLUMN id SET DEFAULT nextval('public.items_id_seq'::regclass);
 
 
 --
@@ -1197,6 +1745,20 @@ ALTER TABLE ONLY public.rcon_logs ALTER COLUMN id SET DEFAULT nextval('public.rc
 --
 
 ALTER TABLE ONLY public.server_playtime_snapshots ALTER COLUMN id SET DEFAULT nextval('public.server_playtime_snapshots_id_seq'::regclass);
+
+
+--
+-- Name: shop_images id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_images ALTER COLUMN id SET DEFAULT nextval('public.shop_images_id_seq'::regclass);
+
+
+--
+-- Name: shops id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shops ALTER COLUMN id SET DEFAULT nextval('public.shops_id_seq'::regclass);
 
 
 --
@@ -1340,6 +1902,70 @@ ALTER TABLE ONLY public.clicker_game_data
 
 
 --
+-- Name: companies companies_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.companies
+    ADD CONSTRAINT companies_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: company_balance_history company_balance_history_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_balance_history
+    ADD CONSTRAINT company_balance_history_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: company_edits company_edits_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_edits
+    ADD CONSTRAINT company_edits_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: company_funds company_funds_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_funds
+    ADD CONSTRAINT company_funds_pkey PRIMARY KEY (company_id);
+
+
+--
+-- Name: company_images company_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_images
+    ADD CONSTRAINT company_images_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: company_interest_ledger company_interest_ledger_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_interest_ledger
+    ADD CONSTRAINT company_interest_ledger_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: company_members company_members_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_members
+    ADD CONSTRAINT company_members_pkey PRIMARY KEY (user_uuid, company_id);
+
+
+--
+-- Name: company_transactions company_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_transactions
+    ADD CONSTRAINT company_transactions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: crypto_tokens crypto_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1404,6 +2030,38 @@ ALTER TABLE ONLY public.daily_shared_quests
 
 
 --
+-- Name: item_categories item_categories_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_categories
+    ADD CONSTRAINT item_categories_name_key UNIQUE (name);
+
+
+--
+-- Name: item_categories item_categories_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_categories
+    ADD CONSTRAINT item_categories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: item_category_map item_category_map_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_category_map
+    ADD CONSTRAINT item_category_map_pkey PRIMARY KEY (item_id, category_id);
+
+
+--
+-- Name: items items_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items
+    ADD CONSTRAINT items_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: job_history job_history_job_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1460,6 +2118,14 @@ ALTER TABLE ONLY public.mob_limit_reached
 
 
 --
+-- Name: pending_companies pending_companies_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_companies
+    ADD CONSTRAINT pending_companies_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: player_stats player_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1476,11 +2142,43 @@ ALTER TABLE ONLY public.rcon_logs
 
 
 --
+-- Name: rejected_companies rejected_companies_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_companies
+    ADD CONSTRAINT rejected_companies_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rejected_company_edits rejected_company_edits_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_company_edits
+    ADD CONSTRAINT rejected_company_edits_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: server_playtime_snapshots server_playtime_snapshots_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.server_playtime_snapshots
     ADD CONSTRAINT server_playtime_snapshots_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shop_images shop_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_images
+    ADD CONSTRAINT shop_images_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shops shops_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shops
+    ADD CONSTRAINT shops_pkey PRIMARY KEY (id);
 
 
 --
@@ -1553,6 +2251,14 @@ ALTER TABLE ONLY public.token_price_history_weekly
 
 ALTER TABLE ONLY public.token_transactions
     ADD CONSTRAINT token_transactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: companies unique_company_name; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.companies
+    ADD CONSTRAINT unique_company_name UNIQUE (name);
 
 
 --
@@ -1644,6 +2350,20 @@ ALTER TABLE ONLY public.waitlist_emails
 
 
 --
+-- Name: idx_company_edits_company_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_company_edits_company_id ON public.company_edits USING btree (company_id);
+
+
+--
+-- Name: idx_company_interest_ledger_company_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_company_interest_ledger_company_id ON public.company_interest_ledger USING btree (company_id);
+
+
+--
 -- Name: idx_user_tokens_discord_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -1655,6 +2375,13 @@ CREATE INDEX idx_user_tokens_discord_id ON public.user_tokens USING btree (disco
 --
 
 CREATE INDEX idx_users_discord_id ON public.users USING btree (discord_id);
+
+
+--
+-- Name: one_pending_edit_per_company; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX one_pending_edit_per_company ON public.company_edits USING btree (company_id) WHERE (status = 'pending'::text);
 
 
 --
@@ -1680,11 +2407,171 @@ ALTER TABLE ONLY public.clicker_game_data
 
 
 --
+-- Name: companies companies_owner_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.companies
+    ADD CONSTRAINT companies_owner_uuid_fkey FOREIGN KEY (founder_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: company_balance_history company_balance_history_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_balance_history
+    ADD CONSTRAINT company_balance_history_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: company_edits company_edits_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_edits
+    ADD CONSTRAINT company_edits_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: company_edits company_edits_editor_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_edits
+    ADD CONSTRAINT company_edits_editor_uuid_fkey FOREIGN KEY (editor_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: company_edits company_edits_reviewed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_edits
+    ADD CONSTRAINT company_edits_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES public.users(uuid);
+
+
+--
+-- Name: company_funds company_funds_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_funds
+    ADD CONSTRAINT company_funds_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: company_images company_images_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_images
+    ADD CONSTRAINT company_images_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: company_interest_ledger company_interest_ledger_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_interest_ledger
+    ADD CONSTRAINT company_interest_ledger_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: company_members company_members_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_members
+    ADD CONSTRAINT company_members_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: company_members company_members_user_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_members
+    ADD CONSTRAINT company_members_user_uuid_fkey FOREIGN KEY (user_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: company_transactions company_transactions_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_transactions
+    ADD CONSTRAINT company_transactions_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id);
+
+
+--
+-- Name: company_transactions company_transactions_user_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.company_transactions
+    ADD CONSTRAINT company_transactions_user_uuid_fkey FOREIGN KEY (user_uuid) REFERENCES public.users(uuid);
+
+
+--
+-- Name: item_category_map item_category_map_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_category_map
+    ADD CONSTRAINT item_category_map_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.item_categories(id);
+
+
+--
+-- Name: item_category_map item_category_map_item_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_category_map
+    ADD CONSTRAINT item_category_map_item_id_fkey FOREIGN KEY (item_id) REFERENCES public.items(id) ON DELETE CASCADE;
+
+
+--
+-- Name: items items_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items
+    ADD CONSTRAINT items_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
+-- Name: pending_companies pending_companies_founder_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_companies
+    ADD CONSTRAINT pending_companies_founder_uuid_fkey FOREIGN KEY (founder_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: pending_companies pending_companies_reviewed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_companies
+    ADD CONSTRAINT pending_companies_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES public.users(uuid);
+
+
+--
 -- Name: player_stats player_stats_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.player_stats
     ADD CONSTRAINT player_stats_uuid_fkey FOREIGN KEY (uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: rejected_companies rejected_companies_founder_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_companies
+    ADD CONSTRAINT rejected_companies_founder_uuid_fkey FOREIGN KEY (founder_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: shop_images shop_images_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_images
+    ADD CONSTRAINT shop_images_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shops shops_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shops
+    ADD CONSTRAINT shops_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
 
 
 --
