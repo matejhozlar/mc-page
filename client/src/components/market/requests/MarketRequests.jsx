@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useMarketUser } from "../../../hooks/market/marketUserContext";
-import LoadingSpinner from "../../LoadingSpinner";
+import { useMarketUser } from "../../../hooks/market/marketUserContext.js";
+import LoadingSpinner from "../../LoadingSpinner.jsx";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import DeleteConfirmModal from "./components/DeleteConfirmModal";
-import StatusPopupModal from "../../modals/StatusPopupModal";
+import DeleteConfirmModal from "./components/DeleteConfirmModal.jsx";
+import StatusPopupModal from "../../modals/StatusPopupModal.jsx";
+import BuildProgressOverlay from "../../BuildProgressOverlay.jsx";
 import "../css/MarketRequests.css";
 
 function MarketRequests() {
@@ -14,7 +15,9 @@ function MarketRequests() {
   const [expandedId, setExpandedId] = useState(null);
   const [pendingDelete, setPendingDelete] = useState(null);
   const [payingId, setPayingId] = useState(null);
-  const [statusModal, setStatusModal] = useState(null); // {type, message}
+  const [statusModal, setStatusModal] = useState(null);
+
+  const [building, setBuilding] = useState(null);
 
   const fetchRequests = async () => {
     try {
@@ -43,8 +46,8 @@ function MarketRequests() {
       ];
 
       setRequests(combined);
-    } catch (err) {
-      console.error("❌ Failed to fetch requests:", err);
+    } catch (error) {
+      console.error("Failed to fetch requests:", error);
       setStatusModal({
         type: "error",
         message: "Failed to fetch your requests.",
@@ -77,14 +80,14 @@ function MarketRequests() {
           message: "Request deleted successfully.",
         });
       } else {
-        const err = await res.json().catch(() => ({}));
+        const error = await res.json().catch(() => ({}));
         setStatusModal({
           type: "error",
-          message: "Failed to delete: " + (err.error || "Unknown error."),
+          message: "Failed to delete: " + (error.error || "Unknown error."),
         });
       }
-    } catch (err) {
-      console.error("❌ Failed to delete rejected request:", err);
+    } catch (error) {
+      console.error("❌ Failed to delete rejected request:", error);
       setStatusModal({
         type: "error",
         message: "Failed to delete the request.",
@@ -102,40 +105,45 @@ function MarketRequests() {
 
       const res = await fetch(url, { method: "POST" });
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        const error = await res.json().catch(() => ({}));
         setStatusModal({
           type: "error",
-          message: err.error || "Payment failed.",
+          message: error.error || "Payment failed.",
         });
         return;
       }
-      await fetchRequests();
-      setStatusModal({
-        type: "success",
-        message: "Payment completed successfully.",
-      });
-    } catch (e) {
-      console.error("❌ Pay error:", e);
-      setStatusModal({
-        type: "error",
-        message: "Payment failed.",
-      });
+
+      setBuilding({ type: entry.type });
+    } catch (error) {
+      console.error("❌ Pay error:", error);
+      setStatusModal({ type: "error", message: "Payment failed." });
     } finally {
       setPayingId(null);
     }
+  };
+
+  const onBuildDone = async () => {
+    setBuilding(null);
+    await fetchRequests();
+    setStatusModal({
+      type: "success",
+      message:
+        "All set! Your " +
+        (building?.type === "edit" ? "changes" : "company") +
+        " " +
+        (building?.type === "edit" ? "have been applied." : "was created.") +
+        " " +
+        (building?.type === "edit"
+          ? "Changes may take up to 1 hour to take effect."
+          : ""),
+    });
   };
 
   if (loading || requestsLoading)
     return <LoadingSpinner message="Loading requests..." />;
   if (!user) return <p className="error">User not found.</p>;
 
-  const grouped = {
-    awaiting: [],
-    pending: [],
-    approved: [],
-    rejected: [],
-  };
-
+  const grouped = { awaiting: [], pending: [], approved: [], rejected: [] };
   for (const req of requests) {
     if (req.status === "approved") grouped.approved.push(req);
     else if (req.status === "rejected") grouped.rejected.push(req);
@@ -168,7 +176,7 @@ function MarketRequests() {
                   </span>
                   <button
                     className="market-pay-btn"
-                    disabled={payingId === entry.id}
+                    disabled={payingId === entry.id || !!building}
                     onClick={() => handlePay(entry)}
                   >
                     {payingId === entry.id ? "Processing..." : "Pay"}
@@ -258,6 +266,7 @@ function MarketRequests() {
                       <div className="market-rejection-box">{entry.reason}</div>
                       <button
                         className="market-delete-btn"
+                        disabled={!!building}
                         onClick={() =>
                           setPendingDelete({ id: entry.id, type: entry.type })
                         }
@@ -297,6 +306,15 @@ function MarketRequests() {
           type={statusModal.type}
           message={statusModal.message}
           onClose={() => setStatusModal(null)}
+        />
+      )}
+
+      {building && (
+        <BuildProgressOverlay
+          type={building.type}
+          durationMs={30000}
+          delayMs={400}
+          onDone={onBuildDone}
         />
       )}
     </div>
