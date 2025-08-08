@@ -103,7 +103,14 @@ const AdminCompanyApprovals = () => {
               companies.map((company) => (
                 <tr key={company.id}>
                   <td>{company.id}</td>
-                  <td>{company.name}</td>
+                  <td>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      {company.name}
+                      {company.type === "edit" && (
+                        <span className="admin-edit-badge">Edit</span>
+                      )}
+                    </div>
+                  </td>
                   <td>{company.owner_name}</td>
                   <td>
                     <code style={{ fontSize: "0.8rem" }}>
@@ -115,7 +122,11 @@ const AdminCompanyApprovals = () => {
                     <button
                       className="admin-refresh-button"
                       onClick={() =>
-                        navigate(`/admin/company-review/${company.id}`)
+                        navigate(
+                          company.type === "edit"
+                            ? `/admin/company-edit-review/${company.id}`
+                            : `/admin/company-review/${company.id}`
+                        )
                       }
                     >
                       Review

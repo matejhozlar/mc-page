@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { ArrowUpRight, ArrowDownRight, Settings, Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import CompanyBalanceChart from "./components/CompanyBalanceChart.jsx";
 import CompanyGallery from "./components/CompanyGallery.jsx";
@@ -17,6 +18,8 @@ const CompanyPage = () => {
   const [percentChange, setPercentChange] = useState(null);
   const [balanceHistory, setBalanceHistory] = useState([]);
   const [visitor, setVisitor] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAll = async () => {
@@ -96,7 +99,10 @@ const CompanyPage = () => {
           <button className="dashboard-button">
             <Settings size={16} className="dashboard-button-shift" /> Manage
           </button>
-          <button className="dashboard-button">
+          <button
+            className="dashboard-button"
+            onClick={() => navigate(`/market/company/${companyId}/edit`)}
+          >
             <Pencil size={16} className="dashboard-button-shift" /> Edit
           </button>
         </div>

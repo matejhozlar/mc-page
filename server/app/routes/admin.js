@@ -571,22 +571,78 @@ export default function adminRoutes(db) {
       if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
 
       const { rows } = await db.query(
-        `SELECT
+        `
+      SELECT
         pc.id,
         pc.name,
         pc.short_description,
         pc.created_at,
         pc.logo_url,
-        u.name AS owner_name
+        u.name AS owner_name,
+        'new' AS type
       FROM pending_companies pc
       JOIN users u ON pc.founder_uuid = u.uuid
       WHERE pc.status = 'pending'
-      ORDER BY pc.created_at ASC`
+
+      UNION ALL
+
+      SELECT
+        ce.id,
+        COALESCE(ce.name, c.name) AS name,
+        ce.short_description,
+        ce.created_at,
+        ce.logo_path AS logo_url,
+        u.name AS owner_name,
+        'edit' AS type
+      FROM company_edits ce
+      JOIN companies c ON ce.company_id = c.id
+      JOIN users u ON ce.editor_uuid = u.uuid
+      WHERE ce.status = 'pending'
+      ORDER BY created_at ASC
+      `
       );
 
       res.json({ companies: rows });
     } catch (err) {
-      logger.error(`❌ Failed to fetch pending companies: ${err}`);
+      logger.error(`❌ Failed to fetch pending companies/edits: ${err}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/admin/company-edits/:id
+  router.get("/admin/company-edits/:id", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    const editId = parseInt(req.params.id, 10);
+    if (isNaN(editId)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const { rows: edits } = await db.query(
+        `SELECT * FROM company_edits WHERE id = $1 AND status = 'pending'`,
+        [editId]
+      );
+      if (!edits.length) {
+        return res
+          .status(404)
+          .json({ error: "Pending company edit not found" });
+      }
+      const edit = edits[0];
+
+      const { rows: originals } = await db.query(
+        `SELECT * FROM companies WHERE id = $1`,
+        [edit.company_id]
+      );
+      if (!originals.length) {
+        return res.status(404).json({ error: "Original company not found" });
+      }
+
+      res.json({ edit, original: originals[0] });
+    } catch (err) {
+      logger.error(`❌ Failed to fetch company edit ${editId}: ${err}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });

@@ -5,6 +5,7 @@
 /services/logs/
 /stats
 /tmp
+/uploads
 
 # assets
 /services/assets

@@ -2248,3 +2248,12 @@ input:checked + .slider:before {
 .buy-mode-input {
   min-width: 150px !important;
 }
+
+.admin-edit-badge {
+  margin-left: 6px;
+  padding: 2px 6px;
+  background: var(--button-background);
+  color: #000;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}

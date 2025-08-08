@@ -238,3 +238,12 @@
   font-size: 0.85rem;
   color: #e9d5ff99;
 }
+
+.market-edit-badge {
+  background-color: var(--button-background);
+  color: #000;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}

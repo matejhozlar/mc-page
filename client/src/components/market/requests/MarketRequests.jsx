@@ -17,16 +17,24 @@ function MarketRequests() {
 
   const fetchRequests = async () => {
     try {
-      const res = await fetch("/api/market/requests");
-      const data = await res.json();
+      const [reqRes, editsRes] = await Promise.all([
+        fetch("/api/market/requests"),
+        fetch("/api/market/company-edits"),
+      ]);
+
+      const reqData = await reqRes.json();
+      const editsData = await editsRes.json();
 
       const combined = [
-        ...(data.pending_companies || []), // includes status: 'pending' | 'awaiting_funds' | 'approved'
-        ...(data.rejected_companies || []).map((r) => ({
+        ...(reqData.pending_companies || []),
+        ...(reqData.rejected_companies || []).map((r) => ({
           ...r,
           status: "rejected",
           created_at: r.rejected_at,
         })),
+        ...(editsData.pending_edits || []),
+        ...(editsData.awaiting_funds_edits || []),
+        ...(editsData.rejected_edits || []),
       ];
 
       setRequests(combined);
@@ -69,7 +77,6 @@ function MarketRequests() {
         const err = await res.json().catch(() => ({}));
         return alert(err.error || "Payment failed.");
       }
-      // refresh after successful payment
       await fetchRequests();
     } catch (e) {
       console.error("❌ Pay error:", e);
@@ -94,7 +101,7 @@ function MarketRequests() {
     if (req.status === "approved") grouped.approved.push(req);
     else if (req.status === "rejected") grouped.rejected.push(req);
     else if (req.status === "awaiting_funds") grouped.awaiting.push(req);
-    else grouped.pending.push(req); // 'pending'
+    else grouped.pending.push(req);
   }
 
   const renderAwaiting = (entries) => (
@@ -164,6 +171,9 @@ function MarketRequests() {
                 <div className="market-request-top">
                   <div className="market-request-left">
                     <strong>{entry.name}</strong>
+                    {entry.type === "edit" && (
+                      <span className="market-edit-badge">Edit</span>
+                    )}
                     <span className="market-request-meta">#{entry.id}</span>
                   </div>
 

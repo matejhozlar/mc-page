@@ -1,4 +1,7 @@
 import express from "express";
+import { saveLocalImage } from "../utils/market/saveLocalImage.js";
+import upload from "../middleware/multer.js";
+import path from "path";
 import logger from "../../logger.js";
 
 export default function marketRoutes(db) {
@@ -165,6 +168,7 @@ export default function marketRoutes(db) {
         c.id,
         c.name,
         c.description,
+        c.short_description,
         c.created_at,
         u.name AS founder_name,
         (
@@ -588,6 +592,193 @@ export default function marketRoutes(db) {
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
+    }
+  });
+
+  // POST /api/market/company/:id/edits
+  router.post(
+    "/market/company/:id/edits",
+    upload.fields([
+      { name: "logo", maxCount: 1 },
+      { name: "banner", maxCount: 1 },
+      { name: "gallery_0" },
+      { name: "gallery_1" },
+      { name: "gallery_2" },
+      { name: "gallery_3" },
+      { name: "gallery_4" },
+    ]),
+    async (req, res) => {
+      const discordId = req.cookies.user_session;
+      const companyId = parseInt(req.params.id, 10);
+      if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+      if (isNaN(companyId))
+        return res.status(400).json({ error: "Invalid ID" });
+
+      try {
+        const {
+          rows: [user],
+        } = await db.query(
+          `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+          [discordId]
+        );
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const founderCheck = await db.query(
+          `SELECT 1 FROM company_members
+         WHERE user_uuid = $1 AND company_id = $2 AND role = 'Founder' LIMIT 1`,
+          [user.uuid, companyId]
+        );
+        if (founderCheck.rowCount === 0) {
+          return res.status(403).json({ error: "Insufficient permissions" });
+        }
+
+        const existingEdit = await db.query(
+          `SELECT id FROM company_edits WHERE company_id = $1 LIMIT 1`,
+          [companyId]
+        );
+        if (existingEdit.rowCount > 0) {
+          return res.status(400).json({
+            error:
+              "An edit already exists for this company. Please wait for admins to review it.",
+          });
+        }
+
+        const name = (req.body.name ?? "").trim();
+        const short_description = (req.body.short_description ?? "").trim();
+        const description = req.body.description ?? null;
+
+        const files = req.files || {};
+        const logo = files["logo"]?.[0] || null;
+        const banner = files["banner"]?.[0] || null;
+
+        let logo_path = null;
+        let banner_path = null;
+        const gallery_paths = [];
+        let galleryPathsSaved = null;
+
+        Object.keys(files)
+          .filter((k) => k.startsWith("gallery_"))
+          .sort((a, b) => {
+            const ai = parseInt(a.split("_")[1] || "0", 10);
+            const bi = parseInt(b.split("_")[1] || "0", 10);
+            return ai - bi;
+          })
+          .forEach((key) => {
+            const f = files[key][0];
+            if (f?.buffer) gallery_paths.push(f);
+          });
+
+        const base =
+          process.env.LOCAL_ASSETS_DIR ||
+          path.resolve(process.cwd(), "uploads");
+        const companySubdir = path.join("edits", String(companyId));
+
+        if (logo) {
+          const ext = path.extname(logo.originalname) || ".png";
+          const saved = await saveLocalImage(
+            logo.buffer,
+            base,
+            companySubdir,
+            `logo${ext}`
+          );
+          logo_path = `/uploads/${saved.relative}`;
+        }
+
+        if (banner) {
+          const ext = path.extname(banner.originalname) || ".png";
+          const saved = await saveLocalImage(
+            banner.buffer,
+            base,
+            companySubdir,
+            `banner${ext}`
+          );
+          banner_path = `/uploads/${saved.relative}`;
+        }
+
+        if (gallery_paths.length) {
+          galleryPathsSaved = [];
+          for (let i = 0; i < gallery_paths.length; i++) {
+            const gf = gallery_paths[i];
+            const ext = path.extname(gf.originalname) || ".png";
+            const saved = await saveLocalImage(
+              gf.buffer,
+              base,
+              path.join(companySubdir, "gallery"),
+              `gallery-${i}${ext}`
+            );
+            galleryPathsSaved.push(`/uploads/${saved.relative}`);
+          }
+        }
+
+        const {
+          rows: [editRow],
+        } = await db.query(
+          `INSERT INTO company_edits
+           (company_id, editor_uuid, name, description, short_description, logo_path, banner_path, gallery_paths)
+         VALUES
+           ($1, $2, NULLIF($3,''), $4, NULLIF($5,''), $6, $7, $8)
+         RETURNING id`,
+          [
+            companyId,
+            user.uuid,
+            name,
+            description,
+            short_description,
+            logo_path,
+            banner_path,
+            galleryPathsSaved?.length ? galleryPathsSaved : null,
+          ]
+        );
+
+        return res.status(201).json({ success: true, edit_id: editRow.id });
+      } catch (error) {
+        logger.error(
+          `❌ Failed to create company edit for ${companyId}: ${error}`
+        );
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
+
+  // GET /api/market/company-edits
+  router.get("/market/company-edits", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const { rows: edits } = await db.query(
+        `SELECT e.id, e.company_id, c.name, e.status, e.created_at
+          FROM company_edits e
+          JOIN companies c ON e.company_id = c.id
+          WHERE e.editor_uuid = $1
+          ORDER BY e.created_at DESC`,
+        [user.uuid]
+      );
+
+      const editsWithType = edits.map((e) => ({
+        ...e,
+        type: "edit",
+      }));
+
+      return res.json({
+        pending_edits: editsWithType.filter((e) => e.status === "pending"),
+        awaiting_funds_edits: editsWithType.filter(
+          (e) => e.status === "awaiting_funds"
+        ),
+        rejected_edits: editsWithType.filter((e) => e.status === "rejected"),
+        approved_edits: editsWithType.filter((e) => e.status === "approved"),
+      });
+    } catch (error) {
+      logger.error(`❌ Failed to fetch company edits: ${error}`);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 
