@@ -4,6 +4,7 @@ import path from "path";
 import { generateUniqueCompanyId } from "../utils/market/resources/generateUniqueCompanyId.js";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
 import { notifyAdminPendingCompany } from "../utils/admin/notifyAdminCompanyApprovals.js";
+import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 import upload from "../middleware/multer.js";
 
 export default function submissionRoutes(db, clientBot) {
@@ -132,21 +133,23 @@ export default function submissionRoutes(db, clientBot) {
           [logoUrl, bannerUrl, galleryUrls, customId]
         );
 
-        try {
-          await notifyAdminPendingCompany(
-            {
-              id: customId,
-              name: rawName,
-              founder_uuid,
-              short_description: short_description || undefined,
-            },
-            clientBot
-          );
-        } catch (notifyErr) {
-          logger.error(
-            `❌ Failed to notify admins about pending company ${customId}: ${notifyErr}`
-          );
-        }
+        runOnlyInProduction(async () => {
+          try {
+            await notifyAdminPendingCompany(
+              {
+                id: customId,
+                name: rawName,
+                founder_uuid,
+                short_description: short_description || undefined,
+              },
+              clientBot
+            );
+          } catch (notifyErr) {
+            logger.error(
+              `❌ Failed to notify admins about pending company ${customId}: ${notifyErr}`
+            );
+          }
+        });
 
         res.status(200).json({ success: true, company_id: customId });
       } catch (error) {

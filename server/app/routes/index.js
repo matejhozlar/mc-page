@@ -11,6 +11,7 @@ import cryptoRoutes from "./cryptoMod.js";
 import assetsRoutes from "./assets.js";
 import marketRoutes from "./marketRoutes.js";
 import companySubmissionRoutes from "./companySubmissionRoutes.js";
+import shopRoutes from "./shopRoutes.js";
 
 export default function registerRoutes(
   app,
@@ -29,4 +30,5 @@ export default function registerRoutes(
   app.use("/api", assetsRoutes());
   app.use("/api", marketRoutes(db, clientBot));
   app.use("/api", companySubmissionRoutes(db, clientBot));
+  app.use("/api", shopRoutes(db));
 }

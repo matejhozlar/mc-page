@@ -44,6 +44,8 @@ import MarketShops from "./components/market/shops/MarketShops.jsx";
 import PendingCompanyReview from "./components/market/company/PendingCompanyReview.jsx";
 import EditCompanyWizard from "./components/market/company/EditCompanyWizard.jsx";
 import EditCompanyReview from "./components/market/company/EditCompanyReview.jsx";
+import ShopCreateWizard from "./components/market/shops/CreateShopWizard.jsx";
+import ShopPreviewPage from "./components/market/shops/ShopPreviewPage.jsx";
 
 function App() {
   return (
@@ -143,6 +145,14 @@ function AppWithRouter() {
               <Route
                 path="/market/company/:companyId/edit"
                 element={<EditCompanyWizard />}
+              />
+              <Route
+                path="/market/create-shop"
+                element={<ShopCreateWizard />}
+              />
+              <Route
+                path="/market/create-shop/preview"
+                element={<ShopPreviewPage />}
               />
               <Route path="*" element={<NotFound />} />
             </Routes>

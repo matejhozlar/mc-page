@@ -39,6 +39,10 @@ function keyFromPublicUrl(url) {
   return url?.startsWith(prefix) ? url.slice(prefix.length) : null;
 }
 
+function getShopCreationFee(existingShopCountForCompany) {
+  return 100 + 50 * (existingShopCountForCompany || 0);
+}
+
 export default function adminRoutes(db, clientBot) {
   const router = express.Router();
 
@@ -886,6 +890,270 @@ export default function adminRoutes(db, clientBot) {
     } catch (error) {
       logger.error(`❌ Reject company edit ${id}: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/admin/pending-shops/:id
+  router.get("/admin/pending-shops/:id", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const { rows } = await db.query(
+        `SELECT
+        ps.id,
+        ps.company_id,
+        c.name AS company_name,
+        ps.name,
+        ps.description,
+        ps.short_description,
+        ps.created_at,
+        ps.logo_url,
+        ps.banner_url,
+        ps.gallery_urls,
+        ps.founder_uuid,
+        u.name AS owner_name,
+        ps.status
+       FROM pending_shops ps
+       JOIN companies c ON c.id = ps.company_id
+       JOIN users u ON ps.founder_uuid = u.uuid
+       WHERE ps.id = $1`,
+        [id]
+      );
+
+      if (!rows.length) {
+        return res.status(404).json({ error: "Pending shop not found" });
+      }
+
+      res.json(rows[0]);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch pending shop ${id}: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/admin/pending-shops/:id/approve
+  router.post("/admin/pending-shops/:id/approve", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    const client = await db.connect();
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) {
+        client.release();
+        return res.status(403).json({ error: "Not an admin" });
+      }
+
+      await client.query("BEGIN");
+
+      const {
+        rows: [adminUser],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
+        [discordId]
+      );
+
+      const {
+        rows: [pending],
+      } = await client.query(
+        `SELECT * FROM pending_shops
+       WHERE id=$1 AND status IN ('pending','awaiting_funds')
+       FOR UPDATE`,
+        [id]
+      );
+      if (!pending) {
+        await client.query("ROLLBACK");
+        client.release();
+        return res
+          .status(404)
+          .json({ error: "Pending shop not found or already processed" });
+      }
+
+      const {
+        rows: [founderUser],
+      } = await client.query(
+        `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
+        [pending.founder_uuid]
+      );
+
+      const {
+        rows: [cnt],
+      } = await client.query(
+        `SELECT COUNT(*)::int AS n FROM shops WHERE company_id=$1`,
+        [pending.company_id]
+      );
+      const fee = getShopCreationFee(cnt?.n ?? 0);
+
+      await client.query(
+        `UPDATE pending_shops
+       SET status='awaiting_funds',
+           fee_required=$1,
+           fee_checked_at=NOW(),
+           reviewed_at=NOW(),
+           reviewed_by=$2
+       WHERE id=$3`,
+        [fee, adminUser.uuid, id]
+      );
+
+      await client.query("COMMIT");
+
+      runOnlyInProduction(async () => {
+        (async () => {
+          if (!founderUser?.discord_id) return;
+          const lines = [
+            `✅ Your shop submission **${pending.name}** is approved (pending payment).`,
+            ``,
+            `• Shop ID: ${pending.id}`,
+            `• Company ID: ${pending.company_id}`,
+            `• Required fee: ${fee}`,
+            ``,
+            `Please complete payment in market/requests to finalize creation.`,
+          ];
+          await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
+        })().catch((e) =>
+          logger.warn(`⚠️ post-commit DM failed for pending shop ${id}: ${e}`)
+        );
+      });
+
+      return res
+        .status(200)
+        .json({ success: true, status: "awaiting_funds", required: fee });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ Admin approve shop->awaiting_funds error: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  });
+
+  // POST /api/admin/pending-shops/:id/reject
+  router.post("/admin/pending-shops/:id/reject", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    const { reason } = req.body;
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    if (!reason || typeof reason !== "string" || reason.trim() === "") {
+      return res.status(400).json({ error: "Rejection reason is required" });
+    }
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const {
+        rows: [pending],
+      } = await db.query(
+        `SELECT * FROM pending_shops WHERE id=$1 AND status='pending'`,
+        [id]
+      );
+      if (!pending) {
+        return res
+          .status(404)
+          .json({ error: "Pending shop not found or already processed" });
+      }
+
+      const {
+        rows: [founderUser],
+      } = await db.query(`SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`, [
+        pending.founder_uuid,
+      ]);
+
+      const extractKey = (url) => {
+        const prefix = "https://market-assets.create-rington.com/";
+        return url?.startsWith(prefix) ? url.substring(prefix.length) : null;
+      };
+
+      const keys = [
+        extractKey(pending.logo_url),
+        extractKey(pending.banner_url),
+        ...(pending.gallery_urls || []).map(extractKey),
+      ].filter(Boolean);
+
+      await Promise.all(keys.map(deleteR2Object));
+
+      await db.query(
+        `INSERT INTO rejected_shops (id, company_id, founder_uuid, name, reason, rejected_at)
+       VALUES ($1,$2,$3,$4,$5,NOW())`,
+        [
+          pending.id,
+          pending.company_id,
+          pending.founder_uuid,
+          pending.name,
+          reason.trim(),
+        ]
+      );
+
+      await db.query(`DELETE FROM pending_shops WHERE id=$1`, [id]);
+
+      runOnlyInProduction(async () => {
+        (async () => {
+          if (!founderUser?.discord_id) return;
+          const lines = [
+            `❌ Your shop submission **${pending.name}** was rejected.`,
+            ``,
+            `• Shop ID: ${pending.id}`,
+            `• Company ID: ${pending.company_id}`,
+            `• Reason:\n ${reason.trim()}`,
+            ``,
+            `You can resubmit after addressing the feedback.`,
+          ];
+          await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
+        })().catch((e) =>
+          logger.warn(`⚠️ post-reject DM failed for pending shop ${id}: ${e}`)
+        );
+      });
+
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      logger.error(`❌ Failed to reject shop ${id}: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // --- GET /api/admin/pending-shops ---
+  router.get("/admin/pending-shops", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const { rows } = await db.query(
+        `
+      SELECT
+        ps.id,
+        ps.name,
+        ps.short_description,
+        ps.created_at,
+        ps.logo_url,
+        u.name AS owner_name,
+        c.name AS company_name,
+        'new' AS type
+      FROM pending_shops ps
+      JOIN users u ON ps.founder_uuid = u.uuid
+      JOIN companies c ON c.id = ps.company_id
+      WHERE ps.status = 'pending'
+      ORDER BY ps.created_at ASC
+      `
+      );
+
+      res.json({ shops: rows });
+    } catch (error) {
+      logger.error(`❌ Failed to fetch pending shops: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
