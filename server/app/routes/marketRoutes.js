@@ -7,8 +7,8 @@ import {
   S3Client,
   CopyObjectCommand,
   DeleteObjectCommand,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
-import url from "url";
 
 const r2 = new S3Client({
   region: process.env.R2_REGION,
@@ -28,15 +28,73 @@ function keyFromPublicUrl(publicUrl) {
   return publicUrl.slice(PUBLIC_BASE.length);
 }
 
+function extFromKey(key) {
+  const idx = key.lastIndexOf(".");
+  return idx >= 0 ? key.slice(idx).toLowerCase() : ".png";
+}
+
+function guessContentType(ext) {
+  switch (ext) {
+    case ".jpg":
+    case ".jpeg":
+      return "image/jpeg";
+    case ".png":
+      return "image/png";
+    case ".webp":
+      return "image/webp";
+    case ".gif":
+      return "image/gif";
+    case ".avif":
+      return "image/avif";
+    default:
+      return "application/octet-stream";
+  }
+}
+
+async function deleteByPrefix(prefix) {
+  let ContinuationToken;
+  const keys = [];
+  do {
+    const resp = await r2.send(
+      new ListObjectsV2Command({
+        Bucket: BUCKET,
+        Prefix: prefix,
+        ContinuationToken,
+      })
+    );
+    (resp.Contents || []).forEach((o) => o?.Key && keys.push(o.Key));
+    ContinuationToken = resp.IsTruncated
+      ? resp.NextContinuationToken
+      : undefined;
+  } while (ContinuationToken);
+
+  for (let i = 0; i < keys.length; i += 10) {
+    const slice = keys.slice(i, i + 10);
+    await Promise.all(
+      slice.map((Key) =>
+        r2
+          .send(new DeleteObjectCommand({ Bucket: BUCKET, Key }))
+          .catch(() => {})
+      )
+    );
+  }
+}
+
 async function moveR2Object(srcUrl, destKey) {
   const srcKey = keyFromPublicUrl(srcUrl);
   if (!srcKey) return null;
+
+  const ext = extFromKey(srcKey);
+  const contentType = guessContentType(ext);
 
   await r2.send(
     new CopyObjectCommand({
       Bucket: BUCKET,
       CopySource: `${BUCKET}/${encodeURI(srcKey)}`,
       Key: destKey,
+      CacheControl: "public, max-age=60, s-maxage=300, must-revalidate",
+      ContentType: contentType,
+      MetadataDirective: "REPLACE",
     })
   );
 
@@ -48,11 +106,6 @@ async function moveR2Object(srcUrl, destKey) {
   );
 
   return `${PUBLIC_BASE}${destKey}`;
-}
-
-function extFromKey(key) {
-  const idx = key.lastIndexOf(".");
-  return idx >= 0 ? key.slice(idx) : ".png";
 }
 
 export default function marketRoutes(db) {
@@ -877,7 +930,7 @@ export default function marketRoutes(db) {
     }
   });
 
-  // POST /api/market/company-edits/:id/pay
+  // --- ROUTE: POST /api/market/company-edits/:id/pay ---
   router.post("/market/company-edits/:id/pay", async (req, res) => {
     const discordId = req.cookies.user_session;
     const id = parseInt(req.params.id, 10);
@@ -944,7 +997,6 @@ export default function marketRoutes(db) {
         [fee, edit.company_id]
       );
 
-      // Text updates
       if (edit.name) {
         await client.query(`UPDATE companies SET name=$1 WHERE id=$2`, [
           edit.name,
@@ -964,7 +1016,6 @@ export default function marketRoutes(db) {
         ]);
       }
 
-      // --- Move any uploaded images from company-edits/... to company-assets/... ---
       const assetBase = `company-assets/${edit.company_id}`;
 
       let newLogoUrl = null;
@@ -972,6 +1023,7 @@ export default function marketRoutes(db) {
       let newGalleryUrls = [];
 
       if (edit.logo_path) {
+        await deleteByPrefix(`${assetBase}/logo`);
         const srcKey = keyFromPublicUrl(edit.logo_path);
         const ext = srcKey ? extFromKey(srcKey) : ".png";
         newLogoUrl = await moveR2Object(
@@ -981,6 +1033,7 @@ export default function marketRoutes(db) {
       }
 
       if (edit.banner_path) {
+        await deleteByPrefix(`${assetBase}/banner`);
         const srcKey = keyFromPublicUrl(edit.banner_path);
         const ext = srcKey ? extFromKey(srcKey) : ".png";
         newBannerUrl = await moveR2Object(
@@ -990,7 +1043,6 @@ export default function marketRoutes(db) {
       }
 
       if (Array.isArray(edit.gallery_paths) && edit.gallery_paths.length) {
-        // Fully replace gallery if new gallery paths provided
         await client.query(
           `DELETE FROM company_images WHERE company_id=$1 AND type='gallery'`,
           [edit.company_id]
@@ -1000,6 +1052,9 @@ export default function marketRoutes(db) {
         for (let i = 0; i < edit.gallery_paths.length; i++) {
           const u = edit.gallery_paths[i];
           if (!u) continue;
+
+          await deleteByPrefix(`${assetBase}/gallery/gallery-${i}`);
+
           const srcKey = keyFromPublicUrl(u);
           const ext = srcKey ? extFromKey(srcKey) : ".png";
           const destKey = `${assetBase}/gallery/gallery-${i}${ext}`;
@@ -1009,7 +1064,6 @@ export default function marketRoutes(db) {
         newGalleryUrls = moved;
       }
 
-      // --- Write final image URLs (company-assets/...) into company_images ---
       const upserts = [];
 
       if (newLogoUrl) {
@@ -1050,15 +1104,7 @@ export default function marketRoutes(db) {
       }
 
       await Promise.all(upserts);
-
-      await client.query(
-        `UPDATE company_edits
-       SET status='approved',
-           fee_required=NULL,
-           fee_checked_at=NULL
-       WHERE id=$1`,
-        [id]
-      );
+      await client.query(`DELETE FROM company_edits WHERE id=$1`, [id]);
 
       await client.query("COMMIT");
       return res.json({ success: true, company_id: edit.company_id });
@@ -1070,6 +1116,5 @@ export default function marketRoutes(db) {
       client.release();
     }
   });
-
   return router;
 }
