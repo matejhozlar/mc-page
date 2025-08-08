@@ -175,3 +175,98 @@ export async function notifyAdminCompanyEdit(data, client) {
 
   await sendAdminNotice({ subject, plain, html, embed, client });
 }
+
+/**
+ * Notify admins that a NEW shop was submitted and awaits approval.
+ * @param {{
+ *   id: number|string,
+ *   name: string,
+ *   company_id: number|string,
+ *   company_name?: string,
+ *   founder_uuid: string,
+ *   short_description?: string
+ * }} data
+ * @param {import('discord.js').Client} client
+ */
+export async function notifyAdminPendingShop(data, client) {
+  const {
+    id,
+    name,
+    company_id,
+    company_name,
+    founder_uuid,
+    short_description,
+  } = data;
+
+  const subject = `🛒 New Shop Submission Pending Approval: ${name}`;
+  const plain = [
+    `A new shop is awaiting approval:`,
+    `Shop ID: ${id}`,
+    `Shop Name: ${name}`,
+    `Company ID: ${company_id}`,
+    company_name ? `Company Name: ${company_name}` : null,
+    `Founder UUID: ${founder_uuid}`,
+    short_description ? `Short Description: ${short_description}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `
+    <p><strong>New shop submission pending approval</strong></p>
+    <ul>
+      <li><strong>Shop ID:</strong> ${id}</li>
+      <li><strong>Shop Name:</strong> ${escapeHtml(name)}</li>
+      <li><strong>Company ID:</strong> ${company_id}</li>
+      ${
+        company_name
+          ? `<li><strong>Company Name:</strong> ${escapeHtml(
+              company_name
+            )}</li>`
+          : ""
+      }
+      <li><strong>Founder UUID:</strong> ${founder_uuid}</li>
+      ${
+        short_description
+          ? `<li><strong>Short Description:</strong> ${escapeHtml(
+              short_description
+            )}</li>`
+          : ""
+      }
+    </ul>
+  `;
+
+  const embedBuilder = new EmbedBuilder()
+    .setTitle("🛒 New Shop Submission (Pending Approval)")
+    .addFields(
+      { name: "Shop ID", value: String(id) },
+      { name: "Shop Name", value: name || "Unknown" },
+      { name: "Company ID", value: String(company_id) },
+      ...(company_name ? [{ name: "Company Name", value: company_name }] : []),
+      { name: "Founder UUID", value: founder_uuid || "Unknown" },
+      ...(short_description
+        ? [{ name: "Short Description", value: short_description }]
+        : [])
+    )
+    .setColor(BLUE)
+    .setTimestamp();
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel("Open Admin Panel")
+      .setStyle(ButtonStyle.Link)
+      .setURL("https://create-rington.com/login-admin/")
+  );
+
+  const embed = { embeds: [embedBuilder], components: [row] };
+
+  await sendAdminNotice({ subject, plain, html, embed, client });
+}
+
+function escapeHtml(str = "") {
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}

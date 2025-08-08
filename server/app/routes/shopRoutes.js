@@ -4,8 +4,9 @@ import path from "path";
 import upload from "../middleware/multer.js";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
 import { generateUniqueShopId } from "../utils/market/resources/generateUniqueShopId.js";
+import { notifyAdminPendingShop } from "../utils/admin/notifyAdminCompanyApprovals.js";
 
-export default function shopSubmissionRoutes(db) {
+export default function shopSubmissionRoutes(db, clientBot) {
   const router = express.Router();
 
   async function requireFounder(discordId, companyId) {
@@ -170,6 +171,17 @@ export default function shopSubmissionRoutes(db) {
             SET logo_url=$1, banner_url=$2, gallery_urls=$3
           WHERE id=$4`,
           [logoUrl, bannerUrl, galleryUrls, customId]
+        );
+
+        await notifyAdminPendingShop(
+          {
+            id: customId,
+            name: rawName,
+            company_id: companyId,
+            founder_uuid,
+            short_description: short_description || undefined,
+          },
+          clientBot
         );
 
         return res.status(201).json({ success: true, shop_id: customId });

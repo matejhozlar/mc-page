@@ -30,5 +30,5 @@ export default function registerRoutes(
   app.use("/api", assetsRoutes());
   app.use("/api", marketRoutes(db, clientBot));
   app.use("/api", companySubmissionRoutes(db, clientBot));
-  app.use("/api", shopRoutes(db));
+  app.use("/api", shopRoutes(db, clientBot));
 }
