@@ -3,9 +3,10 @@ import express from "express";
 import path from "path";
 import { generateUniqueCompanyId } from "../utils/market/resources/generateUniqueCompanyId.js";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
+import { notifyAdminPendingCompany } from "../utils/admin/notifyAdminCompanyApprovals.js";
 import upload from "../middleware/multer.js";
 
-export default function submissionRoutes(db) {
+export default function submissionRoutes(db, clientBot) {
   const router = express.Router();
 
   // POST --- /api/market/company/pending-companies ---
@@ -130,6 +131,22 @@ export default function submissionRoutes(db) {
          WHERE id = $4`,
           [logoUrl, bannerUrl, galleryUrls, customId]
         );
+
+        try {
+          await notifyAdminPendingCompany(
+            {
+              id: customId,
+              name: rawName,
+              founder_uuid,
+              short_description: short_description || undefined,
+            },
+            clientBot
+          );
+        } catch (notifyErr) {
+          logger.error(
+            `❌ Failed to notify admins about pending company ${customId}: ${notifyErr}`
+          );
+        }
 
         res.status(200).json({ success: true, company_id: customId });
       } catch (error) {

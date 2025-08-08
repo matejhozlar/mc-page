@@ -8,7 +8,6 @@ import "../../css/PendingCompanyReview.css";
 
 const FieldRow = ({ label, before, after, markdown = false }) => {
   const changed = useMemo(() => {
-    // treat null/undefined as "unchanged"
     if (after === null || after === undefined || after === "") return false;
     return (before ?? "") !== after;
   }, [before, after]);
@@ -119,12 +118,11 @@ const CompanyEditReview = () => {
   const [allowed, setAllowed] = useState(false);
   const [checked, setChecked] = useState(false);
   const [user, setUser] = useState(null);
-  const [payload, setPayload] = useState(null); // { edit, original }
+  const [payload, setPayload] = useState(null);
   const [loading, setLoading] = useState(true);
   const [reason, setReason] = useState("");
   const [popup, setPopup] = useState(null);
 
-  // auth
   useEffect(() => {
     fetch("/api/admin/validate", { credentials: "include" })
       .then((r) => r.json())
@@ -149,7 +147,6 @@ const CompanyEditReview = () => {
       .catch(() => (localStorage.clear(), (window.location.href = "/")));
   }, [allowed]);
 
-  // load edit + original
   useEffect(() => {
     if (!editId) return;
     setLoading(true);
@@ -161,10 +158,13 @@ const CompanyEditReview = () => {
   }, [editId]);
 
   useEffect(() => {
-    if (payload && user) {
-      const defaultMsg = `Hello,\n\nThanks for your company edit submission.\n\nUnfortunately we can't approve it at this time due to:\n\n\n\nYou can revise and resubmit.\n\nSincerely,\n${user.name}`;
-      setReason(defaultMsg);
-    }
+    if (!payload || !user) return;
+    const recipient =
+      payload?.edit?.editor_name || payload?.original?.founder_name || "there";
+
+    const defaultMsg = `Hello ${recipient},\n\nThanks for your company edit submission.\n\nUnfortunately we can't approve it at this time due to:\n\n\n\nYou can revise and resubmit.\n\nSincerely,\n${user.name}`;
+
+    setReason((prev) => (prev && prev.trim() ? prev : defaultMsg));
   }, [payload, user]);
 
   const handleApprove = async () => {
@@ -244,7 +244,6 @@ const CompanyEditReview = () => {
           markdown
         />
 
-        {/* Images (we need current company images; use your existing /market/company/:id endpoint) */}
         <ImagesBlock
           companyId={edit.company_id}
           proposed={{
@@ -287,7 +286,6 @@ const CompanyEditReview = () => {
 
 export default CompanyEditReview;
 
-// helper sub-component to show current images vs proposed
 function ImagesBlock({ companyId, proposed }) {
   const [current, setCurrent] = useState(null);
 

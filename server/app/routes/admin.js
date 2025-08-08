@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getCompanyCreationFee } from "../utils/market/fees/getCompanyCreationFee.js";
+import { sendDm } from "../utils/discord/sendDm.js";
 
 const r2 = new S3Client({
   region: process.env.R2_REGION,
@@ -37,7 +38,7 @@ function keyFromPublicUrl(url) {
   return url?.startsWith(prefix) ? url.slice(prefix.length) : null;
 }
 
-export default function adminRoutes(db) {
+export default function adminRoutes(db, clientBot) {
   const router = express.Router();
 
   // --- /api/admin/validate ---
@@ -464,8 +465,8 @@ export default function adminRoutes(db) {
         rows: [pending],
       } = await client.query(
         `SELECT * FROM pending_companies
-       WHERE id = $1 AND status IN ('pending','awaiting_funds')
-       FOR UPDATE`,
+         WHERE id = $1 AND status IN ('pending','awaiting_funds')
+         FOR UPDATE`,
         [id]
       );
       if (!pending) {
@@ -474,6 +475,13 @@ export default function adminRoutes(db) {
           .status(404)
           .json({ error: "Pending company not found or already processed" });
       }
+
+      const {
+        rows: [founderUser],
+      } = await client.query(
+        `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
+        [pending.founder_uuid]
+      );
 
       const {
         rows: [cnt],
@@ -497,6 +505,22 @@ export default function adminRoutes(db) {
       );
 
       await client.query("COMMIT");
+
+      (async () => {
+        if (!founderUser?.discord_id) return;
+        const lines = [
+          `✅ Your company submission **${pending.name}** is approved (pending payment).`,
+          ``,
+          `• Company ID: ${pending.id}`,
+          `• Required fee: ${fee}`,
+          ``,
+          `Please complete payment in the market/requests to finalize creation.`,
+        ];
+        await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
+      })().catch((e) =>
+        logger.warn(`⚠️ post-commit DM failed for pending company ${id}: ${e}`)
+      );
+
       return res
         .status(200)
         .json({ success: true, status: "awaiting_funds", required: fee });
@@ -538,6 +562,13 @@ export default function adminRoutes(db) {
           .json({ error: "Pending company not found or already processed" });
       }
 
+      const {
+        rows: [founderUser],
+      } = await db.query(
+        `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
+        [pending.founder_uuid]
+      );
+
       const extractKey = (url) => {
         const prefix = "https://market-assets.create-rington.com/";
         return url?.startsWith(prefix) ? url.substring(prefix.length) : null;
@@ -558,6 +589,21 @@ export default function adminRoutes(db) {
       );
 
       await db.query(`DELETE FROM pending_companies WHERE id = $1`, [id]);
+
+      (async () => {
+        if (!founderUser?.discord_id) return;
+        const lines = [
+          `❌ Your company submission **${pending.name}** was rejected.`,
+          ``,
+          `• Company ID: ${pending.id}`,
+          `• Reason:\n ${reason.trim()}`,
+          ``,
+          `You can resubmit after addressing the feedback.`,
+        ];
+        await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
+      })().catch((e) =>
+        logger.warn(`⚠️ post-reject DM failed for pending company ${id}: ${e}`)
+      );
 
       res.status(200).json({ success: true });
     } catch (error) {
@@ -627,7 +673,12 @@ export default function adminRoutes(db) {
       if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
 
       const { rows: edits } = await db.query(
-        `SELECT * FROM company_edits WHERE id = $1 AND status = 'pending'`,
+        `
+      SELECT ce.*, u.name AS editor_name
+      FROM company_edits ce
+      JOIN users u ON u.uuid = ce.editor_uuid
+      WHERE ce.id = $1 AND ce.status = 'pending'
+      `,
         [editId]
       );
       if (!edits.length) {
@@ -684,6 +735,13 @@ export default function adminRoutes(db) {
         return res.status(404).json({ error: "Edit not found or processed" });
       }
 
+      const {
+        rows: [editorUser],
+      } = await client.query(
+        `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
+        [edit.editor_uuid]
+      );
+
       const fee = 100;
 
       await client.query(
@@ -698,6 +756,23 @@ export default function adminRoutes(db) {
       );
 
       await client.query("COMMIT");
+
+      (async () => {
+        if (!editorUser?.discord_id) return;
+        const lines = [
+          `✅ Your company edit request is approved (pending payment).`,
+          ``,
+          `• Edit ID: ${edit.id}`,
+          `• Company ID: ${edit.company_id}`,
+          `• Required fee: ${fee}`,
+          ``,
+          `Please complete payment in market/requests to apply the changes.`,
+        ];
+        await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
+      })().catch((e) =>
+        logger.warn(`⚠️ post-commit DM failed for company edit ${id}: ${e}`)
+      );
+
       return res.json({
         success: true,
         status: "awaiting_funds",
@@ -737,6 +812,13 @@ export default function adminRoutes(db) {
         return res.status(404).json({ error: "Edit not found or processed" });
       }
 
+      const {
+        rows: [editorUser],
+      } = await db.query(
+        `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
+        [edit.editor_uuid]
+      );
+
       const keys = [
         keyFromPublicUrl(edit.logo_path),
         keyFromPublicUrl(edit.banner_path),
@@ -766,8 +848,26 @@ export default function adminRoutes(db) {
       );
 
       await db.query(
-        `UPDATE company_edits SET status='rejected', reason=$1, reviewed_at=NOW() WHERE id=$2`,
+        `UPDATE company_edits
+         SET status='rejected', reason=$1, reviewed_at=NOW()
+       WHERE id=$2`,
         [reason.trim(), id]
+      );
+
+      (async () => {
+        if (!editorUser?.discord_id) return;
+        const lines = [
+          `❌ Your company edit request was rejected.`,
+          ``,
+          `• Edit ID: ${edit.id}`,
+          `• Company ID: ${edit.company_id}`,
+          `• Reason:\n ${reason.trim()}`,
+          ``,
+          `You can submit a new edit after addressing the feedback.`,
+        ];
+        await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
+      })().catch((e) =>
+        logger.warn(`⚠️ post-reject DM failed for company edit ${id}: ${e}`)
       );
 
       return res.json({ success: true });

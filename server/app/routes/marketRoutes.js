@@ -3,6 +3,7 @@ import upload from "../middleware/multer.js";
 import logger from "../../logger.js";
 import path from "path";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
+import { notifyAdminCompanyEdit } from "../utils/admin/notifyAdminCompanyApprovals.js";
 import {
   S3Client,
   CopyObjectCommand,
@@ -108,7 +109,7 @@ async function moveR2Object(srcUrl, destKey) {
   return `${PUBLIC_BASE}${destKey}`;
 }
 
-export default function marketRoutes(db) {
+export default function marketRoutes(db, clientBot) {
   const router = express.Router();
 
   // GET --- /api/market/me ---
@@ -813,6 +814,23 @@ export default function marketRoutes(db) {
             galleryPathsSaved?.length ? galleryPathsSaved : null,
           ]
         );
+
+        try {
+          await notifyAdminCompanyEdit(
+            {
+              edit_id: editRow.id,
+              company_id: companyId,
+              editor_uuid: user.uuid,
+              name: name || undefined,
+              short_description: short_description || undefined,
+            },
+            clientBot
+          );
+        } catch (error) {
+          logger.error(
+            `❌ Failed to notify admins about company edit ${companyId}: ${error}`
+          );
+        }
 
         return res.status(201).json({ success: true, edit_id: editRow.id });
       } catch (error) {

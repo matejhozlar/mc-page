@@ -22,11 +22,11 @@ export default function registerRoutes(
   app.use("/api", uploadImageRoute(io, webBot, "minecraft-chat"));
   app.use("/api", discordOAuthRoutes(db));
   app.use("/api", userRoutes(db));
-  app.use("/api", adminRoutes(db));
+  app.use("/api", adminRoutes(db, clientBot));
   app.use("/api", gameDataRoutes(db));
   app.use("/api", currencyRoutes(db, webBot, io));
   app.use("/api", cryptoRoutes(db));
   app.use("/api", assetsRoutes());
-  app.use("/api", marketRoutes(db));
-  app.use("/api", companySubmissionRoutes(db));
+  app.use("/api", marketRoutes(db, clientBot));
+  app.use("/api", companySubmissionRoutes(db, clientBot));
 }
