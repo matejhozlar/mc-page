@@ -206,7 +206,7 @@ export default function marketRoutes(db) {
         companies: companiesResult.rows,
         shops,
       });
-    } catch (err) {
+    } catch (error) {
       logger.error(`❌ /market/me error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
@@ -1108,9 +1108,9 @@ export default function marketRoutes(db) {
 
       await client.query("COMMIT");
       return res.json({ success: true, company_id: edit.company_id });
-    } catch (err) {
+    } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Pay & apply edit error: ${err}`);
+      logger.error(`❌ Pay & apply edit error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1206,9 +1206,9 @@ export default function marketRoutes(db) {
         success: true,
         company_balance: Number(updatedCompany.balance),
       });
-    } catch (err) {
+    } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Deposit error: ${err}`);
+      logger.error(`❌ Deposit error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1300,9 +1300,9 @@ export default function marketRoutes(db) {
         success: true,
         company_balance: Number(updatedCompany.balance),
       });
-    } catch (err) {
+    } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Withdraw error: ${err}`);
+      logger.error(`❌ Withdraw error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();

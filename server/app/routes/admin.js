@@ -27,8 +27,8 @@ async function deleteR2Object(key) {
         Key: key,
       })
     );
-  } catch (err) {
-    logger.warn(`⚠️ Failed to delete R2 object ${key}: ${err.message}`);
+  } catch (error) {
+    logger.warn(`⚠️ Failed to delete R2 object ${key}: ${error.message}`);
   }
 }
 
@@ -433,8 +433,8 @@ export default function adminRoutes(db) {
       }
 
       res.json(rows[0]);
-    } catch (err) {
-      logger.error(`❌ Failed to fetch pending company ${id}: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch pending company ${id}: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -608,8 +608,8 @@ export default function adminRoutes(db) {
       );
 
       res.json({ companies: rows });
-    } catch (err) {
-      logger.error(`❌ Failed to fetch pending companies/edits: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch pending companies/edits: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -646,8 +646,8 @@ export default function adminRoutes(db) {
       }
 
       res.json({ edit, original: originals[0] });
-    } catch (err) {
-      logger.error(`❌ Failed to fetch company edit ${editId}: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Failed to fetch company edit ${editId}: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -703,9 +703,9 @@ export default function adminRoutes(db) {
         status: "awaiting_funds",
         required: fee,
       });
-    } catch (err) {
+    } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Edit approve->awaiting_funds error: ${err}`);
+      logger.error(`❌ Edit approve->awaiting_funds error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -752,8 +752,8 @@ export default function adminRoutes(db) {
                 Key,
               })
             )
-            .catch((e) =>
-              logger.warn(`⚠️ R2 delete failed for ${Key}: ${e.message}`)
+            .catch((error) =>
+              logger.warn(`⚠️ R2 delete failed for ${Key}: ${error.message}`)
             )
         )
       );
@@ -771,8 +771,8 @@ export default function adminRoutes(db) {
       );
 
       return res.json({ success: true });
-    } catch (err) {
-      logger.error(`❌ Reject company edit ${id}: ${err}`);
+    } catch (error) {
+      logger.error(`❌ Reject company edit ${id}: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
