@@ -7,8 +7,11 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-const { CLIENT_BOT_TOKEN, DISCORD_MARKET_CHANNEL_ID, DISCORD_TEST_CHANNEL_ID } =
-  process.env;
+const {
+  CLIENT_BOT_TOKEN,
+  DISCORD_MARKET_CHANNEL_ID,
+  DISCORD_ANNOUNCEMENT_CHANNEL_ID,
+} = process.env;
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
@@ -49,7 +52,7 @@ client.once("ready", async () => {
 
   try {
     const announcementChannel = await client.channels.fetch(
-      DISCORD_TEST_CHANNEL_ID
+      DISCORD_ANNOUNCEMENT_CHANNEL_ID
     );
     await announcementChannel.send({ embeds: [embed] });
     console.log("📢 Announcement sent!");
