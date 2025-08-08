@@ -4,12 +4,14 @@ import logger from "../../logger.js";
 import path from "path";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
 import { notifyAdminCompanyEdit } from "../utils/admin/notifyAdminCompanyApprovals.js";
+import { EmbedBuilder } from "discord.js";
 import {
   S3Client,
   CopyObjectCommand,
   DeleteObjectCommand,
   ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
+import config from "../../config/index.js";
 
 const r2 = new S3Client({
   region: process.env.R2_REGION,
@@ -20,6 +22,7 @@ const r2 = new S3Client({
   },
 });
 
+const { GOLD } = config.uiColors;
 const PUBLIC_BASE = "https://market-assets.create-rington.com/";
 const BUCKET = process.env.R2_BUCKET_NAME;
 
@@ -689,7 +692,49 @@ export default function marketRoutes(db, clientBot) {
       });
       await Promise.all(imageInserts);
 
+      const {
+        rows: [founder],
+      } = await client.query(`SELECT name FROM users WHERE uuid = $1 LIMIT 1`, [
+        pending.founder_uuid,
+      ]);
+
       await client.query("COMMIT");
+
+      (async () => {
+        try {
+          const channel = await clientBot.channels.fetch(
+            process.env.DISCORD_COMPANIES_CHANNEL_ID
+          );
+          if (!channel?.isTextBased?.()) {
+            logger.warn("⚠️ Companies channel is not text-based or not found.");
+            return;
+          }
+
+          const embed = new EmbedBuilder()
+            .setTitle("🆕 New Company Created")
+            .setColor(GOLD)
+            .addFields(
+              { name: "Company", value: `${pending.name} (ID: ${pending.id})` },
+              { name: "Founder", value: founder?.name || "Unknown" },
+              ...(pending.short_description
+                ? [{ name: "Summary", value: pending.short_description }]
+                : []),
+              {
+                name: "Created At",
+                value: new Date(pending.created_at).toISOString(),
+              }
+            )
+            .setTimestamp();
+
+          await channel.send({ embeds: [embed] });
+          logger.info(
+            `📢 Posted new company to Discord: ${pending.name} (${pending.id})`
+          );
+        } catch (err) {
+          logger.warn(`⚠️ Failed to post new company embed: ${err}`);
+        }
+      })();
+
       return res.json({ success: true, company_id: pending.id });
     } catch (error) {
       await client.query("ROLLBACK");
