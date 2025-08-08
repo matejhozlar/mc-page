@@ -12,6 +12,7 @@ import {
   ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import config from "../../config/index.js";
+import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 
 const r2 = new S3Client({
   region: process.env.R2_REGION,
@@ -699,41 +700,47 @@ export default function marketRoutes(db, clientBot) {
       ]);
 
       await client.query("COMMIT");
+      runOnlyInProduction(() => {
+        (async () => {
+          try {
+            const channel = await clientBot.channels.fetch(
+              process.env.DISCORD_COMPANIES_CHANNEL_ID
+            );
+            if (!channel?.isTextBased?.()) {
+              logger.warn(
+                "⚠️ Companies channel is not text-based or not found."
+              );
+              return;
+            }
 
-      (async () => {
-        try {
-          const channel = await clientBot.channels.fetch(
-            process.env.DISCORD_COMPANIES_CHANNEL_ID
-          );
-          if (!channel?.isTextBased?.()) {
-            logger.warn("⚠️ Companies channel is not text-based or not found.");
-            return;
+            const embed = new EmbedBuilder()
+              .setTitle("🆕 New Company Created")
+              .setColor(GOLD)
+              .addFields(
+                {
+                  name: "Company",
+                  value: `${pending.name} (ID: ${pending.id})`,
+                },
+                { name: "Founder", value: founder?.name || "Unknown" },
+                ...(pending.short_description
+                  ? [{ name: "Summary", value: pending.short_description }]
+                  : []),
+                {
+                  name: "Created At",
+                  value: new Date(pending.created_at).toISOString(),
+                }
+              )
+              .setTimestamp();
+
+            await channel.send({ embeds: [embed] });
+            logger.info(
+              `📢 Posted new company to Discord: ${pending.name} (${pending.id})`
+            );
+          } catch (err) {
+            logger.warn(`⚠️ Failed to post new company embed: ${err}`);
           }
-
-          const embed = new EmbedBuilder()
-            .setTitle("🆕 New Company Created")
-            .setColor(GOLD)
-            .addFields(
-              { name: "Company", value: `${pending.name} (ID: ${pending.id})` },
-              { name: "Founder", value: founder?.name || "Unknown" },
-              ...(pending.short_description
-                ? [{ name: "Summary", value: pending.short_description }]
-                : []),
-              {
-                name: "Created At",
-                value: new Date(pending.created_at).toISOString(),
-              }
-            )
-            .setTimestamp();
-
-          await channel.send({ embeds: [embed] });
-          logger.info(
-            `📢 Posted new company to Discord: ${pending.name} (${pending.id})`
-          );
-        } catch (err) {
-          logger.warn(`⚠️ Failed to post new company embed: ${err}`);
-        }
-      })();
+        })();
+      });
 
       return res.json({ success: true, company_id: pending.id });
     } catch (error) {
@@ -859,23 +866,24 @@ export default function marketRoutes(db, clientBot) {
             galleryPathsSaved?.length ? galleryPathsSaved : null,
           ]
         );
-
-        try {
-          await notifyAdminCompanyEdit(
-            {
-              edit_id: editRow.id,
-              company_id: companyId,
-              editor_uuid: user.uuid,
-              name: name || undefined,
-              short_description: short_description || undefined,
-            },
-            clientBot
-          );
-        } catch (error) {
-          logger.error(
-            `❌ Failed to notify admins about company edit ${companyId}: ${error}`
-          );
-        }
+        runOnlyInProduction(async () => {
+          try {
+            await notifyAdminCompanyEdit(
+              {
+                edit_id: editRow.id,
+                company_id: companyId,
+                editor_uuid: user.uuid,
+                name: name || undefined,
+                short_description: short_description || undefined,
+              },
+              clientBot
+            );
+          } catch (error) {
+            logger.error(
+              `❌ Failed to notify admins about company edit ${companyId}: ${error}`
+            );
+          }
+        });
 
         return res.status(201).json({ success: true, edit_id: editRow.id });
       } catch (error) {
@@ -1180,7 +1188,7 @@ export default function marketRoutes(db, clientBot) {
     }
   });
 
-  // POST /api/market/company/:id/funds/deposit  { amount }
+  // POST /api/market/company/:id/funds/deposit
   router.post("/market/company/:id/funds/deposit", async (req, res) => {
     const discordId = req.cookies.user_session;
     const companyId = parseInt(req.params.id, 10);
@@ -1209,7 +1217,6 @@ export default function marketRoutes(db, clientBot) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      // must be Founder
       const { rowCount: isFounder } = await client.query(
         `SELECT 1 FROM company_members
        WHERE company_id=$1 AND user_uuid=$2 AND role='Founder' LIMIT 1`,
@@ -1220,7 +1227,6 @@ export default function marketRoutes(db, clientBot) {
         return res.status(403).json({ error: "Insufficient permissions" });
       }
 
-      // lock both balances
       const {
         rows: [userFunds],
       } = await client.query(
@@ -1257,7 +1263,6 @@ export default function marketRoutes(db, clientBot) {
         [amt, companyId]
       );
 
-      // record history
       await client.query(
         `INSERT INTO company_balance_history (company_id, balance, recorded_at)
        VALUES ($1, $2, NOW())`,
@@ -1278,7 +1283,7 @@ export default function marketRoutes(db, clientBot) {
     }
   });
 
-  // POST /api/market/company/:id/funds/withdraw  { amount }
+  // POST /api/market/company/:id/funds/withdraw
   router.post("/market/company/:id/funds/withdraw", async (req, res) => {
     const discordId = req.cookies.user_session;
     const companyId = parseInt(req.params.id, 10);
@@ -1333,7 +1338,6 @@ export default function marketRoutes(db, clientBot) {
         });
       }
 
-      // lock user funds
       await client.query(
         `SELECT balance FROM user_funds WHERE uuid=$1 FOR UPDATE`,
         [user.uuid]
@@ -1351,7 +1355,6 @@ export default function marketRoutes(db, clientBot) {
         [amt, user.uuid]
       );
 
-      // record history
       await client.query(
         `INSERT INTO company_balance_history (company_id, balance, recorded_at)
        VALUES ($1, $2, NOW())`,

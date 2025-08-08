@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getCompanyCreationFee } from "../utils/market/fees/getCompanyCreationFee.js";
 import { sendDm } from "../utils/discord/sendDm.js";
+import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 
 const r2 = new S3Client({
   region: process.env.R2_REGION,
@@ -283,7 +284,6 @@ export default function adminRoutes(db, clientBot) {
 
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
-    // Resolve __dirname manually for ESM
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const logo = path.join(__dirname, "assets", "logo.png");
@@ -506,20 +506,24 @@ export default function adminRoutes(db, clientBot) {
 
       await client.query("COMMIT");
 
-      (async () => {
-        if (!founderUser?.discord_id) return;
-        const lines = [
-          `✅ Your company submission **${pending.name}** is approved (pending payment).`,
-          ``,
-          `• Company ID: ${pending.id}`,
-          `• Required fee: ${fee}`,
-          ``,
-          `Please complete payment in the market/requests to finalize creation.`,
-        ];
-        await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
-      })().catch((e) =>
-        logger.warn(`⚠️ post-commit DM failed for pending company ${id}: ${e}`)
-      );
+      runOnlyInProduction(async () => {
+        (async () => {
+          if (!founderUser?.discord_id) return;
+          const lines = [
+            `✅ Your company submission **${pending.name}** is approved (pending payment).`,
+            ``,
+            `• Company ID: ${pending.id}`,
+            `• Required fee: ${fee}`,
+            ``,
+            `Please complete payment in the market/requests to finalize creation.`,
+          ];
+          await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
+        })().catch((error) =>
+          logger.warn(
+            `⚠️ post-commit DM failed for pending company ${id}: ${error}`
+          )
+        );
+      });
 
       return res
         .status(200)
@@ -590,20 +594,24 @@ export default function adminRoutes(db, clientBot) {
 
       await db.query(`DELETE FROM pending_companies WHERE id = $1`, [id]);
 
-      (async () => {
-        if (!founderUser?.discord_id) return;
-        const lines = [
-          `❌ Your company submission **${pending.name}** was rejected.`,
-          ``,
-          `• Company ID: ${pending.id}`,
-          `• Reason:\n ${reason.trim()}`,
-          ``,
-          `You can resubmit after addressing the feedback.`,
-        ];
-        await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
-      })().catch((e) =>
-        logger.warn(`⚠️ post-reject DM failed for pending company ${id}: ${e}`)
-      );
+      runOnlyInProduction(async () => {
+        (async () => {
+          if (!founderUser?.discord_id) return;
+          const lines = [
+            `❌ Your company submission **${pending.name}** was rejected.`,
+            ``,
+            `• Company ID: ${pending.id}`,
+            `• Reason:\n ${reason.trim()}`,
+            ``,
+            `You can resubmit after addressing the feedback.`,
+          ];
+          await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
+        })().catch((e) =>
+          logger.warn(
+            `⚠️ post-reject DM failed for pending company ${id}: ${e}`
+          )
+        );
+      });
 
       res.status(200).json({ success: true });
     } catch (error) {
@@ -757,21 +765,23 @@ export default function adminRoutes(db, clientBot) {
 
       await client.query("COMMIT");
 
-      (async () => {
-        if (!editorUser?.discord_id) return;
-        const lines = [
-          `✅ Your company edit request is approved (pending payment).`,
-          ``,
-          `• Edit ID: ${edit.id}`,
-          `• Company ID: ${edit.company_id}`,
-          `• Required fee: ${fee}`,
-          ``,
-          `Please complete payment in market/requests to apply the changes.`,
-        ];
-        await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
-      })().catch((e) =>
-        logger.warn(`⚠️ post-commit DM failed for company edit ${id}: ${e}`)
-      );
+      runOnlyInProduction(async () => {
+        (async () => {
+          if (!editorUser?.discord_id) return;
+          const lines = [
+            `✅ Your company edit request is approved (pending payment).`,
+            ``,
+            `• Edit ID: ${edit.id}`,
+            `• Company ID: ${edit.company_id}`,
+            `• Required fee: ${fee}`,
+            ``,
+            `Please complete payment in market/requests to apply the changes.`,
+          ];
+          await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
+        })().catch((e) =>
+          logger.warn(`⚠️ post-commit DM failed for company edit ${id}: ${e}`)
+        );
+      });
 
       return res.json({
         success: true,
@@ -854,21 +864,23 @@ export default function adminRoutes(db, clientBot) {
         [reason.trim(), id]
       );
 
-      (async () => {
-        if (!editorUser?.discord_id) return;
-        const lines = [
-          `❌ Your company edit request was rejected.`,
-          ``,
-          `• Edit ID: ${edit.id}`,
-          `• Company ID: ${edit.company_id}`,
-          `• Reason:\n ${reason.trim()}`,
-          ``,
-          `You can submit a new edit after addressing the feedback.`,
-        ];
-        await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
-      })().catch((e) =>
-        logger.warn(`⚠️ post-reject DM failed for company edit ${id}: ${e}`)
-      );
+      runOnlyInProduction(async () => {
+        (async () => {
+          if (!editorUser?.discord_id) return;
+          const lines = [
+            `❌ Your company edit request was rejected.`,
+            ``,
+            `• Edit ID: ${edit.id}`,
+            `• Company ID: ${edit.company_id}`,
+            `• Reason:\n ${reason.trim()}`,
+            ``,
+            `You can submit a new edit after addressing the feedback.`,
+          ];
+          await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
+        })().catch((e) =>
+          logger.warn(`⚠️ post-reject DM failed for company edit ${id}: ${e}`)
+        );
+      });
 
       return res.json({ success: true });
     } catch (error) {
