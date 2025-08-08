@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useMarketUser } from "../../../hooks/market/marketUserContext.js";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
 import { ChevronDown, ChevronUp } from "lucide-react";
@@ -16,36 +16,154 @@ function MarketRequests() {
   const [pendingDelete, setPendingDelete] = useState(null);
   const [payingId, setPayingId] = useState(null);
   const [statusModal, setStatusModal] = useState(null);
-
   const [building, setBuilding] = useState(null);
 
-  const fetchRequests = async () => {
+  const fetchJsonSafe = useCallback(async (url) => {
+    const res = await fetch(url, { credentials: "include" });
+    if (!res.ok) return null;
+    return res.json().catch(() => null);
+  }, []);
+
+  const fetchRequests = useCallback(async () => {
     try {
-      const [reqRes, editsRes] = await Promise.all([
-        fetch("/api/market/requests"),
-        fetch("/api/market/company-edits"),
-      ]);
+      setRequestsLoading(true);
 
-      const reqData = await reqRes.json();
-      const editsData = await editsRes.json();
+      const reqData = await fetchJsonSafe("/api/market/requests");
 
-      const combined = [
-        ...(reqData.pending_companies || []).map((r) => ({
-          ...r,
-          type: "new",
-        })),
-        ...(reqData.rejected_companies || []).map((r) => ({
-          ...r,
-          type: "new",
-          status: "rejected",
-          created_at: r.rejected_at,
-        })),
-        ...(editsData.pending_edits || []),
-        ...(editsData.awaiting_funds_edits || []),
-        ...(editsData.rejected_edits || []),
-      ];
+      const companyEdits = await fetchJsonSafe("/api/market/company-edits");
 
-      setRequests(combined);
+      let shopEdits = null;
+      try {
+        shopEdits = await fetchJsonSafe("/api/market/shop-edits");
+      } catch {
+        shopEdits = null;
+      }
+
+      const list = [];
+
+      if (reqData) {
+        (reqData.pending_companies || []).forEach((r) =>
+          list.push({ ...r, kind: "company", type: "new" })
+        );
+        (reqData.awaiting_funds_companies || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "company",
+            type: "new",
+            status: "awaiting_funds",
+          })
+        );
+        (reqData.approved_companies || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "company",
+            type: "new",
+            status: "approved",
+          })
+        );
+        (reqData.rejected_companies || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "company",
+            type: "new",
+            status: "rejected",
+            created_at: r.rejected_at || r.created_at,
+          })
+        );
+
+        (reqData.pending_shops || []).forEach((r) =>
+          list.push({ ...r, kind: "shop", type: "new" })
+        );
+        (reqData.awaiting_funds_shops || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "shop",
+            type: "new",
+            status: "awaiting_funds",
+          })
+        );
+        (reqData.approved_shops || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "shop",
+            type: "new",
+            status: "approved",
+          })
+        );
+        (reqData.rejected_shops || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "shop",
+            type: "new",
+            status: "rejected",
+            created_at: r.rejected_at || r.created_at,
+          })
+        );
+      }
+
+      if (companyEdits) {
+        (companyEdits.pending_edits || []).forEach((r) =>
+          list.push({ ...r, kind: "company", type: "edit" })
+        );
+        (companyEdits.awaiting_funds_edits || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "company",
+            type: "edit",
+            status: "awaiting_funds",
+          })
+        );
+        (companyEdits.approved_edits || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "company",
+            type: "edit",
+            status: "approved",
+          })
+        );
+        (companyEdits.rejected_edits || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "company",
+            type: "edit",
+            status: "rejected",
+            created_at: r.rejected_at || r.created_at,
+          })
+        );
+      }
+
+      if (shopEdits) {
+        (shopEdits.pending_edits || []).forEach((r) =>
+          list.push({ ...r, kind: "shop", type: "edit" })
+        );
+        (shopEdits.awaiting_funds_edits || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "shop",
+            type: "edit",
+            status: "awaiting_funds",
+          })
+        );
+        (shopEdits.approved_edits || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "shop",
+            type: "edit",
+            status: "approved",
+          })
+        );
+        (shopEdits.rejected_edits || []).forEach((r) =>
+          list.push({
+            ...r,
+            kind: "shop",
+            type: "edit",
+            status: "rejected",
+            created_at: r.rejected_at || r.created_at,
+          })
+        );
+      }
+
+      setRequests(list);
     } catch (error) {
       console.error("Failed to fetch requests:", error);
       setStatusModal({
@@ -55,24 +173,37 @@ function MarketRequests() {
     } finally {
       setRequestsLoading(false);
     }
-  };
+  }, [fetchJsonSafe]);
 
   useEffect(() => {
     fetchRequests();
-  }, []);
+  }, [fetchRequests]);
 
-  const handleDeleteRejected = async ({ id, type }) => {
+  const handleDeleteRejected = async ({ id, type, kind }) => {
     try {
-      const url =
-        type === "edit"
-          ? `/api/market/rejected-edits/${id}`
-          : `/api/market/rejected-companies/${id}`;
+      let url;
+      if (type === "edit") {
+        url =
+          kind === "shop"
+            ? `/api/market/rejected-shop-edits/${id}`
+            : `/api/market/rejected-edits/${id}`;
+      } else {
+        url =
+          kind === "shop"
+            ? `/api/market/rejected-shops/${id}`
+            : `/api/market/rejected-companies/${id}`;
+      }
 
-      const res = await fetch(url, { method: "DELETE" });
+      const res = await fetch(url, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (res.ok) {
         setRequests((prev) =>
-          prev.filter((r) => !(r.id === id && r.type === type))
+          prev.filter(
+            (r) => !(r.id === id && r.type === type && r.kind === kind)
+          )
         );
         setExpandedId(null);
         setStatusModal({
@@ -98,12 +229,21 @@ function MarketRequests() {
   const handlePay = async (entry) => {
     try {
       setPayingId(entry.id);
-      const url =
-        entry.type === "edit"
-          ? `/api/market/company-edits/${entry.id}/pay`
-          : `/api/market/pending-companies/${entry.id}/pay`;
 
-      const res = await fetch(url, { method: "POST" });
+      let url = "";
+      if (entry.type === "edit") {
+        url =
+          entry.kind === "shop"
+            ? `/api/market/shop-edits/${entry.id}/pay`
+            : `/api/market/company-edits/${entry.id}/pay`;
+      } else {
+        url =
+          entry.kind === "shop"
+            ? `/api/market/pending-shops/${entry.id}/pay`
+            : `/api/market/pending-companies/${entry.id}/pay`;
+      }
+
+      const res = await fetch(url, { method: "POST", credentials: "include" });
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));
         setStatusModal({
@@ -113,7 +253,7 @@ function MarketRequests() {
         return;
       }
 
-      setBuilding({ type: entry.type });
+      setBuilding({ type: entry.type, kind: entry.kind });
     } catch (error) {
       console.error("❌ Pay error:", error);
       setStatusModal({ type: "error", message: "Payment failed." });
@@ -123,17 +263,22 @@ function MarketRequests() {
   };
 
   const onBuildDone = async () => {
+    const was = building;
     setBuilding(null);
     await fetchRequests();
+
+    const thing =
+      was?.type === "edit"
+        ? `${was.kind === "shop" ? "shop" : "company"} changes`
+        : `${was?.kind === "shop" ? "shop" : "company"}`;
+
     setStatusModal({
       type: "success",
       message:
-        "All set! Your " +
-        (building?.type === "edit" ? "changes" : "company") +
-        " " +
-        (building?.type === "edit" ? "have been applied." : "was created.") +
-        " " +
-        (building?.type === "edit"
+        `All set! Your ${thing} ${
+          was?.type === "edit" ? "have been applied." : "was created."
+        } ` +
+        (was?.type === "edit"
           ? "Changes may take up to 1 hour to take effect."
           : ""),
     });
@@ -151,6 +296,15 @@ function MarketRequests() {
     else grouped.pending.push(req);
   }
 
+  const KindBadge = ({ kind }) => (
+    <span
+      className={`market-kind-badge ${kind === "shop" ? "shop" : "company"}`}
+      title={kind === "shop" ? "Shop request" : "Company request"}
+    >
+      {kind === "shop" ? "Shop" : "Company"}
+    </span>
+  );
+
   const renderAwaiting = (entries) => (
     <div className="market-request-section">
       <h3 className="market-request-awaiting">Awaiting Payment</h3>
@@ -162,6 +316,7 @@ function MarketRequests() {
             <li key={entry.id} className="market-awaiting-item">
               <div className="market-request-top">
                 <div className="market-request-left">
+                  <KindBadge kind={entry.kind} />
                   <strong>{entry.name}</strong>
                   {entry.type === "edit" && (
                     <span className="market-edit-badge">Edit</span>
@@ -220,6 +375,7 @@ function MarketRequests() {
               <li key={entry.id} className="market-request-item">
                 <div className="market-request-top">
                   <div className="market-request-left">
+                    <KindBadge kind={entry.kind} />
                     <strong>{entry.name}</strong>
                     {entry.type === "edit" && (
                       <span className="market-edit-badge">Edit</span>
@@ -268,7 +424,11 @@ function MarketRequests() {
                         className="market-delete-btn"
                         disabled={!!building}
                         onClick={() =>
-                          setPendingDelete({ id: entry.id, type: entry.type })
+                          setPendingDelete({
+                            id: entry.id,
+                            type: entry.type,
+                            kind: entry.kind,
+                          })
                         }
                       >
                         Delete Request

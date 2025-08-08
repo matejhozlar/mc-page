@@ -450,10 +450,7 @@ export default function marketRoutes(db, clientBot) {
   // GET /api/market/requests
   router.get("/market/requests", async (req, res) => {
     const discordId = req.cookies.user_session;
-
-    if (!discordId) {
-      return res.status(403).json({ error: "Unauthorized" });
-    }
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
       const {
@@ -462,18 +459,35 @@ export default function marketRoutes(db, clientBot) {
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
         [discordId]
       );
+      if (!user) return res.status(404).json({ error: "User not found" });
 
-      if (!user) {
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      const { rows: pendingCompanies } = await db.query(
-        `SELECT id, name, status, created_at, fee_required
-       FROM pending_companies
-       WHERE founder_uuid = $1
-       ORDER BY created_at DESC`,
-        [user.uuid]
-      );
+      const [
+        { rows: pendingCompanies },
+        { rows: awaitingCompanies },
+        { rows: approvedCompanies },
+      ] = await Promise.all([
+        db.query(
+          `SELECT id, name, status, created_at, fee_required
+         FROM pending_companies
+         WHERE founder_uuid = $1 AND status = 'pending'
+         ORDER BY created_at DESC`,
+          [user.uuid]
+        ),
+        db.query(
+          `SELECT id, name, status, created_at, fee_required
+         FROM pending_companies
+         WHERE founder_uuid = $1 AND status = 'awaiting_funds'
+         ORDER BY created_at DESC`,
+          [user.uuid]
+        ),
+        db.query(
+          `SELECT id, name, status, created_at
+         FROM pending_companies
+         WHERE founder_uuid = $1 AND status = 'approved'
+         ORDER BY created_at DESC`,
+          [user.uuid]
+        ),
+      ]);
 
       const { rows: rejectedCompanies } = await db.query(
         `SELECT id, name, reason, rejected_at
@@ -483,9 +497,51 @@ export default function marketRoutes(db, clientBot) {
         [user.uuid]
       );
 
+      const [
+        { rows: pendingShops },
+        { rows: awaitingShops },
+        { rows: approvedShops },
+      ] = await Promise.all([
+        db.query(
+          `SELECT id, name, status, created_at, fee_required
+         FROM pending_shops
+         WHERE founder_uuid = $1 AND status = 'pending'
+         ORDER BY created_at DESC`,
+          [user.uuid]
+        ),
+        db.query(
+          `SELECT id, name, status, created_at, fee_required
+         FROM pending_shops
+         WHERE founder_uuid = $1 AND status = 'awaiting_funds'
+         ORDER BY created_at DESC`,
+          [user.uuid]
+        ),
+        db.query(
+          `SELECT id, name, status, created_at
+         FROM pending_shops
+         WHERE founder_uuid = $1 AND status = 'approved'
+         ORDER BY created_at DESC`,
+          [user.uuid]
+        ),
+      ]);
+
+      const { rows: rejectedShops } = await db.query(
+        `SELECT id, name, reason, rejected_at
+       FROM rejected_shops
+       WHERE founder_uuid = $1
+       ORDER BY rejected_at DESC`,
+        [user.uuid]
+      );
+
       res.json({
         pending_companies: pendingCompanies,
+        awaiting_funds_companies: awaitingCompanies,
+        approved_companies: approvedCompanies,
         rejected_companies: rejectedCompanies,
+        pending_shops: pendingShops,
+        awaiting_funds_shops: awaitingShops,
+        approved_shops: approvedShops,
+        rejected_shops: rejectedShops,
       });
     } catch (error) {
       logger.error(`❌ Failed to fetch user requests: ${error}`);

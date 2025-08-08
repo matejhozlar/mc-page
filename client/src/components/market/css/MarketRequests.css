@@ -247,3 +247,24 @@
   border-radius: 4px;
   margin-left: 6px;
 }
+
+.market-kind-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 6px;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid transparent;
+}
+.market-kind-badge.company {
+  background: #1e3a8a22;
+  border-color: #3b82f633;
+  color: #93c5fd;
+}
+.market-kind-badge.shop {
+  background: #065f4622;
+  border-color: #10b98133;
+  color: #6ee7b7;
+}

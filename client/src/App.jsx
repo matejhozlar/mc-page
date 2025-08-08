@@ -47,6 +47,7 @@ import EditCompanyReview from "./components/market/company/EditCompanyReview.jsx
 import ShopCreateWizard from "./components/market/shops/CreateShopWizard.jsx";
 import ShopPreviewPage from "./components/market/shops/ShopPreviewPage.jsx";
 import PendingShopReview from "./components/market/shops/PendingShopReview.jsx";
+import ShopPage from "./components/market/shops/ShopPage.jsx";
 
 function App() {
   return (
@@ -139,6 +140,7 @@ function AppWithRouter() {
                 path="/market/company/:companyId"
                 element={<CompanyPage />}
               />
+              <Route path="/market/shop/:shopId" element={<ShopPage />} />
               <Route
                 path="/market/create-company"
                 element={<CreateCompanyWizard />}

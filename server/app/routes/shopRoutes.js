@@ -5,6 +5,7 @@ import upload from "../middleware/multer.js";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
 import { generateUniqueShopId } from "../utils/market/resources/generateUniqueShopId.js";
 import { notifyAdminPendingShop } from "../utils/admin/notifyAdminCompanyApprovals.js";
+import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 
 export default function shopSubmissionRoutes(db, clientBot) {
   const router = express.Router();
@@ -173,16 +174,18 @@ export default function shopSubmissionRoutes(db, clientBot) {
           [logoUrl, bannerUrl, galleryUrls, customId]
         );
 
-        await notifyAdminPendingShop(
-          {
-            id: customId,
-            name: rawName,
-            company_id: companyId,
-            founder_uuid,
-            short_description: short_description || undefined,
-          },
-          clientBot
-        );
+        runOnlyInProduction(async () => {
+          await notifyAdminPendingShop(
+            {
+              id: customId,
+              name: rawName,
+              company_id: companyId,
+              founder_uuid,
+              short_description: short_description || undefined,
+            },
+            clientBot
+          );
+        });
 
         return res.status(201).json({ success: true, shop_id: customId });
       } catch (error) {
@@ -444,6 +447,67 @@ export default function shopSubmissionRoutes(db, clientBot) {
     } catch (err) {
       logger.error(`❌ /market/my-companies failed: ${err}`);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET --- /api/market/shop/:shopId
+  router.get("/market/shop/:shopId", async (req, res) => {
+    const shopId = parseInt(req.params.shopId, 10);
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+
+    try {
+      const { rows } = await db.query(
+        `
+      SELECT
+        s.id,
+        s.company_id,
+        c.name AS company_name,
+        s.name,
+        s.short_description,
+        s.description,
+        s.created_at,
+
+        -- main logo
+        (
+          SELECT si.url
+          FROM shop_images si
+          WHERE si.shop_id = s.id AND si.type = 'logo'
+          ORDER BY si.position, si.id
+          LIMIT 1
+        ) AS logo_url,
+
+        -- banner
+        (
+          SELECT si.url
+          FROM shop_images si
+          WHERE si.shop_id = s.id AND si.type = 'banner'
+          ORDER BY si.position, si.id
+          LIMIT 1
+        ) AS banner_url,
+
+        -- gallery array
+        COALESCE((
+          SELECT ARRAY_AGG(si.url ORDER BY si.position, si.id)
+          FROM shop_images si
+          WHERE si.shop_id = s.id AND si.type = 'gallery'
+        ), '{}') AS gallery_urls
+      FROM shops s
+      JOIN companies c ON c.id = s.company_id
+      WHERE s.id = $1
+      LIMIT 1
+      `,
+        [shopId]
+      );
+
+      if (!rows.length) {
+        return res.status(404).json({ error: "Shop not found" });
+      }
+
+      return res.json(rows[0]);
+    } catch (err) {
+      logger.error(`❌ Failed to fetch shop ${shopId}: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 

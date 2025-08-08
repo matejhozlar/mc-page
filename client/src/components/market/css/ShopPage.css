@@ -1,0 +1,149 @@
+.shop-page {
+  color: var(--default-color);
+  max-width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.shop-page-owner-dashboard {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 0rem 1rem 0rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 0.5rem;
+}
+
+.shop-page-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+  background-color: var(--button-background);
+  color: var(--default-color);
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-left: auto;
+}
+
+.shop-page-button:hover {
+  background-color: var(--button-hover);
+}
+
+.shop-page-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--sidebar-background);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.shop-page-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.shop-page-logo {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.shop-page-title {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.shop-page-details {
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+  color: #aaa;
+}
+
+.shop-page-company-link {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.shop-page-short-desc {
+  margin-top: 0.4rem;
+  color: #d1d5db;
+}
+
+.shop-page-banner-image,
+.shop-page-banner-img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  margin-top: 1rem;
+  border-radius: 12px;
+}
+
+.shop-page-description-box {
+  background: var(--sidebar-background);
+  padding: 2rem;
+  border-radius: 12px;
+  line-height: 1.6;
+  font-size: 1rem;
+  box-shadow: var(--card-shadow);
+  margin-top: 1.25rem;
+}
+
+.shop-page-description-box h1,
+.shop-page-description-box h2,
+.shop-page-description-box h3 {
+  color: var(--sidebar-accent);
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.3rem;
+}
+
+.shop-page-description-box p {
+  margin: 1rem 0;
+}
+
+.shop-page-description-box ul {
+  padding-left: 1.5rem;
+  margin: 1rem 0;
+}
+
+.shop-page-description-box ul li {
+  margin-bottom: 0.5rem;
+  list-style-type: disc;
+}
+
+.shop-page-description-box a {
+  color: var(--primary-color);
+  text-decoration: underline;
+}
+
+.shop-page-description-box code {
+  background-color: var(--muted-color);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.shop-page-gallery {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: var(--sidebar-background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
