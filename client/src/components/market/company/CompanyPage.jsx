@@ -7,6 +7,7 @@ import CompanyBalanceChart from "./components/CompanyBalanceChart.jsx";
 import CompanyGallery from "./components/CompanyGallery.jsx";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
 import NotFound from "../../NotFound.jsx";
+import ManageCompanyFundsModal from "./components/ManageCompanyFunds.jsx";
 import "../css/CompanyPage.css";
 
 const CompanyPage = () => {
@@ -18,6 +19,7 @@ const CompanyPage = () => {
   const [percentChange, setPercentChange] = useState(null);
   const [balanceHistory, setBalanceHistory] = useState([]);
   const [visitor, setVisitor] = useState(null);
+  const [showManage, setShowManage] = useState(false);
 
   const navigate = useNavigate();
 
@@ -96,7 +98,10 @@ const CompanyPage = () => {
       {/* Owner Dashboard */}
       {isFounder && (
         <div className="company-owner-dashboard">
-          <button className="dashboard-button">
+          <button
+            className="dashboard-button"
+            onClick={() => setShowManage(true)}
+          >
             <Settings size={16} className="dashboard-button-shift" /> Manage
           </button>
           <button
@@ -205,6 +210,19 @@ const CompanyPage = () => {
             ))}
           </ul>
         </div>
+      )}
+      {showManage && (
+        <ManageCompanyFundsModal
+          companyId={company.id}
+          onClose={() => setShowManage(false)}
+          onBalanceUpdated={(newBal) => {
+            setBalance(newBal);
+            setBalanceHistory((prev) => [
+              ...prev,
+              { balance: newBal, recorded_at: new Date().toISOString() },
+            ]);
+          }}
+        />
       )}
     </div>
   );

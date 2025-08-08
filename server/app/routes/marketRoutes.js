@@ -1116,5 +1116,198 @@ export default function marketRoutes(db) {
       client.release();
     }
   });
+
+  // POST /api/market/company/:id/funds/deposit  { amount }
+  router.post("/market/company/:id/funds/deposit", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const companyId = parseInt(req.params.id, 10);
+    const { amount } = req.body;
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(companyId)) return res.status(400).json({ error: "Invalid ID" });
+
+    const amt = Number(amount);
+    if (!isFinite(amt) || amt <= 0) {
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const {
+        rows: [user],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // must be Founder
+      const { rowCount: isFounder } = await client.query(
+        `SELECT 1 FROM company_members
+       WHERE company_id=$1 AND user_uuid=$2 AND role='Founder' LIMIT 1`,
+        [companyId, user.uuid]
+      );
+      if (!isFounder) {
+        await client.query("ROLLBACK");
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      // lock both balances
+      const {
+        rows: [userFunds],
+      } = await client.query(
+        `SELECT balance FROM user_funds WHERE uuid=$1 FOR UPDATE`,
+        [user.uuid]
+      );
+      const userBal = Number(userFunds?.balance ?? 0);
+      if (userBal < amt) {
+        await client.query("ROLLBACK");
+        return res.status(409).json({
+          error: "Insufficient personal funds",
+          balance: userBal,
+          required: amt,
+        });
+      }
+
+      const {
+        rows: [companyFunds],
+      } = await client.query(
+        `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
+        [companyId]
+      );
+      const companyBal = Number(companyFunds?.balance ?? 0);
+
+      await client.query(
+        `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
+        [amt, user.uuid]
+      );
+      const {
+        rows: [updatedCompany],
+      } = await client.query(
+        `UPDATE company_funds SET balance = balance + $1 WHERE company_id = $2
+       RETURNING balance`,
+        [amt, companyId]
+      );
+
+      // record history
+      await client.query(
+        `INSERT INTO company_balance_history (company_id, balance, recorded_at)
+       VALUES ($1, $2, NOW())`,
+        [companyId, updatedCompany.balance]
+      );
+
+      await client.query("COMMIT");
+      return res.json({
+        success: true,
+        company_balance: Number(updatedCompany.balance),
+      });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ Deposit error: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  });
+
+  // POST /api/market/company/:id/funds/withdraw  { amount }
+  router.post("/market/company/:id/funds/withdraw", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const companyId = parseInt(req.params.id, 10);
+    const { amount } = req.body;
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(companyId)) return res.status(400).json({ error: "Invalid ID" });
+
+    const amt = Number(amount);
+    if (!isFinite(amt) || amt <= 0) {
+      return res.status(400).json({ error: "Invalid amount" });
+    }
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const {
+        rows: [user],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const { rowCount: isFounder } = await client.query(
+        `SELECT 1 FROM company_members
+       WHERE company_id=$1 AND user_uuid=$2 AND role='Founder' LIMIT 1`,
+        [companyId, user.uuid]
+      );
+      if (!isFounder) {
+        await client.query("ROLLBACK");
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const {
+        rows: [companyFunds],
+      } = await client.query(
+        `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
+        [companyId]
+      );
+      const companyBal = Number(companyFunds?.balance ?? 0);
+      if (companyBal < amt) {
+        await client.query("ROLLBACK");
+        return res.status(409).json({
+          error: "Insufficient company funds",
+          balance: companyBal,
+          required: amt,
+        });
+      }
+
+      // lock user funds
+      await client.query(
+        `SELECT balance FROM user_funds WHERE uuid=$1 FOR UPDATE`,
+        [user.uuid]
+      );
+
+      const {
+        rows: [updatedCompany],
+      } = await client.query(
+        `UPDATE company_funds SET balance = balance - $1 WHERE company_id = $2
+       RETURNING balance`,
+        [amt, companyId]
+      );
+      await client.query(
+        `UPDATE user_funds SET balance = balance + $1 WHERE uuid = $2`,
+        [amt, user.uuid]
+      );
+
+      // record history
+      await client.query(
+        `INSERT INTO company_balance_history (company_id, balance, recorded_at)
+       VALUES ($1, $2, NOW())`,
+        [companyId, updatedCompany.balance]
+      );
+
+      await client.query("COMMIT");
+      return res.json({
+        success: true,
+        company_balance: Number(updatedCompany.balance),
+      });
+    } catch (err) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ Withdraw error: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  });
+
   return router;
 }
