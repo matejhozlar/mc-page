@@ -1427,5 +1427,204 @@ export default function marketRoutes(db, clientBot) {
     }
   });
 
+  // POST --- /api/market/shop-edits/:id/pay ---
+  router.post("/market/shop-edits/:id/pay", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    const client = await db.connect();
+    try {
+      await client.query("BEGIN");
+
+      const {
+        rows: [user],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const {
+        rows: [edit],
+      } = await client.query(
+        `SELECT * FROM shop_edits WHERE id=$1 AND status='awaiting_funds' FOR UPDATE`,
+        [id]
+      );
+      if (!edit) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Awaiting funds edit not found" });
+      }
+
+      const {
+        rows: [shop],
+      } = await client.query(
+        `SELECT s.id, s.company_id FROM shops s WHERE s.id=$1 LIMIT 1`,
+        [edit.shop_id]
+      );
+      if (!shop) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Shop not found" });
+      }
+
+      const { rowCount: founderOk } = await client.query(
+        `SELECT 1 FROM company_members
+        WHERE user_uuid=$1 AND company_id=$2 AND role='Founder' LIMIT 1`,
+        [user.uuid, shop.company_id]
+      );
+      if (!founderOk) {
+        await client.query("ROLLBACK");
+        return res.status(403).json({ error: "Insufficient permissions" });
+      }
+
+      const fee = Number(edit.fee_required ?? 0) || 100;
+
+      const {
+        rows: [funds],
+      } = await client.query(
+        `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
+        [shop.company_id]
+      );
+      const balance = Number(funds?.balance ?? 0);
+      if (balance < fee) {
+        await client.query("ROLLBACK");
+        return res.status(409).json({
+          error: "Insufficient company funds",
+          required: fee,
+          balance,
+        });
+      }
+
+      await client.query(
+        `UPDATE company_funds SET balance = balance - $1 WHERE company_id = $2`,
+        [fee, shop.company_id]
+      );
+
+      if (edit.name) {
+        await client.query(`UPDATE shops SET name=$1 WHERE id=$2`, [
+          edit.name,
+          edit.shop_id,
+        ]);
+      }
+      if (edit.short_description) {
+        await client.query(
+          `UPDATE shops SET short_description=$1 WHERE id=$2`,
+          [edit.short_description, edit.shop_id]
+        );
+      }
+      if (edit.description !== null) {
+        await client.query(`UPDATE shops SET description=$1 WHERE id=$2`, [
+          edit.description,
+          edit.shop_id,
+        ]);
+      }
+
+      const assetBase = `shop-assets/${edit.shop_id}`;
+
+      let newLogoUrl = null;
+      let newBannerUrl = null;
+      let newGalleryUrls = [];
+
+      if (edit.logo_path) {
+        await deleteByPrefix(`${assetBase}/logo`);
+        const srcKey = keyFromPublicUrl(edit.logo_path);
+        const ext = srcKey ? extFromKey(srcKey) : ".png";
+        newLogoUrl = await moveR2Object(
+          edit.logo_path,
+          `${assetBase}/logo${ext}`
+        );
+      }
+
+      if (edit.banner_path) {
+        await deleteByPrefix(`${assetBase}/banner`);
+        const srcKey = keyFromPublicUrl(edit.banner_path);
+        const ext = srcKey ? extFromKey(srcKey) : ".png";
+        newBannerUrl = await moveR2Object(
+          edit.banner_path,
+          `${assetBase}/banner${ext}`
+        );
+      }
+
+      if (Array.isArray(edit.gallery_paths) && edit.gallery_paths.length) {
+        await client.query(
+          `DELETE FROM shop_images WHERE shop_id=$1 AND type='gallery'`,
+          [edit.shop_id]
+        );
+
+        const moved = [];
+        for (let i = 0; i < edit.gallery_paths.length; i++) {
+          const src = edit.gallery_paths[i];
+          if (!src) continue;
+
+          await deleteByPrefix(`${assetBase}/gallery/gallery-${i}`);
+
+          const srcKey = keyFromPublicUrl(src);
+          const ext = srcKey ? extFromKey(srcKey) : ".png";
+          const destKey = `${assetBase}/gallery/gallery-${i}${ext}`;
+          const movedUrl = await moveR2Object(src, destKey);
+          if (movedUrl) moved.push(movedUrl);
+        }
+        newGalleryUrls = moved;
+      }
+
+      const upserts = [];
+
+      if (newLogoUrl) {
+        await client.query(
+          `DELETE FROM shop_images WHERE shop_id=$1 AND type='logo'`,
+          [edit.shop_id]
+        );
+        upserts.push(
+          client.query(
+            `INSERT INTO shop_images (shop_id, url, type, position) VALUES ($1,$2,'logo',0)`,
+            [edit.shop_id, newLogoUrl]
+          )
+        );
+      }
+
+      if (newBannerUrl) {
+        await client.query(
+          `DELETE FROM shop_images WHERE shop_id=$1 AND type='banner'`,
+          [edit.shop_id]
+        );
+        upserts.push(
+          client.query(
+            `INSERT INTO shop_images (shop_id, url, type, position) VALUES ($1,$2,'banner',0)`,
+            [edit.shop_id, newBannerUrl]
+          )
+        );
+      }
+
+      for (let i = 0; i < newGalleryUrls.length; i++) {
+        upserts.push(
+          client.query(
+            `INSERT INTO shop_images (shop_id, url, type, position) VALUES ($1,$2,'gallery',$3)`,
+            [edit.shop_id, newGalleryUrls[i], i]
+          )
+        );
+      }
+
+      await Promise.all(upserts);
+
+      await client.query(
+        `UPDATE shop_edits SET status='approved', reviewed_at=NOW() WHERE id=$1`,
+        [id]
+      );
+
+      await client.query("COMMIT");
+      return res.json({ success: true, status: "approved" });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ /market/shop-edits/${id}/pay error: ${error}`);
+      return res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  });
+
   return router;
 }

@@ -35,7 +35,10 @@ const AdminShopApproval = () => {
   };
 
   return (
-    <div className="admin-users-table" style={{ marginTop: "2rem" }}>
+    <div
+      className="admin-users-table"
+      style={{ marginTop: "2rem", position: "relative" }}
+    >
       <div
         style={{
           display: "flex",
@@ -81,7 +84,7 @@ const AdminShopApproval = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Shop</th>
+              <th>Name</th>
               <th>Company</th>
               <th>Owner</th>
               <th>Owner UUID</th>
@@ -103,8 +106,17 @@ const AdminShopApproval = () => {
               shops.map((s) => (
                 <tr key={s.id}>
                   <td>{s.id}</td>
-                  <td>{s.name}</td>
-                  <td>{s.company_name}</td>
+                  <td>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 8 }}
+                    >
+                      {s.name}
+                      {s.type === "edit" && (
+                        <span className="admin-edit-badge">Edit</span>
+                      )}
+                    </div>
+                  </td>
+                  <td>{s.company_name || `#${s.company_id}`}</td>
                   <td>{s.owner_name}</td>
                   <td>
                     <code style={{ fontSize: "0.8rem" }}>{s.founder_uuid}</code>
@@ -113,7 +125,13 @@ const AdminShopApproval = () => {
                   <td>
                     <button
                       className="admin-refresh-button"
-                      onClick={() => navigate(`/admin/shop-review/${s.id}`)}
+                      onClick={() =>
+                        navigate(
+                          s.type === "edit"
+                            ? `/admin/shop-edit-review/${s.id}`
+                            : `/admin/shop-review/${s.id}`
+                        )
+                      }
                     >
                       Review
                     </button>

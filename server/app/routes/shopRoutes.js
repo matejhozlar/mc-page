@@ -4,7 +4,10 @@ import path from "path";
 import upload from "../middleware/multer.js";
 import { uploadImageToR2 } from "../utils/market/uploadImageToR2.js";
 import { generateUniqueShopId } from "../utils/market/resources/generateUniqueShopId.js";
-import { notifyAdminPendingShop } from "../utils/admin/notifyAdminCompanyApprovals.js";
+import {
+  notifyAdminPendingShop,
+  notifyAdminShopEdit,
+} from "../utils/admin/notifyAdminCompanyApprovals.js";
 import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 
 export default function shopSubmissionRoutes(db, clientBot) {
@@ -450,7 +453,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
     }
   });
 
-  // GET --- /api/market/shop/:shopId
+  // GET --- /api/market/shop/:shopId ---
   router.get("/market/shop/:shopId", async (req, res) => {
     const shopId = parseInt(req.params.shopId, 10);
     if (isNaN(shopId))
@@ -507,6 +510,281 @@ export default function shopSubmissionRoutes(db, clientBot) {
       return res.json(rows[0]);
     } catch (err) {
       logger.error(`❌ Failed to fetch shop ${shopId}: ${err}`);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST --- /api/market/shop/:shopId/edits ---
+  router.post(
+    "/market/shop/:shopId/edits",
+    upload.fields([
+      { name: "logo", maxCount: 1 },
+      { name: "banner", maxCount: 1 },
+      { name: "gallery_0" },
+      { name: "gallery_1" },
+      { name: "gallery_2" },
+      { name: "gallery_3" },
+      { name: "gallery_4" },
+    ]),
+    async (req, res) => {
+      const discordId = req.cookies.user_session;
+      const shopId = parseInt(req.params.shopId, 10);
+      if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+      if (isNaN(shopId))
+        return res.status(400).json({ error: "Invalid shop ID" });
+
+      try {
+        const {
+          rows: [user],
+        } = await db.query(
+          `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+          [discordId]
+        );
+        if (!user) return res.status(404).json({ error: "User not found" });
+
+        const {
+          rows: [shop],
+        } = await db.query(
+          `SELECT s.id, s.company_id, s.name AS current_name
+           FROM shops s
+          WHERE s.id = $1
+          LIMIT 1`,
+          [shopId]
+        );
+        if (!shop) return res.status(404).json({ error: "Shop not found" });
+
+        const founderCheck = await db.query(
+          `SELECT 1
+           FROM company_members
+          WHERE user_uuid = $1
+            AND company_id = $2
+            AND role = 'Founder'
+          LIMIT 1`,
+          [user.uuid, shop.company_id]
+        );
+        if (founderCheck.rowCount === 0) {
+          return res.status(403).json({ error: "Insufficient permissions" });
+        }
+
+        const { rowCount: existing } = await db.query(
+          `SELECT 1
+           FROM shop_edits
+          WHERE shop_id = $1
+            AND status IN ('pending','awaiting_funds')
+          LIMIT 1`,
+          [shopId]
+        );
+        if (existing) {
+          return res.status(400).json({
+            error:
+              "An edit already exists for this shop. Please wait for admins to review it.",
+          });
+        }
+
+        const name = (req.body.name ?? "").trim();
+        const short_description = (req.body.short_description ?? "").trim();
+        const description = req.body.description ?? null;
+
+        if (name && name.length > 255) {
+          return res.status(400).json({ error: "Invalid shop name length." });
+        }
+        if (short_description && short_description.length > 128) {
+          return res.status(400).json({ error: "Short description too long." });
+        }
+
+        if (name) {
+          const { rowCount: nameTaken } = await db.query(
+            `SELECT 1 FROM shops
+            WHERE company_id = $1
+              AND id <> $2
+              AND LOWER(name) = LOWER($3)
+            LIMIT 1`,
+            [shop.company_id, shopId, name]
+          );
+          if (nameTaken) {
+            return res.status(409).json({
+              error:
+                "Another shop with this name already exists in this company.",
+            });
+          }
+        }
+
+        const files = req.files || {};
+        const logo = files["logo"]?.[0] || null;
+        const banner = files["banner"]?.[0] || null;
+
+        const galleryFiles = Object.keys(files)
+          .filter((k) => k.startsWith("gallery_"))
+          .sort(
+            (a, b) =>
+              parseInt(a.split("_")[1] || "0", 10) -
+              parseInt(b.split("_")[1] || "0", 10)
+          )
+          .map((k) => files[k][0]);
+
+        if (galleryFiles.length > 5) {
+          return res.status(400).json({ error: "Too many gallery images." });
+        }
+
+        const basePath = `shop-edits/${shopId}`;
+        let logo_path = null;
+        let banner_path = null;
+        let gallery_paths = null;
+
+        if (logo) {
+          const ext = path.extname(logo.originalname) || ".png";
+          logo_path = await uploadImageToR2(logo, basePath, `logo${ext}`);
+        }
+        if (banner) {
+          const ext = path.extname(banner.originalname) || ".png";
+          banner_path = await uploadImageToR2(banner, basePath, `banner${ext}`);
+        }
+        if (galleryFiles.length) {
+          const galleryBase = `${basePath}/gallery`;
+          gallery_paths = await Promise.all(
+            galleryFiles.map((gf, i) => {
+              const ext = path.extname(gf.originalname) || ".png";
+              return uploadImageToR2(gf, galleryBase, `gallery-${i}${ext}`);
+            })
+          );
+        }
+
+        const {
+          rows: [editRow],
+        } = await db.query(
+          `INSERT INTO shop_edits
+          (shop_id, editor_uuid, name, description, short_description, logo_path, banner_path, gallery_paths)
+         VALUES
+          ($1, $2, NULLIF($3,''), $4, NULLIF($5,''), $6, $7, $8)
+         RETURNING id`,
+          [
+            shopId,
+            user.uuid,
+            name,
+            description,
+            short_description,
+            logo_path,
+            banner_path,
+            gallery_paths?.length ? gallery_paths : null,
+          ]
+        );
+
+        runOnlyInProduction(async () => {
+          try {
+            await notifyAdminShopEdit(
+              {
+                edit_id: editRow.id,
+                shop_id: shopId,
+                company_id: shop.company_id,
+                editor_uuid: user.uuid,
+                name: name || undefined,
+                short_description: short_description || undefined,
+              },
+              clientBot
+            );
+          } catch (e) {
+            logger.error(
+              `❌ Failed to notify admins about shop edit ${shopId}: ${e}`
+            );
+          }
+        });
+
+        return res.status(201).json({ success: true, edit_id: editRow.id });
+      } catch (error) {
+        logger.error(`❌ Failed to create shop edit for ${shopId}: ${error}`);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
+
+  // GET --- /api/market/shop-edits ---
+  router.get("/market/shop-edits", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(
+        `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
+        [discordId]
+      );
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const { rows: openEdits } = await db.query(
+        `SELECT e.id, e.shop_id, s.name, e.status, e.created_at, e.fee_required
+         FROM shop_edits e
+         JOIN shops s ON s.id = e.shop_id
+        WHERE e.editor_uuid = $1
+          AND e.status IN ('pending','awaiting_funds')
+        ORDER BY e.created_at DESC`,
+        [user.uuid]
+      );
+
+      const { rows: rejectedEdits } = await db.query(
+        `SELECT e.id, e.shop_id, s.name, 'rejected'::text AS status,
+              r.reason, r.rejected_at AS created_at
+         FROM shop_edits e
+         JOIN shops s ON s.id = e.shop_id
+         JOIN rejected_shop_edits r ON r.id = e.id
+        WHERE e.editor_uuid = $1
+          AND e.status = 'rejected'
+        ORDER BY r.rejected_at DESC`,
+        [user.uuid]
+      );
+
+      const { rows: approvedEdits } = await db.query(
+        `SELECT e.id, e.shop_id, s.name, e.status, e.created_at
+         FROM shop_edits e
+         JOIN shops s ON s.id = e.shop_id
+        WHERE e.editor_uuid = $1
+          AND e.status = 'approved'
+        ORDER BY e.created_at DESC`,
+        [user.uuid]
+      );
+
+      const tag = (rows) => rows.map((r) => ({ ...r, type: "edit" }));
+      res.json({
+        pending_edits: tag(openEdits.filter((r) => r.status === "pending")),
+        awaiting_funds_edits: tag(
+          openEdits.filter((r) => r.status === "awaiting_funds")
+        ),
+        rejected_edits: tag(rejectedEdits),
+        approved_edits: tag(approvedEdits),
+      });
+    } catch (error) {
+      logger.error(`❌ /market/shop-edits error: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // DELETE --- /api/market/rejected-shop-edits/:id ---
+  router.delete("/market/rejected-shop-edits/:id", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(`SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`, [
+        discordId,
+      ]);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const { rows, rowCount } = await db.query(
+        `SELECT editor_uuid FROM shop_edits WHERE id=$1 LIMIT 1`,
+        [id]
+      );
+      if (!rowCount || rows[0].editor_uuid !== user.uuid) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+
+      await db.query(`DELETE FROM rejected_shop_edits WHERE id=$1`, [id]);
+      return res.json({ success: true });
+    } catch (e) {
+      logger.error(`❌ delete rejected shop edit ${id}: ${e}`);
       return res.status(500).json({ error: "Internal server error" });
     }
   });

@@ -270,3 +270,80 @@ function escapeHtml(str = "") {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+/**
+ * Notify admins that a NEW shop edit was submitted and awaits approval.
+ * @param {{
+ *   id: number|string,
+ *   name: string,
+ *   company_id: number|string,
+ *   company_name?: string,
+ *   editor_uuid: string,
+ *   short_description?: string
+ * }} data
+ * @param {import('discord.js').Client} client
+ */
+export async function notifyAdminShopEdit(data, client) {
+  const { edit_id, shop_id, company_id, editor_uuid, name, short_description } =
+    data;
+
+  const subject = `✏️ Shop Edit Pending Review: Shop ${shop_id}`;
+  const plain = [
+    `A shop edit is awaiting review:`,
+    `Edit ID: ${edit_id}`,
+    `Shop ID: ${shop_id}`,
+    `Company ID: ${company_id}`,
+    name ? `Proposed Name: ${name}` : null,
+    `Editor UUID: ${editor_uuid}`,
+    short_description ? `Short Description: ${short_description}` : null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const html = `
+    <p><strong>Shop edit pending review</strong></p>
+    <ul>
+      <li><strong>Edit ID:</strong> ${edit_id}</li>
+      <li><strong>Shop ID:</strong> ${shop_id}</li>
+      <li><strong>Company ID:</strong> ${company_id}</li>
+      ${
+        name
+          ? `<li><strong>Proposed Name:</strong> ${escapeHtml(name)}</li>`
+          : ""
+      }
+      <li><strong>Editor UUID:</strong> ${editor_uuid}</li>
+      ${
+        short_description
+          ? `<li><strong>Short Description:</strong> ${escapeHtml(
+              short_description
+            )}</li>`
+          : ""
+      }
+    </ul>
+  `;
+
+  const embedBuilder = new EmbedBuilder()
+    .setTitle("Shop Edit Request (Pending Review)")
+    .addFields(
+      { name: "Edit ID", value: String(edit_id) },
+      { name: "Shop ID", value: String(shop_id) },
+      { name: "Company ID", value: String(company_id) },
+      ...(name ? [{ name: "Proposed Name", value: name }] : []),
+      { name: "Editor UUID", value: editor_uuid || "Unknown" },
+      ...(short_description
+        ? [{ name: "Short Description", value: short_description }]
+        : [])
+    )
+    .setColor(BLUE)
+    .setTimestamp();
+
+  const row = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setLabel("Open Admin Panel")
+      .setStyle(ButtonStyle.Link)
+      .setURL("https://create-rington.com/login-admin/")
+  );
+
+  const embed = { embeds: [embedBuilder], components: [row] };
+  await sendAdminNotice({ subject, plain, html, embed, client });
+}

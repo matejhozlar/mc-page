@@ -13,6 +13,7 @@ const ShopPage = () => {
   const [shop, setShop] = useState(null);
   const [visitor, setVisitor] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [editStatus, setEditStatus] = useState(null);
 
   const galleryImages = useMemo(() => {
     if (!shop) return [];
@@ -46,6 +47,29 @@ const ShopPage = () => {
 
         setShop(shopData);
         setVisitor(meData);
+
+        if (meData) {
+          const editsRes = await fetch("/api/market/shop-edits", {
+            credentials: "include",
+            signal: ac.signal,
+          });
+          if (editsRes.ok) {
+            const edits = await editsRes.json().catch(() => null);
+            const all = [
+              ...(edits?.pending_edits || []),
+              ...(edits?.awaiting_funds_edits || []),
+            ];
+            const mineForThisShop = all.find(
+              (e) => String(e.shop_id) === String(shopId)
+            );
+            if (mineForThisShop) {
+              setEditStatus({
+                id: mineForThisShop.id,
+                status: mineForThisShop.status,
+              });
+            }
+          }
+        }
       } catch (err) {
         if (err?.name !== "AbortError") {
           console.error("❌ Failed to fetch shop:", err);
@@ -74,6 +98,24 @@ const ShopPage = () => {
 
   return (
     <div className="shop-page">
+      {/* Existing edit banner */}
+      {editStatus && (
+        <div className="shop-page-owner-dashboard info">
+          <span>
+            {editStatus.status === "pending" &&
+              "An edit for this shop is pending review."}
+            {editStatus.status === "awaiting_funds" &&
+              "An edit for this shop is awaiting payment."}
+          </span>
+          <button
+            className="shop-page-button"
+            onClick={() => navigate("/market/requests")}
+            title="View edit status"
+          >
+            View Status
+          </button>
+        </div>
+      )}
       {/* Owner Dashboard */}
       {isFounder && (
         <div className="shop-page-owner-dashboard">
@@ -81,6 +123,7 @@ const ShopPage = () => {
             className="shop-page-button"
             onClick={() => navigate(`/market/shop/${shopId}/edit`)}
             title="Edit shop"
+            disabled={!!editStatus}
           >
             Edit
           </button>

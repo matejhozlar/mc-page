@@ -1,7 +1,7 @@
 import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
 import { Plus, Store } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import StatusPopupModal from "../../../modals/StatusPopupModal.jsx";
 import ChooseCompanyModal from "../../company/ChooseCompanyModal.jsx";
 import "../../css/UserCompanies.css";
@@ -73,7 +73,11 @@ const UserShops = () => {
           <p>You don’t own any shops yet.</p>
         ) : (
           shops.map((shop) => (
-            <div key={shop.id} className="company-card">
+            <NavLink
+              to={`/market/shop/${shop.id}`}
+              key={shop.id}
+              className="company-card"
+            >
               <div className="company-logo-wrapper">
                 <img
                   src={
@@ -92,7 +96,7 @@ const UserShops = () => {
                   {shop.is_paid ? "Paid" : "Not Paid"}
                 </p>
               </div>
-            </div>
+            </NavLink>
           ))
         )}
       </div>

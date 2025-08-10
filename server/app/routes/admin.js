@@ -902,27 +902,54 @@ export default function adminRoutes(db, clientBot) {
       const admin = await isAdmin(db, discordId);
       if (!admin) return res.status(403).json({ error: "Not an admin" });
 
-      const { rows } = await db.query(
+      const { rows: newRows } = await db.query(
         `
-        SELECT
-          ps.id,
-          ps.name,
-          ps.short_description,
-          ps.created_at,
-          ps.logo_url,
-          ps.founder_uuid,
-          u.name AS owner_name,
-          c.name AS company_name,
-          'new' AS type
-        FROM pending_shops ps
-        JOIN users u ON ps.founder_uuid = u.uuid
-        JOIN companies c ON c.id = ps.company_id
-        WHERE ps.status = 'pending'
-        ORDER BY ps.created_at ASC
-        `
+      SELECT
+        ps.id,
+        ps.name,
+        ps.short_description,
+        ps.created_at,
+        ps.logo_url,
+        ps.founder_uuid,
+        u.name AS owner_name,
+        c.name AS company_name,
+        ps.company_id,
+        'new' AS type
+      FROM pending_shops ps
+      JOIN users u ON ps.founder_uuid = u.uuid
+      JOIN companies c ON c.id = ps.company_id
+      WHERE ps.status = 'pending'
+      ORDER BY ps.created_at ASC
+      `
       );
 
-      res.json({ shops: rows });
+      const { rows: editRows } = await db.query(
+        `
+      SELECT
+        se.id,
+        COALESCE(se.name, s.name) AS name,
+        COALESCE(se.short_description, s.short_description) AS short_description,
+        se.created_at,
+        se.logo_path AS logo_url,                     -- staged preview
+        se.editor_uuid AS founder_uuid,               -- keep field name for UI parity
+        u.name AS owner_name,
+        c.name AS company_name,
+        s.company_id,
+        'edit' AS type
+      FROM shop_edits se
+      JOIN shops s      ON s.id = se.shop_id
+      JOIN companies c  ON c.id = s.company_id
+      JOIN users u      ON u.uuid = se.editor_uuid
+      WHERE se.status = 'pending'
+      ORDER BY se.created_at ASC
+      `
+      );
+
+      const shops = [...newRows, ...editRows].sort(
+        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+      );
+
+      res.json({ shops });
     } catch (error) {
       logger.error(`❌ Failed to fetch pending shops: ${error}`);
       res.status(500).json({ error: "Internal server error" });
@@ -1182,6 +1209,208 @@ export default function adminRoutes(db, clientBot) {
       res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
+    }
+  });
+
+  // GET --- /api/admin/shop-edits/:id ---
+  router.get("/admin/shop-edits/:id", async (req, res) => {
+    const editId = parseInt(req.params.id, 10);
+    const discordId = req.cookies.admin_session;
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(editId)) return res.status(400).json({ error: "Invalid ID" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const {
+        rows: [edit],
+      } = await db.query(
+        `
+      SELECT se.*,
+             u.name       AS editor_name,
+             u.discord_id AS editor_discord_id
+      FROM shop_edits se
+      LEFT JOIN users u ON u.uuid = se.editor_uuid
+      WHERE se.id = $1
+      LIMIT 1
+      `,
+        [editId]
+      );
+      if (!edit) return res.status(404).json({ error: "Edit not found" });
+
+      const { rows: originals } = await db.query(
+        `
+      SELECT
+        s.id,
+        s.company_id,
+        s.name,
+        s.short_description,
+        s.description,
+        (SELECT url FROM shop_images WHERE shop_id=s.id AND type='logo'   ORDER BY position LIMIT 1) AS logo_url,
+        (SELECT url FROM shop_images WHERE shop_id=s.id AND type='banner' ORDER BY position LIMIT 1) AS banner_url,
+        (SELECT COALESCE(ARRAY_AGG(url ORDER BY position), '{}')
+           FROM shop_images WHERE shop_id=s.id AND type='gallery') AS gallery_urls
+      FROM shops s
+      WHERE s.id=$1
+      LIMIT 1
+      `,
+        [edit.shop_id]
+      );
+
+      return res.json({ edit, original: originals[0] || null });
+    } catch (error) {
+      logger.error(`❌ Failed to fetch shop edit ${editId}: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/admin/shop-edits/:id/approve
+  router.post("/admin/shop-edits/:id/approve", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+
+    const client = await db.connect();
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      await client.query("BEGIN");
+
+      const {
+        rows: [adminUser],
+      } = await client.query(
+        `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
+        [discordId]
+      );
+
+      const {
+        rows: [edit],
+      } = await client.query(
+        `SELECT * FROM shop_edits WHERE id=$1 AND status='pending' FOR UPDATE`,
+        [id]
+      );
+      if (!edit) {
+        await client.query("ROLLBACK");
+        return res.status(404).json({ error: "Edit not found or processed" });
+      }
+
+      const {
+        rows: [editorUser],
+      } = await client.query(
+        `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
+        [edit.editor_uuid]
+      );
+
+      const fee = 100;
+
+      await client.query(
+        `UPDATE shop_edits
+          SET status='awaiting_funds',
+              fee_required=$1,
+              fee_checked_at=NOW(),
+              reviewed_at=NOW(),
+              reviewed_by=$2
+        WHERE id=$3`,
+        [fee, adminUser.uuid, id]
+      );
+
+      await client.query("COMMIT");
+
+      runOnlyInProduction(async () => {
+        try {
+          if (!editorUser?.discord_id) return;
+          const lines = [
+            `✅ Your shop edit request is approved (pending payment).`,
+            ``,
+            `• Edit ID: ${edit.id}`,
+            `• Shop ID: ${edit.shop_id}`,
+            `• Required fee: ${fee}`,
+            ``,
+            `Please complete payment in market/requests to apply the changes.`,
+          ];
+          await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
+        } catch (e) {
+          logger.warn(`⚠️ post-commit DM failed for shop edit ${id}: ${e}`);
+        }
+      });
+
+      res.json({ success: true, status: "awaiting_funds", required: fee });
+    } catch (error) {
+      await client.query("ROLLBACK");
+      logger.error(`❌ shop edit approve->awaiting_funds error: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    } finally {
+      client.release();
+    }
+  });
+
+  // POST /api/admin/shop-edits/:id/reject
+  router.post("/admin/shop-edits/:id/reject", async (req, res) => {
+    const discordId = req.cookies.admin_session;
+    const id = parseInt(req.params.id, 10);
+    const { reason } = req.body;
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+    if (!reason || !reason.trim())
+      return res.status(400).json({ error: "Reason required" });
+
+    try {
+      const isAdminUser = await isAdmin(db, discordId);
+      if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
+
+      const {
+        rows: [edit],
+      } = await db.query(
+        `SELECT * FROM shop_edits WHERE id=$1 AND status='pending'`,
+        [id]
+      );
+      if (!edit)
+        return res.status(404).json({ error: "Edit not found or processed" });
+
+      await db.query(
+        `UPDATE shop_edits SET status='rejected', reviewed_at=NOW() WHERE id=$1`,
+        [id]
+      );
+      await db.query(
+        `INSERT INTO rejected_shop_edits (id, shop_id, editor_uuid, reason)
+         VALUES ($1,$2,$3,$4)
+         ON CONFLICT (id) DO NOTHING`,
+        [id, edit.shop_id, edit.editor_uuid, reason]
+      );
+
+      runOnlyInProduction(async () => {
+        try {
+          const {
+            rows: [editorUser],
+          } = await db.query(
+            `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
+            [edit.editor_uuid]
+          );
+          if (!editorUser?.discord_id) return;
+
+          const lines = [
+            `❌ Your shop edit request was rejected.`,
+            ``,
+            `• Edit ID: ${edit.id}`,
+            `• Shop ID: ${edit.shop_id}`,
+            ``,
+            `Reason:`,
+            reason,
+          ];
+          await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
+        } catch (e) {
+          logger.warn(`⚠️ DM failed for rejected shop edit ${id}: ${e}`);
+        }
+      });
+
+      res.json({ success: true, status: "rejected" });
+    } catch (error) {
+      logger.error(`❌ reject shop edit ${id} error: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 

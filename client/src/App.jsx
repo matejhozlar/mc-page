@@ -48,6 +48,8 @@ import ShopCreateWizard from "./components/market/shops/CreateShopWizard.jsx";
 import ShopPreviewPage from "./components/market/shops/ShopPreviewPage.jsx";
 import PendingShopReview from "./components/market/shops/PendingShopReview.jsx";
 import ShopPage from "./components/market/shops/ShopPage.jsx";
+import EditShopWizard from "./components/market/shops/EditShopWizard.jsx";
+import EditShopReview from "./components/market/shops/EditShopReview.jsx";
 
 function App() {
   return (
@@ -128,6 +130,10 @@ function AppWithRouter() {
                 path="/admin/company-edit-review/:editId"
                 element={<EditCompanyReview />}
               />
+              <Route
+                path="/admin/shop-edit-review/:editId"
+                element={<EditShopReview />}
+              />
               <Route path="/callback-market" element={<CallbackMarket />} />
               <Route path="/market-login" element={<MarketLoginButton />} />
               <Route path="/market" element={<Market />}>
@@ -152,6 +158,10 @@ function AppWithRouter() {
               <Route
                 path="/market/company/:companyId/edit"
                 element={<EditCompanyWizard />}
+              />
+              <Route
+                path="/market/shop/:shopId/edit"
+                element={<EditShopWizard />}
               />
               <Route
                 path="/market/create-shop"
