@@ -40,7 +40,7 @@ function keyFromPublicUrl(url) {
 }
 
 function getShopCreationFee(existingShopCountForCompany) {
-  return 100 + 50 * (existingShopCountForCompany || 0);
+  return 10 + 50 * (existingShopCountForCompany || 0);
 }
 
 export default function adminRoutes(db, clientBot) {
