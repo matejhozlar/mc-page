@@ -1,0 +1,228 @@
+.shop-page-banner-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shop-rating-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.shop-rating-summary-text {
+  font-size: 0.95rem;
+  color: #d1d5db;
+}
+
+.star-svg {
+  color: #fbbf24;
+  transition: filter 0.15s ease;
+}
+.star-fill-active {
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.4));
+}
+
+.star-root:hover .star-svg {
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.35));
+}
+
+.star-fill-active {
+  filter: drop-shadow(0 0 2px rgba(251, 191, 36, 0.45));
+}
+
+.star-root:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 3px;
+}
+.star-root[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- Review form --- */
+.review-card {
+  width: 100%;
+  align-items: stretch;
+  gap: 12px;
+  padding: 14px;
+}
+
+.review-form-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.review-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+}
+.review-user-lines {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+.review-user-label {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+.review-user-name {
+  font-weight: 600;
+}
+
+.review-avatar,
+.review-item-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  image-rendering: pixelated;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.review-item-avatar {
+  width: 28px;
+  height: 28px;
+}
+
+.review-avatar-fallback,
+.review-item-avatar-fallback {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+.review-item-avatar-fallback {
+  width: 28px;
+  height: 28px;
+}
+
+.review-stars {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+.review-stars-label {
+  font-weight: 600;
+}
+.review-stars-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.review-stars-value {
+  opacity: 0.8;
+  min-width: 44px;
+  text-align: right;
+}
+
+.review-textarea-wrap {
+  margin-top: 8px;
+}
+.review-textarea {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 10px 12px;
+  border-radius: 10px;
+  resize: vertical;
+  min-height: 96px;
+}
+.review-meta-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.review-counter {
+  font-size: 0.85rem;
+  color: #9ca3af;
+}
+.review-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.review-msg.error {
+  color: #f87171;
+}
+.review-msg.ok {
+  color: #34d399;
+}
+
+.review-list {
+  width: 100%;
+  background: var(--sidebar-background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+.review-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.review-item:last-child {
+  border-bottom: 0;
+}
+.review-item-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.review-item-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.review-item-name {
+  font-weight: 600;
+}
+.review-item-body {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.review-pager {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.companies-cards-grid > .full-span {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  display: block;
+}
+
+.companies-cards-grid > .full-span {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+.companies-card.review-card {
+  max-width: none;
+}

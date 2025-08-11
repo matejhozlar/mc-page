@@ -1272,5 +1272,121 @@ export default function shopSubmissionRoutes(db, clientBot) {
     }
   });
 
+  // POST --- /api/market/shop/:shopId/reviews ---
+  router.post("/market/shop/:shopId/reviews", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const shopId = parseInt(req.params.shopId, 10);
+    const { rating, review } = req.body || {};
+
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+
+    const r = parseInt(rating, 10);
+    if (!(r >= 1 && r <= 5))
+      return res.status(400).json({ error: "Rating must be 1–5" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query("SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1", [
+        discordId,
+      ]);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const { rowCount: shopExists } = await db.query(
+        "SELECT 1 FROM shops WHERE id=$1 LIMIT 1",
+        [shopId]
+      );
+      if (!shopExists) return res.status(404).json({ error: "Shop not found" });
+
+      const {
+        rows: [row],
+      } = await db.query(
+        `INSERT INTO shop_reviews (shop_id, user_uuid, rating, review)
+       VALUES ($1, $2, $3, NULLIF($4, ''))
+       RETURNING id, shop_id, user_uuid, rating, review, created_at`,
+        [shopId, user.uuid, r, (review ?? "").trim()]
+      );
+      return res.status(201).json({ review: row });
+    } catch (e) {
+      if (String(e.message || "").includes("uq_shop_reviews_user")) {
+        return res
+          .status(409)
+          .json({ error: "You have already reviewed this shop." });
+      }
+      logger.error(`❌ create review shop ${shopId}: ${e}`);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET --- /api/market/shop/:shopId/reviews ---
+  router.get("/market/shop/:shopId/reviews", async (req, res) => {
+    const shopId = parseInt(req.params.shopId, 10);
+    const limit = Math.min(parseInt(req.query.limit || "20", 10), 100);
+    const offset = Math.max(parseInt(req.query.offset || "0", 10), 0);
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+
+    try {
+      const { rows } = await db.query(
+        `SELECT r.id, r.rating, r.review, r.created_at,
+              u.name AS user_name,
+              -- expose mc uuid for crafatar; adjust the column name if needed
+              COALESCE(u.uuid, u.uuid) AS user_mc_uuid
+      FROM shop_reviews r
+      JOIN users u ON u.uuid = r.user_uuid
+      WHERE r.shop_id = $1
+      ORDER BY r.created_at DESC
+      LIMIT $2 OFFSET $3`,
+        [shopId, limit, offset]
+      );
+      const {
+        rows: [{ count }],
+      } = await db.query(
+        "SELECT COUNT(*)::int AS count FROM shop_reviews WHERE shop_id=$1",
+        [shopId]
+      );
+      res.json({ reviews: rows, total: count });
+    } catch (e) {
+      logger.error(`❌ list reviews shop ${shopId}: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET --- /api/market/shop/:shopId/reviews ---
+  router.get("/market/shop/:shopId/rating", async (req, res) => {
+    const shopId = parseInt(req.params.shopId, 10);
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+
+    const {
+      rows: [r],
+    } = await db.query(
+      `SELECT COALESCE(AVG(rating), 0)::float AS avg, COUNT(*)::int AS count
+     FROM shop_reviews WHERE shop_id=$1`,
+      [shopId]
+    );
+    res.json(r);
+  });
+
+  router.get("/market/company/:companyId/rating", async (req, res) => {
+    const companyId = parseInt(req.params.companyId, 10);
+    if (isNaN(companyId))
+      return res.status(400).json({ error: "Invalid company ID" });
+
+    const {
+      rows: [r],
+    } = await db.query(
+      `SELECT COALESCE(AVG(sr.rating), 0)::float AS avg, 
+            COALESCE(COUNT(sr.*), 0)::int AS count
+     FROM shops s
+     LEFT JOIN shop_reviews sr ON sr.shop_id = s.id
+     WHERE s.company_id = $1`,
+      [companyId]
+    );
+    res.json(r);
+  });
+
   return router;
 }

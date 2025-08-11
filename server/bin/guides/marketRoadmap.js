@@ -30,30 +30,31 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "🟢 Phase 1 — Polish & Stability (Current)",
+          name: "✅ Phase 1 — Polish & Stability",
           value: [
             "• ✅ Core company creation, edits, approvals",
             "• ✅ Company funds: deposit / withdraw, basic history",
             "• ✅ Hourly interest for eligible companies",
-            "• 🛠 UI cleanup, mobile tweaks, performance passes",
-            "• 🐞 Ongoing bug fixes (please report issues!)",
+            "• ✅ UI cleanup, mobile tweaks, performance passes",
+            "• ✅ Ongoing bug fixes (please report issues!)",
           ].join("\n"),
         },
         {
-          name: "🏪 Phase 2 — Shops & Economy Expansion",
+          name: "🟢 Phase 2 — Shops & Economy Expansion (Current)",
           value: [
-            "• Player **Shops** attached to companies",
-            "• Custom **logo**, **banner**, **description**",
-            "• **Item listings** with images, price, stock",
-            "• Basic **reviews & ratings**",
+            "• ✅ Player **Shops** attached to companies",
+            "• ✅ Custom **logo**, **banner**, **description**",
+            "• ✅ **Item listings** with price, stock",
+            "• ✅ Basic **reviews & ratings**",
           ].join("\n"),
         },
         {
           name: "🎁 Phase 3 — Rewards & Incentives",
           value: [
             "• **Leaderboards** (weekly/monthly) — balance, sales, activity",
-            "• **Payouts** for top performers (currency or cosmetics)",
+            "• **Payouts** for top performers (currency)",
             "• **Market Events** (boosted interest weeks, limited contracts)",
+            "• **Online Shopping**",
           ].join("\n"),
         },
         {

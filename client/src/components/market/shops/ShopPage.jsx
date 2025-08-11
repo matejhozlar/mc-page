@@ -9,6 +9,8 @@ import ShopItems from "./ShopItems.jsx";
 import ShopOwnershipCard from "./ShopOwnerShipCard.jsx";
 import BlueMapViewer from "./components/BlueMapViewer.jsx";
 import LocationSettingsModal from "./components/LocationSettingsModal.jsx";
+import ShopRatingSummary from "./components/ShopRatingSummary.jsx";
+import ShopReviews from "./components/ShopRatings.jsx";
 import "../css/ShopPage.css";
 
 const DIM_TO_WORLD = {
@@ -261,6 +263,11 @@ const ShopPage = () => {
             )}
           </div>
         </div>
+
+        {/* RIGHT SIDE: rating summary */}
+        <div className="shop-page-banner-right">
+          <ShopRatingSummary shopId={shopId} />
+        </div>
       </div>
 
       {/* Banner image */}
@@ -436,7 +443,7 @@ const ShopPage = () => {
       {galleryImages.length > 0 && <CompanyGallery images={galleryImages} />}
 
       {/* Ownership Card */}
-      <section className="companies-section">
+      <section className="companies-section shop-company-background">
         <h2
           className="company-section-title"
           style={{ marginBottom: "0.75rem" }}
@@ -459,6 +466,8 @@ const ShopPage = () => {
           <p className="companies-meta">Ownership information unavailable.</p>
         )}
       </section>
+
+      <ShopReviews shopId={shopId} />
 
       {showLocModal && (
         <LocationSettingsModal
