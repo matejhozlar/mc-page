@@ -155,6 +155,111 @@ describe("POST /currency/vote/start", () => {
   });
 });
 
+describe("POST /currency/lottery/join", () => {
+  const user = { name: "Steve", uuid: "uuid-123" };
+  const token = jwt.sign(user, JWT_SECRET);
+
+  const postJoin = (amount = 50) =>
+    request(app)
+      .post("/api/currency/lottery/join")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ amount });
+
+  it("returns 400 if amount is missing or below minimum", async () => {
+    const res = await postJoin(0);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Minimum amount is 10.");
+  });
+
+  it("returns 400 if no active lottery is running", async () => {
+    db.connect = vi.fn().mockResolvedValueOnce(
+      createClientMock([
+        {}, // BEGIN
+        { rowCount: 0 }, // activeLottery
+        {}, // ROLLBACK
+      ])
+    );
+
+    const res = await postJoin(50);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("No active lottery is currently running.");
+  });
+
+  it("returns 400 if user already joined", async () => {
+    const queryMock = vi
+      .fn()
+      .mockResolvedValueOnce({ rowCount: 1 }) // activeLottery
+      .mockResolvedValueOnce({ rowCount: 1 }); // alreadyJoined
+
+    db.connect = vi.fn().mockResolvedValueOnce({
+      query: vi
+        .fn()
+        .mockResolvedValueOnce({}) // BEGIN
+        .mockResolvedValueOnce({ rowCount: 1 }) // activeLottery
+        .mockResolvedValueOnce({ rowCount: 1 }) // alreadyJoined
+        .mockResolvedValueOnce({}) // ROLLBACK or COMMIT
+        .mockResolvedValueOnce({}) // INSERT if needed
+        .mockResolvedValueOnce({}), // COMMIT if needed
+      release: vi.fn(),
+    });
+
+    const res = await postJoin(50);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("You've already joined the lottery.");
+  });
+
+  it("returns 400 if user is not found", async () => {
+    db.connect = vi.fn().mockResolvedValueOnce(
+      createClientMock([
+        {}, // BEGIN
+        { rowCount: 1 }, // activeLottery
+        { rowCount: 0 }, // alreadyJoined
+        { rowCount: 0 }, // balanceRes
+        {}, // ROLLBACK
+      ])
+    );
+
+    const res = await postJoin(50);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("User not found.");
+  });
+
+  it("returns 400 if user has insufficient balance", async () => {
+    db.connect = vi.fn().mockResolvedValueOnce(
+      createClientMock([
+        {}, // BEGIN
+        { rowCount: 1 }, // activeLottery
+        { rowCount: 0 }, // alreadyJoined
+        { rowCount: 1, rows: [{ balance: "5" }] }, // balanceRes
+        {}, // ROLLBACK
+      ])
+    );
+
+    const res = await postJoin(50);
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Insufficient balance.");
+  });
+
+  it("returns 200 and joins the lottery", async () => {
+    db.connect = vi.fn().mockResolvedValueOnce(
+      createClientMock([
+        {}, // BEGIN
+        { rowCount: 1 }, // activeLottery
+        { rowCount: 0 }, // alreadyJoined
+        { rowCount: 1, rows: [{ balance: "100" }] }, // balanceRes
+        {}, // UPDATE user_funds
+        {}, // INSERT participant
+        {}, // COMMIT
+      ])
+    );
+
+    const res = await postJoin(50);
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(res.body.message).toBe("Joined the lottery.");
+  });
+});
+
 describe("POST /currency/lottery/start", () => {
   const postStart = (amount = 50) =>
     request(app)
