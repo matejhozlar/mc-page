@@ -17,6 +17,34 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
+-- Name: unaccent; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS unaccent WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION unaccent; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION unaccent IS 'text search dictionary that removes accents';
+
+
+--
 -- Name: insert_user_funds(); Type: FUNCTION; Schema: public; Owner: postgres
 --
 
@@ -2504,6 +2532,14 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: shop_reviews uq_shop_reviews_user; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_reviews
+    ADD CONSTRAINT uq_shop_reviews_user UNIQUE (shop_id, user_uuid);
+
+
+--
 -- Name: user_funds user_funds_discord_id_unique; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2623,6 +2659,20 @@ CREATE INDEX idx_items_shop_id_status ON public.items USING btree (shop_id, stat
 --
 
 CREATE INDEX idx_shop_edits_shop_id ON public.shop_edits USING btree (shop_id);
+
+
+--
+-- Name: idx_shop_reviews_shop; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_shop_reviews_shop ON public.shop_reviews USING btree (shop_id);
+
+
+--
+-- Name: idx_shop_reviews_user; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_shop_reviews_user ON public.shop_reviews USING btree (user_uuid);
 
 
 --
