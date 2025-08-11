@@ -16,7 +16,7 @@ const SHOP_NEW_STEPS = [
   "Creating shop entry…",
   "Linking to company…",
   "Publishing images…",
-  "Registering location…",
+  "Preparing item listings…",
   "Finalizing and propagating…",
 ];
 

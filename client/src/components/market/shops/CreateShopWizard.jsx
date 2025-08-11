@@ -1,4 +1,3 @@
-// components/market/shops/CreateShopWizard.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 

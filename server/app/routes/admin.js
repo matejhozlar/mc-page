@@ -635,33 +635,36 @@ export default function adminRoutes(db, clientBot) {
 
       const { rows } = await db.query(
         `
-      SELECT
-        pc.id,
-        pc.name,
-        pc.short_description,
-        pc.created_at,
-        pc.logo_url,
-        u.name AS owner_name,
-        'new' AS type
-      FROM pending_companies pc
-      JOIN users u ON pc.founder_uuid = u.uuid
-      WHERE pc.status = 'pending'
+              SELECT
+          pc.id,
+          pc.name,
+          pc.short_description,
+          pc.created_at,
+          pc.logo_url,
+          pc.founder_uuid,             
+          u.name AS owner_name,
+          'new' AS type
+        FROM pending_companies pc
+        JOIN users u ON pc.founder_uuid = u.uuid
+        WHERE pc.status = 'pending'
 
-      UNION ALL
+        UNION ALL
 
-      SELECT
-        ce.id,
-        COALESCE(ce.name, c.name) AS name,
-        ce.short_description,
-        ce.created_at,
-        ce.logo_path AS logo_url,
-        u.name AS owner_name,
-        'edit' AS type
-      FROM company_edits ce
-      JOIN companies c ON ce.company_id = c.id
-      JOIN users u ON ce.editor_uuid = u.uuid
-      WHERE ce.status = 'pending'
-      ORDER BY created_at ASC
+        SELECT
+          ce.id,
+          COALESCE(ce.name, c.name) AS name,
+          ce.short_description,
+          ce.created_at,
+          ce.logo_path AS logo_url,
+          NULL AS founder_uuid,         
+          u.name AS owner_name,
+          'edit' AS type
+        FROM company_edits ce
+        JOIN companies c ON ce.company_id = c.id
+        JOIN users u ON ce.editor_uuid = u.uuid
+        WHERE ce.status = 'pending'
+
+        ORDER BY created_at ASC
       `
       );
 

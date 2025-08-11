@@ -1,9 +1,8 @@
-import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
-import { Plus, Store } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
+import { Plus, Store } from "lucide-react";
+import { useMarketUser } from "../../../../hooks/market/marketUserContext.js";
 import StatusPopupModal from "../../../modals/StatusPopupModal.jsx";
-import ChooseCompanyModal from "../../company/ChooseCompanyModal.jsx";
 import "../../css/UserCompanies.css";
 
 const UserShops = () => {
@@ -11,19 +10,21 @@ const UserShops = () => {
   const navigate = useNavigate();
 
   const [errorPopup, setErrorPopup] = useState(null);
-  const [showChooser, setShowChooser] = useState(false);
 
   const eligibleCompanies = useMemo(() => {
     const all = Array.isArray(user?.companies) ? user.companies : [];
-    const founders = all;
-    return founders.filter((c) => (c.shop_count ?? 0) < 5);
+    return all.filter((c) => (c.shop_count ?? 0) < 5);
   }, [user]);
 
   if (loading) return <p>Loading shops...</p>;
   if (!user) return <p>Error loading shops.</p>;
 
   const goToWizard = (companyId) => {
-    navigate(`/market/create-shop?companyId=${companyId}`);
+    if (companyId) {
+      navigate(`/market/create-shop?companyId=${companyId}`);
+    } else {
+      navigate(`/market/create-shop`);
+    }
   };
 
   const handleCreateClick = (e) => {
@@ -51,7 +52,7 @@ const UserShops = () => {
       return;
     }
 
-    setShowChooser(true);
+    goToWizard();
   };
 
   const { shops } = user;
@@ -91,10 +92,7 @@ const UserShops = () => {
               <div className="company-info">
                 <h3>{shop.name}</h3>
                 <p>{shop.description || "No description provided."}</p>
-                <p className="small">
-                  Company: {shop.company_name} •{" "}
-                  {shop.is_paid ? "Paid" : "Not Paid"}
-                </p>
+                <p className="small">Company: {shop.company_name}</p>
               </div>
             </NavLink>
           ))
@@ -106,17 +104,6 @@ const UserShops = () => {
           type={errorPopup.type}
           message={errorPopup.message}
           onClose={() => setErrorPopup(null)}
-        />
-      )}
-
-      {showChooser && (
-        <ChooseCompanyModal
-          companies={eligibleCompanies}
-          onCancel={() => setShowChooser(false)}
-          onChoose={(companyId) => {
-            setShowChooser(false);
-            goToWizard(companyId);
-          }}
         />
       )}
     </div>
