@@ -50,6 +50,7 @@ import PendingShopReview from "./components/market/shops/PendingShopReview.jsx";
 import ShopPage from "./components/market/shops/ShopPage.jsx";
 import EditShopWizard from "./components/market/shops/EditShopWizard.jsx";
 import EditShopReview from "./components/market/shops/EditShopReview.jsx";
+import Marketplace from "./components/market/MarketPlace.jsx";
 
 function App() {
   return (
@@ -118,6 +119,7 @@ function AppWithRouter() {
                   </PlayerProvider>
                 }
               />
+              <Route path="/marketplace" element={<Marketplace />} />
               <Route
                 path="/admin/company-review/:companyId"
                 element={<PendingCompanyReview />}

@@ -1388,5 +1388,105 @@ export default function shopSubmissionRoutes(db, clientBot) {
     res.json(r);
   });
 
+  const DEFAULT_CURRENCY = "$";
+
+  // GET --- /api/market/items/search?query=&limit=10&offset=0 ---
+  router.get("/market/items/search", async (req, res) => {
+    const q = (req.query.query || "").trim();
+    const limit = Math.min(parseInt(req.query.limit || "10", 10), 50);
+    const offset = Math.max(parseInt(req.query.offset || "0", 10), 0);
+
+    const params = [limit + 1, offset];
+    let sql = `
+    WITH base AS (
+      SELECT
+        i.id,
+        i.name AS item_name,
+        i.price,
+        s.id   AS shop_id,
+        s.name AS shop_name,
+        (
+          SELECT url FROM shop_images
+          WHERE shop_id = s.id AND type='logo'
+          ORDER BY position
+          LIMIT 1
+        ) AS shop_logo
+      FROM items i
+      JOIN shops s ON s.id = i.shop_id
+      WHERE i.status = 'active'
+  `;
+
+    if (!q) {
+      sql += `
+      )
+      SELECT * FROM base
+      ORDER BY item_name ASC
+      LIMIT $1 OFFSET $2
+    `;
+    } else {
+      params.push(q);
+      sql += `
+      AND (
+        unaccent(lower(i.name)) ILIKE unaccent(lower('%' || $3 || '%'))
+        OR unaccent(lower(s.name)) ILIKE unaccent(lower('%' || $3 || '%'))
+        OR (
+          to_regclass('pg_catalog.pg_trgm') IS NOT NULL
+          AND similarity(unaccent(lower(i.name)), unaccent(lower($3))) > 0.2
+        )
+      )
+      )
+      SELECT * FROM base
+      ORDER BY
+        (CASE
+           WHEN unaccent(lower(item_name)) = unaccent(lower($3)) THEN 0
+           WHEN unaccent(lower(item_name)) LIKE unaccent(lower('%' || $3 || '%')) THEN 1
+           ELSE 2
+         END),
+        item_name ASC
+      LIMIT $1 OFFSET $2
+    `;
+    }
+
+    try {
+      const { rows } = await db.query(sql, params);
+      const items = rows.slice(0, limit).map((r) => ({
+        ...r,
+        currency: DEFAULT_CURRENCY,
+      }));
+      const has_more = rows.length > limit;
+
+      let total;
+      if (offset === 0) {
+        if (!q) {
+          const t = await db.query(
+            `SELECT COUNT(*)::int AS c FROM items WHERE status='active'`
+          );
+          total = t.rows?.[0]?.c ?? 0;
+        } else {
+          const t = await db.query(
+            `SELECT COUNT(*)::int AS c
+           FROM items i
+           JOIN shops s ON s.id = i.shop_id
+           WHERE i.status='active' AND (
+             unaccent(lower(i.name)) ILIKE unaccent(lower('%' || $1 || '%'))
+             OR unaccent(lower(s.name)) ILIKE unaccent(lower('%' || $1 || '%'))
+             OR (
+               to_regclass('pg_catalog.pg_trgm') IS NOT NULL
+               AND similarity(unaccent(lower(i.name)), unaccent(lower($1))) > 0.2
+             )
+           )`,
+            [q]
+          );
+          total = t.rows?.[0]?.c ?? 0;
+        }
+      }
+
+      res.json({ items, has_more, total });
+    } catch (e) {
+      logger.error(`❌ /market/items/search error: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }

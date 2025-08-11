@@ -10,6 +10,7 @@ import {
   Briefcase,
   ClipboardList,
   LayoutDashboard,
+  ShoppingCart,
 } from "lucide-react";
 import useSidebar from "./utils/useSidebar.js";
 
@@ -220,6 +221,12 @@ const Sidebar = () => {
                 >
                   <LayoutDashboard className="nav-icon" />
                   Dashboard
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink to="/marketplace" className="nav-link">
+                  <ShoppingCart className="nav-icon" />
+                  Marketplace
                 </NavLink>
               </li>
               <li className="nav-item">

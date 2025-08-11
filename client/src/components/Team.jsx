@@ -3,7 +3,7 @@ import "./css/Team.css";
 
 const admins = [
   {
-    name: "SaunHardy",
+    name: "Saunhardy",
     uuid: "091b900c-4174-478c-900c-a0fe5a31a329",
     role: "Owner",
     description:
