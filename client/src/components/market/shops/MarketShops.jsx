@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
-import "../css/Companies.css"; // reuse the same styles
+import "../css/Companies.css";
 
 function MarketShops() {
   const [shops, setShops] = useState([]);

@@ -472,6 +472,7 @@ function MarketRequests() {
       {building && (
         <BuildProgressOverlay
           type={building.type}
+          kind={building.kind}
           durationMs={30000}
           delayMs={400}
           onDone={onBuildDone}

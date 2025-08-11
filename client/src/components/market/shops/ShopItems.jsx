@@ -15,6 +15,7 @@ const ShopItems = ({ shopId, isFounder }) => {
   const [selectedCats, setSelectedCats] = useState([]);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("newest");
+  const [visibleCount, setVisibleCount] = useState(5);
 
   const [showCreate, setShowCreate] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -76,6 +77,13 @@ const ShopItems = ({ shopId, isFounder }) => {
 
     return res;
   }, [items, search, selectedCats, sort]);
+
+  const visibleItems = filtered.slice(0, visibleCount);
+  const hasMore = filtered.length > visibleCount;
+
+  useEffect(() => {
+    setVisibleCount(5);
+  }, [search, selectedCats, sort]);
 
   const quickAddCategory = async (name) => {
     try {
@@ -241,25 +249,37 @@ const ShopItems = ({ shopId, isFounder }) => {
       ) : filtered.length === 0 ? (
         <p>No items found.</p>
       ) : (
-        <div className="companies-cards-grid">
-          {filtered.map((item) => (
-            <ItemCard
-              key={item.id}
-              item={item}
-              categories={categories}
-              busy={busyId === item.id}
-              canManage={isFounder}
-              onEdit={() => setEditItem(item)}
-              onToggleVisibility={async () => {
-                const next = item.status === "hidden" ? "active" : "hidden";
-                await updateItem(item.id, { status: next });
-              }}
-              onDelete={() =>
-                setConfirmDelete({ id: item.id, name: item.name })
-              }
-            />
-          ))}
-        </div>
+        <>
+          <div className="companies-cards-grid">
+            {visibleItems.map((item) => (
+              <ItemCard
+                key={item.id}
+                item={item}
+                categories={categories}
+                busy={busyId === item.id}
+                canManage={isFounder}
+                onEdit={() => setEditItem(item)}
+                onToggleVisibility={async () => {
+                  const next = item.status === "hidden" ? "active" : "hidden";
+                  await updateItem(item.id, { status: next });
+                }}
+                onDelete={() =>
+                  setConfirmDelete({ id: item.id, name: item.name })
+                }
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <div style={{ textAlign: "center", marginTop: "1rem" }}>
+              <button
+                className="shop-page-button"
+                onClick={() => setVisibleCount((prev) => prev + 5)}
+              >
+                Show More
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Modals */}

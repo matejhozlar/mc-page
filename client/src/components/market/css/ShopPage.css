@@ -7,8 +7,9 @@
 
 .shop-page-owner-dashboard {
   display: flex;
-  gap: 1rem;
-  padding: 1rem 0rem 1rem 0rem;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem 0;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 0.5rem;
 }
@@ -27,7 +28,6 @@
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s;
-  margin-left: auto;
 }
 
 .shop-page-button:hover {
@@ -141,6 +141,12 @@
 .shop-page-gallery {
   margin-top: 2rem;
   padding: 2rem;
+  background: var(--sidebar-background);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+}
+
+.shop-map-wrapper {
   background: var(--sidebar-background);
   border-radius: 12px;
   box-shadow: var(--card-shadow);

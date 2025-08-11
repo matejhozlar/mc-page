@@ -1,12 +1,46 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Settings } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
 import NotFound from "../../NotFound.jsx";
 import CompanyGallery from "../company/components/CompanyGallery.jsx";
 import ShopItems from "./ShopItems.jsx";
+import ShopOwnershipCard from "./ShopOwnerShipCard.jsx";
+import BlueMapViewer from "./components/BlueMapViewer.jsx";
+import LocationSettingsModal from "./components/LocationSettingsModal.jsx";
 import "../css/ShopPage.css";
+
+const DIM_TO_WORLD = {
+  overworld: "world",
+  nether: "world_the_nether",
+  end: "world_the_end",
+};
+
+const buildBlueMapUrl = (base, { dimension, x, y, z }, cam = {}) => {
+  const world = DIM_TO_WORLD[dimension] || DIM_TO_WORLD.overworld;
+  const {
+    distance = 200,
+    yaw = 0,
+    pitch = 0,
+    roll = 0,
+    tilt = 0,
+    projection = "perspective",
+  } = cam;
+  const safeY = y ?? 64;
+  return `${base.replace(/\/+$/, "")}/#${[
+    world,
+    Number(x) || 0,
+    Number(safeY) || 64,
+    Number(z) || 0,
+    Number(distance),
+    Number(yaw),
+    Number(pitch),
+    Number(roll),
+    Number(tilt),
+    projection,
+  ].join(":")}`;
+};
 
 const ShopPage = () => {
   const { shopId } = useParams();
@@ -17,18 +51,65 @@ const ShopPage = () => {
   const [loading, setLoading] = useState(true);
   const [editStatus, setEditStatus] = useState(null);
 
+  const [owners, setOwners] = useState(null);
+  const [ownersLoading, setOwnersLoading] = useState(true);
+
+  const [location, setLocation] = useState(null);
+  const [locLoading, setLocLoading] = useState(true);
+  const [showLocModal, setShowLocModal] = useState(false);
+  const [savingLoc, setSavingLoc] = useState(false);
+  const [mapVisible, setMapVisible] = useState(false);
+
+  useEffect(() => {
+    const key = `shop:${shopId}:mapVisible`;
+    const saved = localStorage.getItem(key);
+    if (saved === "1") setMapVisible(true);
+  }, [shopId]);
+  useEffect(() => {
+    const key = `shop:${shopId}:mapVisible`;
+    localStorage.setItem(key, mapVisible ? "1" : "0");
+  }, [shopId, mapVisible]);
+
   const galleryImages = useMemo(() => {
     if (!shop) return [];
-    if (Array.isArray(shop.image_urls) && shop.image_urls.length) {
+    if (Array.isArray(shop.image_urls) && shop.image_urls.length)
       return shop.image_urls;
-    }
     const out = [];
     if (shop.banner_url) out.push(shop.banner_url);
-    if (Array.isArray(shop.gallery_urls)) {
+    if (Array.isArray(shop.gallery_urls))
       out.push(...shop.gallery_urls.filter(Boolean));
-    }
     return out;
   }, [shop]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+    setLocLoading(true);
+    fetch(`/api/market/shop/${shopId}/location`, { signal: ac.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => setLocation(d.location || null))
+      .catch(() => setLocation(null))
+      .finally(() => setLocLoading(false));
+    return () => ac.abort();
+  }, [shopId]);
+
+  const saveLocation = async (form) => {
+    try {
+      setSavingLoc(true);
+      const r = await fetch(`/api/market/shop/${shopId}/location`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(form),
+      });
+      if (!r.ok) throw new Error("Failed to save location");
+      setLocation(form);
+      setShowLocModal(false);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSavingLoc(false);
+    }
+  };
 
   useEffect(() => {
     const ac = new AbortController();
@@ -72,12 +153,23 @@ const ShopPage = () => {
             }
           }
         }
+
+        const ownersRes = await fetch(`/api/market/shop/${shopId}/owners`, {
+          signal: ac.signal,
+        });
+        if (ownersRes.ok) {
+          const ownersData = await ownersRes.json().catch(() => null);
+          setOwners(ownersData);
+        } else {
+          setOwners(null);
+        }
       } catch (err) {
         if (err?.name !== "AbortError") {
-          console.error("❌ Failed to fetch shop:", err);
+          console.error("❌ Failed to fetch shop or owners:", err);
         }
       } finally {
         setLoading(false);
+        setOwnersLoading(false);
       }
     })();
 
@@ -118,6 +210,7 @@ const ShopPage = () => {
           </button>
         </div>
       )}
+
       {/* Owner Dashboard */}
       {isFounder && (
         <div className="shop-page-owner-dashboard">
@@ -128,6 +221,13 @@ const ShopPage = () => {
             disabled={!!editStatus}
           >
             <Pencil size={16} className="dashboard-button-shift" /> Edit
+          </button>
+          <button
+            className="shop-page-button"
+            onClick={() => setShowLocModal(true)}
+            title="Set shop location"
+          >
+            <Settings size={16} /> Map
           </button>
         </div>
       )}
@@ -181,10 +281,193 @@ const ShopPage = () => {
           <ReactMarkdown>{shop.description}</ReactMarkdown>
         </div>
       )}
+
+      {/* Map */}
+      <section className="companies-section shop-map-wrapper">
+        <div className="companies-header" style={{ marginBottom: 12 }}>
+          <h2 className="company-section-title">Map</h2>
+        </div>
+
+        {locLoading ? (
+          <p>Loading map…</p>
+        ) : !location ? (
+          <p className="companies-meta">
+            No location set.{" "}
+            {isFounder ? "Click Settings to add coordinates." : ""}
+          </p>
+        ) : (
+          <div className="companies-cards-grid">
+            <div
+              className="companies-card"
+              style={{
+                width: "100%",
+                flexDirection: "column",
+                alignItems: "stretch",
+                gap: 8,
+              }}
+            >
+              {!mapVisible ? (
+                <>
+                  <p className="companies-meta" style={{ marginBottom: 6 }}>
+                    {location.dimension} • X:{location.x}, Z:{location.z}
+                    {typeof location.y === "number" ? `, Y:${location.y}` : ""}
+                  </p>
+
+                  {location.tempad && (
+                    <p
+                      style={{
+                        fontSize: "0.9rem",
+                        color: "#9ca3af",
+                        background: "rgba(255,255,255,0.05)",
+                        padding: "4px 8px",
+                        borderRadius: "6px",
+                        display: "inline-block",
+                        marginBottom: 8,
+                      }}
+                    >
+                      Tempad:{" "}
+                      <span style={{ fontWeight: 500 }}>{location.tempad}</span>
+                    </p>
+                  )}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 6,
+                      justifyContent: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <button
+                      className="shop-page-button"
+                      onClick={() => setMapVisible(true)}
+                      title="Render map"
+                    >
+                      Show map
+                    </button>
+                    <a
+                      className="shop-page-button"
+                      href={buildBlueMapUrl(
+                        "https://create-rington.com/bluemap",
+                        {
+                          dimension: location.dimension,
+                          x: location.x,
+                          y: location.y,
+                          z: location.z,
+                        }
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "none" }}
+                    >
+                      Open in new tab
+                    </a>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <BlueMapViewer
+                    base="https://create-rington.com/bluemap"
+                    location={{
+                      dimension: location.dimension,
+                      x: location.x,
+                      y: location.y,
+                      z: location.z,
+                    }}
+                    camera={{
+                      distance: 200,
+                      yaw: 0,
+                      pitch: 0,
+                      roll: 0,
+                      tilt: 0,
+                      projection: "perspective",
+                    }}
+                    style={{
+                      width: "100%",
+                      maxWidth: 600,
+                      aspectRatio: "4/3",
+                      margin: "0 auto",
+                    }}
+                  />
+                  <div
+                    style={{
+                      marginTop: 4,
+                      display: "flex",
+                      gap: 6,
+                      justifyContent: "center",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    <button
+                      className="shop-page-button"
+                      onClick={() => setMapVisible(false)}
+                      title="Hide map"
+                    >
+                      Hide map
+                    </button>
+                    <a
+                      className="shop-page-button"
+                      href={buildBlueMapUrl(
+                        "https://create-rington.com/bluemap",
+                        {
+                          dimension: location.dimension,
+                          x: location.x,
+                          y: location.y,
+                          z: location.z,
+                        }
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ textDecoration: "none" }}
+                    >
+                      Open in new tab
+                    </a>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Items */}
       <ShopItems shopId={shopId} isFounder={isFounder} />
 
       {/* Gallery */}
       {galleryImages.length > 0 && <CompanyGallery images={galleryImages} />}
+
+      {/* Ownership Card */}
+      <section className="companies-section">
+        <h2
+          className="company-section-title"
+          style={{ marginBottom: "0.75rem" }}
+        >
+          Ownership
+        </h2>
+
+        {ownersLoading ? (
+          <p>Loading ownership…</p>
+        ) : owners ? (
+          <div className="companies-cards-grid">
+            <ShopOwnershipCard
+              companyId={owners.company.id}
+              companyName={owners.company.name}
+              companyLogo={owners.company.logo_url}
+              founders={owners.founders}
+            />
+          </div>
+        ) : (
+          <p className="companies-meta">Ownership information unavailable.</p>
+        )}
+      </section>
+
+      {showLocModal && (
+        <LocationSettingsModal
+          initial={location}
+          onSave={saveLocation}
+          onCancel={() => setShowLocModal(false)}
+          saving={savingLoc}
+        />
+      )}
     </div>
   );
 };

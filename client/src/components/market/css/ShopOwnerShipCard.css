@@ -1,0 +1,13 @@
+.ownership-card .unstyled-link {
+  text-decoration: none;
+  color: inherit;
+}
+.ownership-card .unstyled-link:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.ownership-card .companies-meta strong {
+  color: inherit;
+  font-weight: 600;
+}

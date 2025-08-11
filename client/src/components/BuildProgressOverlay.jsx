@@ -4,11 +4,19 @@ import "./css/BuildProgressOverlay.css";
 
 const DEFAULT_DURATION = 30000;
 
-const NEW_STEPS = [
+const COMPANY_NEW_STEPS = [
   "Creating company entry…",
   "Linking founder and roles…",
   "Preparing company funds…",
   "Publishing images…",
+  "Finalizing and propagating…",
+];
+
+const SHOP_NEW_STEPS = [
+  "Creating shop entry…",
+  "Linking to company…",
+  "Publishing images…",
+  "Registering location…",
   "Finalizing and propagating…",
 ];
 
@@ -22,14 +30,16 @@ const EDIT_STEPS = [
 
 export default function BuildProgressOverlay({
   type = "new",
+  kind = "company",
   durationMs = DEFAULT_DURATION,
   onDone,
   delayMs = 400,
 }) {
-  const steps = useMemo(
-    () => (type === "edit" ? EDIT_STEPS : NEW_STEPS),
-    [type]
-  );
+  const steps = useMemo(() => {
+    if (type === "edit") return EDIT_STEPS;
+    return kind === "shop" ? SHOP_NEW_STEPS : COMPANY_NEW_STEPS;
+  }, [type, kind]);
+
   const [visible, setVisible] = useState(delayMs === 0);
   const [index, setIndex] = useState(0);
 
@@ -68,7 +78,11 @@ export default function BuildProgressOverlay({
         <div className="spinner" />
         <div className="build-steps">
           <div className="build-title">
-            {type === "edit" ? "Applying Edit…" : "Creating Company…"}
+            {type === "edit"
+              ? "Applying Edit…"
+              : kind === "shop"
+              ? "Creating Shop…"
+              : "Creating Company…"}
           </div>
           <ul className="build-list">
             {steps.map((msg, i) => (

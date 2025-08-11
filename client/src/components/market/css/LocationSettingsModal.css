@@ -1,0 +1,127 @@
+.locm-backdrop {
+  backdrop-filter: blur(3px);
+}
+
+.locm-card {
+  padding: 0;
+  overflow: hidden;
+  animation: locm-pop 160ms ease-out;
+  border-radius: 12px;
+  box-shadow: var(--card-shadow, 0 10px 30px rgba(0, 0, 0, 0.45));
+}
+
+@keyframes locm-pop {
+  from {
+    transform: translateY(4px) scale(0.98);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.locm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--sidebar-background);
+}
+
+.locm-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.locm-title h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.locm-icon-btn {
+  background: transparent;
+  color: var(--default-color);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+}
+.locm-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.locm-body {
+  padding: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.locm-row {
+  display: grid;
+  gap: 6px;
+}
+
+.locm-label {
+  font-size: 0.9rem;
+  color: #c7c7c7;
+}
+
+.locm-select {
+  width: 100%;
+}
+
+.locm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+@media (max-width: 520px) {
+  .locm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.locm-field {
+  display: grid;
+  gap: 6px;
+}
+
+.locm-error {
+  font-size: 0.8rem;
+  color: #ff8b8b;
+  margin-top: -2px;
+}
+
+.locm-input-error {
+  outline: 1px solid #ff5e5e;
+}
+
+.locm-hint {
+  margin: 4px 0 0;
+  opacity: 0.75;
+  font-size: 0.88rem;
+}
+.locm-hint code {
+  background: var(--muted-color, #2e2e2e);
+  padding: 0 0.35rem;
+  border-radius: 4px;
+}
+
+.locm-footer {
+  padding: 12px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.locm-btn-danger {
+  border-color: rgba(255, 120, 120, 0.4);
+  color: #ff9f9f;
+}
+.locm-btn-danger:hover {
+  background: rgba(255, 120, 120, 0.08);
+}

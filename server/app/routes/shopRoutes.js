@@ -1122,5 +1122,155 @@ export default function shopSubmissionRoutes(db, clientBot) {
     }
   });
 
+  // GET --- /api/market/shop/:shopId/owners ---
+  router.get("/market/shop/:shopId/owners", async (req, res) => {
+    const shopId = parseInt(req.params.shopId, 10);
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+
+    try {
+      const {
+        rows: [row],
+      } = await db.query(
+        `
+      SELECT
+        s.company_id,
+        c.name AS company_name,
+        (
+          SELECT url
+          FROM company_images
+          WHERE company_id = c.id AND type = 'logo'
+          ORDER BY position, id
+          LIMIT 1
+        ) AS company_logo
+      FROM shops s
+      JOIN companies c ON c.id = s.company_id
+      WHERE s.id = $1
+      LIMIT 1
+      `,
+        [shopId]
+      );
+
+      if (!row) return res.status(404).json({ error: "Shop not found" });
+
+      const { rows: founders } = await db.query(
+        `
+      SELECT u.uuid, u.name
+      FROM company_members cm
+      JOIN users u ON u.uuid = cm.user_uuid
+      WHERE cm.company_id = $1 AND cm.role = 'Founder'
+      ORDER BY u.name ASC
+      `,
+        [row.company_id]
+      );
+
+      const avatarFor = (uuid, size = 64) =>
+        `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+
+      res.json({
+        company: {
+          id: row.company_id,
+          name: row.company_name,
+          logo_url: row.company_logo,
+        },
+        founders: founders.map((f) => ({
+          uuid: f.uuid,
+          name: f.name,
+          avatar_url: avatarFor(f.uuid),
+        })),
+      });
+    } catch (e) {
+      logger.error(`❌ /market/shop/:shopId/owners: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET --- /api/market/shop/:shopId/location ---
+  router.get("/market/shop/:shopId/location", async (req, res) => {
+    const shopId = Number(req.params.shopId);
+    if (!Number.isFinite(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+    try {
+      const {
+        rows: [loc],
+      } = await db.query(
+        `SELECT shop_id, dimension, x, z, y, tempad, updated_at
+       FROM shop_locations 
+       WHERE shop_id=$1`,
+        [shopId]
+      );
+      res.json({ location: loc || null });
+    } catch (e) {
+      logger.error(`❌ get shop location ${shopId}: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // PUT --- /api/market/shop/:shopId/location ---
+  router.put("/market/shop/:shopId/location", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const shopId = Number(req.params.shopId);
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (!Number.isFinite(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query("SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1", [
+        discordId,
+      ]);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const {
+        rows: [shop],
+      } = await db.query(
+        "SELECT id, company_id FROM shops WHERE id=$1 LIMIT 1",
+        [shopId]
+      );
+      if (!shop) return res.status(404).json({ error: "Shop not found" });
+
+      const founder = await db.query(
+        "SELECT 1 FROM company_members WHERE user_uuid=$1 AND company_id=$2 AND role='Founder' LIMIT 1",
+        [user.uuid, shop.company_id]
+      );
+      if (!founder.rowCount)
+        return res.status(403).json({ error: "Insufficient permissions" });
+
+      const { dimension, x, z, y, tempad } = req.body || {};
+      if (!["overworld", "nether", "end"].includes(dimension))
+        return res.status(400).json({ error: "Invalid dimension" });
+      if (![x, z].every((v) => Number.isFinite(Number(v))))
+        return res.status(400).json({ error: "Invalid coordinates" });
+      if (tempad != null && typeof tempad !== "string")
+        return res.status(400).json({ error: "Invalid tempad" });
+
+      await db.query(
+        `INSERT INTO shop_locations (shop_id, dimension, x, z, y, tempad, updated_at)
+       VALUES ($1,$2,$3,$4,$5,$6,NOW())
+       ON CONFLICT (shop_id)
+       DO UPDATE SET 
+         dimension = EXCLUDED.dimension, 
+         x = EXCLUDED.x, 
+         z = EXCLUDED.z, 
+         y = EXCLUDED.y,
+         tempad = EXCLUDED.tempad,
+         updated_at = NOW()`,
+        [
+          shopId,
+          dimension,
+          Number(x),
+          Number(z),
+          y == null ? null : Number(y),
+          tempad || null,
+        ]
+      );
+      res.json({ success: true });
+    } catch (e) {
+      logger.error(`❌ upsert shop location ${shopId}: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   return router;
 }
