@@ -40,7 +40,6 @@
   align-items: center;
   background: var(--sidebar-background);
   padding: 2rem;
-  border-radius: 12px;
   box-shadow: var(--card-shadow);
   flex-wrap: wrap;
   gap: 1.5rem;
@@ -91,7 +90,6 @@
   overflow: hidden;
   box-shadow: var(--card-shadow);
   margin-top: 1rem;
-  border-radius: 12px;
 }
 
 .shop-page-description-box {

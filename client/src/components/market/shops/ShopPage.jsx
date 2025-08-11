@@ -1,5 +1,6 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
 import NotFound from "../../NotFound.jsx";
@@ -125,7 +126,7 @@ const ShopPage = () => {
             title="Edit shop"
             disabled={!!editStatus}
           >
-            Edit
+            <Pencil size={16} className="dashboard-button-shift" /> Edit
           </button>
         </div>
       )}
@@ -181,11 +182,7 @@ const ShopPage = () => {
       )}
 
       {/* Gallery */}
-      {galleryImages.length > 0 && (
-        <div className="shop-page-gallery">
-          <CompanyGallery images={galleryImages} />
-        </div>
-      )}
+      {galleryImages.length > 0 && <CompanyGallery images={galleryImages} />}
     </div>
   );
 };

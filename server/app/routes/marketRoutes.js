@@ -417,7 +417,7 @@ export default function marketRoutes(db, clientBot) {
     }
   });
 
-  // GET /api/market/companies/all
+  // GET --- /api/market/companies/all ---
   router.get("/market/companies/all", async (req, res) => {
     try {
       const { rows } = await db.query(`
@@ -447,7 +447,36 @@ export default function marketRoutes(db, clientBot) {
     }
   });
 
-  // GET /api/market/requests
+  // GET --- /api/market/shops/all ---
+  router.get("/market/shops/all", async (req, res) => {
+    try {
+      const { rows } = await db.query(`
+      SELECT
+        s.id,
+        s.name,
+        s.short_description,
+        s.created_at,
+        c.name AS company_name,
+        c.id   AS company_id,
+        (
+          SELECT ARRAY_AGG(url ORDER BY position)
+          FROM shop_images
+          WHERE shop_id = s.id AND type = 'logo'
+          LIMIT 1
+        ) AS image_urls
+      FROM shops s
+      JOIN companies c ON c.id = s.company_id
+      ORDER BY s.created_at DESC
+    `);
+
+      res.json({ shops: rows });
+    } catch (error) {
+      logger.error(`❌ Failed to fetch all shops: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET --- /api/market/requests ---
   router.get("/market/requests", async (req, res) => {
     const discordId = req.cookies.user_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -1424,6 +1453,44 @@ export default function marketRoutes(db, clientBot) {
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
+    }
+  });
+
+  // GET /api/market/company/:companyId/shops
+  router.get("/market/company/:companyId/shops", async (req, res) => {
+    const companyId = parseInt(req.params.companyId, 10);
+    if (isNaN(companyId))
+      return res.status(400).json({ error: "Invalid company ID" });
+
+    try {
+      const { rows } = await db.query(
+        `
+      SELECT
+        s.id,
+        s.name,
+        s.short_description,
+        s.created_at,
+        s.company_id,
+        (SELECT url
+           FROM shop_images
+          WHERE shop_id = s.id AND type = 'logo'
+          ORDER BY position
+          LIMIT 1) AS logo_url,
+        (SELECT ARRAY_AGG(url ORDER BY position)
+           FROM shop_images
+          WHERE shop_id = s.id AND type = 'logo'
+          LIMIT 1) AS image_urls
+      FROM shops s
+      WHERE s.company_id = $1
+      ORDER BY s.created_at DESC
+      `,
+        [companyId]
+      );
+
+      res.json({ shops: rows });
+    } catch (error) {
+      logger.error(`❌ Failed to fetch company ${companyId} shops: ${error}`);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
