@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import LoadingSpinner from "../../LoadingSpinner.jsx";
 import NotFound from "../../NotFound.jsx";
 import CompanyGallery from "../company/components/CompanyGallery.jsx";
+import ShopItems from "./ShopItems.jsx";
 import "../css/ShopPage.css";
 
 const ShopPage = () => {
@@ -180,6 +181,7 @@ const ShopPage = () => {
           <ReactMarkdown>{shop.description}</ReactMarkdown>
         </div>
       )}
+      <ShopItems shopId={shopId} isFounder={isFounder} />
 
       {/* Gallery */}
       {galleryImages.length > 0 && <CompanyGallery images={galleryImages} />}

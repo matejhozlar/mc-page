@@ -1,0 +1,130 @@
+.catches {
+  display: contents;
+}
+
+.catchips,
+.catches,
+.catchips {
+  width: 100%;
+}
+
+.catching,
+.catchips-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.catchips-title {
+  font-weight: 600;
+  color: var(--default-color);
+}
+
+.catchips-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.catchips-action {
+  background: var(--button-background);
+  color: var(--default-color);
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.catchips-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.catchips-action:hover:not(:disabled) {
+  background: var(--button-hover);
+}
+
+.catchips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.catching-chip,
+.catching-selected,
+.catchip {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--default-color);
+  padding: 6px 10px;
+  border-radius: 1000px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.05s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.catchip:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.catchip.selected {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #0b1020;
+}
+
+.catching-tag,
+.catchip-tag {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.catchips-empty {
+  opacity: 0.7;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+.catchips-create {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.catchips-input {
+  flex: 1;
+  min-width: 180px;
+  background: var(--sidebar-background);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--default-color);
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+
+.catchips-create-btn {
+  background: var(--primary-color);
+  color: #0b1020;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.catchips-compact,
+.catchips-compact .catchips-title {
+  font-size: 0.95rem;
+}
+
+.catchips-compact .catchip {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.item-shift {
+  transform: translateY(1px);
+}

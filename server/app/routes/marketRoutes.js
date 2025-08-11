@@ -14,6 +14,21 @@ import {
 import config from "../../config/index.js";
 import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
 
+async function isFounderOfShop(db, userUuid, shopId) {
+  const {
+    rows: [shop],
+  } = await db.query(`SELECT company_id FROM shops WHERE id=$1 LIMIT 1`, [
+    shopId,
+  ]);
+  if (!shop) return false;
+  const ok = await db.query(
+    `SELECT 1 FROM company_members
+      WHERE user_uuid=$1 AND company_id=$2 AND role='Founder' LIMIT 1`,
+    [userUuid, shop.company_id]
+  );
+  return ok.rowCount > 0;
+}
+
 const r2 = new S3Client({
   region: process.env.R2_REGION,
   endpoint: process.env.R2_ENDPOINT,
@@ -1692,6 +1707,168 @@ export default function marketRoutes(db, clientBot) {
       client.release();
     }
   });
+
+  // GET --- /api/market/shop/:shopId/categories ---
+  router.get("/market/shop/:shopId/categories", async (req, res) => {
+    const shopId = parseInt(req.params.shopId, 10);
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+    try {
+      const { rows } = await db.query(
+        `SELECT id, name, shop_id
+         FROM item_categories
+        WHERE shop_id IS NULL OR shop_id=$1
+        ORDER BY (shop_id IS NULL) DESC, name ASC`,
+        [shopId]
+      );
+      res.json({ categories: rows });
+    } catch (e) {
+      logger.error(`❌ categories list for shop ${shopId}: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST --- /api/market/shop/:shopId/categories ---
+  router.post("/market/shop/:shopId/categories", async (req, res) => {
+    const discordId = req.cookies.user_session;
+    const shopId = parseInt(req.params.shopId, 10);
+    const { name } = req.body || {};
+    if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+    if (isNaN(shopId))
+      return res.status(400).json({ error: "Invalid shop ID" });
+    if (!name || !String(name).trim())
+      return res.status(400).json({ error: "Name is required" });
+
+    try {
+      const {
+        rows: [user],
+      } = await db.query(`SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`, [
+        discordId,
+      ]);
+      if (!user) return res.status(404).json({ error: "User not found" });
+      const can = await isFounderOfShop(db, user.uuid, shopId);
+      if (!can)
+        return res.status(403).json({ error: "Insufficient permissions" });
+
+      const {
+        rows: [row],
+      } = await db.query(
+        `INSERT INTO item_categories (shop_id, name)
+       VALUES ($1, $2)
+       ON CONFLICT (shop_id, lower(name)) DO NOTHING
+       RETURNING id, name, shop_id`,
+        [shopId, String(name).trim()]
+      );
+      if (!row)
+        return res.status(409).json({ error: "Category already exists" });
+      res.status(201).json({ category: row });
+    } catch (e) {
+      logger.error(`❌ create category shop ${shopId}: ${e}`);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // PATCH --- /api/market/shop/:shopId/categories/:categoryId ---
+  router.patch(
+    "/market/shop/:shopId/categories/:categoryId",
+    async (req, res) => {
+      const discordId = req.cookies.user_session;
+      const shopId = parseInt(req.params.shopId, 10);
+      const categoryId = parseInt(req.params.categoryId, 10);
+      const { name } = req.body || {};
+      if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+      if ([shopId, categoryId].some(isNaN))
+        return res.status(400).json({ error: "Invalid ID" });
+      if (!name || !String(name).trim())
+        return res.status(400).json({ error: "Name is required" });
+
+      try {
+        const {
+          rows: [user],
+        } = await db.query(
+          `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
+          [discordId]
+        );
+        if (!user) return res.status(404).json({ error: "User not found" });
+        const can = await isFounderOfShop(db, user.uuid, shopId);
+        if (!can)
+          return res.status(403).json({ error: "Insufficient permissions" });
+
+        const {
+          rows: [cat],
+        } = await db.query(
+          `SELECT id, shop_id FROM item_categories WHERE id=$1 LIMIT 1`,
+          [categoryId]
+        );
+        if (!cat) return res.status(404).json({ error: "Category not found" });
+        if (cat.shop_id !== shopId)
+          return res.status(403).json({ error: "Cannot modify this category" });
+
+        const {
+          rows: [row],
+        } = await db.query(
+          `UPDATE item_categories SET name=$1 WHERE id=$2
+       RETURNING id, name, shop_id`,
+          [String(name).trim(), categoryId]
+        );
+        res.json({ category: row });
+      } catch (e) {
+        logger.error(`❌ rename category ${categoryId} shop ${shopId}: ${e}`);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
+
+  // DELETE --- /api/market/shop/:shopId/categories/:categoryId ---
+  router.delete(
+    "/market/shop/:shopId/categories/:categoryId",
+    async (req, res) => {
+      const discordId = req.cookies.user_session;
+      const shopId = parseInt(req.params.shopId, 10);
+      const categoryId = parseInt(req.params.categoryId, 10);
+      if (!discordId) return res.status(403).json({ error: "Unauthorized" });
+      if ([shopId, categoryId].some(isNaN))
+        return res.status(400).json({ error: "Invalid ID" });
+
+      try {
+        const {
+          rows: [user],
+        } = await db.query(
+          `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
+          [discordId]
+        );
+        if (!user) return res.status(404).json({ error: "User not found" });
+        const can = await isFounderOfShop(db, user.uuid, shopId);
+        if (!can)
+          return res.status(403).json({ error: "Insufficient permissions" });
+
+        const {
+          rows: [cat],
+        } = await db.query(
+          `SELECT id, shop_id FROM item_categories WHERE id=$1 LIMIT 1`,
+          [categoryId]
+        );
+        if (!cat) return res.status(404).json({ error: "Category not found" });
+        if (cat.shop_id !== shopId)
+          return res.status(403).json({ error: "Cannot delete this category" });
+
+        const {
+          rows: [cnt],
+        } = await db.query(
+          `SELECT COUNT(*)::int AS n FROM item_category_map WHERE category_id=$1`,
+          [categoryId]
+        );
+        if (cnt.n > 0)
+          return res.status(409).json({ error: "Category has items" });
+
+        await db.query(`DELETE FROM item_categories WHERE id=$1`, [categoryId]);
+        res.json({ success: true });
+      } catch (e) {
+        logger.error(`❌ delete category ${categoryId} shop ${shopId}: ${e}`);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  );
 
   return router;
 }
