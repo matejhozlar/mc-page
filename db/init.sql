@@ -641,7 +641,8 @@ ALTER SEQUENCE public.daily_shared_quests_id_seq OWNED BY public.daily_shared_qu
 
 CREATE TABLE public.item_categories (
     id integer NOT NULL,
-    name text NOT NULL
+    name text NOT NULL,
+    shop_id integer
 );
 
 
@@ -690,8 +691,17 @@ CREATE TABLE public.items (
     shop_id integer,
     name text NOT NULL,
     description text,
-    price numeric(10,2),
-    created_at timestamp without time zone DEFAULT now()
+    price numeric(10,2) DEFAULT 0 NOT NULL,
+    created_at timestamp without time zone DEFAULT now(),
+    stock integer DEFAULT 0 NOT NULL,
+    image_url text,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    status text DEFAULT 'active'::text NOT NULL,
+    sku text,
+    is_featured boolean DEFAULT false NOT NULL,
+    CONSTRAINT items_price_nonneg CHECK ((price >= (0)::numeric)),
+    CONSTRAINT items_status_check CHECK ((status = ANY (ARRAY['active'::text, 'hidden'::text, 'pending'::text, 'rejected'::text]))),
+    CONSTRAINT items_stock_nonneg CHECK ((stock >= 0))
 );
 
 
@@ -922,6 +932,32 @@ ALTER SEQUENCE public.pending_companies_id_seq OWNED BY public.pending_companies
 
 
 --
+-- Name: pending_shops; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.pending_shops (
+    id integer NOT NULL,
+    company_id integer,
+    founder_uuid uuid,
+    name text NOT NULL,
+    description text,
+    short_description character varying(128),
+    logo_url text,
+    banner_url text,
+    gallery_urls text[],
+    created_at timestamp without time zone DEFAULT now(),
+    status text DEFAULT 'pending'::text,
+    reviewed_at timestamp without time zone,
+    reviewed_by uuid,
+    fee_required numeric(20,8),
+    fee_checked_at timestamp without time zone,
+    CONSTRAINT chk_shop_id_range_pending CHECK (((id >= 10000) AND (id <= 99999)))
+);
+
+
+ALTER TABLE public.pending_shops OWNER TO postgres;
+
+--
 -- Name: player_stats; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1004,6 +1040,37 @@ CREATE TABLE public.rejected_company_edits (
 ALTER TABLE public.rejected_company_edits OWNER TO postgres;
 
 --
+-- Name: rejected_shop_edits; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rejected_shop_edits (
+    id bigint NOT NULL,
+    shop_id integer NOT NULL,
+    editor_uuid uuid NOT NULL,
+    reason text NOT NULL,
+    rejected_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.rejected_shop_edits OWNER TO postgres;
+
+--
+-- Name: rejected_shops; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.rejected_shops (
+    id integer NOT NULL,
+    company_id integer,
+    founder_uuid uuid,
+    name text NOT NULL,
+    reason text NOT NULL,
+    rejected_at timestamp without time zone DEFAULT now()
+);
+
+
+ALTER TABLE public.rejected_shops OWNER TO postgres;
+
+--
 -- Name: server_playtime_snapshots; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1036,6 +1103,53 @@ ALTER TABLE public.server_playtime_snapshots_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.server_playtime_snapshots_id_seq OWNED BY public.server_playtime_snapshots.id;
+
+
+--
+-- Name: shop_edits; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shop_edits (
+    id bigint NOT NULL,
+    shop_id integer NOT NULL,
+    editor_uuid uuid NOT NULL,
+    name text,
+    description text,
+    short_description character varying(128),
+    logo_path text,
+    banner_path text,
+    gallery_paths text[],
+    status text DEFAULT 'pending'::text,
+    created_at timestamp without time zone DEFAULT now(),
+    reviewed_at timestamp without time zone,
+    reviewed_by uuid,
+    fee_required numeric(20,8),
+    fee_checked_at timestamp without time zone,
+    reason text
+);
+
+
+ALTER TABLE public.shop_edits OWNER TO postgres;
+
+--
+-- Name: shop_edits_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.shop_edits_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.shop_edits_id_seq OWNER TO postgres;
+
+--
+-- Name: shop_edits_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.shop_edits_id_seq OWNED BY public.shop_edits.id;
 
 
 --
@@ -1077,6 +1191,62 @@ ALTER SEQUENCE public.shop_images_id_seq OWNED BY public.shop_images.id;
 
 
 --
+-- Name: shop_locations; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shop_locations (
+    shop_id integer NOT NULL,
+    dimension text NOT NULL,
+    x integer NOT NULL,
+    z integer NOT NULL,
+    y integer,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    tempad character varying(128),
+    CONSTRAINT shop_locations_dimension_check CHECK ((dimension = ANY (ARRAY['overworld'::text, 'nether'::text, 'end'::text])))
+);
+
+
+ALTER TABLE public.shop_locations OWNER TO postgres;
+
+--
+-- Name: shop_reviews; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.shop_reviews (
+    id bigint NOT NULL,
+    shop_id integer NOT NULL,
+    user_uuid uuid NOT NULL,
+    rating integer NOT NULL,
+    review text,
+    created_at timestamp without time zone DEFAULT now(),
+    CONSTRAINT shop_reviews_rating_check CHECK (((rating >= 1) AND (rating <= 5)))
+);
+
+
+ALTER TABLE public.shop_reviews OWNER TO postgres;
+
+--
+-- Name: shop_reviews_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.shop_reviews_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.shop_reviews_id_seq OWNER TO postgres;
+
+--
+-- Name: shop_reviews_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.shop_reviews_id_seq OWNED BY public.shop_reviews.id;
+
+
+--
 -- Name: shops; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -1086,7 +1256,9 @@ CREATE TABLE public.shops (
     name text NOT NULL,
     description text,
     is_paid boolean DEFAULT false,
-    created_at timestamp without time zone DEFAULT now()
+    created_at timestamp without time zone DEFAULT now(),
+    short_description character varying(128),
+    CONSTRAINT chk_shop_id_range CHECK (((id >= 10000) AND (id <= 99999)))
 );
 
 
@@ -1748,10 +1920,24 @@ ALTER TABLE ONLY public.server_playtime_snapshots ALTER COLUMN id SET DEFAULT ne
 
 
 --
+-- Name: shop_edits id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_edits ALTER COLUMN id SET DEFAULT nextval('public.shop_edits_id_seq'::regclass);
+
+
+--
 -- Name: shop_images id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.shop_images ALTER COLUMN id SET DEFAULT nextval('public.shop_images_id_seq'::regclass);
+
+
+--
+-- Name: shop_reviews id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_reviews ALTER COLUMN id SET DEFAULT nextval('public.shop_reviews_id_seq'::regclass);
 
 
 --
@@ -2126,6 +2312,14 @@ ALTER TABLE ONLY public.pending_companies
 
 
 --
+-- Name: pending_shops pending_shops_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_shops
+    ADD CONSTRAINT pending_shops_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: player_stats player_stats_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2158,6 +2352,22 @@ ALTER TABLE ONLY public.rejected_company_edits
 
 
 --
+-- Name: rejected_shop_edits rejected_shop_edits_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_shop_edits
+    ADD CONSTRAINT rejected_shop_edits_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rejected_shops rejected_shops_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_shops
+    ADD CONSTRAINT rejected_shops_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: server_playtime_snapshots server_playtime_snapshots_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2166,11 +2376,35 @@ ALTER TABLE ONLY public.server_playtime_snapshots
 
 
 --
+-- Name: shop_edits shop_edits_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_edits
+    ADD CONSTRAINT shop_edits_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: shop_images shop_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.shop_images
     ADD CONSTRAINT shop_images_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: shop_locations shop_locations_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_locations
+    ADD CONSTRAINT shop_locations_pkey PRIMARY KEY (shop_id);
+
+
+--
+-- Name: shop_reviews shop_reviews_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_reviews
+    ADD CONSTRAINT shop_reviews_pkey PRIMARY KEY (id);
 
 
 --
@@ -2364,6 +2598,34 @@ CREATE INDEX idx_company_interest_ledger_company_id ON public.company_interest_l
 
 
 --
+-- Name: idx_items_shop_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_items_shop_id ON public.items USING btree (shop_id);
+
+
+--
+-- Name: idx_items_shop_id_created; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_items_shop_id_created ON public.items USING btree (shop_id, created_at DESC);
+
+
+--
+-- Name: idx_items_shop_id_status; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_items_shop_id_status ON public.items USING btree (shop_id, status);
+
+
+--
+-- Name: idx_shop_edits_shop_id; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_shop_edits_shop_id ON public.shop_edits USING btree (shop_id);
+
+
+--
 -- Name: idx_user_tokens_discord_id; Type: INDEX; Schema: public; Owner: postgres
 --
 
@@ -2382,6 +2644,34 @@ CREATE INDEX idx_users_discord_id ON public.users USING btree (discord_id);
 --
 
 CREATE UNIQUE INDEX one_pending_edit_per_company ON public.company_edits USING btree (company_id) WHERE (status = 'pending'::text);
+
+
+--
+-- Name: one_pending_edit_per_shop; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX one_pending_edit_per_shop ON public.shop_edits USING btree (shop_id) WHERE (status = 'pending'::text);
+
+
+--
+-- Name: one_pending_shop_per_founder; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX one_pending_shop_per_founder ON public.pending_shops USING btree (founder_uuid) WHERE (status = 'pending'::text);
+
+
+--
+-- Name: uniq_item_categories_shop_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX uniq_item_categories_shop_name ON public.item_categories USING btree (shop_id, lower(name));
+
+
+--
+-- Name: uniq_shop_reviews_user_shop; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX uniq_shop_reviews_user_shop ON public.shop_reviews USING btree (shop_id, user_uuid);
 
 
 --
@@ -2503,6 +2793,14 @@ ALTER TABLE ONLY public.company_transactions
 
 
 --
+-- Name: item_categories item_categories_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.item_categories
+    ADD CONSTRAINT item_categories_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
 -- Name: item_category_map item_category_map_category_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2543,6 +2841,30 @@ ALTER TABLE ONLY public.pending_companies
 
 
 --
+-- Name: pending_shops pending_shops_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_shops
+    ADD CONSTRAINT pending_shops_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: pending_shops pending_shops_founder_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_shops
+    ADD CONSTRAINT pending_shops_founder_uuid_fkey FOREIGN KEY (founder_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: pending_shops pending_shops_reviewed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.pending_shops
+    ADD CONSTRAINT pending_shops_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES public.users(uuid);
+
+
+--
 -- Name: player_stats player_stats_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -2559,11 +2881,91 @@ ALTER TABLE ONLY public.rejected_companies
 
 
 --
+-- Name: rejected_shop_edits rejected_shop_edits_editor_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_shop_edits
+    ADD CONSTRAINT rejected_shop_edits_editor_uuid_fkey FOREIGN KEY (editor_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: rejected_shop_edits rejected_shop_edits_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_shop_edits
+    ADD CONSTRAINT rejected_shop_edits_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
+-- Name: rejected_shops rejected_shops_company_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_shops
+    ADD CONSTRAINT rejected_shops_company_id_fkey FOREIGN KEY (company_id) REFERENCES public.companies(id) ON DELETE CASCADE;
+
+
+--
+-- Name: rejected_shops rejected_shops_founder_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.rejected_shops
+    ADD CONSTRAINT rejected_shops_founder_uuid_fkey FOREIGN KEY (founder_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: shop_edits shop_edits_editor_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_edits
+    ADD CONSTRAINT shop_edits_editor_uuid_fkey FOREIGN KEY (editor_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: shop_edits shop_edits_reviewed_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_edits
+    ADD CONSTRAINT shop_edits_reviewed_by_fkey FOREIGN KEY (reviewed_by) REFERENCES public.users(uuid);
+
+
+--
+-- Name: shop_edits shop_edits_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_edits
+    ADD CONSTRAINT shop_edits_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
 -- Name: shop_images shop_images_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.shop_images
     ADD CONSTRAINT shop_images_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shop_locations shop_locations_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_locations
+    ADD CONSTRAINT shop_locations_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shop_reviews shop_reviews_shop_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_reviews
+    ADD CONSTRAINT shop_reviews_shop_id_fkey FOREIGN KEY (shop_id) REFERENCES public.shops(id) ON DELETE CASCADE;
+
+
+--
+-- Name: shop_reviews shop_reviews_user_uuid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.shop_reviews
+    ADD CONSTRAINT shop_reviews_user_uuid_fkey FOREIGN KEY (user_uuid) REFERENCES public.users(uuid) ON DELETE CASCADE;
 
 
 --
