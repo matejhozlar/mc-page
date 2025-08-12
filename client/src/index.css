@@ -110,7 +110,7 @@ body {
   line-height: 1.5;
   font-size: 16px;
   max-width: 100%;
-  cursor: url("./assets/cursors/sword.cur") 0 0, auto;
+  cursor: url("./assets/cursors/sword.cur") 0 0, auto !important;
 }
 
 /* GLOBAL DARK SCROLLBARS */
