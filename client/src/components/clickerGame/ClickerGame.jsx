@@ -19,6 +19,7 @@ import { SMELTING_RECIPES } from "./data/furnaceData";
 // components
 import Tooltip from "./Tooltip";
 import LoadingSpinner from "../LoadingSpinner";
+import SaveStatus from "./SaveStatus";
 
 const ClickerGame = () => {
   const canvasRef = useRef(null);
@@ -64,8 +65,76 @@ const ClickerGame = () => {
   const [crateFinalIndex, setCrateFinalIndex] = useState(null);
   const [isMobileBlocked, setIsMobileBlocked] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const lastSentRef = useRef(null);
+  const savingRef = useRef(false);
+  const pendingRef = useRef(false);
 
   const ignoreClickRef = useRef(false);
+
+  const getPayload = useCallback(
+    () => ({
+      points,
+      tool,
+      inventory,
+      materials,
+      auto_click_level: autoClickLevel,
+      furnace_level: furnaceLevel,
+      coal_reserve: coalReserve,
+      smelting_queue: smeltingQueue,
+      smelt_amounts: smeltAmounts,
+      offline_earnings_level: offlineEarningsLevel,
+    }),
+    [
+      points,
+      tool,
+      inventory,
+      materials,
+      autoClickLevel,
+      furnaceLevel,
+      coalReserve,
+      smeltingQueue,
+      smeltAmounts,
+      offlineEarningsLevel,
+    ]
+  );
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const schedule = () => {
+      if (savingRef.current) {
+        pendingRef.current = true;
+        return;
+      }
+      const payload = getPayload();
+
+      const body = JSON.stringify(payload);
+      if (body === lastSentRef.current) return;
+
+      savingRef.current = true;
+      fetch("/api/game-data", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body,
+      })
+        .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
+        .then(() => {
+          lastSentRef.current = body;
+        })
+        .catch(() => {})
+        .finally(() => {
+          savingRef.current = false;
+          if (pendingRef.current) {
+            pendingRef.current = false;
+            schedule();
+          }
+        });
+    };
+
+    const t = setTimeout(schedule, 3000);
+    return () => clearTimeout(t);
+  }, [getPayload, hydrated]);
 
   useEffect(() => {
     const checkSize = () => {
@@ -251,6 +320,7 @@ const ClickerGame = () => {
         if (data.offline_smelted && Object.keys(data.offline_smelted).length) {
           setOfflineSmelted(data.offline_smelted);
         }
+        setHydrated(true);
       });
   }, [user]);
 
@@ -939,99 +1009,16 @@ const ClickerGame = () => {
     }));
   };
 
-  const saveProgress = useCallback(
-    (override = null) => {
-      if (!user) return;
-
-      const payload = override || {
-        points,
-        tool,
-        inventory,
-        materials,
-        auto_click_level: autoClickLevel,
-        furnace_level: furnaceLevel,
-        coal_reserve: coalReserve,
-        smelting_queue: smeltingQueue,
-        smelt_amounts: smeltAmounts,
-        offline_earnings_level: offlineEarningsLevel,
-      };
-
-      fetch("/api/game-data", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error("Save failed");
-          return res.json();
-        })
-        .then((json) => {
-          if (!json.success) console.warn("Server rejected save:", json);
-        })
-        .catch((err) => {
-          console.error("Failed to save progress", err);
-        });
-    },
-    [
-      user,
-      points,
-      tool,
-      inventory,
-      materials,
-      autoClickLevel,
-      furnaceLevel,
-      coalReserve,
-      smeltingQueue,
-      smeltAmounts,
-      offlineEarningsLevel,
-    ]
-  );
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      saveProgress();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [saveProgress]);
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      const payload = JSON.stringify({
-        points,
-        tool,
-        inventory,
-        materials,
-        auto_click_level: autoClickLevel,
-        furnace_level: furnaceLevel,
-        coal_reserve: coalReserve,
-        smelting_queue: smeltingQueue,
-        smelt_amounts: smeltAmounts,
-        offline_earnings_level: offlineEarningsLevel,
-      });
-
-      const blob = new Blob([payload], { type: "application/json" });
-      navigator.sendBeacon("/api/game-data", blob);
-      navigator.sendBeacon("/api/game-logout");
+    const onPageHide = () => {
+      try {
+        navigator.sendBeacon("/api/game-logout");
+        // eslint-disable-next-line no-empty
+      } catch {}
     };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [
-    points,
-    tool,
-    inventory,
-    materials,
-    autoClickLevel,
-    furnaceLevel,
-    coalReserve,
-    smeltingQueue,
-    smeltAmounts,
-    offlineEarningsLevel,
-  ]);
+    window.addEventListener("pagehide", onPageHide);
+    return () => window.removeEventListener("pagehide", onPageHide);
+  }, []);
 
   if (!checked || (allowed && !user)) {
     return (
@@ -1441,7 +1428,24 @@ const ClickerGame = () => {
           {/* Status Bar */}
           <div className={styles["status-bar"]}>
             <span>Points: {points}</span>
-            <span>Current Tool: {tool}</span>
+
+            <div style={{ marginLeft: "auto" }}>
+              <SaveStatus
+                disabled={!hydrated}
+                buildPayload={() => ({
+                  points,
+                  tool,
+                  inventory,
+                  materials,
+                  auto_click_level: autoClickLevel,
+                  furnace_level: furnaceLevel,
+                  coal_reserve: coalReserve,
+                  smelting_queue: smeltingQueue,
+                  smelt_amounts: smeltAmounts,
+                  offline_earnings_level: offlineEarningsLevel,
+                })}
+              />
+            </div>
           </div>
 
           {/* Canvas & Drop Popup */}
