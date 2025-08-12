@@ -757,7 +757,7 @@ export default function adminRoutes(db, clientBot) {
         [edit.editor_uuid]
       );
 
-      const fee = 100;
+      const fee = 20;
 
       await client.query(
         `UPDATE company_edits
@@ -1307,7 +1307,7 @@ export default function adminRoutes(db, clientBot) {
         [edit.editor_uuid]
       );
 
-      const fee = 100;
+      const fee = 20;
 
       await client.query(
         `UPDATE shop_edits

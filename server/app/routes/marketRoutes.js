@@ -1563,7 +1563,7 @@ export default function marketRoutes(db, clientBot) {
         return res.status(403).json({ error: "Insufficient permissions" });
       }
 
-      const fee = Number(edit.fee_required ?? 0) || 100;
+      const fee = Number(edit.fee_required ?? 0) || 20;
 
       const {
         rows: [funds],
