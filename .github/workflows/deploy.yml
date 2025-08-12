@@ -53,7 +53,8 @@ jobs:
           /services/logs/
           /stats
           /tmp
-          /discord/disabled/
+          /uploads
+          /ignore
           EOF
 
       - name: Push to other Repo
