@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
+import { Client, GatewayIntentBits, EmbedBuilder, time } from "discord.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -7,7 +7,25 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { CLIENT_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
+const { DISCORD_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
+
+const announcement = {
+  title: "🔧 Server Maintenance",
+  description:
+    "We’re rolling out a modpack and server update to improve stability, performance and add new mods",
+  startsAt: new Date("2025-06-22T17:00:00+02:00"),
+  estimatedMinutes: 120,
+};
+
+function formatRelativeTime(date) {
+  const timestamp = Math.floor(date.getTime() / 1000);
+  return `<t:${timestamp}:R>`;
+}
+
+function formatExactTime(date) {
+  const timestamp = Math.floor(date.getTime() / 1000);
+  return `<t:${timestamp}:f>`;
+}
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
@@ -16,49 +34,36 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(
       DISCORD_ANNOUNCEMENT_CHANNEL_ID
     );
+    const endTime = new Date(
+      announcement.startsAt.getTime() + announcement.estimatedMinutes * 60000
+    );
 
     const embed = new EmbedBuilder()
-      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.4 Modpack Update")
-      .setColor(0x00b0f4)
-      .setDescription(
-        "A new version of the modpack is now available! Please update to **v0.1.4** to receive the latest improvements, fixes, and features."
-      )
+      .setTitle(announcement.title)
+      .setColor(0x57f287)
+      .setDescription(announcement.description)
       .addFields(
         {
-          name: "⚙️ NeoForge Updated",
-          value:
-            "The NeoForge loader has been updated from **21.1.194** to **21.1.197** for improved stability and mod compatibility.",
+          name: "🕒 Starts",
+          value: `${formatExactTime(
+            announcement.startsAt
+          )} (${formatRelativeTime(announcement.startsAt)})`,
         },
         {
-          name: "🆕 New Mods",
-          value: [
-            "- Sophisticated Storage",
-            "- Sophisticated Storage Create Integration",
-            "- Create: Blocks & Bogies",
-            "- Delivery Director",
-            "- Athena (Library)",
-            "- AFKStatus",
-            "- Chipped",
-            "- Caelus API",
-            "- Elytra slot (Curious)",
-          ].join("\n"),
+          name: "⏳ Estimated Duration",
+          value: `${announcement.estimatedMinutes} minutes`,
         },
         {
-          name: "⬆️ Updated Mods",
-          value: "- Createrington Currency (bug & config fixes)",
-        },
-        {
-          name: "📢 Reminder",
-          value:
-            "Please update the modpack to the latest version.\nIf you encounter any issues or bugs, let the team know immediately!",
+          name: "🔚 Expected End",
+          value: `${formatExactTime(endTime)} (${formatRelativeTime(endTime)})`,
         }
       )
-      .setFooter({ text: "Thanks for playing on Createrington!" })
+      .setFooter({ text: "Thanks for your patience!" })
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 Update announcement sent!");
-  } catch (err) {
+    console.log("📣 Announcement sent!");
+  } catch (error) {
     console.error("❌ Failed to send announcement:", err);
   } finally {
     client.destroy();
@@ -66,4 +71,4 @@ client.once("ready", async () => {
   }
 });
 
-client.login(CLIENT_BOT_TOKEN);
+client.login(DISCORD_BOT_TOKEN);
