@@ -1,17 +1,14 @@
 import React from "react";
 import styles from "./css/games.module.css";
+import { NavLink } from "react-router-dom";
 
 function Games() {
   return (
     <div className={styles.gamesWrapper}>
       <div className={styles.gameCard}>
-        <a
-          href="https://create-rington.com/game"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <NavLink to="/game">
           <button className={styles.gameButton}>🎮 Play Clicker Game</button>
-        </a>
+        </NavLink>
       </div>
       <div className={styles.gameCard}>
         <button className={styles.gameButton} disabled>
