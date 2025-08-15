@@ -18,49 +18,25 @@ client.once("ready", async () => {
     );
 
     const embed = new EmbedBuilder()
-      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.2 Modpack Update")
+      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.5 Modpack Update")
       .setColor(0x00b0f4)
       .setDescription(
-        "A new version of the modpack is now available! Please update to **v0.1.2** to receive the latest improvements, fixes, and features."
+        "A new version of the modpack is now available! Please update to **v0.1.5** to receive the latest improvements, fixes, and features."
       )
       .addFields(
         {
-          name: "💰 Createrington Currency Mod",
-          value: [
-            "- Fixed an issue where player data would become invalid when rejoining singleplayer worlds.",
-            "- Introduced the new **/vote** command.",
-          ].join("\n"),
-        },
-        {
-          name: "🗳️ Voting Revamp",
-          value: [
-            "Voting from within Minecraft has been reworked.",
-            "",
-            "New Syntax:",
-            "```",
-            "/vote <input>",
-            "  - day      Start a vote to set the time to day",
-            "  - night    Start a vote to set the time to night",
-            "  - rain     Start a vote to set rain",
-            "  - thunder  Start a vote to set thunder",
-            "  - clear    Start a vote to clear the weather",
-            "```",
-          ].join("\n"),
-        },
-        {
           name: "⬆️ Updated Mods",
-          value: [
-            "- Stam1o Tweaks",
-            "- Createrington Currency",
-            "- Discord Integration",
-          ].join("\n"),
+          value: ["- AFKStatus"].join("\n"),
         },
         {
           name: "🆕 New Mods",
           value: [
-            "- Prone",
-            "- MrCrayfish Furniture Mod (Refurbished)",
-            "- Framework (Library)",
+            "- Create: Ender Link",
+            "- Create: GnKinetics",
+            "- Create: Sophisticated Backpacks Integration",
+            "- Double Doors",
+            "- Observable",
+            "- Measurements",
           ].join("\n"),
         },
         {
