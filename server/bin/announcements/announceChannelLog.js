@@ -25,6 +25,11 @@ client.once("ready", async () => {
       )
       .addFields(
         {
+          name: "💾 Web Clicker Game Update",
+          value:
+            "The web clicker game now has a **Save** button, which is more reliable than the old auto-save system. Please **use the Save button regularly** to prevent any issues with progress not being saved.",
+        },
+        {
           name: "⬆️ Updated Mods",
           value: ["- AFKStatus"].join("\n"),
         },
