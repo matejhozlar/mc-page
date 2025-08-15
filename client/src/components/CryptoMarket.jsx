@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import MarketLoginButton from "./CryptoMarketLoginButton.jsx";
 
 // components
@@ -25,6 +25,8 @@ function CryptoMarket() {
   const [portfolioHistory, setPortfolioHistory] = useState([]);
   const [portfolioRange, setPortfolioRange] = useState("7d");
   const [animatedBalance, setAnimatedBalance] = useState(0);
+  const [animatedTokensOwned, setAnimatedTokensOwned] = useState(0);
+  const [animatedNetWorth, setAnimatedNetWorth] = useState(0);
 
   useTokenUpdates(setTokens);
 
@@ -40,7 +42,11 @@ function CryptoMarket() {
       const tokensData = await tokensRes.json();
       const userTokens = await userTokensRes.json();
 
-      setProfile({ ...profileData, tokens: userTokens });
+      setProfile((prev) => ({
+        ...(prev ?? {}),
+        ...profileData,
+        tokens: userTokens,
+      }));
       setTokens(tokensData);
     } catch (err) {
       console.error("❌ Failed to refresh data:", err);
@@ -62,6 +68,28 @@ function CryptoMarket() {
     }
   };
 
+  const tokensOwned = useMemo(
+    () => Number(calculateOwnedTokenCount(profile?.tokens || [])),
+    [profile?.tokens]
+  );
+
+  const netWorthTarget = useMemo(() => {
+    const portfolio = (profile?.tokens || []).reduce((sum, ut) => {
+      const mt = tokens.find((t) => t.id === ut.token_id);
+      const amt = Number(ut.amount) || 0;
+      const ppu = Number(mt?.price_per_unit) || 0;
+      return sum + amt * ppu;
+    }, 0);
+    const bal = Number(profile?.balance ?? 0);
+    return Number((portfolio + bal).toFixed(2));
+  }, [profile?.tokens, tokens, profile?.balance]);
+
+  useEffect(() => {
+    setAnimatedNetWorth(0);
+    const id = requestAnimationFrame(() => setAnimatedNetWorth(netWorthTarget));
+    return () => cancelAnimationFrame(id);
+  }, [netWorthTarget]);
+
   useEffect(() => {
     fetch("/api/user/validate", { credentials: "include" })
       .then((res) => res.json())
@@ -71,33 +99,34 @@ function CryptoMarket() {
   }, []);
 
   useEffect(() => {
-    if (profile?.balance) {
-      setAnimatedBalance(Number(profile.balance));
-    }
+    setAnimatedBalance(0);
+    const id = requestAnimationFrame(() => {
+      setAnimatedBalance(Number(profile?.balance ?? 0));
+    });
+    return () => cancelAnimationFrame(id);
   }, [profile?.balance]);
 
   useEffect(() => {
+    setAnimatedTokensOwned(0);
+    const id = requestAnimationFrame(() =>
+      setAnimatedTokensOwned(tokensOwned || 0)
+    );
+    return () => cancelAnimationFrame(id);
+  }, [tokensOwned]);
+
+  useEffect(() => {
     if (!isLoggedIn) return;
-
-    fetch("/api/user/full-profile", { credentials: "include" })
-      .then((res) => res.json())
-      .then(setProfile);
-
-    fetch("/api/crypto/tokens", { credentials: "include" })
-      .then((res) => res.json())
-      .then(setTokens);
-
-    fetch("/api/crypto/user-tokens", { credentials: "include" })
-      .then((res) => res.json())
-      .then((data) => setProfile((prev) => ({ ...prev, tokens: data })));
-
-    fetchTransactionHistory();
+    (async () => {
+      await fetchFreshData();
+      await fetchTransactionHistory();
+    })();
   }, [isLoggedIn]);
 
   useEffect(() => {
+    if (!isLoggedIn) return;
     const interval = setInterval(fetchTransactionHistory, 30000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isLoggedIn]);
 
   const fetchPortfolioHistory = async (range = "7d") => {
     try {
@@ -121,16 +150,11 @@ function CryptoMarket() {
     return userTokens
       .reduce((sum, ut) => {
         const marketToken = marketTokens.find((mt) => mt.id === ut.token_id);
-        return sum + (marketToken?.price_per_unit || 0) * ut.amount;
+        const amt = Number(ut.amount) || 0;
+        const ppu = Number(marketToken?.price_per_unit) || 0;
+        return sum + ppu * amt;
       }, 0)
       .toFixed(2);
-  }
-
-  function calculateTotalValue(profile = {}, marketTokens = []) {
-    const portfolio = parseFloat(
-      calculatePortfolioValue(profile.tokens ?? [], marketTokens)
-    );
-    return (portfolio + parseFloat(profile.balance || 0)).toFixed(2);
   }
 
   function calculateOwnedTokenCount(userTokens = []) {
@@ -221,9 +245,7 @@ function CryptoMarket() {
                 <div className="balance-card-glow" />
                 <h2>
                   $
-                  <AnimatedNumber
-                    value={Number(calculateTotalValue(profile, tokens))}
-                  />
+                  <AnimatedNumber value={animatedNetWorth} />
                 </h2>
                 <p>Total Net-Worth</p>
               </div>
@@ -241,7 +263,7 @@ function CryptoMarket() {
                 <div className="crypto-card balance-card">
                   <h2>
                     <AnimatedNumber
-                      value={Number(calculateOwnedTokenCount(profile.tokens))}
+                      value={animatedTokensOwned}
                       format={(val) =>
                         Number(val).toLocaleString(undefined, {
                           minimumFractionDigits: 0,
@@ -549,18 +571,6 @@ function CryptoMarket() {
               )}
             </div>
           </section>
-        )}
-        {selectedToken && (
-          <TokenModal
-            token={selectedToken}
-            ownedAmount={selectedToken.ownedAmount}
-            purchasePrice={selectedToken.purchasePrice}
-            profileBalance={profile.balance}
-            onClose={async () => {
-              setSelectedToken(null);
-              await fetchFreshData();
-            }}
-          />
         )}
       </div>
     </>
