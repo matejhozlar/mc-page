@@ -3,6 +3,7 @@ import { FaDiscord, FaGlobe } from "react-icons/fa";
 import { usePlayers } from "./utils/usePlayers.js";
 import { marked } from "marked";
 import socket from "../socket/socket.js";
+import "./css/AdminChat.css";
 const STEVE_UUID = "8667ba71b85a4004af54457a9734eed7";
 
 const AdminServerChat = () => {
