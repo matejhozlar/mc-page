@@ -7,12 +7,9 @@ export default function verifyTokenRoute(db) {
   // --- /api/verify-token ---
   router.post("/verify-token", async (req, res) => {
     const { token } = req.body;
-    const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
     if (!token) {
-      logger.warn(
-        `⚠️ Token verification attempt with missing token from ${ip}`
-      );
+      logger.warn(`⚠️ Token verification attempt with missing token`);
       return res.status(400).json({ success: false, error: "Missing token" });
     }
 
@@ -24,7 +21,7 @@ export default function verifyTokenRoute(db) {
       );
 
       if (result.rows.length === 0) {
-        logger.warn(`⛔ Invalid or expired token attempt from ${ip}`);
+        logger.warn(`⛔ Invalid or expired token attempt`);
         return res
           .status(401)
           .json({ success: false, error: "Token expired or invalid" });
@@ -32,7 +29,7 @@ export default function verifyTokenRoute(db) {
 
       const user = result.rows[0];
       logger.info(
-        `✅ Token verified for Discord user: ${user.discord_name} (${user.discord_id}) from ${ip}`
+        `✅ Token verified for Discord user: ${user.discord_name} (${user.discord_id})`
       );
 
       return res.json({
@@ -43,7 +40,7 @@ export default function verifyTokenRoute(db) {
         },
       });
     } catch (error) {
-      logger.error(`❌ Token verification failed from ${ip}: ${error}`);
+      logger.error(`❌ Token verification failed: ${error}`);
       return res
         .status(500)
         .json({ success: false, error: "Internal server error" });
