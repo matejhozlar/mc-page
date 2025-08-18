@@ -5,6 +5,7 @@ import playersRoutes from "../app/routes/players.js";
 import { status as mcStatus } from "minecraft-server-util";
 import { status as mockStatus } from "minecraft-server-util";
 import cookieParser from "cookie-parser";
+import { unsignedAsSigned } from "./cookies.settings.js";
 
 vi.mock("../logger.js", () => ({
   default: {
@@ -78,6 +79,7 @@ describe("GET /api/players", () => {
 
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
     app.use("/api", playersRoutes(db, serverIP, serverPort));
   });
 

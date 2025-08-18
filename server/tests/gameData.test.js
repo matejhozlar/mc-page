@@ -3,6 +3,7 @@ import request from "supertest";
 import express from "express";
 import cookieParser from "cookie-parser";
 import gameRoutes from "../app/routes/gameData.js";
+import { unsignedAsSigned } from "./cookies.settings.js";
 
 vi.mock("../logger.js", () => ({
   default: {
@@ -23,6 +24,7 @@ describe("GET /game-data", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
     app.use("/api", gameRoutes(db));
   });
 
@@ -118,6 +120,7 @@ describe("POST /api/game-data", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
     app.use(express.json());
     app.use("/api", gameRoutes(db));
   });
@@ -188,6 +191,7 @@ describe("POST /api/game-logout", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
     app.use("/api", gameRoutes(db));
   });
 

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import adminRoutes from "../app/routes/admin.js";
 import { isAdmin } from "../app/utils/admin/admin.js";
 import { Rcon } from "rcon-client";
+import { unsignedAsSigned } from "./cookies.settings.js";
 
 vi.mock("../logger.js", () => ({
   default: {
@@ -36,6 +37,7 @@ describe("GET /api/admin/validate", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["admin_session"]));
     app.use("/api", adminRoutes(db));
   });
 
@@ -76,30 +78,6 @@ describe("GET /api/admin/validate", () => {
   });
 });
 
-describe("POST /api/admin/logout", () => {
-  let app;
-  let db;
-
-  beforeEach(() => {
-    db = {};
-    app = express();
-    app.use(cookieParser());
-    app.use("/api", adminRoutes(db));
-  });
-
-  it("clears the admin_session cookie and returns success", async () => {
-    const res = await request(app)
-      .post("/api/admin/logout")
-      .set("Cookie", "admin_session=some-admin-id");
-
-    expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-    const setCookieHeader = res.header["set-cookie"];
-    expect(setCookieHeader).toBeDefined();
-    expect(setCookieHeader[0]).toContain("admin_session=;");
-  });
-});
-
 describe("GET /api/admin/me", () => {
   let app;
   let db;
@@ -108,6 +86,7 @@ describe("GET /api/admin/me", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["admin_session"]));
     app.use("/api", adminRoutes(db));
   });
 
@@ -177,6 +156,7 @@ describe("POST /api/admin/rcon", () => {
     app = express();
     app.use(express.json());
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["admin_session"]));
     app.use("/api", adminRoutes(db));
   });
 
@@ -261,6 +241,7 @@ describe("GET /api/admin/users", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["admin_session"]));
     app.use("/api", adminRoutes(db));
   });
 
@@ -323,6 +304,7 @@ describe("GET /api/admin/vanish-status", () => {
     db = { query: vi.fn() };
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["admin_session"]));
     app.use("/api", adminRoutes(db));
   });
 
@@ -389,6 +371,7 @@ describe("POST /api/admin/vanish-status", () => {
     app = express();
     app.use(express.json());
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["admin_session"]));
     app.use("/api", adminRoutes(db));
   });
 

@@ -4,6 +4,7 @@ import request from "supertest";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import { DateTime } from "luxon";
+import { unsignedAsSigned } from "./cookies.settings.js";
 
 // Fix secret for test
 const JWT_SECRET = process.env.JWT_SECRET || "test-secret";
@@ -81,6 +82,7 @@ beforeEach(() => {
   app = express();
   app.use(express.json());
   app.use(cookieParser());
+  app.use(unsignedAsSigned(["user_session"]));
 
   app.use("/api", currencyRoutes(db, webBot, io));
 });

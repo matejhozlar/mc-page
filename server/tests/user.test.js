@@ -3,6 +3,7 @@ import request from "supertest";
 import express from "express";
 import cookieParser from "cookie-parser";
 import playersRoutes from "../app/routes/user.js";
+import { unsignedAsSigned } from "./cookies.settings.js";
 
 vi.mock("../logger.js", () => ({
   default: {
@@ -27,6 +28,7 @@ describe("GET /api/user/validate", () => {
 
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
     app.use("/api", playersRoutes(db));
   });
 
@@ -80,6 +82,7 @@ describe("GET /api/user/me", () => {
 
     app = express();
     app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
     app.use("/api", playersRoutes(db));
   });
 
