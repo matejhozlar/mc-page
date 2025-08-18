@@ -23,6 +23,13 @@ const admins = [
     description:
       "Once mined bedrock by accident. Now maintains order with command blocks and sarcasm.",
   },
+  {
+    name: "Agent772",
+    uuid: "3e0db446-147a-4692-87fd-c3facc4341db",
+    role: "Admin",
+    description:
+      "Claims to be good at redstone. Actually just really good at breaking it in new ways.",
+  },
 ];
 
 const bots = [
