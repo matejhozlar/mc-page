@@ -67,7 +67,6 @@ const modCategories = [
       ["Chipped", "Customize block variants for decoration."],
       ["Rechiseled", "Revamp your blocks with endless styles."],
       ["Macaw's Furniture", "Stylish home interiors made easy."],
-      ["FramedBlocks", "Custom shaped building blocks."],
       ["Macaw's Roofs", "Add angled roofs to any build."],
       ["Macaw's Doors", "Beautiful doors in all materials."],
     ],
