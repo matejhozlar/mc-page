@@ -26,7 +26,7 @@ export default function submissionRoutes(db, clientBot) {
       try {
         const rawName = (req.body.name || "").trim();
         const { description, short_description } = req.body;
-        const discord_id = req.cookies.user_session;
+        const discord_id = req.signedCookies?.user_session;
 
         if (!discord_id) {
           return res

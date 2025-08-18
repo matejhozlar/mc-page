@@ -133,7 +133,7 @@ export default function marketRoutes(db, clientBot) {
 
   // GET --- /api/market/me ---
   router.get("/market/me", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) {
       return res.status(403).json({ error: "Unauthorized" });
     }
@@ -234,7 +234,7 @@ export default function marketRoutes(db, clientBot) {
 
   // POST /api/market/companies
   router.post("/market/companies", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const { name, description } = req.body;
 
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -493,7 +493,7 @@ export default function marketRoutes(db, clientBot) {
 
   // GET --- /api/market/requests ---
   router.get("/market/requests", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
@@ -595,7 +595,7 @@ export default function marketRoutes(db, clientBot) {
 
   // DELETE /api/market/rejected-companies/:id
   router.delete("/market/rejected-companies/:id", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const companyId = parseInt(req.params.id, 10);
 
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -655,7 +655,7 @@ export default function marketRoutes(db, clientBot) {
 
   // POST /api/market/pending-companies/:id/pay
   router.post("/market/pending-companies/:id/pay", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -869,7 +869,7 @@ export default function marketRoutes(db, clientBot) {
       { name: "gallery_4" },
     ]),
     async (req, res) => {
-      const discordId = req.cookies.user_session;
+      const discordId = req.signedCookies?.user_session;
       const companyId = parseInt(req.params.id, 10);
       if (!discordId) return res.status(403).json({ error: "Unauthorized" });
       if (isNaN(companyId))
@@ -1001,7 +1001,7 @@ export default function marketRoutes(db, clientBot) {
 
   // GET /api/market/company-edits
   router.get("/market/company-edits", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
@@ -1063,7 +1063,7 @@ export default function marketRoutes(db, clientBot) {
 
   // DELETE /api/market/rejected-edits/:id
   router.delete("/market/rejected-edits/:id", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const editId = parseInt(req.params.id, 10);
 
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -1107,7 +1107,7 @@ export default function marketRoutes(db, clientBot) {
 
   // --- ROUTE: POST /api/market/company-edits/:id/pay ---
   router.post("/market/company-edits/:id/pay", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -1294,7 +1294,7 @@ export default function marketRoutes(db, clientBot) {
 
   // POST /api/market/company/:id/funds/deposit
   router.post("/market/company/:id/funds/deposit", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const companyId = parseInt(req.params.id, 10);
     const { amount } = req.body;
 
@@ -1381,7 +1381,7 @@ export default function marketRoutes(db, clientBot) {
 
   // POST /api/market/company/:id/funds/withdraw
   router.post("/market/company/:id/funds/withdraw", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const companyId = parseInt(req.params.id, 10);
     const { amount } = req.body;
 
@@ -1511,7 +1511,7 @@ export default function marketRoutes(db, clientBot) {
 
   // POST --- /api/market/shop-edits/:id/pay ---
   router.post("/market/shop-edits/:id/pay", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -1730,7 +1730,7 @@ export default function marketRoutes(db, clientBot) {
 
   // POST --- /api/market/shop/:shopId/categories ---
   router.post("/market/shop/:shopId/categories", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const shopId = parseInt(req.params.shopId, 10);
     const { name } = req.body || {};
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -1772,7 +1772,7 @@ export default function marketRoutes(db, clientBot) {
   router.patch(
     "/market/shop/:shopId/categories/:categoryId",
     async (req, res) => {
-      const discordId = req.cookies.user_session;
+      const discordId = req.signedCookies?.user_session;
       const shopId = parseInt(req.params.shopId, 10);
       const categoryId = parseInt(req.params.categoryId, 10);
       const { name } = req.body || {};
@@ -1823,7 +1823,7 @@ export default function marketRoutes(db, clientBot) {
   router.delete(
     "/market/shop/:shopId/categories/:categoryId",
     async (req, res) => {
-      const discordId = req.cookies.user_session;
+      const discordId = req.signedCookies?.user_session;
       const shopId = parseInt(req.params.shopId, 10);
       const categoryId = parseInt(req.params.categoryId, 10);
       if (!discordId) return res.status(403).json({ error: "Unauthorized" });

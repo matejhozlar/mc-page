@@ -22,7 +22,7 @@ export default function cryptoRoutes(db) {
 
   // --- /api/crypto/buy ---
   router.post("/crypto/buy", async (req, res) => {
-    const userId = req.cookies.user_session;
+    const userId = req.signedCookies?.user_session;
     const { tokenId, amount } = req.body;
 
     if (!userId) {
@@ -137,7 +137,7 @@ export default function cryptoRoutes(db) {
 
   // --- /api/crypto/user-tokens ---
   router.get("/crypto/user-tokens", async (req, res) => {
-    const userId = req.cookies.user_session;
+    const userId = req.signedCookies?.user_session;
 
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -167,7 +167,7 @@ export default function cryptoRoutes(db) {
   });
 
   router.post("/crypto/sell", async (req, res) => {
-    const userId = req.cookies.user_session;
+    const userId = req.signedCookies?.user_session;
     const { tokenId, amount } = req.body;
 
     if (!userId) {
@@ -269,7 +269,7 @@ export default function cryptoRoutes(db) {
 
   // --- /api/crypto/transaction-history ---
   router.get("/crypto/transaction-history", async (req, res) => {
-    const userId = req.cookies.user_session;
+    const userId = req.signedCookies?.user_session;
 
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
@@ -371,7 +371,7 @@ export default function cryptoRoutes(db) {
 
   // --- /api/crypto/portfolio-history ---
   router.get("/crypto/portfolio-history", async (req, res) => {
-    const userId = req.cookies.user_session;
+    const userId = req.signedCookies?.user_session;
     const range = req.query.range || "30d";
 
     if (!userId) return res.status(401).json({ error: "Unauthorized" });

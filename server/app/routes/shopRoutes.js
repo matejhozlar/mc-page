@@ -59,7 +59,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
     ]),
     async (req, res) => {
       try {
-        const discordId = req.cookies.user_session;
+        const discordId = req.signedCookies?.user_session;
         const companyId = parseInt(req.params.companyId, 10);
 
         if (!discordId)
@@ -221,7 +221,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // POST --- /api/market/pending-shops/:id/pay ---
   router.post("/market/pending-shops/:id/pay", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -373,7 +373,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // DELETE --- /api/market/rejected-shops/:id
   router.delete("/market/rejected-shops/:id", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -419,7 +419,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // GET /api/market/my-companies?role=Founder
   router.get("/market/my-companies", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     const role = (req.query.role || "Founder").trim();
@@ -542,7 +542,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
       { name: "gallery_4" },
     ]),
     async (req, res) => {
-      const discordId = req.cookies.user_session;
+      const discordId = req.signedCookies?.user_session;
       const shopId = parseInt(req.params.shopId, 10);
       if (!discordId) return res.status(403).json({ error: "Unauthorized" });
       if (isNaN(shopId))
@@ -714,7 +714,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // GET --- /api/market/shop-edits ---
   router.get("/market/shop-edits", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
@@ -775,7 +775,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // DELETE --- /api/market/rejected-shop-edits/:id ---
   router.delete("/market/rejected-shop-edits/:id", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -834,7 +834,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // POST --- /api/market/shop/:shopId/items ---
   router.post("/market/shop/:shopId/items", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const shopId = parseInt(req.params.shopId, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(shopId))
@@ -938,7 +938,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // PATCH --- /api/market/shop/:shopId/items/:itemId ---
   router.patch("/market/shop/:shopId/items/:itemId", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const shopId = parseInt(req.params.shopId, 10);
     const itemId = parseInt(req.params.itemId, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -1080,7 +1080,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // DELETE --- /api/market/shop/:shopId/items/:itemId ---
   router.delete("/market/shop/:shopId/items/:itemId", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const shopId = parseInt(req.params.shopId, 10);
     const itemId = parseInt(req.params.itemId, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -1208,7 +1208,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // PUT --- /api/market/shop/:shopId/location ---
   router.put("/market/shop/:shopId/location", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const shopId = Number(req.params.shopId);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (!Number.isFinite(shopId))
@@ -1274,7 +1274,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
   // POST --- /api/market/shop/:shopId/reviews ---
   router.post("/market/shop/:shopId/reviews", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     const shopId = parseInt(req.params.shopId, 10);
     const { rating, review } = req.body || {};
 

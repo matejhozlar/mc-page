@@ -53,6 +53,7 @@ export default function discordOAuthRoutes(db) {
         secure: true,
         sameSite: "Strict",
         maxAge: 1000 * 60 * 60 * 24,
+        signed: true,
       });
 
       logger.info(`🎉 Game session started for user: ${discordUser.username}`);
@@ -105,6 +106,7 @@ export default function discordOAuthRoutes(db) {
         secure: true,
         sameSite: "Strict",
         maxAge: 1000 * 60 * 60 * 24,
+        signed: true,
       });
 
       logger.info(`🎉 Game session started for user: ${discordUser.username}`);
@@ -162,6 +164,7 @@ export default function discordOAuthRoutes(db) {
         secure: true,
         sameSite: "Strict",
         maxAge: 1000 * 60 * 60 * 24,
+        signed: true,
       });
 
       logger.info(`🔓 Admin session started for ${user.username} (${user.id})`);
@@ -216,6 +219,7 @@ export default function discordOAuthRoutes(db) {
         secure: true,
         sameSite: "Strict",
         maxAge: 1000 * 60 * 60 * 24,
+        signed: true,
       });
 
       logger.info(

@@ -7,7 +7,7 @@ export default function gameDataRoutes(db) {
 
   // --- GET /game-data ---
   router.get("/game-data", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(401).json({ error: "Unauthorized" });
 
     const SMELTING_RECIPES = {
@@ -121,7 +121,7 @@ export default function gameDataRoutes(db) {
 
   // --- POST /game-data ---
   router.post("/game-data", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(401).json({ error: "Unauthorized" });
 
     const {
@@ -195,8 +195,10 @@ export default function gameDataRoutes(db) {
 
   // --- POST /game-logout ---
   router.post("/game-logout", async (req, res) => {
-    logger.info(`🕒 Received logout beacon for: ${req.cookies.user_session}`);
-    const discordId = req.cookies.user_session;
+    logger.info(
+      `🕒 Received logout beacon for: ${req.signedCookies?.user_session}`
+    );
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.sendStatus(401);
 
     try {
@@ -215,7 +217,7 @@ export default function gameDataRoutes(db) {
 
   // --- POST /game-reward/add-balance ---
   router.post("/game-reward/add-balance", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.status(401).json({ error: "Unauthorized" });
 
     const { amount } = req.body;

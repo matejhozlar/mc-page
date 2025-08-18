@@ -48,7 +48,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- /api/admin/validate ---
   router.get("/admin/validate", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
 
     if (!discordId) {
       logger.warn("🔍 Admin validate request without session.");
@@ -67,20 +67,21 @@ export default function adminRoutes(db, clientBot) {
 
   // --- /api/admin/logout ---
   router.post("/admin/logout", (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     logger.info(`🚪 Admin logout requested for: ${discordId || "unknown"}`);
 
     res.clearCookie("admin_session", {
       httpOnly: true,
       secure: true,
       sameSite: "Strict",
+      signed: true,
     });
     res.status(200).json({ success: true });
   });
 
   // --- /api/admin/me ---
   router.get("/admin/me", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
 
     if (!discordId) {
       logger.warn("👤 /me requested without session.");
@@ -115,7 +116,7 @@ export default function adminRoutes(db, clientBot) {
   // --- /api/admin/rcon ---
   router.post("/admin/rcon", async (req, res) => {
     const { command } = req.body;
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
 
     if (!discordId) {
       rconLogger.warn("⛔ RCON request denied: no session cookie");
@@ -170,7 +171,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- /api/admin/users ---
   router.get("/admin/users", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
 
     if (!discordId) {
       logger.warn("⛔ Attempt to access /admin/users without session cookie");
@@ -200,7 +201,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- GET /api/admin/vanish-status ---
   router.get("/admin/vanish-status", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
 
     if (!discordId) {
       logger.warn("⛔ /vanish-status requested without session.");
@@ -233,7 +234,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- POST /api/admin/vanish-status---
   router.post("/admin/vanish-status", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const { name, vanished } = req.body;
 
     if (!discordId) {
@@ -283,7 +284,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- POST /api/admin/send-invite ---
   router.post("/admin/send-invite", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const { id } = req.body;
 
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
@@ -386,7 +387,7 @@ export default function adminRoutes(db, clientBot) {
   });
 
   router.get("/admin/waitlist", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
@@ -405,7 +406,7 @@ export default function adminRoutes(db, clientBot) {
   });
 
   router.get("/admin/pending-companies/:id", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     const id = parseInt(req.params.id, 10);
@@ -446,7 +447,7 @@ export default function adminRoutes(db, clientBot) {
 
   // POST /api/admin/pending-companies/:id/approve
   router.post("/admin/pending-companies/:id/approve", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -543,7 +544,7 @@ export default function adminRoutes(db, clientBot) {
 
   // POST /api/admin/pending-companies/:id/reject
   router.post("/admin/pending-companies/:id/reject", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     const { reason } = req.body;
 
@@ -626,7 +627,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- GET /api/admin/pending-companies ---
   router.get("/admin/pending-companies", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
@@ -677,7 +678,7 @@ export default function adminRoutes(db, clientBot) {
 
   // GET /api/admin/company-edits/:id
   router.get("/admin/company-edits/:id", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     const editId = parseInt(req.params.id, 10);
@@ -720,7 +721,7 @@ export default function adminRoutes(db, clientBot) {
 
   // POST /api/admin/company-edits/:id/approve
   router.post("/admin/company-edits/:id/approve", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -806,7 +807,7 @@ export default function adminRoutes(db, clientBot) {
 
   // POST /api/admin/company-edits/:id/reject
   router.post("/admin/company-edits/:id/reject", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     const { reason } = req.body;
 
@@ -898,7 +899,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- GET /api/admin/pending-shops ---
   router.get("/admin/pending-shops", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     try {
@@ -961,7 +962,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- GET /api/admin/pending-shops/:id ---
   router.get("/admin/pending-shops/:id", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
 
     const id = parseInt(req.params.id, 10);
@@ -1008,7 +1009,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- POST /api/admin/pending-shops/:id/approve ---
   router.post("/admin/pending-shops/:id/approve", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (Number.isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -1114,7 +1115,7 @@ export default function adminRoutes(db, clientBot) {
 
   // --- POST /api/admin/pending-shops/:id/reject ---
   router.post("/admin/pending-shops/:id/reject", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     const { reason } = req.body || {};
 
@@ -1218,7 +1219,7 @@ export default function adminRoutes(db, clientBot) {
   // GET --- /api/admin/shop-edits/:id ---
   router.get("/admin/shop-edits/:id", async (req, res) => {
     const editId = parseInt(req.params.id, 10);
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(editId)) return res.status(400).json({ error: "Invalid ID" });
 
@@ -1270,7 +1271,7 @@ export default function adminRoutes(db, clientBot) {
 
   // POST /api/admin/shop-edits/:id/approve
   router.post("/admin/shop-edits/:id/approve", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     if (!discordId) return res.status(403).json({ error: "Unauthorized" });
     if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
@@ -1352,7 +1353,7 @@ export default function adminRoutes(db, clientBot) {
 
   // POST /api/admin/shop-edits/:id/reject
   router.post("/admin/shop-edits/:id/reject", async (req, res) => {
-    const discordId = req.cookies.admin_session;
+    const discordId = req.signedCookies?.admin_session;
     const id = parseInt(req.params.id, 10);
     const { reason } = req.body;
 

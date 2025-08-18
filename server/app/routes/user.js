@@ -6,7 +6,7 @@ export default function userRoutes(db) {
 
   // --- /api/user/validate ---
   router.get("/user/validate", async (req, res) => {
-    const id = req.cookies.user_session;
+    const id = req.signedCookies?.user_session;
 
     if (!id) {
       return res.status(401).json({ valid: false });
@@ -27,7 +27,7 @@ export default function userRoutes(db) {
 
   // --- /api/user/me ---
   router.get("/user/me", async (req, res) => {
-    const id = req.cookies.user_session;
+    const id = req.signedCookies?.user_session;
 
     if (!id) {
       logger.warn("👤 /user/me requested without session.");
@@ -55,7 +55,7 @@ export default function userRoutes(db) {
 
   // --- /api/user/full-profile ---
   router.get("/user/full-profile", async (req, res) => {
-    const discordId = req.cookies.user_session;
+    const discordId = req.signedCookies?.user_session;
 
     if (!discordId) {
       return res.status(403).json({ error: "Unauthorized" });
