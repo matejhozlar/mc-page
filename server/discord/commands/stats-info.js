@@ -38,7 +38,7 @@ export async function execute(interaction, db) {
     }
   }
 
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
   try {
     const res = await db.query(`
