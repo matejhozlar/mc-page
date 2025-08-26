@@ -164,7 +164,6 @@ export default function submissionRoutes(db, clientBot) {
     }
   );
 
-  // Error handler for multer issues
   router.use((err, req, res, next) => {
     if (err.code === "LIMIT_FILE_SIZE") {
       return res
