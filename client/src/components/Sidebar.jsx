@@ -265,7 +265,7 @@ const Sidebar = () => {
       {/* Footer Section */}
       <div className="sidebar-footer">
         <a
-          href="https://discord.gg/your-discord-invite-link"
+          href="https://discord.com/invite/7PAptNgqk2"
           target="_blank"
           rel="noopener noreferrer"
           className="discord-link"

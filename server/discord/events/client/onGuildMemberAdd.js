@@ -15,7 +15,7 @@ export default async function onGuilderMemberAdd(member) {
     const channel = member.guild.channels.cache.get(verifyChannelId);
     if (channel?.isTextBased()) {
       await channel.send(
-        `👋 Welcome <@${member.user.id}> to **Createrington**!\n\n🔑 **First Step:** You must verify your **access token**.\nPlease type: \`/verify <your_token>\`\n\n📬 Your token was sent to your email when you applied to join. Check your inbox (and spam folder)!\n\n⚡ **After verifying**, you can then use: \`/register <your_minecraft_username>\`\n(Example: \`/register Notch\`)\n\n⚠️ **Important:**\n- \`mc_name\` means your exact **Minecraft username** (correct spelling, capitalization doesn't matter).\n- **Fake usernames** or **wrong tokens** will block your access.\n\n🎉 We're excited to have you join us — see you in-game soon!`
+        `Welcome <@${member.user.id}> to **Createrington**!\n\n**Step 1: Verify Your Access Token**\nTo begin, please type:\n\`/verify <your_token>\`\n\nYour access token was sent to the email address you used when applying to join. If you do not see it, please check your inbox and spam folder.\n\n**Step 2: Register Your Minecraft Username**\nAfter verification, register your Minecraft username by typing:\n/register \`<your_minecraft_username>\`\n\nExample:\n\`/register Notch\`\n\n**Important Notes:**\n- \`mc_name\` must match your exact Minecraft username (spelling must be correct, capitalization does not matter).\n- Invalid usernames or incorrect tokens will prevent access.\n\nIf you have not yet applied to join, please complete your application here: [Application Link](<https://create-rington.com/apply-to-join>)\n\n🎉 We look forward to seeing you in-game soon!`
       );
     }
   } catch (error) {
