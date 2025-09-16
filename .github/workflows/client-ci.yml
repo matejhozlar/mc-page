@@ -20,6 +20,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Download and prepare assets
+        working-directory: .
+        run: |
+          set -euo pipefail
+          echo "Downloading assets.zip..."
+          curl -L "https://create-rington.com/api/download/assets?code=${{ secrets.DOWNLOAD_ACCESS_CODE }}" -o assets.zip
+
+          echo "Copying assets.zip to server/app/routes/download/"
+          mkdir -p server/app/routes/download
+          cp assets.zip server/app/routes/download/assets.zip
+
+          echo "Unzipping assets into client/src/assets for Vite"
+          mkdir -p client/src/assets
+          unzip -o assets.zip -d client/src/assets
+
+          echo "Cleaning up temporary zip..."
+          rm assets.zip
+
       - name: Use Node.js 20 with npm cache
         uses: actions/setup-node@v4
         with:
