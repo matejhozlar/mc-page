@@ -434,7 +434,7 @@ export default function Home() {
       {/* JOIN CTA */}
       <section className="join-us" data-aos="zoom-in-up">
         <h2>Ready to Create?</h2>
-        <p>Apply now to snag one of our limited spots!</p>
+        <p className="join-us-p">Apply now to snag one of our limited spots!</p>
         <div className="join-buttons">
           <NavLink
             to="/apply-to-join"
