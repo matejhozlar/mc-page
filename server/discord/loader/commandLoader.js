@@ -30,7 +30,7 @@ export async function loadCommandHandlers() {
       const isProdOnly = commandModule.prodOnly === true;
 
       if (!isValid) {
-        logger.warn(`⚠️ Skipped loading ${file} — missing data or execute()`);
+        logger.warn(`Skipped loading ${file} — missing data or execute()`);
         continue;
       }
 
@@ -41,10 +41,10 @@ export async function loadCommandHandlers() {
 
       commandHandlers.set(commandModule.data.name, commandModule);
     } catch (error) {
-      logger.error(`❌ Failed to load command ${file}: ${error}`);
+      logger.error(`Failed to load command ${file}: ${error}`);
     }
   }
 
-  logger.info(`✅ Loaded ${commandHandlers.size} Discord command(s).`);
+  logger.info(`Loaded ${commandHandlers.size} Discord command(s).`);
   return commandHandlers;
 }

@@ -103,15 +103,15 @@ export async function execute(interaction, db) {
     });
 
     announceLotteryStart(name).catch((err) =>
-      logger.error("❌ announceLotteryStart failed:", err)
+      logger.error("announceLotteryStart failed:", err)
     );
     startLotteryResolver(db).catch((err) =>
-      logger.error("❌ startLotteryResolver failed:", err)
+      logger.error("startLotteryResolver failed:", err)
     );
     LAST_LOTTERY_TIME = Date.now();
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ /lottery command failed: ${error}`);
+    logger.error(`/lottery command failed: ${error}`);
     await interaction.editReply({
       content: "⚠️ Something went wrong.",
     });

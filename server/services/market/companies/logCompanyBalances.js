@@ -13,7 +13,7 @@ export async function logCompanyBalances(db) {
     `);
 
     if (!companies.length) {
-      logger.info("📭 No companies found to log balances for.");
+      logger.info("No companies found to log balances for.");
       return;
     }
 
@@ -27,7 +27,7 @@ export async function logCompanyBalances(db) {
       );
 
       logger.info(
-        `📊 Logged balance for company ID ${company.company_id}: $${company.balance}`
+        `Logged balance for company ID ${company.company_id}: $${company.balance}`
       );
 
       await db.query(
@@ -47,6 +47,6 @@ export async function logCompanyBalances(db) {
       );
     }
   } catch (err) {
-    logger.error(`❌ Failed to log company balances: ${err.message}`);
+    logger.error(`Failed to log company balances: ${err.message}`);
   }
 }

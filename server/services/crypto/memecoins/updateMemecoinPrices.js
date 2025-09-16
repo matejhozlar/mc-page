@@ -47,7 +47,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           `UPDATE crypto_tokens SET price_per_unit = 0, crashed = NOW() WHERE id = $1`,
           [id]
         );
-        logger.info(`💀 Token ID ${id} auto-crashed due to price below $0.002`);
+        logger.info(`Token ID ${id} auto-crashed due to price below $0.002`);
 
         const {
           rows: [crashedToken],
@@ -68,11 +68,11 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           try {
             const user = await clientBot.users.fetch(alert.discord_id);
             await user.send(
-              `💀 Your alert for **${crashedToken.symbol}** has been cancelled — the token has **auto-crashed to $0**.`
+              `Your alert for **${crashedToken.symbol}** has been cancelled — the token has **auto-crashed to $0**.`
             );
           } catch (err) {
             logger.warn(
-              `⚠️ Failed to send crash alert DM to ${alert.discord_id}: ${err}`
+              `Failed to send crash alert DM to ${alert.discord_id}: ${err}`
             );
           }
         }
@@ -185,14 +185,14 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           ]);
 
           logger.info(
-            `✅ Sent alert to ${alert.discord_id} for ${alert.token_symbol}`
+            `Sent alert to ${alert.discord_id} for ${alert.token_symbol}`
           );
           await new Promise((resolve) =>
             setTimeout(resolve, ALERT_DM_DELAY_MS)
           );
         } catch (error) {
           logger.warn(
-            `⚠️ Failed to send alert DM to ${alert.discord_id}: ${error}`
+            `Failed to send alert DM to ${alert.discord_id}: ${error}`
           );
         }
       }
@@ -218,7 +218,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           [id, newPrice.toFixed(PRICE_DECIMALS)]
         );
         logger.info(
-          `🕐 Hourly snapshot added for memecoin ID ${id}: $${newPrice.toFixed(
+          `Hourly snapshot added for memecoin ID ${id}: $${newPrice.toFixed(
             PRICE_DECIMALS
           )}`
         );
@@ -236,10 +236,10 @@ export async function updateMemecoinPrices(db, clientBot, io) {
            )`,
           [id]
         );
-        logger.info(`🧹 Trimmed 20 old history entries for token ID ${id}`);
+        logger.info(`Trimmed 20 old history entries for token ID ${id}`);
       }
     }
   } catch (error) {
-    logger.error(`❌ Failed to update memecoin prices: ${error}`);
+    logger.error(`Failed to update memecoin prices: ${error}`);
   }
 }

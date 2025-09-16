@@ -1,23 +1,10 @@
-// Import RCON command sender for Minecraft server interaction
 import { sendRconCommand } from "../../../utils/rcon/sendRconCommand.js";
-
-// Shared vote state object, tracks whether a vote is active, counts, cooldowns, etc.
 import { voteState } from "./votes/voteState.js";
-
-// Prevents this logic from running in non-production environments (e.g., local dev)
 import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
-
 import logger from "../../../logger.js";
 
-// ======= Constants =======
-
-// Time voting is open: 30 seconds (30,000 ms)
 const VOTE_DURATION_MS = 30_000;
-
-// Cooldown duration after successful vote: ~9 minutes 37 seconds
 const COOLDOWN_SUCCESS_MS = 577_100;
-
-// Cooldown after failed vote: 3 minutes
 const COOLDOWN_FAIL_MS = 3 * 60_000;
 
 /**
@@ -32,54 +19,40 @@ const COOLDOWN_FAIL_MS = 3 * 60_000;
  * @returns {boolean} - Whether the vote was successfully started.
  */
 export function startVote(commandKey, voteDetails, messageChannel, io) {
-  // Ensure we're in production. If not, exit.
   if (!exitIfNotProduction()) return;
 
-  // Block starting a new vote if one is already active
   if (voteState.active) return false;
 
-  // Sanity check for missing params
   if (!commandKey || !voteDetails) {
     logger.warn(`Invalid vote command used: ${commandKey}`);
     return false;
   }
 
-  // Check if we're still within cooldown period from previous vote
   if (voteState.cooldownUntil > Date.now()) {
     return false;
   }
 
-  // ======= Begin Vote =======
-
   voteState.active = true;
   voteState.counts = { yes: 0, no: 0 };
-  voteState.voters.clear(); // Reset who has voted
+  voteState.voters.clear();
 
   const voteMsg =
     `📢 **Vote to ${voteDetails.description} started!**\n` +
     `Reply with \`1\` for **yes**, \`2\` for **no**.\n` +
     `Voting ends in ${VOTE_DURATION_MS / 1000} seconds...`;
 
-  // Send vote message to Discord
   messageChannel.send(voteMsg).catch(logger.error);
 
-  // Broadcast to connected frontend clients
   io.emit("chatMessage", { text: voteMsg, authorType: "web" });
 
-  // Set a timeout to resolve the vote after voting window closes
   voteState.timeout = setTimeout(() => {
     (async () => {
       const { yes, no } = voteState.counts;
       let resultMsg = "";
-
-      // Determine cooldown based on result
       const cooldown = no > yes ? COOLDOWN_FAIL_MS : COOLDOWN_SUCCESS_MS;
 
       try {
-        // ======= Vote Resolution Logic =======
-
         if (yes > no) {
-          // Vote passed — run RCON command
           resultMsg = `✅ Vote passed! Executing: ${voteDetails.command}`;
           await sendRconCommand(voteDetails.command);
         } else if (yes === no) {
@@ -90,18 +63,16 @@ export function startVote(commandKey, voteDetails, messageChannel, io) {
 
         const finalMsg = `📊 Vote Results\nYes: ${yes} | No: ${no}\n${resultMsg}`;
 
-        // Send results to Discord and web clients
         messageChannel.send(finalMsg).catch(logger.error);
         io.emit("chatMessage", { text: finalMsg, authorType: "web" });
       } catch (err) {
-        logger.error(`❌ Error during vote resolution: ${err}`);
+        logger.error(`Error during vote resolution: ${err}`);
       } finally {
-        // Reset state and start cooldown
         voteState.active = false;
         voteState.cooldownUntil = Date.now() + cooldown;
       }
     })();
-  }, VOTE_DURATION_MS); // 30-second vote window
+  }, VOTE_DURATION_MS);
 
   return true;
 }

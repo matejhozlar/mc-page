@@ -1,3 +1,4 @@
+import logger from "../../logger.js";
 /**
  * Finalizes playtime tracking for users with an active session.
  * - Calculates how many seconds each user has played since their last `session_start`.
@@ -43,8 +44,8 @@ export async function finalizeDailyPlaytime(db) {
       );
     }
 
-    console.log(`✅ Finalized playtime for ${rows.length} users @ 6 AM CET`);
+    logger.info(`Finalized playtime for ${rows.length} users @ 6 AM CET`);
   } catch (error) {
-    console.error(`❌ Failed to finalize daily playtime:`, error);
+    logger.error(`Failed to finalize daily playtime:`, error);
   }
 }

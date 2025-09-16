@@ -139,9 +139,7 @@ export async function generateDailyQuestsAndTokenUpdate(
 
     for (const reward of rewards) {
       if (reward.tokens > remainingSupply) {
-        logger.warn(
-          `⚠️ Skipping reward for ${reward.name}, insufficient supply.`
-        );
+        logger.warn(`Skipping reward for ${reward.name}, insufficient supply.`);
         continue;
       }
 
@@ -151,7 +149,7 @@ export async function generateDailyQuestsAndTokenUpdate(
       );
 
       if (!userRows.length) {
-        logger.warn(`⚠️ Could not find discord_id for uuid: ${reward.uuid}`);
+        logger.warn(`Could not find discord_id for uuid: ${reward.uuid}`);
         continue;
       }
 
@@ -207,9 +205,9 @@ export async function generateDailyQuestsAndTokenUpdate(
       [sentMsg.id]
     );
 
-    logger.info("✅ Daily quests and token updates complete.");
+    logger.info("Daily quests and token updates complete.");
   } catch (error) {
-    logger.error(`❌ generateDailyQuestsAndTokenUpdate failed: ${error}`);
+    logger.error(`generateDailyQuestsAndTokenUpdate failed: ${error}`);
   }
 }
 

@@ -20,45 +20,42 @@ export function setupCronJobs(db, clientBot, webBot, io) {
   try {
     scheduleReminders(webBot);
   } catch (error) {
-    logger.error("❌ Failed to scheduleReminders:", error);
+    logger.error("Failed to scheduleReminders:", error);
   }
 
   try {
     scheduleCleanupJobs(db);
   } catch (error) {
-    logger.error("❌ Failed to scheduleCleanupJobs:", error);
+    logger.error("Failed to scheduleCleanupJobs:", error);
   }
 
   try {
     schedulePriceUpdates(db, clientBot, io);
   } catch (error) {
-    logger.error("❌ Failed to schedulePriceUpdates:", error);
+    logger.error("Failed to schedulePriceUpdates:", error);
   }
 
   try {
     schedulePortfolioSnapshots(db);
   } catch (error) {
-    logger.error("❌ Failed to schedulePortfolioSnapshots:", error);
+    logger.error("Failed to schedulePortfolioSnapshots:", error);
   }
 
   try {
     scheduleQuestJobs(db, clientBot);
   } catch (error) {
-    logger.error("❌ Failed to scheduleQuestJobs:", error);
+    logger.error("Failed to scheduleQuestJobs:", error);
   }
 
   try {
     scheduleMembershipDurationRoleAssignment(db, clientBot);
   } catch (error) {
-    logger.error(
-      "❌ Failed to scheduleMembershipDurationRoleAssignment:",
-      error
-    );
+    logger.error("Failed to scheduleMembershipDurationRoleAssignment:", error);
   }
 
   try {
     scheduleCompanyUpdates(db);
   } catch (error) {
-    logger.error("❌ Failed to scheduleCompanyUpdates:", error);
+    logger.error("Failed to scheduleCompanyUpdates:", error);
   }
 }

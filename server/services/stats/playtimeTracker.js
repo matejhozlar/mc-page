@@ -114,7 +114,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
 
       if (onlinePlayers.length > 0) {
         logger.info(
-          `✅ Synced ${
+          `Synced ${
             onlinePlayers.length
           } online player(s) @ ${new Date().toISOString()}`
         );
@@ -147,7 +147,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
   )
 `);
     } catch (error) {
-      logger.error(`❌ Background playtime sync failed: ${error}`);
+      logger.error(`Background playtime sync failed: ${error}`);
     }
   }
 

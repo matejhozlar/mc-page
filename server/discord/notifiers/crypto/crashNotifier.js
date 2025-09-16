@@ -1,5 +1,6 @@
 import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
 import dotenv from "dotenv";
+import logger from "../../../logger.js";
 
 dotenv.config();
 
@@ -46,9 +47,9 @@ export async function sendCrashNotification(token) {
         .setTimestamp();
 
       await channel.send({ embeds: [embed] });
-      console.log(`📣 Crash alert sent for ${token.name} (${token.symbol})`);
-    } catch (err) {
-      console.error("❌ Failed to send crash alert:", err);
+      logger.info(`Crash alert sent for ${token.name} (${token.symbol})`);
+    } catch (error) {
+      logger.error(`Failed to send crash alert: ${error}`);
     } finally {
       client.destroy();
     }

@@ -17,10 +17,10 @@ export async function deleteCrashedMemecoins(db) {
 
     if (rowCount > 0) {
       logger.info(
-        `🧨 Deleted ${rowCount} crashed memecoin(s) older than 24 hours`
+        `Deleted ${rowCount} crashed memecoin(s) older than 24 hours`
       );
     }
   } catch (error) {
-    logger.error(`❌ Failed to delete crashed memecoins: ${error}`);
+    logger.error(`Failed to delete crashed memecoins: ${error}`);
   }
 }

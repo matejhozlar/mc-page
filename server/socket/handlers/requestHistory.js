@@ -24,7 +24,7 @@ export default async function requestHistoryHandler(socket, webBot) {
     );
 
     if (!channel?.isTextBased?.()) {
-      logger.error("❌ Channel not found or is not text-based.");
+      logger.error("Channel not found or is not text-based.");
       return;
     }
 
@@ -55,9 +55,9 @@ export default async function requestHistoryHandler(socket, webBot) {
         return { text, image, authorType };
       });
 
-    logger.info(`📨 Sending ${filtered.length} messages to client`);
+    logger.info(`Sending ${filtered.length} messages to client`);
     socket.emit("chatHistory", filtered);
   } catch (err) {
-    logger.error(`❌ Failed to fetch chat history: ${err}`);
+    logger.error(`Failed to fetch chat history: ${err}`);
   }
 }

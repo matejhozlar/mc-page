@@ -12,7 +12,7 @@ import webBot from "../../../discord/bots/webBot.js";
  * @returns {Promise<void>}
  */
 export async function startLotteryResolver(db, waitMs = 120000) {
-  logger.info("🎲 Lottery resolver started. Waiting...");
+  logger.info("Lottery resolver started. Waiting...");
 
   await sleep(waitMs);
 
@@ -25,9 +25,7 @@ export async function startLotteryResolver(db, waitMs = 120000) {
     );
 
     if (result.rowCount < 2) {
-      logger.warn(
-        "❌ Lottery cancelled (not enough participants). Refunding..."
-      );
+      logger.warn("Lottery cancelled (not enough participants). Refunding...");
       for (const p of result.rows) {
         await client.query(
           `UPDATE user_funds SET balance = balance + $1 WHERE uuid = $2`,
@@ -65,11 +63,11 @@ export async function startLotteryResolver(db, waitMs = 120000) {
 
     await client.query("COMMIT");
 
-    logger.info(`🏆 Lottery won by ${winner.name} who gets $${total}`);
+    logger.info(`Lottery won by ${winner.name} who gets $${total}`);
     await announceLotteryWinner(webBot, winner.name, total);
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ Lottery resolver failed: ${error}`);
+    logger.error(`Lottery resolver failed: ${error}`);
   } finally {
     client.release();
   }

@@ -94,13 +94,11 @@ export async function updateStableCoinPrice(
 
       const changeStr =
         delta > 0
-          ? `📈 +$${(newPrice - lastPrice).toFixed(3)} from ${delta.toFixed(
-              1
-            )}s`
-          : `📉 -$${(lastPrice - newPrice).toFixed(3)} due to inactivity`;
+          ? `+$${(newPrice - lastPrice).toFixed(3)} from ${delta.toFixed(1)}s`
+          : `-$${(lastPrice - newPrice).toFixed(3)} due to inactivity`;
 
       logger.info(
-        `💰 Price updated: $${lastPrice.toFixed(3)} → $${newPrice.toFixed(
+        `Price updated: $${lastPrice.toFixed(3)} → $${newPrice.toFixed(
           3
         )} (${changeStr})`
       );
@@ -114,10 +112,8 @@ export async function updateStableCoinPrice(
       [tokenId, price]
     );
 
-    logger.info(`✅ ${interval} snapshot saved for ${tokenSymbol} ($${price})`);
+    logger.info(`${interval} snapshot saved for ${tokenSymbol} ($${price})`);
   } catch (error) {
-    logger.error(
-      `❌ Failed to update stablecoin price (${interval}): ${error}`
-    );
+    logger.error(`Failed to update stablecoin price (${interval}): ${error}`);
   }
 }

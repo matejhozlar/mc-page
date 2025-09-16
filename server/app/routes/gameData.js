@@ -114,7 +114,7 @@ export default function gameDataRoutes(db) {
         offline_earned: data.offline_earned || null,
       });
     } catch (error) {
-      logger.error(`❌ Failed to fetch game data: ${error}`);
+      logger.error(`Failed to fetch game data: ${error}`);
       return res.status(500).json({ error: "Failed to load game data" });
     }
   });
@@ -188,7 +188,7 @@ export default function gameDataRoutes(db) {
       );
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`❌ Failed to save game data: ${error}`);
+      logger.error(`Failed to save game data: ${error}`);
       return res.status(500).json({ error: "Failed to save game data" });
     }
   });
@@ -196,7 +196,7 @@ export default function gameDataRoutes(db) {
   // --- POST /game-logout ---
   router.post("/game-logout", async (req, res) => {
     logger.info(
-      `🕒 Received logout beacon for: ${req.signedCookies?.user_session}`
+      `Received logout beacon for: ${req.signedCookies?.user_session}`
     );
     const discordId = req.signedCookies?.user_session;
     if (!discordId) return res.sendStatus(401);
@@ -235,7 +235,7 @@ export default function gameDataRoutes(db) {
 
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`❌ Failed to add reward balance: ${error}`);
+      logger.error(`Failed to add reward balance: ${error}`);
       return res.status(500).json({ error: "Failed to add balance" });
     }
   });

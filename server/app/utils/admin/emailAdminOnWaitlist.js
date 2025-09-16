@@ -51,9 +51,9 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
 
   try {
     await transporter.sendMail(mailOptions);
-    logger.info(`📧 Admin notified of new waitlist entry: ${discord_name}`);
+    logger.info(`Admin notified of new waitlist entry: ${discord_name}`);
   } catch (error) {
-    logger.error(`❌ Failed to notify admin: ${error}`);
+    logger.error(`Failed to notify admin: ${error}`);
   }
 
   try {
@@ -63,7 +63,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     );
 
     if (!channel?.isTextBased?.()) {
-      logger.warn("⚠️ Admin channel not text-based or not found.");
+      logger.warn("Admin channel not text-based or not found.");
       return;
     }
 
@@ -85,10 +85,8 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     );
 
     await channel.send({ embeds: [embed], components: [row] });
-    logger.info(
-      `📢 Discord admin channel notified of waitlist: ${discord_name}`
-    );
+    logger.info(`Discord admin channel notified of waitlist: ${discord_name}`);
   } catch (error) {
-    logger.error(`❌ Failed to send Discord notification: ${error}`);
+    logger.error(`Failed to send Discord notification: ${error}`);
   }
 }

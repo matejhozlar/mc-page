@@ -110,7 +110,7 @@ export async function execute(interaction, db) {
 
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`❌ /stats command failed: ${error}`);
+    logger.error(`/stats command failed: ${error}`);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }

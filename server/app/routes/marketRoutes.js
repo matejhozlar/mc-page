@@ -227,7 +227,7 @@ export default function marketRoutes(db, clientBot) {
         shops,
       });
     } catch (error) {
-      logger.error(`❌ /market/me error: ${error}`);
+      logger.error(`/market/me error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -271,7 +271,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.status(201).json(company);
     } catch (error) {
-      logger.error(`❌ Failed to create company: ${error}`);
+      logger.error(`Failed to create company: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -331,7 +331,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.json(company);
     } catch (error) {
-      logger.error(`❌ Failed to fetch company ${req.params.id}: ${error}`);
+      logger.error(`Failed to fetch company ${req.params.id}: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -359,7 +359,7 @@ export default function marketRoutes(db, clientBot) {
       res.json({ company_id: companyId, balance: parseFloat(row.balance) });
     } catch (error) {
       logger.error(
-        `❌ Failed to fetch balance for company ${companyId}: ${error}`
+        `Failed to fetch balance for company ${companyId}: ${error}`
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -391,7 +391,7 @@ export default function marketRoutes(db, clientBot) {
       });
     } catch (error) {
       logger.error(
-        `❌ Failed to fetch balance history for company ${companyId}: ${error}`
+        `Failed to fetch balance history for company ${companyId}: ${error}`
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -426,7 +426,7 @@ export default function marketRoutes(db, clientBot) {
       });
     } catch (error) {
       logger.error(
-        `❌ Failed to fetch members for company ${companyId}: ${error}`
+        `Failed to fetch members for company ${companyId}: ${error}`
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -457,7 +457,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.json({ companies: rows });
     } catch (error) {
-      logger.error(`❌ Failed to fetch all companies: ${error}`);
+      logger.error(`Failed to fetch all companies: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -486,7 +486,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.json({ shops: rows });
     } catch (error) {
-      logger.error(`❌ Failed to fetch all shops: ${error}`);
+      logger.error(`Failed to fetch all shops: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -588,7 +588,7 @@ export default function marketRoutes(db, clientBot) {
         rejected_shops: rejectedShops,
       });
     } catch (error) {
-      logger.error(`❌ Failed to fetch user requests: ${error}`);
+      logger.error(`Failed to fetch user requests: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -623,7 +623,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.status(200).json({ success: true });
     } catch (error) {
-      logger.error(`❌ Failed to delete rejected company: ${error}`);
+      logger.error(`Failed to delete rejected company: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -648,7 +648,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.json(rows);
     } catch (error) {
-      logger.error(`❌ Failed to fetch pending companies: ${error}`);
+      logger.error(`Failed to fetch pending companies: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -811,9 +811,7 @@ export default function marketRoutes(db, clientBot) {
               process.env.DISCORD_COMPANIES_CHANNEL_ID
             );
             if (!channel?.isTextBased?.()) {
-              logger.warn(
-                "⚠️ Companies channel is not text-based or not found."
-              );
+              logger.warn("Companies channel is not text-based or not found.");
               return;
             }
 
@@ -838,10 +836,10 @@ export default function marketRoutes(db, clientBot) {
 
             await channel.send({ embeds: [embed] });
             logger.info(
-              `📢 Posted new company to Discord: ${pending.name} (${pending.id})`
+              `Posted new company to Discord: ${pending.name} (${pending.id})`
             );
           } catch (err) {
-            logger.warn(`⚠️ Failed to post new company embed: ${err}`);
+            logger.warn(`Failed to post new company embed: ${err}`);
           }
         })();
       });
@@ -849,7 +847,7 @@ export default function marketRoutes(db, clientBot) {
       return res.json({ success: true, company_id: pending.id });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Pay & finalize error: ${error}`);
+      logger.error(`Pay & finalize error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -984,7 +982,7 @@ export default function marketRoutes(db, clientBot) {
             );
           } catch (error) {
             logger.error(
-              `❌ Failed to notify admins about company edit ${companyId}: ${error}`
+              `Failed to notify admins about company edit ${companyId}: ${error}`
             );
           }
         });
@@ -992,7 +990,7 @@ export default function marketRoutes(db, clientBot) {
         return res.status(201).json({ success: true, edit_id: editRow.id });
       } catch (error) {
         logger.error(
-          `❌ Failed to create company edit for ${companyId}: ${error}`
+          `Failed to create company edit for ${companyId}: ${error}`
         );
         return res.status(500).json({ error: "Internal server error" });
       }
@@ -1056,7 +1054,7 @@ export default function marketRoutes(db, clientBot) {
         approved_edits: tag(approvedEdits),
       });
     } catch (error) {
-      logger.error(`❌ Failed to fetch company edits: ${error}`);
+      logger.error(`Failed to fetch company edits: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1100,7 +1098,7 @@ export default function marketRoutes(db, clientBot) {
 
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`❌ Failed to delete rejected edit ${editId}: ${error}`);
+      logger.error(`Failed to delete rejected edit ${editId}: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1285,7 +1283,7 @@ export default function marketRoutes(db, clientBot) {
       return res.json({ success: true, company_id: edit.company_id });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Pay & apply edit error: ${error}`);
+      logger.error(`Pay & apply edit error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1372,7 +1370,7 @@ export default function marketRoutes(db, clientBot) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Deposit error: ${error}`);
+      logger.error(`Deposit error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1464,7 +1462,7 @@ export default function marketRoutes(db, clientBot) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ Withdraw error: ${error}`);
+      logger.error(`Withdraw error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1504,7 +1502,7 @@ export default function marketRoutes(db, clientBot) {
 
       res.json({ shops: rows });
     } catch (error) {
-      logger.error(`❌ Failed to fetch company ${companyId} shops: ${error}`);
+      logger.error(`Failed to fetch company ${companyId} shops: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1701,7 +1699,7 @@ export default function marketRoutes(db, clientBot) {
       return res.json({ success: true, status: "approved" });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`❌ /market/shop-edits/${id}/pay error: ${error}`);
+      logger.error(`/market/shop-edits/${id}/pay error: ${error}`);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1723,7 +1721,7 @@ export default function marketRoutes(db, clientBot) {
       );
       res.json({ categories: rows });
     } catch (e) {
-      logger.error(`❌ categories list for shop ${shopId}: ${e}`);
+      logger.error(`categories list for shop ${shopId}: ${e}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1763,7 +1761,7 @@ export default function marketRoutes(db, clientBot) {
         return res.status(409).json({ error: "Category already exists" });
       res.status(201).json({ category: row });
     } catch (e) {
-      logger.error(`❌ create category shop ${shopId}: ${e}`);
+      logger.error(`create category shop ${shopId}: ${e}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1813,7 +1811,7 @@ export default function marketRoutes(db, clientBot) {
         );
         res.json({ category: row });
       } catch (e) {
-        logger.error(`❌ rename category ${categoryId} shop ${shopId}: ${e}`);
+        logger.error(`rename category ${categoryId} shop ${shopId}: ${e}`);
         res.status(500).json({ error: "Internal server error" });
       }
     }
@@ -1864,7 +1862,7 @@ export default function marketRoutes(db, clientBot) {
         await db.query(`DELETE FROM item_categories WHERE id=$1`, [categoryId]);
         res.json({ success: true });
       } catch (e) {
-        logger.error(`❌ delete category ${categoryId} shop ${shopId}: ${e}`);
+        logger.error(`delete category ${categoryId} shop ${shopId}: ${e}`);
         res.status(500).json({ error: "Internal server error" });
       }
     }

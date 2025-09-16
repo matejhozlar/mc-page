@@ -106,7 +106,7 @@ export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
       await member.roles.add(targetTier.id).catch(logger.error);
 
       logger.info(
-        `✅ Assigned ${targetTier.name} role to ${
+        `Assigned ${targetTier.name} role to ${
           user.name
         } (${playtimeHours.toFixed(1)}h)`
       );
@@ -125,6 +125,6 @@ export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
       }
     }
   } catch (error) {
-    logger.error(`❌ Error assigning playtime roles: ${error}`);
+    logger.error(`Error assigning playtime roles: ${error}`);
   }
 }

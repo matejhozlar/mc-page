@@ -37,7 +37,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /money command failed: ${error}`);
+    logger.error(`/money command failed: ${error}`);
     return await interaction.reply({
       content:
         "⚠️ Something went wrong while fetching your balance. Please try again later.",

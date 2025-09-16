@@ -79,9 +79,9 @@ async function importStatsFromFile(uuid, filePath, db) {
       }
     }
 
-    logger.info(`✅ Imported stats for UUID: ${uuid}`);
+    logger.info(`Imported stats for UUID: ${uuid}`);
   } catch (error) {
-    logger.error(`❌ Failed to import for ${uuid}: ${error}`);
+    logger.error(`Failed to import for ${uuid}: ${error}`);
   }
 }
 
@@ -94,14 +94,14 @@ async function importStatsFromFile(uuid, filePath, db) {
 export async function syncAndImportStats(db) {
   const start = Date.now();
   try {
-    logger.info("🔄 Connecting to SFTP for stats sync...");
+    logger.info("Connecting to SFTP for stats sync...");
     await sftp.connect({
       host: process.env.SFTP_HOST,
       port: +process.env.SFTP_PORT,
       username: process.env.SFTP_USER,
       password: process.env.SFTP_PASS,
     });
-    logger.info(`📡 Connected to SFTP in ${Date.now() - start}ms`);
+    logger.info(`Connected to SFTP in ${Date.now() - start}ms`);
 
     if (!fs.existsSync(localDir)) fs.mkdirSync(localDir, { recursive: true });
 
@@ -121,7 +121,7 @@ export async function syncAndImportStats(db) {
       downloaded++;
     }
 
-    logger.info(`✅ Downloaded ${downloaded} updated stat file(s).`);
+    logger.info(`Downloaded ${downloaded} updated stat file(s).`);
 
     const statFiles = fs
       .readdirSync(localDir)
@@ -132,15 +132,15 @@ export async function syncAndImportStats(db) {
       await importStatsFromFile(uuid, fullPath, db);
     }
 
-    logger.info("📊 Stat import complete.");
+    logger.info("Stat import complete.");
   } catch (error) {
-    logger.error(`❌ syncAndImportStats failed: ${error}`);
+    logger.error(`syncAndImportStats failed: ${error}`);
   } finally {
     try {
       sftp.end();
-      logger.info("🔌 SFTP connection closed cleanly.");
+      logger.info("SFTP connection closed cleanly.");
     } catch (error) {
-      logger.warn(`⚠️ SFTP connection closed with warning: ${error}`);
+      logger.warn(`SFTP connection closed with warning: ${error}`);
     }
   }
 }

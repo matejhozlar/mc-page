@@ -50,7 +50,7 @@ export async function execute(interaction, db) {
       });
     }
   } catch (error) {
-    logger.error(`❌ /link command failed: ${error}`);
+    logger.error(`/link command failed: ${error}`);
     await interaction.reply({
       content: "⚠️ Something went wrong while linking. Try again later.",
       flags: MessageFlags.Ephemeral,

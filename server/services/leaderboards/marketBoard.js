@@ -79,7 +79,7 @@ async function fetchMarketLeaderboardEmbed(db) {
 export async function initMarketLeaderboard(db, client, channelId) {
   const channel = await client.channels.fetch(channelId);
   if (!channel?.isTextBased()) {
-    logger.error("❌ Could not find or access the market leaderboard channel.");
+    logger.error("Could not find or access the market leaderboard channel.");
     return;
   }
 
@@ -146,14 +146,14 @@ export async function initMarketLeaderboard(db, client, channelId) {
       for (const member of allMembers.values()) {
         if (member.roles.cache.has(role.id) && member.id !== topId) {
           await member.roles.remove(role).catch(() => {});
-          logger.info(`🗑️ Removed Crypto Baron from ${member.user.tag}`);
+          logger.info(`Removed Crypto Baron from ${member.user.tag}`);
           isNewLeader = true;
         }
       }
 
       if (!topMember.roles.cache.has(role.id)) {
         await topMember.roles.add(role).catch(() => {});
-        logger.info(`👑 Gave Crypto Baron to ${topMember.user.tag}`);
+        logger.info(`Gave Crypto Baron to ${topMember.user.tag}`);
         isNewLeader = true;
       }
 
@@ -178,7 +178,7 @@ export async function initMarketLeaderboard(db, client, channelId) {
         }
       }
     } catch (error) {
-      logger.error(`❌ updateMarketLeaderboard failed: ${error}`);
+      logger.error(`updateMarketLeaderboard failed: ${error}`);
     }
   }
 
@@ -208,7 +208,7 @@ export async function initMarketLeaderboard(db, client, channelId) {
     await updateLeaderboard();
   });
 
-  logger.info("✅ Market Leaderboard initialized.");
+  logger.info("Market Leaderboard initialized.");
 }
 
 /**

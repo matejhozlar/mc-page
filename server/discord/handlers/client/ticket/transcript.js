@@ -62,7 +62,7 @@ export default async function transcriptTicket(interaction, client, db) {
 
     const transcriptChannel = guild.channels.cache.get(transcriptChannelId);
     if (!transcriptChannel || !transcriptChannel.isTextBased()) {
-      logger.warn("❌ Transcript channel not found or not text-based.");
+      logger.warn("Transcript channel not found or not text-based.");
       return;
     }
 
@@ -73,9 +73,7 @@ export default async function transcriptTicket(interaction, client, db) {
 
     const transcriptEmbed = new EmbedBuilder()
       .setColor(0x57f287)
-      .setDescription(
-        `✅ Transcript has been saved to <#${transcriptChannelId}>`
-      );
+      .setDescription(`Transcript has been saved to <#${transcriptChannelId}>`);
 
     await interaction.channel.send({
       embeds: [transcriptEmbed],

@@ -6,7 +6,7 @@ export async function sendDm(discordId, message, clientBot) {
     await user.send(message);
     return true;
   } catch (err) {
-    logger.warn(`⚠️ Failed to DM ${discordId}: ${err}`);
+    logger.warn(`Failed to DM ${discordId}: ${err}`);
     return false;
   }
 }

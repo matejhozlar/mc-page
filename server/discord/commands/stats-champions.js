@@ -71,9 +71,9 @@ export async function execute(interaction, db) {
     lastGlobalExecution = now;
 
     await interaction.editReply({ embeds: [embed] });
-    logger.info("✅ Successfuly sent /stat-champions");
+    logger.info("Successfuly sent /stat-champions");
   } catch (error) {
-    logger.error(`❌ /stats-champions command failed: ${error}`);
+    logger.error(`/stats-champions command failed: ${error}`);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }

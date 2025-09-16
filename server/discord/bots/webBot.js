@@ -38,7 +38,7 @@ webBot.once("ready", async () => {
     const io = getIO();
     await registerWebListeners(webBot, { io });
   } catch (error) {
-    logger.error(`❌ Error during bot setup: ${error}`);
+    logger.error(`Error during bot setup: ${error}`);
   }
 });
 

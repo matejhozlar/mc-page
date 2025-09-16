@@ -25,21 +25,21 @@ export default function uploadImageRoute(io, webChatClient) {
 
     if (!file) {
       logger.warn(
-        `❌ Image upload attempt failed — no file received from ${authorName}`
+        `Image upload attempt failed — no file received from ${authorName}`
       );
       return res.status(400).json({ error: "No image uploaded" });
     }
 
     if (!ALLOWED_TYPES.includes(file.mimetype)) {
       logger.warn(
-        `❌ Invalid file type from ${authorName}: ${file.originalname} (${file.mimetype})`
+        `Invalid file type from ${authorName}: ${file.originalname} (${file.mimetype})`
       );
       return res.status(400).json({ error: "Invalid image type" });
     }
 
     if (file.size > MAX_SIZE_BYTES) {
       logger.warn(
-        `❌ File too large from ${authorName}: ${file.originalname} (${file.size} bytes)`
+        `File too large from ${authorName}: ${file.originalname} (${file.size} bytes)`
       );
       return res.status(400).json({ error: "Image too large (max 1MB)" });
     }
@@ -58,7 +58,7 @@ export default function uploadImageRoute(io, webChatClient) {
 
       if (!channel?.isTextBased?.()) {
         logger.error(
-          "❌ Image upload failed: Channel not found or not text-based."
+          "Image upload failed: Channel not found or not text-based."
         );
         return res
           .status(500)
@@ -80,7 +80,7 @@ export default function uploadImageRoute(io, webChatClient) {
       const imageUrl = sentAttachment?.url || null;
 
       logger.info(
-        `✅ Image uploaded and sent by ${authorName} — Discord URL: ${imageUrl}`
+        `Image uploaded and sent by ${authorName} — Discord URL: ${imageUrl}`
       );
 
       io.emit("chatMessage", {
@@ -92,7 +92,7 @@ export default function uploadImageRoute(io, webChatClient) {
       return res.json({ success: true, image: imageUrl });
     } catch (error) {
       logger.error(
-        `❌ Failed to send image to Discord from ${authorName}: ${error}`
+        `Failed to send image to Discord from ${authorName}: ${error}`
       );
       return res.status(500).json({ error: "Failed to send image" });
     }

@@ -99,7 +99,7 @@ export async function execute(interaction, db) {
     });
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ /join command failed: ${error}`);
+    logger.error(`/join command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while joining the lottery.",
       flags: MessageFlags.Ephemeral,

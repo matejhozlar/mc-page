@@ -34,9 +34,9 @@ async function sendAdminNotice({ subject, plain, html, embed, client }) {
 
   try {
     await transporter.sendMail(mailOptions);
-    logger.info(`📧 Admin email sent: ${subject}`);
+    logger.info(`Admin email sent: ${subject}`);
   } catch (err) {
-    logger.error(`❌ Failed to send admin email: ${err}`);
+    logger.error(`Failed to send admin email: ${err}`);
   }
 
   try {
@@ -46,14 +46,14 @@ async function sendAdminNotice({ subject, plain, html, embed, client }) {
     );
 
     if (!channel?.isTextBased?.()) {
-      logger.warn("⚠️ Admin channel not text-based or not found.");
+      logger.warn("Admin channel not text-based or not found.");
       return;
     }
 
     await channel.send(embed);
-    logger.info(`📢 Discord admin channel notified: ${subject}`);
+    logger.info(`Discord admin channel notified: ${subject}`);
   } catch (err) {
-    logger.error(`❌ Failed to send Discord notification: ${err}`);
+    logger.error(`Failed to send Discord notification: ${err}`);
   }
 }
 

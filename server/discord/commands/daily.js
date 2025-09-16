@@ -91,7 +91,7 @@ export async function execute(interaction, db) {
     });
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ /daily command failed: ${error}`);
+    logger.error(`/daily command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while claiming your daily reward.",
       flags: MessageFlags.Ephemeral,

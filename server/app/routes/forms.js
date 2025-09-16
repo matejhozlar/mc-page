@@ -28,11 +28,11 @@ export default function formRoutes(db, client) {
         experience || null,
         whyJoin,
       ]);
-      logger.info(`✅ Application inserted for ${mcName} (${dcName})`);
+      logger.info(`Application inserted for ${mcName} (${dcName})`);
       res.json({ success: true, application: result.rows[0] });
     } catch (error) {
       logger.error(
-        `❌ Failed to insert application — MC: ${mcName}, DC: ${dcName}: ${error}`
+        `Failed to insert application — MC: ${mcName}, DC: ${dcName}: ${error}`
       );
       res.status(500).json({ error: "Error submitting application" });
     }
@@ -45,7 +45,7 @@ export default function formRoutes(db, client) {
     logger.info(`Waitlist submission attempt: ${email} / ${discordName}`);
 
     if (!email || !discordName) {
-      logger.warn(`❌ Missing email or Discord name in waitlist form.`);
+      logger.warn(`Missing email or Discord name in waitlist form.`);
       return res.status(400).json({
         error:
           "Email and Discord username are required.\nIf you're having trouble, contact admin@create-rington.com",
@@ -58,7 +58,7 @@ export default function formRoutes(db, client) {
     };
 
     if (!isValidEmail(email)) {
-      logger.warn(`❌ Invalid email format: ${email}`);
+      logger.warn(`Invalid email format: ${email}`);
       return res.status(400).json({
         error:
           "Invalid email format.\nIf you're having trouble, contact admin@create-rington.com",
@@ -71,7 +71,7 @@ export default function formRoutes(db, client) {
         [email]
       );
       if (emailExists.rowCount > 0) {
-        logger.warn(`⚠️ Duplicate email on waitlist: ${email}`);
+        logger.warn(`Duplicate email on waitlist: ${email}`);
         return res.status(409).json({
           error:
             "This email is already on the waitlist.\nIf you're having trouble, contact admin@create-rington.com",
@@ -83,7 +83,7 @@ export default function formRoutes(db, client) {
         [discordName]
       );
       if (discordExists.rowCount > 0) {
-        logger.warn(`⚠️ Duplicate Discord name on waitlist: ${discordName}`);
+        logger.warn(`Duplicate Discord name on waitlist: ${discordName}`);
         return res.status(409).json({
           error:
             "This Discord username is already registered.\nIf you're having trouble, contact admin@create-rington.com",
@@ -98,11 +98,11 @@ export default function formRoutes(db, client) {
       const result = await db.query(insertQuery, [email, discordName]);
       const entry = result.rows[0];
 
-      logger.info(`✅ Waitlist entry added: ${email} (${discordName})`);
+      logger.info(`Waitlist entry added: ${email} (${discordName})`);
       await notifyAdminWaitlist(entry, client);
       res.json({ success: true, entry: result.rows[0] });
     } catch (error) {
-      logger.error(`❌ Failed to insert waitlist entry for ${email}: ${error}`);
+      logger.error(`Failed to insert waitlist entry for ${email}: ${error}`);
       res.status(500).json({
         error:
           "Error submitting waitlist entry.\nIf you're having trouble, contact admin@create-rington.com",

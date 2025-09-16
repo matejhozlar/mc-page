@@ -56,10 +56,10 @@ export default function discordOAuthRoutes(db) {
         signed: true,
       });
 
-      logger.info(`🎉 Game session started for user: ${discordUser.username}`);
+      logger.info(`Game session started for user: ${discordUser.username}`);
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`❌ Game login failed: ${error}`);
+      logger.error(`Game login failed: ${error}`);
       res.status(500).json({ error: "OAuth error" });
     }
   });
@@ -109,10 +109,10 @@ export default function discordOAuthRoutes(db) {
         signed: true,
       });
 
-      logger.info(`🎉 Game session started for user: ${discordUser.username}`);
+      logger.info(`Game session started for user: ${discordUser.username}`);
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`❌ Game login failed: ${error}`);
+      logger.error(`Game login failed: ${error}`);
       res.status(500).json({ error: "OAuth error" });
     }
   });
@@ -139,14 +139,14 @@ export default function discordOAuthRoutes(db) {
       );
 
       const accessToken = tokenRes.data.access_token;
-      logger.info("✅ OAuth token exchange successful.");
+      logger.info("OAuth token exchange successful.");
 
       const userRes = await axios.get("https://discord.com/api/users/@me", {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
 
       const user = userRes.data;
-      logger.info(`👤 Fetched Discord user: ${user.username} (${user.id})`);
+      logger.info(`Fetched Discord user: ${user.username} (${user.id})`);
 
       const result = await db.query(
         `SELECT 1 FROM admins WHERE discord_id = $1 LIMIT 1`,
@@ -167,7 +167,7 @@ export default function discordOAuthRoutes(db) {
         signed: true,
       });
 
-      logger.info(`🔓 Admin session started for ${user.username} (${user.id})`);
+      logger.info(`Admin session started for ${user.username} (${user.id})`);
       res.status(200).json({ success: true });
     } catch (error) {
       logger.error(`OAuth or admin check error: ${error}`);
@@ -223,11 +223,11 @@ export default function discordOAuthRoutes(db) {
       });
 
       logger.info(
-        `🏪 Market session started for ${discordUser.username} (${discordId})`
+        `Market session started for ${discordUser.username} (${discordId})`
       );
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`❌ Market login failed: ${error}`);
+      logger.error(`Market login failed: ${error}`);
       res.status(500).json({ error: "OAuth error" });
     }
   });

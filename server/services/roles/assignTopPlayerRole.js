@@ -35,7 +35,7 @@ export async function assignTopPlayerRole(db, discordClient) {
       process.env.DISCORD_TOP_PLAYTIME_ROLE_ID
     );
     if (!role) {
-      logger.error("❌ Top Player role not found.");
+      logger.error("Top Player role not found.");
       return;
     }
 
@@ -46,13 +46,13 @@ export async function assignTopPlayerRole(db, discordClient) {
     for (const member of roleMembers.values()) {
       if (member.id !== topDiscordId) {
         await member.roles.remove(role);
-        logger.info(`🗑️ Removed Top Player role from ${member.user.tag}`);
+        logger.info(`Removed Top Player role from ${member.user.tag}`);
       }
     }
 
     if (!topMember.roles.cache.has(role.id)) {
       await topMember.roles.add(role);
-      logger.info(`✅ Gave Top Player role to ${topMember.user.tag}`);
+      logger.info(`Gave Top Player role to ${topMember.user.tag}`);
 
       const announcementChannel = await guild.channels.fetch(
         process.env.DISCORD_HALL_OF_FAME_CHANNEL_ID
@@ -65,9 +65,9 @@ export async function assignTopPlayerRole(db, discordClient) {
         );
       }
     } else {
-      logger.info(`✅ Top Player role already held by ${topMember.user.tag}`);
+      logger.info(`Top Player role already held by ${topMember.user.tag}`);
     }
   } catch (error) {
-    logger.error(`⚠️ Error assigning top player role: ${error}`);
+    logger.error(`Error assigning top player role: ${error}`);
   }
 }

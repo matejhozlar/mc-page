@@ -16,7 +16,7 @@ export default function setRotatingStatuses(
   if (!exitIfNotProduction()) return;
 
   if (!Array.isArray(statuses) || statuses.length === 0) {
-    logger.warn("⚠️ No rotating statuses provided for setRotatingStatuses");
+    logger.warn("No rotating statuses provided for setRotatingStatuses");
     return;
   }
 

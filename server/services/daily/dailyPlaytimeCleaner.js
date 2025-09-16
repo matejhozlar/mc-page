@@ -1,3 +1,4 @@
+import logger from "../../logger.js";
 /**
  * Deletes all entries from the `daily_playtime` table.
  * Intended to run as a scheduled cleanup job once per day.
@@ -8,8 +9,8 @@
 export async function cleanupDailyPlaytime(db) {
   try {
     await db.query(`DELETE FROM daily_playtime`);
-    console.log("🗑️ Cleared daily_playtime table @ 6:30 AM CET");
+    logger.info("Cleared daily_playtime table @ 6:30 AM CET");
   } catch (error) {
-    console.error("❌ Failed to clear daily_playtime table:", error);
+    logger.error(`Failed to clear daily_playtime table: ${error}`);
   }
 }

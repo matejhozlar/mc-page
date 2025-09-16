@@ -43,11 +43,11 @@ export async function cleanupTokenHistoryTable(
         );
 
         logger.info(
-          `🧹 Cleaned ${toDelete} rows from ${tableName} for token ${tokenId}`
+          `Cleaned ${toDelete} rows from ${tableName} for token ${tokenId}`
         );
       }
     }
   } catch (error) {
-    logger.error(`❌ Failed to clean ${tableName}: ${error}`);
+    logger.error(`Failed to clean ${tableName}: ${error}`);
   }
 }

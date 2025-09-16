@@ -94,7 +94,7 @@ setupSocketIO(io, db, clientBot, webBot);
 
 // ─── Start HTTP Server ───────────────────────────────────
 httpServer.listen(PORT, () => {
-  logger.info(`🚀 Server running at http://localhost:${PORT}`);
+  logger.info(`Server running at http://localhost:${PORT}`);
 });
 
 // ─── Visit Tracker ───────────────────────────────────────
@@ -133,16 +133,16 @@ process.on("SIGINT", async () => {
 
     // Close HTTP server
     httpServer.close(() => {
-      logger.info("✅ Server closed. Exiting...");
+      logger.info("Server closed. Exiting...");
       process.exit(0);
     });
   } catch (error) {
-    logger.error(`❌ Error during shutdown: ${error}`);
+    logger.error(`Error during shutdown: ${error}`);
     process.exit(1);
   }
 });
 
 // ─── Unhandled Promise Rejection Fallback ────────────────
 process.on("unhandledRejection", (reason) => {
-  logger.error(`🚨 Unhandled promise rejection: ${reason}`);
+  logger.error(`Unhandled promise rejection: ${reason}`);
 });

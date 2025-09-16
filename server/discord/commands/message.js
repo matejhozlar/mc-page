@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import dotenv from "dotenv";
+import logger from "../../logger.js";
 dotenv.config();
 
 const OWNER_ROLE_ID = process.env.DISCORD_OWNER_ROLE_ID;
@@ -39,7 +40,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    console.error("❌ Failed to send message:", error);
+    logger.error(`Failed to send message: ${error}`);
     await interaction.reply({
       content: "⚠️ Failed to send the message.",
       flags: MessageFlags.Ephemeral,

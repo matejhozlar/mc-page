@@ -17,9 +17,9 @@ export async function sendToMinecraftChat(message, webBot) {
     if (channel?.isTextBased()) {
       await channel.send(message);
     } else {
-      logger.warn("⚠️ Channel not found or is not text-based.");
+      logger.warn("Channel not found or is not text-based.");
     }
   } catch (err) {
-    logger.error(`❌ Failed to send message to Minecraft chat: ${err}`);
+    logger.error(`Failed to send message to Minecraft chat: ${err}`);
   }
 }

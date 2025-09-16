@@ -49,7 +49,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`❌ /list command failed: ${error}`);
+    logger.error(`/list command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Could not fetch player list. Try again later.",
       flags: MessageFlags.Ephemeral,

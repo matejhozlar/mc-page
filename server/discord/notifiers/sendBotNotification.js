@@ -19,6 +19,6 @@ export const sendBotNotification = async (client, message) => {
       await channel.send(message);
     }
   } catch (error) {
-    logger.error(`❌ Failed to send bot notification: ${error}`);
+    logger.error(`Failed to send bot notification: ${error}`);
   }
 };

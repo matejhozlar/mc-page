@@ -10,7 +10,7 @@ export default async function onGuilderMemberAdd(member) {
 
   try {
     await member.roles.add(unverifiedRoleId);
-    logger.info(`✅ Assigned Unverified role to ${member.user.tag}`);
+    logger.info(`Assigned Unverified role to ${member.user.tag}`);
 
     const channel = member.guild.channels.cache.get(verifyChannelId);
     if (channel?.isTextBased()) {
@@ -19,6 +19,6 @@ export default async function onGuilderMemberAdd(member) {
       );
     }
   } catch (error) {
-    logger.error(`❌ Error assigning role or sending message: ${error}`);
+    logger.error(`Error assigning role or sending message: ${error}`);
   }
 }

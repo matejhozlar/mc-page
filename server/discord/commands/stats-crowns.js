@@ -153,7 +153,7 @@ export async function execute(interaction, db) {
 
         await fs.unlink(filePath);
       } catch (err) {
-        logger.warn(`⚠️ Could not create/send/delete crown file: ${err}`);
+        logger.warn(`Could not create/send/delete crown file: ${err}`);
         await btnInt.reply({
           content: `❌ Something went wrong exporting your file.`,
           flags: MessageFlags.Ephemeral,
@@ -167,7 +167,7 @@ export async function execute(interaction, db) {
       } catch {}
     });
   } catch (error) {
-    logger.error(`❌ /stats-crowns failed: ${error}`);
+    logger.error(`/stats-crowns failed: ${error}`);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }

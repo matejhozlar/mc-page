@@ -22,7 +22,7 @@ export default function playersRoutes(
 
       if (count !== lastLoggedCount.value) {
         logger.info(
-          `📊 Player count changed: ${count} online at ${serverIP}:${serverPort}`
+          `Player count changed: ${count} online at ${serverIP}:${serverPort}`
         );
         lastLoggedCount.value = count;
       }
@@ -42,7 +42,7 @@ export default function playersRoutes(
 
       if (onlinePlayers.length !== lastPlayerCount) {
         logger.info(
-          `🎮 ${onlinePlayers.length} players fetched from Minecraft server.`
+          `${onlinePlayers.length} players fetched from Minecraft server.`
         );
         lastPlayerCount = onlinePlayers.length;
       }
@@ -55,7 +55,7 @@ export default function playersRoutes(
             [player.id, player.name]
           );
         } catch (error) {
-          logger.warn(`⚠️ Failed to insert player ${player.name}: ${error}`);
+          logger.warn(`Failed to insert player ${player.name}: ${error}`);
         }
       }
 
@@ -68,7 +68,7 @@ export default function playersRoutes(
 
       res.json({ players: result.rows });
     } catch (error) {
-      logger.error(`❌ Error fetching or processing player list: ${error}`);
+      logger.error(`Error fetching or processing player list: ${error}`);
       res.status(500).json({ error: "Could not fetch players" });
     }
   });
@@ -83,7 +83,7 @@ export default function playersRoutes(
       const isFull = count >= PLAYER_LIMIT;
       res.json({ isFull });
     } catch (error) {
-      logger.error(`❌ Error checking player limit: ${error}`);
+      logger.error(`Error checking player limit: ${error}`);
       res.status(500).json({ error: "Failed to evaluate player limit" });
     }
   });

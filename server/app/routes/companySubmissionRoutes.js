@@ -146,7 +146,7 @@ export default function submissionRoutes(db, clientBot) {
             );
           } catch (notifyErr) {
             logger.error(
-              `❌ Failed to notify admins about pending company ${customId}: ${notifyErr}`
+              `Failed to notify admins about pending company ${customId}: ${notifyErr}`
             );
           }
         });
@@ -158,7 +158,7 @@ export default function submissionRoutes(db, clientBot) {
             error: "A company with this name already exists or is pending.",
           });
         }
-        logger.error(`❌ Failed to submit company: ${error}`);
+        logger.error(`Failed to submit company: ${error}`);
         res.status(500).json({ error: "Failed to submit company." });
       }
     }
@@ -175,7 +175,7 @@ export default function submissionRoutes(db, clientBot) {
         .status(400)
         .json({ error: "Invalid file type. Only images are allowed." });
     }
-    logger.error(`❌ Upload middleware error: ${err.message}`);
+    logger.error(`Upload middleware error: ${err.message}`);
     return res.status(500).json({ error: "Unexpected server error." });
   });
 

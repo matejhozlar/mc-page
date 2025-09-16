@@ -9,7 +9,7 @@ export default function verifyTokenRoute(db) {
     const { token } = req.body;
 
     if (!token) {
-      logger.warn(`⚠️ Token verification attempt with missing token`);
+      logger.warn(`Token verification attempt with missing token`);
       return res.status(400).json({ success: false, error: "Missing token" });
     }
 
@@ -21,7 +21,7 @@ export default function verifyTokenRoute(db) {
       );
 
       if (result.rows.length === 0) {
-        logger.warn(`⛔ Invalid or expired token attempt`);
+        logger.warn(`Invalid or expired token attempt`);
         return res
           .status(401)
           .json({ success: false, error: "Token expired or invalid" });
@@ -29,7 +29,7 @@ export default function verifyTokenRoute(db) {
 
       const user = result.rows[0];
       logger.info(
-        `✅ Token verified for Discord user: ${user.discord_name} (${user.discord_id})`
+        `Token verified for Discord user: ${user.discord_name} (${user.discord_id})`
       );
 
       return res.json({
@@ -40,7 +40,7 @@ export default function verifyTokenRoute(db) {
         },
       });
     } catch (error) {
-      logger.error(`❌ Token verification failed: ${error}`);
+      logger.error(`Token verification failed: ${error}`);
       return res
         .status(500)
         .json({ success: false, error: "Internal server error" });

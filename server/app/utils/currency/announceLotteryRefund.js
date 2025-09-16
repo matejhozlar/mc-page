@@ -16,15 +16,11 @@ export async function announceLotteryRefund(client, participantName, amount) {
     const channel = await client.channels.fetch(channelId);
     if (channel && channel.isTextBased()) {
       await channel.send(message);
-      logger.info(
-        `✅ Sent lottery refund announcement to channel ${channelId}`
-      );
+      logger.info(`Sent lottery refund announcement to channel ${channelId}`);
     } else {
-      logger.warn(
-        `⚠️ Channel ${channelId} is not text-based or doesn't exist.`
-      );
+      logger.warn(`Channel ${channelId} is not text-based or doesn't exist.`);
     }
   } catch (error) {
-    logger.error(`❌ Failed to send lottery refund message: ${error}`);
+    logger.error(`Failed to send lottery refund message: ${error}`);
   }
 }

@@ -41,14 +41,14 @@ export default async function setupClientBot(db, client) {
   // Stats Champion Board
   await initStatsChampionsBoard(db, client, leaderboardChannelId);
   setInterval(() => {
-    logger.info("🔄 Auto-refreshing stats champions leaderboard...");
+    logger.info("Auto-refreshing stats champions leaderboard...");
     updateStatsChampionsBoard(db);
   }, hourlyMs);
 
   // Market Board
   await initMarketLeaderboard(db, client, leaderboardChannelId);
   setInterval(() => {
-    logger.info("🔄 Auto-refreshing market leaderboard...");
+    logger.info("Auto-refreshing market leaderboard...");
     updateMarketLeaderboard(db);
   }, hourlyMs);
 }

@@ -21,19 +21,19 @@ export default function registerClientInteractionHandler(
     if (interaction.isChatInputCommand()) {
       const command = commandHandlers.get(interaction.commandName);
       if (!command) {
-        logger.warn(`⚠️ Unknown command received: /${interaction.commandName}`);
+        logger.warn(`Unknown command received: /${interaction.commandName}`);
         return;
       }
 
       logger.info(
-        `📩 ${interaction.user.tag} (${interaction.user.id}) ran /${interaction.commandName}`
+        `${interaction.user.tag} (${interaction.user.id}) ran /${interaction.commandName}`
       );
 
       try {
         await command.execute(interaction, db);
       } catch (error) {
         logger.error(
-          `❌ Error executing command ${interaction.commandName}:`,
+          `Error executing command ${interaction.commandName}:`,
           error
         );
         await interaction.reply({
@@ -52,7 +52,7 @@ export default function registerClientInteractionHandler(
         await handler(interaction, client, db);
       } catch (error) {
         logger.error(
-          `❌ Error handling button "${interaction.customId}": ${error}`
+          `Error handling button "${interaction.customId}": ${error}`
         );
         await interaction.reply({
           content: "❌ Something went wrong.",

@@ -19,15 +19,15 @@ export function validateEnv() {
   let hasError = false;
   for (const key of REQUIRED_VARS) {
     if (!process.env[key]) {
-      logger.error(`❌ Missing required env variable: ${key}`);
+      logger.error(`Missing required env variable: ${key}`);
       hasError = true;
     }
   }
 
   if (hasError) {
-    logger.error("🛑 Environment validation failed. Exiting");
+    logger.error("Environment validation failed. Exiting");
     process.exit(1);
   } else {
-    logger.info("✅ All required environment variables are set");
+    logger.info("All required environment variables are set");
   }
 }

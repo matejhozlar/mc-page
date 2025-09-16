@@ -10,10 +10,10 @@ import logger from "../../logger.js";
  */
 export async function runMobLimitCleaner(db) {
   try {
-    logger.info("🚀 Starting mob_limit_reached table cleanup...");
+    logger.info("Starting mob_limit_reached table cleanup...");
 
     await db.query("DELETE FROM mob_limit_reached");
-    logger.info("✅ mob_limit_reached table successfully truncated.");
+    logger.info("mob_limit_reached table successfully truncated.");
 
     await db.query(
       `INSERT INTO job_history (job_name, last_run)
@@ -23,8 +23,8 @@ export async function runMobLimitCleaner(db) {
       ["mob_limit_cleaner"]
     );
 
-    logger.info("✅ job_history updated.");
+    logger.info("job_history updated.");
   } catch (error) {
-    logger.error(`❌ Failed to run mob limit cleaner: ${error}`);
+    logger.error(`Failed to run mob limit cleaner: ${error}`);
   }
 }

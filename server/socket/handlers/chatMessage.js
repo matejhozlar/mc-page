@@ -31,7 +31,7 @@ export default async function chatMessageHandler(socket, data, db, io, webBot) {
       );
 
       if (result.rows.length === 0) {
-        logger.warn("⛔ Invalid/expired token");
+        logger.warn("Invalid/expired token");
         return;
       }
 
@@ -39,7 +39,7 @@ export default async function chatMessageHandler(socket, data, db, io, webBot) {
     }
 
     const formattedMessage = `<${displayName}> ${message}`;
-    logger.info(`💬 ${displayName}: ${message}`);
+    logger.info(`${displayName}: ${message}`);
 
     await sendToMinecraftChat(formattedMessage, webBot);
 
@@ -49,7 +49,7 @@ export default async function chatMessageHandler(socket, data, db, io, webBot) {
       authorType: "web",
     });
   } catch (err) {
-    logger.error(`❌ Error sending chat message: ${err}`);
+    logger.error(`Error sending chat message: ${err}`);
   }
 }
 

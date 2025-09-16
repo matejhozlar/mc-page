@@ -78,7 +78,7 @@ async function fetchLeaderboardEmbed(db) {
 export async function initStatsChampionsBoard(db, client, channelId) {
   const channel = await client.channels.fetch(channelId);
   if (!channel?.isTextBased()) {
-    logger.error("❌ Could not find or access the leaderboard channel.");
+    logger.error("Could not find or access the leaderboard channel.");
     return;
   }
 
@@ -93,7 +93,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
     try {
       return await channel.messages.fetch(messageId);
     } catch (error) {
-      logger.warn("⚠️ Failed to fetch saved leaderboard message.");
+      logger.warn("Failed to fetch saved leaderboard message.");
       return null;
     }
   }
@@ -134,7 +134,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
       const { discord_id: topId, mc_name: topName, first_place_count } = top;
 
       logger.info(
-        `🔎 Top Player: ${topName} (${topId}) — ${first_place_count} wins`
+        `Top Player: ${topName} (${topId}) — ${first_place_count} wins`
       );
 
       const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
@@ -145,7 +145,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
 
       const topMember = await guild.members.fetch(topId).catch(() => null);
       if (!topMember) {
-        logger.warn(`⚠️ Could not fetch member with ID ${topId}`);
+        logger.warn(`Could not fetch member with ID ${topId}`);
         return;
       }
 
@@ -155,14 +155,14 @@ export async function initStatsChampionsBoard(db, client, channelId) {
       for (const member of allMembers.values()) {
         if (member.roles.cache.has(role.id) && member.id !== topId) {
           await member.roles.remove(role).catch(() => {});
-          logger.info(`🗑️ Removed Champion role from ${member.user.tag}`);
+          logger.info(`Removed Champion role from ${member.user.tag}`);
           isNewChampion = true;
         }
       }
 
       if (!topMember.roles.cache.has(role.id)) {
         await topMember.roles.add(role).catch(() => {});
-        logger.info(`✅ Gave Champion role to ${topMember.user.tag}`);
+        logger.info(`Gave Champion role to ${topMember.user.tag}`);
         isNewChampion = true;
       }
 
@@ -185,7 +185,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
         }
       }
     } catch (error) {
-      logger.error(`❌ updateLeaderboard failed: ${error}`);
+      logger.error(`updateLeaderboard failed: ${error}`);
     }
   }
 
@@ -215,7 +215,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
     await updateLeaderboard();
   });
 
-  logger.info("✅ Stats Champions Board initialized.");
+  logger.info("Stats Champions Board initialized.");
 }
 
 /**

@@ -31,7 +31,7 @@ export async function accrueCompanyInterest(
   } = {}
 ) {
   if (!(ratePerHour > 0)) {
-    logger.warn("⏸️ accrueCompanyInterest: ratePerHour <= 0, skipping.");
+    logger.warn("accrueCompanyInterest: ratePerHour <= 0, skipping.");
     return;
   }
 
@@ -80,11 +80,11 @@ export async function accrueCompanyInterest(
 
     await client.query("COMMIT");
     logger.info(
-      `💸 Accrued hourly interest at rate=${ratePerHour} to ${updatedCount} company(ies).`
+      `Accrued hourly interest at rate=${ratePerHour} to ${updatedCount} company(ies).`
     );
   } catch (err) {
     await client.query("ROLLBACK");
-    logger.error(`❌ accrueCompanyInterest failed: ${err.message}`);
+    logger.error(`accrueCompanyInterest failed: ${err.message}`);
   } finally {
     client.release();
   }

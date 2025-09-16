@@ -43,10 +43,10 @@ export function createVisitTracker(db) {
         `,
           [currentDay, visitCounter]
         );
-        logger.info(`📝 Synced ${visitCounter} visits to DB.`);
+        logger.info(`Synced ${visitCounter} visits to DB.`);
         visitCounter = 0;
       } catch (err) {
-        logger.error(`❌ Failed to sync visits: ${err.message}`);
+        logger.error(`Failed to sync visits: ${err.message}`);
       }
     }
   }, 60 * 1000);

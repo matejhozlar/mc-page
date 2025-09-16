@@ -30,7 +30,7 @@ export default function userRoutes(db) {
     const id = req.signedCookies?.user_session;
 
     if (!id) {
-      logger.warn("👤 /user/me requested without session.");
+      logger.warn("/user/me requested without session.");
       return res.status(403).json({ error: "Unauthorized" });
     }
 
@@ -41,11 +41,11 @@ export default function userRoutes(db) {
       );
 
       if (result.rows.length === 0) {
-        logger.warn(`❓ User not found in users table: ${id}`);
+        logger.warn(`User not found in users table: ${id}`);
         return res.status(404).json({ error: "User not found" });
       }
 
-      logger.info(`📥 /user/me data sent for: ${id}`);
+      logger.info(`/user/me data sent for: ${id}`);
       res.json(result.rows[0]);
     } catch (error) {
       logger.error(`Failed to fetch user data: ${error}`);
@@ -92,7 +92,7 @@ export default function userRoutes(db) {
 
       res.json({ ...user, balance });
     } catch (error) {
-      logger.error(`❌ /user/full-profile error: ${error}`);
+      logger.error(`/user/full-profile error: ${error}`);
       res.status(500).json({ error: "Internal server error" });
     }
   });

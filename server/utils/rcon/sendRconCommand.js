@@ -23,10 +23,10 @@ export async function sendRconCommand(command) {
     const response = await rcon.send(command);
     await rcon.end();
 
-    logger.info(`✅ RCON command sent: ${command}`);
+    logger.info(`RCON command sent: ${command}`);
     return response;
   } catch (error) {
-    logger.error(`❌ RCON command failed: ${error}`);
+    logger.error(`RCON command failed: ${error}`);
     throw new Error("Failed to send RCON command");
   }
 }

@@ -33,8 +33,6 @@ export async function execute(interaction, db) {
       `SELECT SUM(play_time_seconds) AS total FROM users`
     );
     const totalSeconds = parseInt(result.rows[0].total || 0, 10);
-    logger.info(`Total seconds: ${totalSeconds}`);
-
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -71,7 +69,7 @@ export async function execute(interaction, db) {
       embeds: [embed],
     });
   } catch (error) {
-    logger.error(`❌ /server-playtime command failed: ${error}`);
+    logger.error(`/server-playtime command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Could not fetch total playtime. Try again later.",
       flags: MessageFlags.Ephemeral,

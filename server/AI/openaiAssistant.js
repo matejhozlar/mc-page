@@ -30,7 +30,7 @@ let assistantSystemPrompt =
 try {
   assistantSystemPrompt = await fs.readFile(filepath, "utf-8");
 } catch (error) {
-  logger.warn("⚠️ Could not load assistant prompt file, using fallback.");
+  logger.warn("Could not load assistant prompt file, using fallback.");
 }
 
 export async function askAssistant(question, context = "") {

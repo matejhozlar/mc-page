@@ -120,7 +120,7 @@ async function insertMemecoin({ name, symbol, description, price }) {
     );
 
     console.log(
-      `✅ Created memecoin ${name} ($${symbol}) at $${price} with supply ${totalSupply}`
+      `Created memecoin ${name} ($${symbol}) at $${price} with supply ${totalSupply}`
     );
 
     await sendDiscordNotification({
@@ -131,7 +131,7 @@ async function insertMemecoin({ name, symbol, description, price }) {
       totalSupply,
     });
   } catch (err) {
-    console.error("❌ Failed to insert memecoin:", err.message);
+    console.error("Failed to insert memecoin:", err.message);
   } finally {
     await db.end();
   }

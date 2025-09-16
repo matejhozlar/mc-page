@@ -60,7 +60,7 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`❌ /baltop command failed: ${error}`);
+    logger.error(`/baltop command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while fetching top balances.",
       flags: MessageFlags.Ephemeral,

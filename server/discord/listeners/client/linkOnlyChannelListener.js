@@ -33,9 +33,9 @@ export default function setupLinkOnlyChannelWatcher(client) {
           warning.delete().catch(() => {});
         }, 30000);
 
-        logger.info(`🧹 Deleted non-link message from ${message.author.tag}`);
+        logger.info(`Deleted non-link message from ${message.author.tag}`);
       } catch (err) {
-        logger.error(`❌ Failed to delete or warn: ${err.message}`);
+        logger.error(`Failed to delete or warn: ${err.message}`);
       }
     }
   });

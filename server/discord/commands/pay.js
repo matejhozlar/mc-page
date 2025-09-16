@@ -134,7 +134,7 @@ export async function execute(interaction, db) {
     });
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`❌ /pay command failed: ${error}`);
+    logger.error(`/pay command failed: ${error}`);
     return await interaction.reply({
       content: "⚠️ Something went wrong while processing your payment.",
       flags: MessageFlags.Ephemeral,
