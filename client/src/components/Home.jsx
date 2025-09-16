@@ -4,17 +4,26 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaDiscord, FaRocket, FaPaypal } from "react-icons/fa";
 import CryptoMarketStatsDemo from "./CryptoMarketStatsDemo.jsx";
-import createPhoto from "../assets/images/create.png";
-import buildPhoto from "../assets/images/build.png";
-import shadersPhoto from "../assets/images/shaders.jpg";
-import storagePhoto from "../assets/images/storage.jpg";
-import smallCog from "../assets/images/small_cog.png";
-import curseForge from "../assets/images/curseforge.png";
-import Logo from "../assets/logo/logo.png";
-import potatoes from "../assets/potatos/potatos.js";
 import "./css/Home.css";
 
-const images = [createPhoto, buildPhoto, shadersPhoto, storagePhoto];
+const BASE = import.meta.env.BASE_URL ?? "/";
+
+const asset = (p) => `${BASE.replace(/\/$/, "")}/${p.replace(/^\//, "")}`;
+
+const images = [
+  asset("/assets/home/images/create.png"),
+  asset("/assets/home/images/build.png"),
+  asset("/assets/home/images/shaders.jpg"),
+  asset("/assets/home/images/storage.jpg"),
+];
+
+const potatoUrls = [
+  asset("/assets/home/potatos/potato1.png"),
+  asset("/assets/home/potatos/potato2.png"),
+  asset("/assets/home/potatos/potato3.png"),
+  asset("/assets/home/potatos/potato4.png"),
+  asset("/assets/home/potatos/potato5.png"),
+];
 
 const features = [
   {
@@ -269,7 +278,11 @@ export default function Home() {
           >
             <h3 className="feature-heading">
               {f.title === "Create 6.0.6" && (
-                <img src={smallCog} alt="Cog" className="spinning-cog" />
+                <img
+                  src={asset("/assets/home/images/small_cog.png")}
+                  alt="Cog"
+                  className="spinning-cog"
+                />
               )}
               {f.title === "DC Integration" && (
                 <FaDiscord className="inline-icon discord-icon" />
@@ -277,7 +290,7 @@ export default function Home() {
               {f.title === "Easy Download" && (
                 <a href="https://www.curseforge.com/">
                   <img
-                    src={curseForge}
+                    src={asset("/assets/home/images/curseforge.png")}
                     alt="curseforge logo"
                     className="curse-forge"
                   />
@@ -287,7 +300,7 @@ export default function Home() {
                 <FaRocket
                   className="rocket-icon"
                   onClick={() => {
-                    const potatoArray = Object.values(potatoes);
+                    const potatoArray = potatoUrls;
                     const randomPotato =
                       potatoArray[
                         Math.floor(Math.random() * potatoArray.length)
@@ -353,7 +366,7 @@ export default function Home() {
       {/* MOD SHOWCASE */}
       <section className="modpack-section" data-aos="fade-up">
         <div className="modpack-header">
-          <img src={Logo} alt="Modpack Logo" />
+          <img src={asset("/assets/logo/logo.png")} alt="Modpack Logo" />
           <h2>Modpack</h2>
         </div>
         <p>

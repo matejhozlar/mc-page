@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import logo from "../assets/logo/logo.png";
 import { FaPaypal } from "react-icons/fa";
 import { FiHome } from "react-icons/fi";
 import {
@@ -48,7 +47,11 @@ const Sidebar = () => {
       <div className="sidebar-header">
         <NavLink to="/" className="sidebar-logo-img-btn">
           <div className="sidebar-logo">
-            <img src={logo} alt="Logo" className="sidebar-logo-img" />
+            <img
+              src="assets/logo/logo.png"
+              alt="Logo"
+              className="sidebar-logo-img"
+            />
           </div>
         </NavLink>
         <div className="sidebar-title">Create Rington</div>
