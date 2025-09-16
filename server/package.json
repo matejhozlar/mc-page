@@ -10,7 +10,10 @@
     "gen-env": "node scripts/env/generateRequiredEnvVars.js",
     "find-env": "node scripts/env/findEnvUsage.js",
     "find-import": "node scripts/dependency/findImportUsage.js",
-    "check-missing-deps": "node scripts/integrity/checkMissingDeps.js"
+    "check-missing-deps": "node scripts/integrity/checkMissingDeps.js",
+    "mention-inactive": "cp .env scripts/users && cd scripts/users && node warnInactiveDiscordUsers.js && rm -rf .env",
+    "mention-redunant": "cp .env scripts/users && cd scripts/users && node warnRedunantDiscordUsers.js && rm -rf .env",
+    "generate-memecoin": "cp .env utils/crypto && cd utils/crypto && node generateMemecoin.js && rm -rf .env"
   },
   "keywords": [],
   "author": "",

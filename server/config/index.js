@@ -6,6 +6,7 @@ import db from "./db.js";
 import daily from "./daily.js";
 import currency from "./currency.js";
 import companies from "./companies.js";
+import users from "./users.js";
 
 export default {
   memecoins,
@@ -16,4 +17,5 @@ export default {
   daily,
   currency,
   companies,
+  users,
 };

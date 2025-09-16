@@ -7,7 +7,6 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-// Replace these with your actual IDs
 const ANNOUNCEMENT_CHANNEL_ID = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
 const AGENT_USER_ID = "547450242090532874";
 const PLAYER_ROLE_ID = process.env.DISCORD_PLAYER_ROLE_ID;
