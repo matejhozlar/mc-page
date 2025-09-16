@@ -94,7 +94,7 @@ client.once("ready", async () => {
         .setDescription(
           `${chunk.join(
             " "
-          )}\n\nYou haven’t logged in for over ${INACTIVITY_DAYS} days.\nPlease reply here or contact an administrator if you still wish to stay.`
+          )}\n\nYou haven’t logged in for over ${INACTIVITY_DAYS} days.\nPlease join the server or contact an administrator if you still wish to stay.`
         )
         .addFields({ name: "⏳ Time Left to Reply", value: `${timeLeft}` })
         .setColor("Red")
