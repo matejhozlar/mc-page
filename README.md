@@ -50,8 +50,8 @@ Real‑time two‑way chat sync: messages from the Minecraft server, Discord, an
 
 The server tracks total playtime and automatically assigns Discord roles:
 
-- Stone: 10–99 hours
-- Diamond: 1,000–1,999 hours
+- Stone: 0–20 hours
+- Copper: 20–40 hours
 - And so on...
 
 The `assignPlaytimeRoles` service manages this, and a daily "Top Player" role is awarded based on hours played.
