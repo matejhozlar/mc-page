@@ -82,9 +82,9 @@ async function sendDiscordNotification({
         .setTimestamp();
 
       await channel.send({ embeds: [embed] });
-      console.log("📣 Sent memecoin notification to Discord!");
+      console.log("Sent memecoin notification to Discord!");
     } catch (err) {
-      console.error("❌ Failed to send Discord notification:", err);
+      console.error("Failed to send Discord notification:", err);
     } finally {
       client.destroy();
     }

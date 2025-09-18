@@ -1,4 +1,3 @@
-// sendEmail.js
 import nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 import pg from "pg";
@@ -9,7 +8,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Setup DB connection
 const db = new pg.Client({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -19,7 +17,6 @@ const db = new pg.Client({
 });
 await db.connect();
 
-// Setup email transporter
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: parseInt(process.env.EMAIL_PORT),
@@ -30,21 +27,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Resolve __dirname manually for ESM
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🔥 Logo path as import-like clean variable
 const logo = path.join(__dirname, "assets", "logo.png");
 
-// Main logic
 async function main() {
   const id = process.argv[2];
 
   if (!id) {
-    logger.error(
-      "❌ Error: Please provide an ID.\nUsage: node sendEmail.js <id>"
-    );
+    logger.error("Error: Please provide an ID.\nUsage: node sendEmail.js <id>");
     process.exit(1);
   }
 
@@ -55,7 +47,7 @@ async function main() {
     );
 
     if (result.rowCount === 0) {
-      logger.error("❌ No waitlist entry found for that ID.");
+      logger.error("No waitlist entry found for that ID.");
       process.exit(1);
     }
 
@@ -115,10 +107,10 @@ async function main() {
 
     await transporter.sendMail(mailOptions);
 
-    logger.info(`✅ Successfully sent invite to ${email} (${discord_name}).`);
-    logger.info(`🔑 Token generated: ${token}`);
+    logger.info(`Successfully sent invite to ${email} (${discord_name}).`);
+    logger.info(`Token generated: ${token}`);
   } catch (error) {
-    logger.error(`❌ Failed to send invite: ${error}`);
+    logger.error(`Failed to send invite: ${error}`);
   } finally {
     await db.end();
     process.exit(0);
