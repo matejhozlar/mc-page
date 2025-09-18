@@ -1,5 +1,5 @@
-import logger from "../../../logger.js";
-import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
+import logger from "../../logger.js";
+import { exitIfNotProduction } from "../../utils/production/onlyInProduction.js";
 
 const LINK_REGEX = /https?:\/\/[^\s]+/i;
 
