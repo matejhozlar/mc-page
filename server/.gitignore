@@ -6,7 +6,7 @@
 /stats
 /tmp
 /uploads
-/ignore
+/scripts/users/data/
 
 # assets
 /services/assets
