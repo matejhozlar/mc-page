@@ -12,6 +12,7 @@ import assetsRoutes from "./assets.js";
 import marketRoutes from "./marketRoutes.js";
 import companySubmissionRoutes from "./companySubmissionRoutes.js";
 import shopRoutes from "./shopRoutes.js";
+import adminEmbedRoutes from "./adminEmbeds.js";
 
 export default function registerRoutes(
   app,
@@ -31,4 +32,5 @@ export default function registerRoutes(
   app.use("/api", marketRoutes(db, clientBot));
   app.use("/api", companySubmissionRoutes(db, clientBot));
   app.use("/api", shopRoutes(db, clientBot));
+  app.use("/api", adminEmbedRoutes(db, clientBot));
 }

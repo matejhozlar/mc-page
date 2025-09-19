@@ -41,6 +41,6 @@ const defaultExtractor = (content) => content.match(/[\w-/:]+(?<!:)/g) || [];
   await fs.writeFile(outputCss, result.css, "utf8");
 
   console.log(
-    `✅ Wrote ${outputCss} (from ${cssIn.length} → ${result.css.length} bytes)`
+    `Wrote ${outputCss} (from ${cssIn.length} → ${result.css.length} bytes)`
   );
 })();

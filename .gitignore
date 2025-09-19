@@ -2,6 +2,7 @@ todo.txt
 todolist.txt
 /output
 /node_modules
+/client2
 
 compareFiles.js
 count_lines.py

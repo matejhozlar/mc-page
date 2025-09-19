@@ -8,6 +8,7 @@ import AdminWaitlistTable from "./AdminWaitlistTable.jsx";
 import LoadingSpinner from "./LoadingSpinner.jsx";
 import AdminCompanyApprovals from "./AdminCompanyApproval.jsx";
 import AdminShopApproval from "./AdminShopApproval.jsx";
+import AdminEmbedBuilder from "./AdminEmbedBuilder.jsx";
 
 // utils
 import { AdminConsoleContext } from "./utils/AdminConsoleContext.js";
@@ -154,6 +155,8 @@ const AdminPanel = () => {
       <AdminShopApproval />
 
       <AdminUsersTable />
+
+      <AdminEmbedBuilder />
       <button className="admin-logout-btn" onClick={handleLogout}>
         Logout
       </button>
