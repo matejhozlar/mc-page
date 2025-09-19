@@ -108,13 +108,21 @@ export async function execute(interaction, db) {
       content: "🔑 Adding you to the whitelist...",
     });
 
-    const rcon = await Rcon.connect({
-      host: process.env.SERVER_IP,
-      port: parseInt(process.env.RCON_PORT),
-      password: process.env.RCON_PASSWORD,
+    const cogs_and_steam_rcon = await Rcon.connect({
+      host: process.env.COGS_AND_STEAM_SERVER_IP,
+      port: parseInt(process.env.COGS_AND_STEAM_RCON_PORT),
+      password: process.env.COGS_AND_STEAM_RCON_PASSWORD,
     });
-    await rcon.send(`whitelist add ${correctName}`);
-    await rcon.end();
+    await cogs_and_steam_rcon.send(`whitelist add ${correctName}`);
+    await cogs_and_steam_rcon.end();
+
+    const technica_rcon = await Rcon.connect({
+      host: process.env.TECHNICA_SERVER_IP,
+      port: parseInt(process.env.TECHNICA_RCON_PORT),
+      password: process.env.TECHNICA_RCON_PASSWORD,
+    });
+    await technica_rcon.send(`whitelist add ${correctName}`);
+    await technica_rcon.end();
 
     await randomDelay();
     await interaction.editReply({

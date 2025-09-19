@@ -145,9 +145,9 @@ export default function adminRoutes(db, clientBot) {
       }
 
       const rcon = await Rcon.connect({
-        host: process.env.SERVER_IP,
-        port: parseInt(process.env.RCON_PORT),
-        password: process.env.RCON_PASSWORD,
+        host: process.env.COGS_AND_STEAM_SERVER_IP,
+        port: parseInt(process.env.COGS_AND_STEAM_RCON_PORT),
+        password: process.env.COGS_AND_STEAM_RCON_PASSWORD,
       });
 
       const response = await rcon.send(command);
@@ -252,9 +252,9 @@ export default function adminRoutes(db, clientBot) {
       }
 
       const rcon = await Rcon.connect({
-        host: process.env.SERVER_IP,
-        port: parseInt(process.env.RCON_PORT),
-        password: process.env.RCON_PASSWORD,
+        host: process.env.COGS_AND_STEAM_SERVER_IP,
+        port: parseInt(process.env.COGS_AND_STEAM_RCON_PORT),
+        password: process.env.COGS_AND_STEAM_RCON_PASSWORD,
       });
 
       const response = await rcon.send(`/v get ${name}`);

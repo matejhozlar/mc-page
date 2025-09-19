@@ -57,8 +57,8 @@ const __dirname = path.dirname(__filename);
 const reactBuildPath = path.join(__dirname, "..", "client", "dist");
 
 const PORT = process.env.PORT;
-const serverIP = process.env.SERVER_IP;
-const serverPort = Number(process.env.SERVER_PORT);
+const serverIP = process.env.COGS_AND_STEAM_SERVER_IP;
+const serverPort = Number(process.env.COGS_AND_STEAM_SERVER_PORT);
 
 // ─── Express App and HTTP Server ─────────────────────────
 const app = createApp(); // Initialize app with middleware
