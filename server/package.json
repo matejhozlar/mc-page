@@ -11,11 +11,12 @@
     "find-env": "node scripts/env/findEnvUsage.js",
     "find-import": "node scripts/dependency/findImportUsage.js",
     "check-missing-deps": "node scripts/integrity/checkMissingDeps.js",
-    "mention-inactive": "cp .env scripts/users && cd scripts/users && node warnInactiveDiscordUsers.js && rm -rf .env",
-    "mention-redunant": "cp .env scripts/users && cd scripts/users && node warnRedunantDiscordUsers.js && rm -rf .env",
-    "generate-memecoin": "cp .env scripts/crypto && cd scripts/crypto && node generateMemecoin.js && rm -rf .env",
-    "check-missing": "cp .env scripts/users && cd scripts/users && node checkMissingDiscordUsers.js && rm -rf .env",
-    "check-whitelist": "cp .env scripts/users && cd scripts/users && node checkMissingWhitelist.js && rm -rf .env"
+    "mention-inactive": "node -r dotenv/config scripts/users/warnInactiveDiscordUsers.js",
+    "mention-redunant": "node -r dotenv/config scripts/users/warnRedunantDiscordUsers.js",
+    "generate-memecoin": "node -r dotenv/config scripts/crypto/generateMemecoin.js",
+    "check-missing": "node -r dotenv/config scripts/users/checkMissingDiscordUsers.js",
+    "check-whitelist": "node -r dotenv/config scripts/users/checkMissingWhitelist.js",
+    "delete-users": "node -r dotenv/config scripts/users/deleteMissingDiscordUsers.js"
   },
   "keywords": [],
   "author": "",

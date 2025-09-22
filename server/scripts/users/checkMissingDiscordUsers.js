@@ -18,10 +18,10 @@ const client = new Client({
 
 async function checkDiscordUserSync() {
   await db.connect();
-  console.log("✅ Connected to DB");
+  console.log("Connected to DB");
 
   await client.login(process.env.CLIENT_BOT_TOKEN);
-  console.log(`🤖 Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
   const members = await guild.members.fetch();
@@ -35,30 +35,27 @@ async function checkDiscordUserSync() {
   const discordMembers = [...members.values()];
   const discordMemberIds = new Set(discordMembers.map((m) => m.id));
 
-  // Users in DB but not in Discord
   const missingFromDiscord = dbUsers.filter(
     (user) => !discordMemberIds.has(user.discord_id)
   );
 
-  // Users in Discord but not in DB
   const missingFromDB = discordMembers.filter(
     (member) => !dbDiscordIds.has(member.id) && !member.user.bot
   );
 
-  // Output
   if (missingFromDiscord.length === 0) {
-    console.log("✅ All DB users are in the Discord server.");
+    console.log("All DB users are in the Discord server.");
   } else {
-    console.log("🚫 Users missing from Discord server:");
+    console.log("Users missing from Discord server:");
     missingFromDiscord.forEach((user) =>
       console.log(`- ${user.name} (Discord ID: ${user.discord_id})`)
     );
   }
 
   if (missingFromDB.length === 0) {
-    console.log("✅ All Discord members exist in the DB.");
+    console.log("All Discord members exist in the DB.");
   } else {
-    console.log("🚫 Users in Discord but not in DB:");
+    console.log("Users in Discord but not in DB:");
     missingFromDB.forEach((member) =>
       console.log(`- ${member.user.tag} (Discord ID: ${member.id})`)
     );
