@@ -54,7 +54,7 @@ const Sidebar = () => {
             />
           </div>
         </NavLink>
-        <div className="sidebar-title">Create Rington</div>
+        <div className="sidebar-title">Createrington</div>
       </div>
 
       {/* Server Status Section */}

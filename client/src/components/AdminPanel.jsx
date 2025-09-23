@@ -156,7 +156,7 @@ const AdminPanel = () => {
 
       <AdminUsersTable />
 
-      <AdminEmbedBuilder />
+      {/* <AdminEmbedBuilder /> */}
       <button className="admin-logout-btn" onClick={handleLogout}>
         Logout
       </button>
