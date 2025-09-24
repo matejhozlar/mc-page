@@ -20,11 +20,11 @@ const ServerChat = () => {
   const [uploadError, setUploadError] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [allPlayers, setAllPlayers] = useState(null);
+  const [isValid, setIsValid] = useState(null);
   const chatEndRef = useRef(null);
   const hasScrolledInitially = useRef(false);
   const fileInputRef = useRef(null);
 
-  // token verification
   const [verifiedUser, setVerifiedUser] = useState(null);
   const [tokenInput, setTokenInput] = useState("");
 
@@ -41,6 +41,7 @@ const ServerChat = () => {
             discord_id: data.discord_id,
           });
           localStorage.setItem("chat_user_name", data.name);
+          setIsValid(true);
         }
       } catch (err) {
         console.error("Cookie-based login check failed", err);
@@ -289,9 +290,11 @@ const ServerChat = () => {
           body: formData,
         });
       } else {
+        const token = isValid ? "user" : localStorage.getItem("chat_token");
+
         socket.emit("sendChatMessage", {
           message: input.trim(),
-          token: localStorage.getItem("chat_token"),
+          token: token,
           authorName: localStorage.getItem("chat_user_name"),
         });
       }

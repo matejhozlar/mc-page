@@ -24,7 +24,7 @@ export default async function chatMessageHandler(socket, data, db, io, webBot) {
   try {
     let displayName = authorName || "web";
 
-    if (token !== "admin") {
+    if (token !== "admin" && token !== "user") {
       const result = await db.query(
         `SELECT discord_name FROM chat_tokens WHERE token = $1 AND expires_at > NOW()`,
         [token]
