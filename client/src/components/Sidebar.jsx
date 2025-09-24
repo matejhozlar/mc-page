@@ -12,6 +12,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import useSidebar from "./utils/useSidebar.js";
+import "./css/Sidebar.css";
 
 const Sidebar = () => {
   const [playerCount, setPlayerCount] = useState(0);
@@ -58,20 +59,22 @@ const Sidebar = () => {
       </div>
 
       {/* Server Status Section */}
-      <div className="server-status">
-        <div className="status-indicator">
+      <div className="sidebar-server-status">
+        <div className="sidebar-status-indicator">
           <div
-            className={`status-dot ${serverOnline ? "online" : "offline"}`}
+            className={`sidebar-status-dot ${
+              serverOnline ? "online" : "offline"
+            }`}
           ></div>
           <span
-            className="status-text"
+            className="sidebar-status-text"
             style={{ color: serverOnline ? "#22c55e" : "#ef4444" }}
           >
             {serverOnline ? "Online" : "Offline"}
           </span>
         </div>
         {serverOnline ? (
-          <div className="player-count">
+          <div className="sidebar-player-count">
             {playerCount} / {maxPlayers} Players
           </div>
         ) : null}

@@ -63,6 +63,11 @@
   border: none;
 }
 
+.no-messages {
+  font-style: italic;
+  color: #999;
+}
+
 .admin-chat-messages {
   background-color: #2f2f2f;
   padding: 0.75rem;
@@ -104,19 +109,19 @@
   right: 0px;
   width: 10px;
   height: 10px;
-  background-color: red;
+  background-color: var(--offline-color);
   border-radius: 50%;
   border: 2px solid #222;
   box-shadow: 0 0 0 1px black;
 }
 
 .mc-status-online {
-  background-color: limegreen;
+  background-color: var(--online-color);
   animation: pulse 1.5s infinite;
 }
 
 .mc-status-offline {
-  background-color: red;
+  background-color: var(--offline-color);
 }
 
 @keyframes pulse {

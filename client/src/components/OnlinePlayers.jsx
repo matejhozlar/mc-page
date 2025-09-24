@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./css/OnlinePlayers.css";
 
 const getAvatarUrl = (uuid, size = 64) =>
   `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
@@ -47,42 +48,44 @@ const OnlinePlayers = () => {
 
   return (
     <div className="online-players">
-      <h2 className="section-title online-title">
-        <span className="status-dot online"></span> Online Players
+      <h2 className="online-players-section-title online-players-online-title">
+        <span className="online-players-status-dot online"></span> Online
+        Players
       </h2>
       {error && <div className="error">Error: {error}</div>}
       {online.length === 0 && <div>No players online.</div>}
-      <ul className="players-list">
+      <ul className="online-players-list">
         {online.map((player) => (
-          <li key={player.id} className="player-item">
+          <li key={player.id} className="online-players-item">
             <img
               src={getAvatarUrl(player.id)}
               alt={`${player.name}'s skin`}
-              className="player-avatar"
+              className="online-players-avatar"
             />
-            <span className="player-name">{player.name}</span>
+            <span className="online-players-name">{player.name}</span>
           </li>
         ))}
       </ul>
 
       {offline.length > 0 && (
         <>
-          <h2 className="section-title offline-title">
-            <span className="status-dot offline"></span> Offline Players
+          <h2 className="online-players-section-title online-players-offline-title">
+            <span className="online-players-status-dot offline"></span> Offline
+            Players
           </h2>
-          <ul className="players-list">
+          <ul className="online-players-list">
             {offline.map((player) => (
-              <li key={player.id} className="player-item">
+              <li key={player.id} className="online-players-item">
                 {player.id && (
                   <img
                     src={getAvatarUrl(player.id)}
                     alt={`${player.name}'s skin`}
-                    className="player-avatar"
+                    className="online-players-avatar"
                   />
                 )}
-                <div className="player-info">
-                  <span className="player-name">{player.name}</span>
-                  <span className="player-lastseen">
+                <div className="online-players-info">
+                  <span className="online-players-name">{player.name}</span>
+                  <span className="online-players-lastseen">
                     🕒 Last seen: {formatTimeAgo(player.last_seen)}
                   </span>
                 </div>

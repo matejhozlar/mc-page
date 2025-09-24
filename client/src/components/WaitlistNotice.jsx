@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./css/WaitlistNotice.css";
 
 const WaitlistNotice = () => {
   const [email, setEmail] = useState("");

@@ -138,18 +138,18 @@
   right: 0px;
   width: 10px;
   height: 10px;
-  background-color: red;
+  background-color: var(--offline-color);
   border-radius: 50%;
   border: 2px solid #222;
   box-shadow: 0 0 0 1px black;
 }
 
 .mc-status-offline {
-  background-color: red;
+  background-color: var(--offline-color);
 }
 
 .mc-status-online {
-  background-color: limegreen;
+  background-color: var(--online-color);
   animation: pulse 1.5s infinite;
 }
 
@@ -223,6 +223,11 @@
 
 .chat-send-button:hover {
   background-color: var(--button-hover);
+}
+
+.no-messages {
+  font-style: italic;
+  color: #999;
 }
 
 @keyframes pulse {

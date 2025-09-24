@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ProfileSkinViewer from "./ProfileSkinViewer.jsx";
+import "./css/CryptoMarket.css";
 
 const ResponsiveProfileViewer = ({ username, uuid }) => {
   const [isWideScreen, setIsWideScreen] = useState(window.innerWidth >= 1180);

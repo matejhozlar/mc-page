@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import MarketLoginButton from "./CryptoMarketLoginButton.jsx";
+import "./css/CryptoMarket.css";
 
 // components
 import AnimatedNumber from "./AnimatedNumber.jsx";

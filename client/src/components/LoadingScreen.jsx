@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import "./css/LoadingScreen.css";
 
 const LoadingScreen = ({ onFinish }) => {
   useEffect(() => {

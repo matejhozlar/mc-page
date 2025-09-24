@@ -1,4 +1,5 @@
 import React from "react";
+import "./css/DiscordLoginButtons.css";
 
 const DiscordLoginButton = () => {
   const handleLogin = () => {

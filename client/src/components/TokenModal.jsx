@@ -9,6 +9,7 @@ import {
 } from "chart.js";
 import { Doughnut } from "react-chartjs-2";
 import { ArcElement, Tooltip, Legend } from "chart.js";
+import "./css/TokenModal.css";
 
 // components
 import AnimatedNumber from "./AnimatedNumber";

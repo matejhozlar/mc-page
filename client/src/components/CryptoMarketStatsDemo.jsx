@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import AnimatedNumber from "./AnimatedNumber.jsx";
+import "./css/CryptoMarket.css";
 
 function CryptoMarketStatsDemo() {
-  // Static user info
   const [baseProfile] = useState(() => ({
     name: "saunhardy",
     uuid: "091b900c-4174-478c-900c-a0fe5a31a329",
@@ -11,7 +11,6 @@ function CryptoMarketStatsDemo() {
     play_time_seconds: 48200,
   }));
 
-  // Dynamic numbers
   const [balance, setBalance] = useState(4200);
   const [tokenCount, setTokenCount] = useState(158);
   const [totalNetWorth, setTotalNetWorth] = useState(11234.56);

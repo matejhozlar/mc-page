@@ -1,8 +1,10 @@
+import "./css/OnlinePlayersInChat.css";
+
 const OnlinePlayersInChat = ({ players }) => {
   const onlinePlayers = (players || []).filter((p) => p.online === true);
 
   return (
-    <div className="online-players-chat">
+    <div className="online-players-in-chat">
       <h5 className="text-light mb-3">Online Players</h5>
 
       {players === null ? (

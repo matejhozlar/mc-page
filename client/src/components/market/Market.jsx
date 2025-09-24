@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet } from "react-router-dom";
 import MarketLoginButton from "../MarketLoginButton.jsx";
 import LoadingSpinner from "../LoadingSpinner.jsx";
+import "./css/Market.css";
 
 // Context - Data
 import MarketUserProvider from "./context/MarketUserProvider.jsx";
@@ -22,7 +23,7 @@ function Market() {
 
   if (!isLoggedIn) {
     return (
-      <div className="crypto-login-required">
+      <div className="market-login-required">
         <p>You must be logged in to access the market.</p>
         <MarketLoginButton />
       </div>

@@ -1,0 +1,73 @@
+.apply-to-join {
+  max-width: 600px;
+  margin: 30px auto;
+  padding: 20px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--sidebar-background);
+  box-shadow: var(--card-shadow);
+  color: #f1f1f1;
+  border-radius: 8px;
+}
+
+.apply-to-join h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #ffffff;
+  font-size: 1.8rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* waitlist form */
+.waitlist-form {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.waitlist-input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: none;
+  background-color: var(--input-background);
+  color: var(--input-color);
+}
+
+.waitlist-input:focus {
+  background-color: var(--input-background);
+  color: var(--input-color);
+}
+
+.waitlist-input::placeholder {
+  color: var(--input-color);
+}
+
+.waitlist-submit {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 4px;
+  color: var(--primary-foreground);
+  transition: background-color 0.2s ease;
+}
+
+.waitlist-submit:hover {
+  background-color: var(--primary-color-hover);
+}
+
+.submission-status {
+  margin-top: 0.5rem;
+  font-weight: bold;
+}
+
+.waitlist-notice {
+  margin-bottom: 10px;
+}
+
+.apply-heading {
+  font-size: 1.75rem;
+  text-align: center;
+  color: var(--foreground-color);
+  margin-bottom: 1rem;
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import "./css/AdminPanel.css";
 
 // components
 import AdminChat from "./AdminChat.jsx";

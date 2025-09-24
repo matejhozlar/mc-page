@@ -8,6 +8,7 @@ import {
   LinearScale,
   PointElement,
 } from "chart.js";
+import "./css/TokenChartPage.css";
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 
