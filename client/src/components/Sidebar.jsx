@@ -49,7 +49,7 @@ const Sidebar = () => {
         <NavLink to="/" className="sidebar-logo-img-btn">
           <div className="sidebar-logo">
             <img
-              src="assets/logo/logo.png"
+              src="/assets/logo/logo.png"
               alt="Logo"
               className="sidebar-logo-img"
             />

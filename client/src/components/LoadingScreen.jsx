@@ -13,7 +13,7 @@ const LoadingScreen = ({ onFinish }) => {
   return (
     <div className="loading-overlay">
       <img
-        src="assets/home/images/cog.png"
+        src="/assets/home/images/cog.png"
         alt="Loading..."
         className="loading-cog"
       />
