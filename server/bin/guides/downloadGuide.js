@@ -7,7 +7,11 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { CLIENT_BOT_TOKEN, DISCORD_DOWNLOAD_GUIDE_CHANNEL_ID } = process.env;
+const {
+  CLIENT_BOT_TOKEN,
+  DISCORD_DOWNLOAD_GUIDE_CHANNEL_ID,
+  DISCORD_SUPPORT_TICKET_CHANNEL_ID,
+} = process.env;
 
 client.once("ready", async () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
@@ -52,10 +56,14 @@ client.once("ready", async () => {
             "- **IP Address**: `create-rington.mcserv.fun`",
             "- **Seed**: `9151016444323366715` *(For seed tools, select **Large Biomes**)*",
           ].join("\n"),
+        },
+        {
+          name: "**Need help?**",
+          value: `Create a ticket in <#${DISCORD_SUPPORT_TICKET_CHANNEL_ID}>`,
         }
       )
       .setFooter({
-        text: "Need help? Create a ticket!",
+        text: `Thanks for playing on Createrington!`,
       })
       .setTimestamp();
 
