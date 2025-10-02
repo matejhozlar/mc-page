@@ -1,10 +1,15 @@
 import pg from "pg";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
 import config from "../../config/index.js";
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const db = new pg.Pool({
   user: process.env.DB_USER,
@@ -23,7 +28,8 @@ const {
 const { GOLD } = config.uiColors;
 const PRICE_DECIMALS = 4;
 
-const memecoins = JSON.parse(fs.readFileSync("memeCoins.json", "utf8"));
+const memecoinsPath = path.join(__dirname, "memeCoins.json");
+const memecoins = JSON.parse(fs.readFileSync(memecoinsPath, "utf8"));
 const { CLIENT_BOT_TOKEN, DISCORD_CRYPTO_CHANNEL_ID } = process.env;
 
 /**

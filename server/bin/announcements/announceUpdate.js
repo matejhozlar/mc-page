@@ -13,7 +13,7 @@ const announcement = {
   title: "🔧 Server Maintenance",
   description:
     "We’re rolling out a modpack and server update to improve stability, performance and add new mods",
-  startsAt: new Date("2025-09-24T18:00:00+02:00"),
+  startsAt: new Date("2025-10-03T10:00:00+02:00"),
   estimatedMinutes: 120,
 };
 
@@ -43,11 +43,6 @@ client.once("ready", async () => {
       .setColor(0x57f287)
       .setDescription(announcement.description)
       .addFields(
-        {
-          name: "⚠️ Important Warning",
-          value:
-            "The mod **Create: Ender Link** is being **removed**. Please delete all of your existing ender storages before the update. If not, they will be removed by staff or automatically when the mod is deleted.\n\nInstead, we will now be using **Ender Storage** with its **Create integration** as the replacement.",
-        },
         {
           name: "🕒 Starts",
           value: `${formatExactTime(
