@@ -22,7 +22,7 @@ client.once("ready", async () => {
     );
 
     const embed = new EmbedBuilder()
-      .setTitle("📥 Download & Setup Guide – Createrington: Cogs & Steam")
+      .setTitle("Download & Setup Guide – Createrington: Cogs & Steam")
       .setColor(0x2196f3)
       .setDescription(
         "Getting started is super easy! We recommend using **CurseForge** for the smoothest experience. It's one-click to install, and everything is pre-configured."
@@ -40,10 +40,10 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "📦 Manual Installation (Not Recommended)",
+          name: "Manual Installation (Not Recommended)",
           value: [
             "For experienced users who prefer manual installs:",
-            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1yBPeZZ7-93a5oiAKU8iaamCTmt0QRiCF/view?usp=sharing)",
+            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1sJBxF8QlnfEVEvh17RPR-l27iQaboIFJ/view?usp=sharing)",
             "- Use your preferred launcher (Prism, MultiMC, etc)",
             "- Make sure you're using **NeoForge 1.21.1** and match all mod versions exactly",
             "",
@@ -51,7 +51,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "🌍 Server Info",
+          name: "Server Info",
           value: [
             "- **IP Address**: `create-rington.mcserv.fun`",
             "- **Seed**: `9151016444323366715` *(For seed tools, select **Large Biomes**)*",

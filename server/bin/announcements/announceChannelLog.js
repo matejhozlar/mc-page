@@ -30,29 +30,35 @@ client.once("ready", async () => {
       );
     }
 
+    const updatedMods = [" - Createrington Currency"].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
     const newMods = [
-      "- Create: Bells and Whistles",
-      "- Create: Ender Storage",
-      "- Create: Escalated",
-      "- Ender Storage",
-      "- CodeChickenLib",
+      "- BjornLib",
+      "- Create: Package Couriers",
+      "- Create: Chimneys",
+      "- Create: Colored",
+      "- Create: Train Parts",
+      "- Create: Vibrant Vaults",
+      "- Create: Architecture",
+      "- Watut",
     ].join("\n");
 
+    const version = "v0.1.8";
+
     const embed = new EmbedBuilder()
-      .setTitle("🛠️ Createrington: Cogs & Steam v0.1.7 Modpack Update")
+      .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
       .setColor(0x00b0f4)
       .setDescription(
-        "A new version of the modpack is now available! Please update to **v0.1.7** to receive the latest improvements, fixes, and features."
+        `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`
       )
       .addFields(
         {
-          name: "🆕 New Mods",
-          value: newMods || "—",
+          name: "⬆️ Updated Mods",
+          value: updatedMods || "—",
         },
         {
-          name: "🗑️ Deleted Mods",
-          value: deletedMods || "—",
+          name: "🆕 New Mods",
+          value: newMods || "—",
         },
         {
           name: "📢 Reminder",
