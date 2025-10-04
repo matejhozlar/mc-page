@@ -8,6 +8,7 @@ import {
   ButtonStyle,
 } from "discord.js";
 import config from "../../../config/index.js";
+import { sendInviteById } from "./sendInvite.js";
 
 dotenv.config();
 
@@ -53,7 +54,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     await transporter.sendMail(mailOptions);
     logger.info(`Admin notified of new waitlist entry: ${discord_name}`);
   } catch (error) {
-    logger.error(`Failed to notify admin: ${error}`);
+    logger.error(`Failed to notify admin by email: ${error}`);
   }
 
   try {
@@ -77,14 +78,25 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
       .setColor(LIME_GREEN)
       .setTimestamp();
 
-    const row = new ActionRowBuilder().addComponents(
+    const actionRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`waitlist:accept:${id}`)
+        .setLabel("Accept")
+        .setStyle(ButtonStyle.Success),
+      new ButtonBuilder()
+        .setCustomId(`waitlist:decline:${id}`)
+        .setLabel("Decline")
+        .setStyle(ButtonStyle.Danger)
+    );
+
+    const linkRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel("Open Admin Panel")
         .setStyle(ButtonStyle.Link)
         .setURL("https://create-rington.com/login-admin/")
     );
 
-    await channel.send({ embeds: [embed], components: [row] });
+    await channel.send({ embeds: [embed], components: [actionRow, linkRow] });
     logger.info(`Discord admin channel notified of waitlist: ${discord_name}`);
   } catch (error) {
     logger.error(`Failed to send Discord notification: ${error}`);

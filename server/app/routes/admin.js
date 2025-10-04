@@ -380,7 +380,6 @@ export default function adminRoutes(db, clientBot) {
       ]);
 
       logger.info(`Successfully sent invite to ${email} (${discord_name}).`);
-      logger.info(`Token generated: ${token}`);
       res.json({ success: true });
     } catch (error) {
       logger.error(`Failed to send invite: ${error}`);
