@@ -30,20 +30,13 @@ client.once("ready", async () => {
       );
     }
 
-    const updatedMods = [" - Createrington Currency"].join("\n");
+    const updatedMods = ["- AFKStatus", "- Createrington Currency"].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
-    const newMods = [
-      "- BjornLib",
-      "- Create: Package Couriers",
-      "- Create: Chimneys",
-      "- Create: Colored",
-      "- Create: Train Parts",
-      "- Create: Vibrant Vaults",
-      "- Create: Architecture",
-      "- Watut",
-    ].join("\n");
+    const newMods = ["- Create: Shuffle Filters", "- KubeJS", "- Rhino"].join(
+      "\n"
+    );
 
-    const version = "v0.1.8";
+    const version = "v0.1.9";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -52,6 +45,11 @@ client.once("ready", async () => {
         `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`
       )
       .addFields(
+        {
+          name: "💰 Createrington Currency Changes",
+          value:
+            "The `/deposit` and `/withdraw` commands have been **disabled**. Instead, a new **ATM block** has been introduced, which provides all deposit and withdrawal functionality for your accounts.\n\nThis new system aims to make currency management more intuitive and immersive within the game world. Please if **you encounter any bugs or dupe glitches**, let the administrators know, and don't abuse it!",
+        },
         {
           name: "⬆️ Updated Mods",
           value: updatedMods || "—",
