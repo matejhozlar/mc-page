@@ -66,7 +66,7 @@ export async function handleWaitlistButton(interaction, db) {
 
       await interaction.message.edit({
         components: disableNonLinkButtons(),
-        content: `✅ Accepted by <@${interaction.user.id}> (ID ${rawId})`,
+        content: `✅ Accepted by <@${interaction.user.id}>`,
         embeds: interaction.message.embeds,
       });
       await interaction.editReply("Invite sent successfully.");
@@ -76,7 +76,7 @@ export async function handleWaitlistButton(interaction, db) {
     if (action === "decline") {
       await interaction.message.edit({
         components: disableNonLinkButtons(),
-        content: `❌ Declined by <@${interaction.user.id}> (ID ${rawId})`,
+        content: `❌ Declined by <@${interaction.user.id}>`,
         embeds: interaction.message.embeds,
       });
       await interaction.editReply("Declined.");
