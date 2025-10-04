@@ -16,7 +16,7 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("💰 Createrington Currency Mod Guide **(Beta)**")
+      .setTitle("💰 Createrington Currency Mod Guide **v1.1.3**")
       .setColor(0x00b0f4)
       .setDescription(
         "Here’s a quick guide on how to use the **Currency Mod** on Createrington!"
@@ -26,14 +26,6 @@ client.once("ready", async () => {
           name: "💵 Currency Items",
           value:
             "Collect bills in various denominations: **$1, $5, $10, $20, $50, $100, $500, $1000**. These bills can be stacked, traded, and stored in your inventory.",
-        },
-        {
-          name: "🆕 Commands",
-          value: [
-            "**/daily** — Claim your daily reward.",
-            "**/lottery <amount>** —  Start a server-wide lottery with a minimum of $10.",
-            "**/join <amount>** — Join the ongoing lottery.",
-          ].join("\n"),
         },
         {
           name: "Enchant Capitalist Greed",
@@ -57,11 +49,25 @@ client.once("ready", async () => {
           name: "💻 Commands",
           value: [
             "**/money** — Check your current balance.",
-            "**/deposit** — Deposit all bills from your inventory into your account.",
-            "**/withdraw <amount>** — Withdraw money into physical bills (automatically optimizes denominations).",
-            "**/withdraw <denomination> <count>** — Withdraw specific bills \n(e.g. `/withdraw 50 2`).",
             "**/pay <player> <amount>** — Send money to another player (player-to-player trading).",
             "**/baltop** — See the top 10 richest players on the server.",
+            "**/daily** — Claim your daily reward.",
+            "**/lottery <amount>** —  Start a server-wide lottery with a minimum of $10.",
+            "**/join <amount>** — Join the ongoing lottery.",
+          ].join("\n"),
+        },
+        {
+          name: "🏧 ATM Block",
+          value: [
+            "The ATM is a powerful tool for depositing and withdrawing money directly from your bank account.",
+            "",
+            "**Crafting Recipe:**",
+            "- 4x Iron Blocks",
+            "- 3x Circuit Boards",
+            "- 1x Keypad",
+            "- 1x Chest",
+            "",
+            "Once crafted, place the ATM in the world to safely manage your funds without relying on commands.",
           ].join("\n"),
         },
         {
