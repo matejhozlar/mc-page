@@ -18,9 +18,9 @@ client.once("ready", async () => {
     }
 
     await channel.send("📊 market_leaderboard placeholder");
-    console.log("✅ Placeholder message sent.");
+    console.log("Placeholder message sent.");
   } catch (err) {
-    console.error("❌ Failed to send message:", err);
+    console.error("Failed to send message:", err);
   } finally {
     client.destroy();
   }

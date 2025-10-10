@@ -14,7 +14,7 @@ const {
 } = process.env;
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   const embed = new EmbedBuilder()
     .setTitle("🏢 Createrington Market – Version 1.1 Update")
@@ -58,9 +58,9 @@ client.once("ready", async () => {
       DISCORD_ANNOUNCEMENT_CHANNEL_ID
     );
     await announcementChannel.send({ embeds: [embed] });
-    console.log("📢 v1.1 Announcement sent!");
+    console.log("v1.1 Announcement sent!");
   } catch (err) {
-    console.error("❌ Failed to send announcement:", err);
+    console.error("Failed to send announcement:", err);
   } finally {
     client.destroy();
     process.exit(0);

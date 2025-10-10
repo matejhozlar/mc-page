@@ -20,7 +20,7 @@ const client = new Client({
 });
 
 client.once("ready", async () => {
-  logger.info(`🟢 Logged in as ${client.user.tag}`);
+  logger.info(`Logged in as ${client.user.tag}`);
 
   try {
     const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
@@ -34,7 +34,7 @@ client.once("ready", async () => {
     `);
 
     if (dbResult.rows.length === 0) {
-      logger.info("✅ No inactive users found.");
+      logger.info("No inactive users found.");
       return;
     }
 
@@ -44,7 +44,7 @@ client.once("ready", async () => {
     );
 
     if (inactiveMembers.size === 0) {
-      logger.info("ℹ️ No matching Discord members for inactive users.");
+      logger.info("No matching Discord members for inactive users.");
       return;
     }
 
@@ -59,9 +59,9 @@ client.once("ready", async () => {
     const message = `👋 Hey folks! Just a quick heads-up — it's been over **3 weeks** since the following players last logged in:\n\n${mentionList}\n\nNo pressure at all, but if you're still planning to play, just drop me a quick message so I know you're around. And if you're done for now, that's totally fine too — just let me know so I can free up space for others. Thanks! 🙏`;
 
     await channel.send(message);
-    logger.info("📨 Sent inactivity reminder.");
+    logger.info("Sent inactivity reminder.");
   } catch (error) {
-    logger.error(`❌ Error during inactive user check: ${logError(error)}`);
+    logger.error(`Error during inactive user check: ${logError(error)}`);
   } finally {
     db.end();
     client.destroy();

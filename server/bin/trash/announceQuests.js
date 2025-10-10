@@ -11,7 +11,7 @@ const { CLIENT_BOT_TOKEN, DISCORD_QUESTS_CHANNEL_ID, DISCORD_PLAYER_ROLE_ID } =
   process.env;
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(DISCORD_QUESTS_CHANNEL_ID);
@@ -48,9 +48,9 @@ client.once("ready", async () => {
       content: `<@&${DISCORD_PLAYER_ROLE_ID}>`,
       embeds: [embed],
     });
-    console.log("📣 Quest intro announcement sent!");
+    console.log("Quest intro announcement sent!");
   } catch (err) {
-    console.error("❌ Failed to send quest intro:", err);
+    console.error("Failed to send quest intro:", err);
   } finally {
     client.destroy();
     process.exit(0);

@@ -13,7 +13,7 @@ const client = new Client({
 const { CLIENT_BOT_TOKEN, DISCORD_MARKET_CHANNEL_ID } = process.env;
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(DISCORD_MARKET_CHANNEL_ID);
@@ -117,9 +117,9 @@ client.once("ready", async () => {
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 Market guide sent!");
+    console.log("Market guide sent!");
   } catch (error) {
-    console.error("❌ Failed to send market guide:", error);
+    console.error("Failed to send market guide:", error);
   } finally {
     client.destroy();
     process.exit(0);

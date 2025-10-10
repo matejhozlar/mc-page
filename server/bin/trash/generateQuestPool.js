@@ -62,4 +62,4 @@ fs.writeFileSync(
   "utf-8"
 );
 
-console.log(`✅ Generated ${quests.length} quests and saved to questsPool.js`);
+console.log(`Generated ${quests.length} quests and saved to questsPool.js`);

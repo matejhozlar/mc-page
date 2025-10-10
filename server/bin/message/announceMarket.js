@@ -53,9 +53,9 @@ client.once("ready", async () => {
       embeds: [embed],
     });
 
-    console.log("✅ Crypto market announcement sent!");
+    console.log("Crypto market announcement sent!");
   } catch (err) {
-    console.error("❌ Failed to send announcement:", err);
+    console.error("Failed to send announcement:", err);
   } finally {
     client.destroy();
     process.exit(0);

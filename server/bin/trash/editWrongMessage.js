@@ -12,7 +12,7 @@ const { CLIENT_BOT_TOKEN, DISCORD_LEADERBOARDS_CHANNEL_ID } = process.env;
 const MESSAGE_ID_TO_EDIT = "1383941741773852806";
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(
@@ -31,9 +31,9 @@ client.once("ready", async () => {
       components: message.components,
     });
 
-    console.log("✏️ Message content cleared successfully.");
+    console.log("Message content cleared successfully.");
   } catch (error) {
-    console.error("❌ Failed to edit message:", error);
+    console.error("Failed to edit message:", error);
   } finally {
     client.destroy();
     process.exit(0);

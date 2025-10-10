@@ -10,7 +10,7 @@ const client = new Client({
 const { CLIENT_BOT_TOKEN, DISCORD_CURRENCY_CHANNEL_ID } = process.env;
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(DISCORD_CURRENCY_CHANNEL_ID);
@@ -53,9 +53,9 @@ client.once("ready", async () => {
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 PLC announcement sent!");
+    console.log("PLC announcement sent!");
   } catch (err) {
-    console.error("❌ Failed to send PLC announcement:", err);
+    console.error("Failed to send PLC announcement:", err);
   } finally {
     client.destroy();
     process.exit(0);

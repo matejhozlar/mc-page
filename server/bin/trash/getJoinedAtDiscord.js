@@ -18,7 +18,7 @@ const client = new Client({
 });
 
 client.once("ready", async () => {
-  console.log(`🟢 Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
@@ -39,19 +39,17 @@ client.once("ready", async () => {
       );
 
       if (res.rowCount > 0) {
-        console.log(
-          `✅ Updated: ${member.user.tag} (${member.id}) → ${joinDate}`
-        );
+        console.log(`Updated: ${member.user.tag} (${member.id}) → ${joinDate}`);
       } else {
         console.log(
-          `ℹ️ Skipped: ${member.user.tag} (${member.id}) — already set or no match`
+          `Skipped: ${member.user.tag} (${member.id}) — already set or no match`
         );
       }
     }
 
-    console.log("✅ Finished updating join dates.");
+    console.log("Finished updating join dates.");
   } catch (error) {
-    console.error("❌ Error during update:", error);
+    console.error("Error during update:", error);
   } finally {
     db.end();
     client.destroy();

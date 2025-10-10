@@ -67,9 +67,9 @@ client.once("ready", async () => {
       embeds: [embed],
     });
 
-    console.log("✅ Bug report announcement sent!");
+    console.log("Bug report announcement sent!");
   } catch (err) {
-    console.error("❌ Failed to send message:", err);
+    console.error("Failed to send message:", err);
   } finally {
     client.destroy();
     process.exit(0);

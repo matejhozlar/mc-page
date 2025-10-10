@@ -43,9 +43,9 @@ client.once("ready", async () => {
       .setTimestamp();
 
     await channel.send({ embeds: [embed] });
-    console.log("📣 Server reset announcement sent!");
+    console.log("Server reset announcement sent!");
   } catch (err) {
-    console.error("❌ Failed to send announcement:", err);
+    console.error("Failed to send announcement:", err);
   } finally {
     client.destroy();
     process.exit(0);

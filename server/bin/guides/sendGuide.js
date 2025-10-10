@@ -31,7 +31,7 @@ client.once("ready", async () => {
       botCommandsChannel.type !== ChannelType.GuildText
     ) {
       console.log(
-        `⚠️ No valid text channel with ID '${TARGET_CHANNEL_ID}' found in ${guild.name}`
+        `No valid text channel with ID '${TARGET_CHANNEL_ID}' found in ${guild.name}`
       );
       continue;
     }
@@ -106,10 +106,10 @@ client.once("ready", async () => {
       await botCommandsChannel.send({ embeds: [embed] });
 
       console.log(
-        `✅ Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`
+        `Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`
       );
     } catch (error) {
-      console.error(`❌ Failed to send guide in ${guild.name}:`, error);
+      console.error(`Failed to send guide in ${guild.name}:`, error);
     }
   }
 

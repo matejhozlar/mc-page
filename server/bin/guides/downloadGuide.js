@@ -14,7 +14,7 @@ const {
 } = process.env;
 
 client.once("ready", async () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+  console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(
@@ -70,7 +70,7 @@ client.once("ready", async () => {
     await channel.send({ embeds: [embed] });
     console.log("Download Guide sent!");
   } catch (error) {
-    console.error("❌ Failed to send announcement:", error);
+    console.error("Failed to send announcement:", error);
   } finally {
     client.destroy();
     process.exit(0);
