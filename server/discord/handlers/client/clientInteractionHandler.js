@@ -9,7 +9,6 @@ export default function registerClientInteractionHandler(
   ticketHandlers
 ) {
   client.on("interactionCreate", async (interaction) => {
-    // Slash commands (unchanged) ...
     if (interaction.isChatInputCommand()) {
       const command = commandHandlers.get(interaction.commandName);
       if (!command) {
