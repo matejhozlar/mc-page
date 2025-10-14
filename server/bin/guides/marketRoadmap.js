@@ -1,4 +1,3 @@
-// sendMarketRoadmap.js
 import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
 import config from "../../config/index.js";
 import dotenv from "dotenv";
@@ -25,7 +24,6 @@ client.once("ready", async () => {
       .setDescription(
         [
           "The Market is in **EARLY ACCESS** — expect bugs, missing features, and rapid changes.",
-          "We’re shipping fast and iterating with your feedback. Thanks for testing!",
         ].join("\n")
       )
       .addFields(
@@ -36,7 +34,6 @@ client.once("ready", async () => {
             "• ✅ Company funds: deposit / withdraw, basic history",
             "• ✅ Hourly interest for eligible companies",
             "• ✅ UI cleanup, mobile tweaks, performance passes",
-            "• ✅ Ongoing bug fixes (please report issues!)",
           ].join("\n"),
         },
         {
@@ -49,7 +46,15 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "🎁 Phase 3 — Rewards & Incentives",
+          name: "Phase 3 — Teams & Permissions",
+          value: [
+            "• Company **roles**: Founder, Manager, Employee",
+            "• **Granular permissions** (edit info, manage funds, run shops)",
+            "• Activity logs for sensitive actions",
+          ].join("\n"),
+        },
+        {
+          name: "Phase 4 — Rewards & Incentives",
           value: [
             "• **Leaderboards** (weekly/monthly) — balance, sales, activity",
             "• **Payouts** for top performers (currency)",
@@ -58,15 +63,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "👥 Phase 4 — Teams & Permissions",
-          value: [
-            "• Company **roles**: Founder, Manager, Employee",
-            "• **Granular permissions** (edit info, manage funds, run shops)",
-            "• Activity logs for sensitive actions",
-          ].join("\n"),
-        },
-        {
-          name: "📈 Phase 5 — Cool Feature: Player Investments",
+          name: "Phase 5 — Player Investments",
           value: [
             "• Buy **shares** in other companies",
             "• Earn a cut of **interest** or **shop profits**",
@@ -74,33 +71,27 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "🧪 Early Access Notes",
+          name: "Early Access Notes",
           value: [
             "• Features may change **without warning**",
-            "• Economy values (interest, fees) are **tunable**",
+            "• Economy values (interest, fees) can change **anytime**",
             "• Your feedback directly shapes the roadmap",
           ].join("\n"),
         },
         {
-          name: "🐞 Bug Reporting (Please help!)",
+          name: "Bug Reporting (Please help!)",
           value: [
             "• Found an issue? **Open a ticket** in Discord",
             "• Include steps to reproduce + screenshots if possible",
-            "• Early testers are the reason this improves quickly ❤️",
           ].join("\n"),
         },
         {
-          name: "🔮 What Else We’re Exploring",
+          name: "Future Ideas",
           value: [
             "• Shop themes & layout presets",
             "• Company badges & progression",
             "• Contracts between companies (supply deals)",
           ].join("\n"),
-        },
-        {
-          name: "📣 TL;DR",
-          value:
-            "We’re polishing fast, adding shops, rewards, teams, and a player investment system. Keep the feedback coming!",
         }
       )
       .setFooter({
