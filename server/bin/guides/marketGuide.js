@@ -26,7 +26,7 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "🚀 Getting Started",
+          name: "Getting Started",
           value: [
             "- [Click Here](https://create-rington.com)",
             "- Go to the **Market** tab in the navigation menu.",
@@ -34,7 +34,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "🏗 Creating a Company",
+          name: "Creating a Company",
           value: [
             "- Go to **Market → Create Company**.",
             "- Fill in: Name, Short Description, Full Description.",
@@ -44,7 +44,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "🛠 Editing Your Company",
+          name: "Editing Your Company",
           value: [
             "- Founders can click the **Edit** button on their company page.",
             "- Submit changes to descriptions or images.",
@@ -52,7 +52,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "💼 Managing Company Funds",
+          name: "Managing Company Funds",
           value: [
             "- Founders see a **Manage** button on the company page.",
             "- **Deposit** – Move money from your personal balance into the company.",
@@ -61,7 +61,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "💸 Passive Company Interest",
+          name: "Passive Company Interest",
           value: [
             "- Companies earn **hourly interest** if they have at least `$100` balance.",
             "- **Current rate:** `0.1% per hour` *(subject to change)*.",
@@ -70,7 +70,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "📜 Requests & Statuses",
+          name: "Requests & Statuses",
           value: [
             "- **Pending** – Waiting for admin review.",
             "- **Awaiting Payment** – Pay the required fee to proceed.",
@@ -80,21 +80,18 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "🧪 Early Access Notice",
+          name: "Early Access Notes",
           value: [
-            "- Features are incomplete and may change **without warning**.",
-            "- Expect bugs and economy adjustments.",
-            "- This phase is mainly for **testing and feedback**.",
-            "- More features (shops, contracts, stock system) are planned.",
+            "• Features may change **without warning**",
+            "• Economy values (interest, fees) can change **anytime**",
+            "• Your feedback directly shapes the roadmap",
           ].join("\n"),
         },
         {
-          name: "🐞 Bug Reporting",
+          name: "Bug Reporting",
           value: [
-            "⚠️ **Found a bug?** Please report it immediately so we can fix it!",
-            "- Open a ticket in the Discord support channel.",
-            "- Include: What you were doing, what happened, and screenshots if possible.",
-            "- Early testing works best when **everyone helps squash bugs**.",
+            "• Found an issue? **Open a ticket** in Discord",
+            "• Include steps to reproduce + screenshots if possible",
           ].join("\n"),
         },
         {

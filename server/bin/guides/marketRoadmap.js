@@ -79,7 +79,7 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "Bug Reporting (Please help!)",
+          name: "Bug Reporting",
           value: [
             "• Found an issue? **Open a ticket** in Discord",
             "• Include steps to reproduce + screenshots if possible",
