@@ -82,9 +82,9 @@ export async function accrueCompanyInterest(
     logger.info(
       `Accrued hourly interest at rate=${ratePerHour} to ${updatedCount} company(ies).`
     );
-  } catch (err) {
+  } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`accrueCompanyInterest failed: ${err.message}`);
+    logger.error("accrueCompanyInterest failed:", error);
   } finally {
     client.release();
   }

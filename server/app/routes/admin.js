@@ -30,7 +30,7 @@ async function deleteR2Object(key) {
       })
     );
   } catch (error) {
-    logger.warn(`Failed to delete R2 object ${key}: ${error.message}`);
+    logger.warn("Failed to delete R2 object ${key}:", error);
   }
 }
 
@@ -60,7 +60,7 @@ export default function adminRoutes(db, clientBot) {
       logger.info(`Admin validate check: ${discordId} => ${valid}`);
       res.json({ valid });
     } catch (error) {
-      logger.error(`Admin validation error: ${error}`);
+      logger.error("Admin validation error:", error);
       res.status(500).json({ valid: false });
     }
   });
@@ -108,7 +108,7 @@ export default function adminRoutes(db, clientBot) {
       logger.info(`Admin /me data sent for: ${discordId}`);
       res.json(result.rows[0]);
     } catch (error) {
-      logger.error(`Failed to fetch admin user data: ${error}`);
+      logger.error("Failed to fetch admin user data:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -164,7 +164,7 @@ export default function adminRoutes(db, clientBot) {
 
       return res.json({ success: true, response });
     } catch (error) {
-      rconLogger.error(`❌ RCON execution failed for ${discordId}: ${error}`);
+      rconLogger.error(`❌ RCON execution failed for ${discordId}:`, error);
       return res.status(500).json({ success: false, error: "RCON failure" });
     }
   });
@@ -192,7 +192,7 @@ export default function adminRoutes(db, clientBot) {
       logger.info(`Admin ${discordId} fetched user list.`);
       res.json({ users: result.rows });
     } catch (error) {
-      logger.error(`Failed to fetch users: ${error}`);
+      logger.error("Failed to fetch users:", error);
       res.status(500).json({ error: "Database error" });
     }
   });
@@ -225,7 +225,7 @@ export default function adminRoutes(db, clientBot) {
 
       res.json({ vanished: result.rows[0].vanished });
     } catch (error) {
-      logger.error(`Failed to fetch vanish status: ${error}`);
+      logger.error("Failed to fetch vanish status:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -275,7 +275,7 @@ export default function adminRoutes(db, clientBot) {
       logger.info(`Vanish status updated: ${name} → ${vanished}`);
       res.json({ success: true });
     } catch (error) {
-      logger.error(`Failed to update vanish status: ${error}`);
+      logger.error("Failed to update vanish status:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -382,7 +382,7 @@ export default function adminRoutes(db, clientBot) {
       logger.info(`Successfully sent invite to ${email} (${discord_name}).`);
       res.json({ success: true });
     } catch (error) {
-      logger.error(`Failed to send invite: ${error}`);
+      logger.error("Failed to send invite:", error);
       res.status(500).json({ error: "Failed to send invite" });
     }
   });
@@ -401,7 +401,7 @@ export default function adminRoutes(db, clientBot) {
       logger.info(`Admin ${discordId} fetched waitlist list.`);
       res.json({ entries: result.rows });
     } catch (error) {
-      logger.error(`Failed to fetch waitlist: ${error}`);
+      logger.error("Failed to fetch waitlist:", error);
       res.status(500).json({ error: "Failed to load waitlist" });
     }
   });
@@ -441,7 +441,7 @@ export default function adminRoutes(db, clientBot) {
 
       res.json(rows[0]);
     } catch (error) {
-      logger.error(`Failed to fetch pending company ${id}: ${error}`);
+      logger.error(`Failed to fetch pending company ${id}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -525,9 +525,7 @@ export default function adminRoutes(db, clientBot) {
           ];
           await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
         })().catch((error) =>
-          logger.warn(
-            `post-commit DM failed for pending company ${id}: ${error}`
-          )
+          logger.warn(`post-commit DM failed for pending company ${id}:`, error)
         );
       });
 
@@ -536,7 +534,7 @@ export default function adminRoutes(db, clientBot) {
         .json({ success: true, status: "awaiting_funds", required: fee });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`Admin approve->awaiting_funds error: ${error}`);
+      logger.error("Admin approve->awaiting_funds error:", error);
       res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -612,14 +610,14 @@ export default function adminRoutes(db, clientBot) {
             `You can resubmit after addressing the feedback.`,
           ];
           await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
-        })().catch((e) =>
-          logger.warn(`post-reject DM failed for pending company ${id}: ${e}`)
+        })().catch((error) =>
+          logger.warn(`post-reject DM failed for pending company ${id}:`, error)
         );
       });
 
       res.status(200).json({ success: true });
     } catch (error) {
-      logger.error(`Failed to reject company ${id}: ${error}`);
+      logger.error(`Failed to reject company ${id}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -670,7 +668,7 @@ export default function adminRoutes(db, clientBot) {
 
       res.json({ companies: rows });
     } catch (error) {
-      logger.error(`Failed to fetch pending companies/edits: ${error}`);
+      logger.error("Failed to fetch pending companies/edits:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -713,7 +711,7 @@ export default function adminRoutes(db, clientBot) {
 
       res.json({ edit, original: originals[0] });
     } catch (error) {
-      logger.error(`Failed to fetch company edit ${editId}: ${error}`);
+      logger.error("Failed to fetch company edit ${editId}:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -785,8 +783,8 @@ export default function adminRoutes(db, clientBot) {
             `Please complete payment in market/requests to apply the changes.`,
           ];
           await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
-        })().catch((e) =>
-          logger.warn(`post-commit DM failed for company edit ${id}: ${e}`)
+        })().catch((error) =>
+          logger.warn(`post-commit DM failed for company edit ${id}:`, error)
         );
       });
 
@@ -797,7 +795,7 @@ export default function adminRoutes(db, clientBot) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`Edit approve->awaiting_funds error: ${error}`);
+      logger.error("Edit approve->awaiting_funds error:", error);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -852,7 +850,7 @@ export default function adminRoutes(db, clientBot) {
               })
             )
             .catch((error) =>
-              logger.warn(`R2 delete failed for ${Key}: ${error.message}`)
+              logger.warn(`R2 delete failed for ${Key}:`, error)
             )
         )
       );
@@ -884,14 +882,14 @@ export default function adminRoutes(db, clientBot) {
             `You can submit a new edit after addressing the feedback.`,
           ];
           await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
-        })().catch((e) =>
-          logger.warn(`post-reject DM failed for company edit ${id}: ${e}`)
+        })().catch((error) =>
+          logger.warn(`post-reject DM failed for company edit ${id}:`, error)
         );
       });
 
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`Reject company edit ${id}: ${error}`);
+      logger.error(`Reject company edit ${id}:`, error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -954,7 +952,7 @@ export default function adminRoutes(db, clientBot) {
 
       res.json({ shops });
     } catch (error) {
-      logger.error(`Failed to fetch pending shops: ${error}`);
+      logger.error("Failed to fetch pending shops:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1001,7 +999,7 @@ export default function adminRoutes(db, clientBot) {
 
       res.json(rows[0]);
     } catch (error) {
-      logger.error(`Failed to fetch pending shop ${id}: ${error}`);
+      logger.error("Failed to fetch pending shop ${id}:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1096,8 +1094,8 @@ export default function adminRoutes(db, clientBot) {
           `Please complete payment in market/requests to finalize creation.`,
         ];
         await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
-      } catch (e) {
-        logger.warn(`post-approve DM failed for pending shop ${id}: ${e}`);
+      } catch (error) {
+        logger.warn(`post-approve DM failed for pending shop ${id}:`, error);
       }
 
       return res
@@ -1105,7 +1103,7 @@ export default function adminRoutes(db, clientBot) {
         .json({ success: true, status: "awaiting_funds", required: fee });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`Admin approve shop->awaiting_funds error: ${error}`);
+      logger.error("Admin approve shop->awaiting_funds error:", error);
       res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1201,14 +1199,14 @@ export default function adminRoutes(db, clientBot) {
           `You can resubmit after addressing the feedback.`,
         ];
         await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
-      } catch (e) {
-        logger.warn(`post-reject DM failed for pending shop ${id}: ${e}`);
+      } catch (error) {
+        logger.warn(`post-reject DM failed for pending shop ${id}:`, error);
       }
 
       return res.status(200).json({ success: true });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`Failed to reject shop ${id}: ${error}`);
+      logger.error(`Failed to reject shop ${id}:`, error);
       res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1263,7 +1261,7 @@ export default function adminRoutes(db, clientBot) {
 
       return res.json({ edit, original: originals[0] || null });
     } catch (error) {
-      logger.error(`Failed to fetch shop edit ${editId}: ${error}`);
+      logger.error(`Failed to fetch shop edit ${editId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1335,15 +1333,15 @@ export default function adminRoutes(db, clientBot) {
             `Please complete payment in market/requests to apply the changes.`,
           ];
           await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
-        } catch (e) {
-          logger.warn(`post-commit DM failed for shop edit ${id}: ${e}`);
+        } catch (error) {
+          logger.warn(`post-commit DM failed for shop edit ${id}:`, error);
         }
       });
 
       res.json({ success: true, status: "awaiting_funds", required: fee });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`shop edit approve->awaiting_funds error: ${error}`);
+      logger.error("shop edit approve->awaiting_funds error:", error);
       res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1405,14 +1403,14 @@ export default function adminRoutes(db, clientBot) {
             reason,
           ];
           await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
-        } catch (e) {
-          logger.warn(`DM failed for rejected shop edit ${id}: ${e}`);
+        } catch (error) {
+          logger.warn(`DM failed for rejected shop edit ${id}:`, error);
         }
       });
 
       res.json({ success: true, status: "rejected" });
     } catch (error) {
-      logger.error(`reject shop edit ${id} error: ${error}`);
+      logger.error(`reject shop edit ${id} error:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

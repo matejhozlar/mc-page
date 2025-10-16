@@ -119,7 +119,7 @@ export default async function createTicket(interaction, client, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`Failed to create ticket: ${error}`);
+    logger.error("Failed to create ticket:", error);
     await interaction.reply({
       content: "⚠️ Failed to create ticket. Please try again later.",
       flags: MessageFlags.Ephemeral,

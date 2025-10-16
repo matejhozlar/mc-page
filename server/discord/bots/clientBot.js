@@ -31,13 +31,13 @@ const clientBot = new Client({
 });
 
 clientBot.once("ready", async () => {
-  logger.info(`ClientBot logged in as ${clientBot.user.tag}`);
+  logger.info("ClientBot logged in as", clientBot.user.tag);
 
   try {
     await setupClientBot(db, clientBot);
     await registerClientListeners(clientBot, { db });
   } catch (error) {
-    logger.error(`Error during bot setup: ${error}`);
+    logger.error("Error during bot setup:", error);
   }
 });
 
@@ -49,7 +49,7 @@ clientBot.on("guildMemberAdd", onGuilderMemberAdd);
 
   await clientBot.login(process.env.CLIENT_BOT_TOKEN);
 })().catch((error) => {
-  logger.error(`Failed to initialize ClientBot: ${error}`);
+  logger.error("Failed to initialize ClientBot:", error);
 });
 
 export default clientBot;

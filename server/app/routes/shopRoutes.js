@@ -213,7 +213,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
               "A pending shop with these details already exists, or you already have a pending submission.",
           });
         }
-        logger.error(`Failed to submit shop: ${error}`);
+        logger.error("Failed to submit shop:", error);
         return res.status(500).json({ error: "Failed to submit shop." });
       }
     }
@@ -346,7 +346,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
       return res.json({ success: true, shop_id: pending.id });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`Pay & finalize shop error: ${error}`);
+      logger.error("Pay & finalize shop error:", error);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -366,7 +366,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
       );
       res.json(rows);
     } catch (error) {
-      logger.error(`Failed to fetch pending shops: ${error}`);
+      logger.error("Failed to fetch pending shops:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -397,7 +397,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
       }
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`Failed to delete rejected shop ${id}: ${error}`);
+      logger.error(`Failed to delete rejected shop ${id}:`, error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -413,7 +413,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
         .status(400)
         .json({ error: "Invalid file type. Only images are allowed." });
     }
-    logger.error(`Upload middleware error: ${err.message}`);
+    logger.error("Upload middleware error:", err);
     return res.status(500).json({ error: "Unexpected server error." });
   });
 
@@ -462,8 +462,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
       );
 
       res.json({ companies: rows });
-    } catch (err) {
-      logger.error(`/market/my-companies failed: ${err}`);
+    } catch (error) {
+      logger.error(`/market/my-companies failed:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -523,8 +523,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
       }
 
       return res.json(rows[0]);
-    } catch (err) {
-      logger.error(`Failed to fetch shop ${shopId}: ${err}`);
+    } catch (error) {
+      logger.error(`Failed to fetch shop ${shopId}:`, error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -697,16 +697,17 @@ export default function shopSubmissionRoutes(db, clientBot) {
               },
               clientBot
             );
-          } catch (e) {
+          } catch (error) {
             logger.error(
-              `Failed to notify admins about shop edit ${shopId}: ${e}`
+              `Failed to notify admins about shop edit ${shopId}:`,
+              error
             );
           }
         });
 
         return res.status(201).json({ success: true, edit_id: editRow.id });
       } catch (error) {
-        logger.error(`Failed to create shop edit for ${shopId}: ${error}`);
+        logger.error(`Failed to create shop edit for ${shopId}:`, error);
         return res.status(500).json({ error: "Internal server error" });
       }
     }
@@ -768,7 +769,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
         approved_edits: tag(approvedEdits),
       });
     } catch (error) {
-      logger.error(`/market/shop-edits error: ${error}`);
+      logger.error("/market/shop-edits error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -798,8 +799,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
       await db.query(`DELETE FROM rejected_shop_edits WHERE id=$1`, [id]);
       return res.json({ success: true });
-    } catch (e) {
-      logger.error(`delete rejected shop edit ${id}: ${e}`);
+    } catch (error) {
+      logger.error(`delete rejected shop edit ${id}:`, error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -826,8 +827,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
         [shopId]
       );
       res.json({ items: rows });
-    } catch (e) {
-      logger.error(`list items for shop ${shopId}: ${e}`);
+    } catch (error) {
+      logger.error(`list items for shop ${shopId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -927,9 +928,9 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
       await client.query("COMMIT");
       res.status(201).json({ item: full });
-    } catch (e) {
+    } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`create item shop ${shopId}: ${e}`);
+      logger.error(`create item shop ${shopId}:`, error);
       return res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1069,9 +1070,9 @@ export default function shopSubmissionRoutes(db, clientBot) {
 
       await client.query("COMMIT");
       res.json({ item: full });
-    } catch (e) {
+    } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`update item ${itemId} for shop ${shopId}: ${e}`);
+      logger.error(`update item ${itemId} for shop ${shopId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     } finally {
       client.release();
@@ -1116,8 +1117,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
       );
       if (!rowCount) return res.status(404).json({ error: "Item not found" });
       return res.json({ success: true });
-    } catch (e) {
-      logger.error(`delete item ${itemId} for shop ${shopId}: ${e}`);
+    } catch (error) {
+      logger.error(`delete item ${itemId} for shop ${shopId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1179,8 +1180,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
           avatar_url: avatarFor(f.uuid),
         })),
       });
-    } catch (e) {
-      logger.error(`/market/shop/:shopId/owners: ${e}`);
+    } catch (error) {
+      logger.error(`/market/shop/:shopId/owners:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1200,8 +1201,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
         [shopId]
       );
       res.json({ location: loc || null });
-    } catch (e) {
-      logger.error(`get shop location ${shopId}: ${e}`);
+    } catch (error) {
+      logger.error(`get shop location ${shopId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1266,8 +1267,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
         ]
       );
       res.json({ success: true });
-    } catch (e) {
-      logger.error(`upsert shop location ${shopId}: ${e}`);
+    } catch (error) {
+      logger.error(`upsert shop location ${shopId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1309,13 +1310,13 @@ export default function shopSubmissionRoutes(db, clientBot) {
         [shopId, user.uuid, r, (review ?? "").trim()]
       );
       return res.status(201).json({ review: row });
-    } catch (e) {
-      if (String(e.message || "").includes("uq_shop_reviews_user")) {
+    } catch (error) {
+      if (String(error.message || "").includes("uq_shop_reviews_user")) {
         return res
           .status(409)
           .json({ error: "You have already reviewed this shop." });
       }
-      logger.error(`create review shop ${shopId}: ${e}`);
+      logger.error(`create review shop ${shopId}:`, error);
       return res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1348,8 +1349,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
         [shopId]
       );
       res.json({ reviews: rows, total: count });
-    } catch (e) {
-      logger.error(`list reviews shop ${shopId}: ${e}`);
+    } catch (error) {
+      logger.error(`list reviews shop ${shopId}:`, error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -1482,8 +1483,8 @@ export default function shopSubmissionRoutes(db, clientBot) {
       }
 
       res.json({ items, has_more, total });
-    } catch (e) {
-      logger.error(`/market/items/search error: ${e}`);
+    } catch (error) {
+      logger.error("/market/items/search error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

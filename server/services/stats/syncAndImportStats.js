@@ -79,9 +79,9 @@ async function importStatsFromFile(uuid, filePath, db) {
       }
     }
 
-    logger.info(`Imported stats for UUID: ${uuid}`);
+    logger.info("Imported stats for UUID:", uuid);
   } catch (error) {
-    logger.error(`Failed to import for ${uuid}: ${error}`);
+    logger.error("Failed to import for ${uuid}:", error);
   }
 }
 
@@ -134,13 +134,13 @@ export async function syncAndImportStats(db) {
 
     logger.info("Stat import complete.");
   } catch (error) {
-    logger.error(`syncAndImportStats failed: ${error}`);
+    logger.error("syncAndImportStats failed:", error);
   } finally {
     try {
       sftp.end();
       logger.info("SFTP connection closed cleanly.");
     } catch (error) {
-      logger.warn(`SFTP connection closed with warning: ${error}`);
+      logger.warn("SFTP connection closed with warning:", error);
     }
   }
 }

@@ -86,7 +86,7 @@ export async function handleWaitlistButton(interaction, db) {
     await interaction.editReply("Unknown action.");
     return true;
   } catch (error) {
-    logger.error(`Waitlist button handler error: ${error}`);
+    logger.error("Waitlist button handler error:", error);
     try {
       if (interaction.deferred && !interaction.replied) {
         await interaction.editReply("There was an error handling that action.");

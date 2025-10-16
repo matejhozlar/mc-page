@@ -3,7 +3,6 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { v4 as uuidv4 } from "uuid";
 import logger from "../../../logger.js";
-import { exitIfNotProduction } from "../../../utils/production/onlyInProduction.js";
 
 export async function sendInviteById(db, id, env) {
   const __filename = fileURLToPath(import.meta.url);

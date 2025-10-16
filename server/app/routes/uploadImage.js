@@ -92,7 +92,8 @@ export default function uploadImageRoute(io, webChatClient) {
       return res.json({ success: true, image: imageUrl });
     } catch (error) {
       logger.error(
-        `Failed to send image to Discord from ${authorName}: ${error}`
+        `Failed to send image to Discord from ${authorName}:`,
+        error
       );
       return res.status(500).json({ error: "Failed to send image" });
     }

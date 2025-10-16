@@ -40,7 +40,7 @@ export default function verifyTokenRoute(db) {
         },
       });
     } catch (error) {
-      logger.error(`Token verification failed: ${error}`);
+      logger.error("Token verification failed:", error);
       return res
         .status(500)
         .json({ success: false, error: "Internal server error" });

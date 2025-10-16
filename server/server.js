@@ -137,12 +137,12 @@ process.on("SIGINT", async () => {
       process.exit(0);
     });
   } catch (error) {
-    logger.error(`Error during shutdown: ${error}`);
+    logger.error("Error during shutdown:", error);
     process.exit(1);
   }
 });
 
 // ─── Unhandled Promise Rejection Fallback ────────────────
 process.on("unhandledRejection", (reason) => {
-  logger.error(`Unhandled promise rejection: ${reason}`);
+  logger.error("Unhandled promise rejection:", reason);
 });

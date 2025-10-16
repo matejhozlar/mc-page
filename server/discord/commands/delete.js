@@ -65,7 +65,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/delete failed: ${error}`);
+    logger.error("/delete failed:", error);
     await interaction.reply({
       content:
         "⚠️ Failed to delete messages. Make sure they are not older than 14 days.",

@@ -60,7 +60,7 @@ export default async function reopenTicket(interaction, client, db) {
       });
     }
   } catch (error) {
-    logger.error(`Failed to reopen ticket: ${error}`);
+    logger.error("Failed to reopen ticket:", error);
     await interaction.reply({
       content: "⚠️ Something went wrong while reopening the ticket.",
       flags: MessageFlags.Ephemeral,

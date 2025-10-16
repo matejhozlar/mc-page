@@ -46,7 +46,7 @@ export async function logCompanyBalances(db) {
         [company.company_id]
       );
     }
-  } catch (err) {
-    logger.error(`Failed to log company balances: ${err.message}`);
+  } catch (error) {
+    logger.error("Failed to log company balances:", error);
   }
 }

@@ -17,7 +17,7 @@ export const isAdmin = async (db, discordId) => {
     );
     return result.rowCount > 0;
   } catch (error) {
-    logger.error(`Admin check failed: ${error}`);
+    logger.error("Admin check failed:", error);
     return false;
   }
 };

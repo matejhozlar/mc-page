@@ -90,6 +90,6 @@ export async function assignMembershipDurationRoles(db, clientBot) {
       }
     }
   } catch (error) {
-    logger.error(`Error assigning membership duration roles: ${error}`);
+    logger.error("Error assigning membership duration roles:", error);
   }
 }

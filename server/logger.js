@@ -1,6 +1,7 @@
 import winston from "winston";
 import path from "path";
 import fs from "fs";
+import util from "util";
 
 const logDir = "logs";
 
@@ -25,14 +26,32 @@ class DailyFolderLogger {
   }
 
   createLoggerForDate(date) {
+    const baseFormat = winston.format.combine(
+      winston.format.errors({ stack: true }),
+      winston.format.splat(),
+      winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+      winston.format.printf((info) => {
+        const { timestamp, level, message } = info;
+        const splat = info[Symbol.for("splat")] || [];
+
+        const formatted = util.format(
+          message,
+          ...splat.map((arg) =>
+            arg instanceof Error
+              ? arg.stack || arg.message
+              : typeof arg === "object"
+              ? util.inspect(arg, { depth: null, breakLength: 120 })
+              : arg
+          )
+        );
+
+        return `[${timestamp}] [${level.toUpperCase()}] ${formatted}`;
+      })
+    );
+
     return winston.createLogger({
       level: "info",
-      format: winston.format.combine(
-        winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
-        winston.format.printf(({ timestamp, level, message }) => {
-          return `[${timestamp}] [${level.toUpperCase()}] ${message}`;
-        })
-      ),
+      format: baseFormat,
       transports: [
         new winston.transports.File({
           filename: this.getLogPathForDate(date, "server.log"),
@@ -69,7 +88,7 @@ class DailyFolderLogger {
             if (rmErr) {
               console.log(`Failed to delete old log folder ${folder}:`, rmErr);
             } else {
-              console.log(`Deteted old log folder: ${folder}`);
+              console.log(`Deleted old log folder: ${folder}`);
             }
           });
         }
@@ -89,34 +108,20 @@ class DailyFolderLogger {
     }, 60 * 1000);
   }
 
-  formatMessage(input) {
-    if (input instanceof Error) {
-      return input.stack || input.message;
-    }
-    if (typeof input === "object") {
-      try {
-        return JSON.stringify(input);
-      } catch {
-        return String(input);
-      }
-    }
-    return String(input);
+  error(...args) {
+    this.logger.error(...args);
   }
 
-  error(message) {
-    this.logger.error(this.formatMessage(message));
+  warn(...args) {
+    this.logger.warn(...args);
   }
 
-  warn(message) {
-    this.logger.warn(this.formatMessage(message));
+  info(...args) {
+    this.logger.info(...args);
   }
 
-  info(message) {
-    this.logger.info(this.formatMessage(message));
-  }
-
-  log(level, message) {
-    this.logger.log({ level, message: this.formatMessage(message) });
+  log(level, ...args) {
+    this.logger.log(level, ...args);
   }
 }
 

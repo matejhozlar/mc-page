@@ -67,7 +67,7 @@ export async function startLotteryResolver(db, waitMs = 120000) {
     await announceLotteryWinner(webBot, winner.name, total);
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`Lottery resolver failed: ${error}`);
+    logger.error("Lottery resolver failed:", error);
   } finally {
     client.release();
   }

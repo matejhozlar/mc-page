@@ -125,6 +125,6 @@ export async function assignPlaytimeRole(db, discordClient, isInitial = false) {
       }
     }
   } catch (error) {
-    logger.error(`Error assigning playtime roles: ${error}`);
+    logger.error("Error assigning playtime roles:", error);
   }
 }

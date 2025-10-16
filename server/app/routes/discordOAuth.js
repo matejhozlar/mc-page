@@ -59,7 +59,7 @@ export default function discordOAuthRoutes(db) {
       logger.info(`Game session started for user: ${discordUser.username}`);
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`Game login failed: ${error}`);
+      logger.error("Game login failed:", error);
       res.status(500).json({ error: "OAuth error" });
     }
   });
@@ -170,7 +170,7 @@ export default function discordOAuthRoutes(db) {
       logger.info(`Admin session started for ${user.username} (${user.id})`);
       res.status(200).json({ success: true });
     } catch (error) {
-      logger.error(`OAuth or admin check error: ${error}`);
+      logger.error("OAuth or admin check error:", error);
       res.status(500).json({ error: "OAuth error" });
     }
   });
@@ -227,7 +227,7 @@ export default function discordOAuthRoutes(db) {
       );
       res.status(200).json({ success: true, discordId });
     } catch (error) {
-      logger.error(`Market login failed: ${error}`);
+      logger.error("Market login failed:", error);
       res.status(500).json({ error: "OAuth error" });
     }
   });

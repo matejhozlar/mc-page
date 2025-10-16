@@ -66,10 +66,10 @@ export async function execute(interaction, db) {
     });
     await fs
       .unlink(jsonPath)
-      .catch(() => logger.warn(`Failed to delete temp file: ${jsonPath}`));
+      .catch(() => logger.warn("Failed to delete temp file:", jsonPath));
     cooldown.set(userId, now);
   } catch (error) {
-    logger.error(`/stats-info failed: ${error}`);
+    logger.error("/stats-info failed:", error);
     await interaction.editReply("⚠️ Failed to fetch or send stats info.");
   }
 }

@@ -40,7 +40,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`Failed to send message: ${error}`);
+    logger.error("/message failed:", error);
     await interaction.reply({
       content: "⚠️ Failed to send the message.",
       flags: MessageFlags.Ephemeral,

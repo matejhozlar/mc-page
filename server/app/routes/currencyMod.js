@@ -70,7 +70,7 @@ export default function currencyRoutes(db, webBot, io) {
       const balance = Math.floor(parseFloat(rawBal));
       res.json({ balance });
     } catch (error) {
-      logger.error(`/currency/balance error: ${error}`);
+      logger.error("/currency/balance error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -140,7 +140,7 @@ export default function currencyRoutes(db, webBot, io) {
       res.json({ success: true, new_sender_balance: newSenderBal });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`/currency/pay error: ${error}`);
+      logger.error("/currency/pay error:", error);
       res.status(400).json({ error: error.message });
     } finally {
       client.release();
@@ -183,7 +183,7 @@ export default function currencyRoutes(db, webBot, io) {
       res.json({ success: true, new_balance: newBalance });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`/currency/deposit error: ${error}`);
+      logger.error("/currency/deposit error:", error);
       res.status(400).json({ error: error });
     } finally {
       client.release();
@@ -252,7 +252,7 @@ export default function currencyRoutes(db, webBot, io) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`/currency/withdraw error: ${error}`);
+      logger.error("/currency/withdraw error:", error);
       res.status(400).json({ error: error });
     } finally {
       client.release();
@@ -273,7 +273,7 @@ export default function currencyRoutes(db, webBot, io) {
 
       res.json(top);
     } catch (error) {
-      logger.error(`/currency/top error: ${error}`);
+      logger.error("/currency/top error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -296,7 +296,7 @@ export default function currencyRoutes(db, webBot, io) {
 
       res.json({ success: true, message: "Mob limit marked for user" });
     } catch (error) {
-      logger.error(`/currency/mob-limit error: ${error}`);
+      logger.error("/currency/mob-limit error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -319,7 +319,7 @@ export default function currencyRoutes(db, webBot, io) {
       const limitReached = result.rowCount > 0;
       res.json({ limitReached });
     } catch (error) {
-      logger.error(`/currency/mob-limit GET error: ${error}`);
+      logger.error("/currency/mob-limit GET error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -423,7 +423,7 @@ export default function currencyRoutes(db, webBot, io) {
       });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`/currency/daily error: ${error}`);
+      logger.error("/currency/daily error:", error);
       res.status(500).json({
         error: "Something went wrong while claiming your daily reward.",
       });
@@ -487,7 +487,7 @@ export default function currencyRoutes(db, webBot, io) {
       res.json({ success: true, message: "Lottery started." });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`/lottery/start error: ${error}`);
+      logger.error("/lottery/start error:", error);
       res.status(400).json({ error: error.message || "Something went wrong" });
     } finally {
       client.release();
@@ -557,7 +557,7 @@ export default function currencyRoutes(db, webBot, io) {
       res.json({ success: true, message: "Joined the lottery." });
     } catch (error) {
       await client.query("ROLLBACK");
-      logger.error(`/lottery/join error: ${error}`);
+      logger.error("/lottery/join error:", error);
       res.status(400).json({ error: error.message });
     } finally {
       client.release();
@@ -608,7 +608,7 @@ export default function currencyRoutes(db, webBot, io) {
       logger.info(`${name} triggered a vote: ${voteType}`);
       res.json({ success: true, message: `Vote for ${voteType} started.` });
     } catch (error) {
-      logger.error(`/vote/start error: ${error}`);
+      logger.error("/vote/start error:", error);
       res.status(500).json({ error: "Failed to start vote." });
     }
   });

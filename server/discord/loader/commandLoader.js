@@ -41,7 +41,7 @@ export async function loadCommandHandlers() {
 
       commandHandlers.set(commandModule.data.name, commandModule);
     } catch (error) {
-      logger.error(`Failed to load command ${file}: ${error}`);
+      logger.error(`Failed to load command ${file}:`, error);
     }
   }
 

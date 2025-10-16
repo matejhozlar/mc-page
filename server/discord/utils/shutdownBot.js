@@ -23,6 +23,6 @@ export const shutdownBot = async (
     await client.destroy();
     logger.info(`${name} shut down successfully`);
   } catch (error) {
-    logger.error(`Error during ${name} shutdown: ${error}`);
+    logger.error(`Error during ${name} shutdown:`, error);
   }
 };

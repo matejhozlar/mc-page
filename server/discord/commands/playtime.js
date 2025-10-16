@@ -65,7 +65,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/playtime command failed: ${error}`);
+    logger.error("/playtime failed:", error);
     return await interaction.reply({
       content:
         "⚠️ Something went wrong while fetching playtime. Please try again later.",

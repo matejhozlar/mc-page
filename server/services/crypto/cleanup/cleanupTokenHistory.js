@@ -48,6 +48,6 @@ export async function cleanupTokenHistoryTable(
       }
     }
   } catch (error) {
-    logger.error(`Failed to clean ${tableName}: ${error}`);
+    logger.error(`Failed to clean ${tableName}:`, error);
   }
 }

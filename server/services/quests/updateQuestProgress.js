@@ -77,6 +77,6 @@ export async function updateQuestProgress(db, discordClient, channelId) {
 
     logger.info("Quest progress updated and embed refreshed.");
   } catch (error) {
-    logger.error(`updateQuestProgress failed: ${error}`);
+    logger.error("updateQuestProgress failed:", error);
   }
 }

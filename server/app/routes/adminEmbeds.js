@@ -64,7 +64,7 @@ export default function adminEmbedRoutes(db, clientBot) {
 
       res.json({ ok: true });
     } catch (error) {
-      logger.error(`Failed to submit embed: ${error}`);
+      logger.error("Failed to submit embed:", error);
       res.status(500).json({ error: "Server error" });
     }
   });

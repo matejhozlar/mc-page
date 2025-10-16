@@ -57,7 +57,7 @@ export default async function requestHistoryHandler(socket, webBot) {
 
     logger.info(`Sending ${filtered.length} messages to client`);
     socket.emit("chatHistory", filtered);
-  } catch (err) {
-    logger.error(`Failed to fetch chat history: ${err}`);
+  } catch (error) {
+    logger.error("Failed to fetch chat history:", error);
   }
 }

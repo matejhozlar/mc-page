@@ -31,7 +31,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/token command failed: ${error}`);
+    logger.error("/token failed:", error);
     await interaction.reply({
       content: "❌ Could not generate token. Please try again later.",
       flags: MessageFlags.Ephemeral,

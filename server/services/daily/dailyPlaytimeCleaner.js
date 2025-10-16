@@ -11,6 +11,6 @@ export async function cleanupDailyPlaytime(db) {
     await db.query(`DELETE FROM daily_playtime`);
     logger.info("Cleared daily_playtime table @ 6:30 AM CET");
   } catch (error) {
-    logger.error(`Failed to clear daily_playtime table: ${error}`);
+    logger.error("Failed to clear daily_playtime table:", error);
   }
 }

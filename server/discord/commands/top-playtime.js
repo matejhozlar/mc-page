@@ -68,7 +68,7 @@ export async function execute(interaction, db) {
 
     return await interaction.reply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`/top-playtime command failed: ${error}`);
+    logger.error("/top-playtime failed:", error);
     return await interaction.reply({
       content: "⚠️ Couldn’t load leaderboard. Try again later.",
       flags: MessageFlags.Ephemeral,

@@ -29,7 +29,7 @@ const webBot = new Client({
 });
 
 webBot.once("ready", async () => {
-  logger.info(`WebBot logged in as ${webBot.user.tag}`);
+  logger.info("WebBot logged in as", webBot.user.tag);
   setRotatingStatuses(webBot, rotatingStatuses);
 
   await sendBotNotification(webBot, "🟢 WebBot is now online.");
@@ -38,12 +38,12 @@ webBot.once("ready", async () => {
     const io = getIO();
     await registerWebListeners(webBot, { io });
   } catch (error) {
-    logger.error(`Error during bot setup: ${error}`);
+    logger.error("Error during bot setup:", error);
   }
 });
 
 webBot.login(process.env.WEB_BOT_TOKEN).catch((error) => {
-  logger.error(`Failed to login WebBot: ${error}`);
+  logger.error("Failed to login WebBot:", error);
 });
 
 export default webBot;

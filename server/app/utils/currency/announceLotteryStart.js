@@ -21,6 +21,6 @@ export async function announceLotteryStart(hostName) {
       logger.warn(`Channel ${channelId} is not text-based or doesn't exist.`);
     }
   } catch (error) {
-    logger.error(`Failed to send lottery announcement: ${error}`);
+    logger.error("Failed to send lottery announcement:", error);
   }
 }

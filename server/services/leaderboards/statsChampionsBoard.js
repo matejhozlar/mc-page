@@ -145,7 +145,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
 
       const topMember = await guild.members.fetch(topId).catch(() => null);
       if (!topMember) {
-        logger.warn(`Could not fetch member with ID ${topId}`);
+        logger.warn("Could not fetch member with ID", topId);
         return;
       }
 
@@ -155,14 +155,14 @@ export async function initStatsChampionsBoard(db, client, channelId) {
       for (const member of allMembers.values()) {
         if (member.roles.cache.has(role.id) && member.id !== topId) {
           await member.roles.remove(role).catch(() => {});
-          logger.info(`Removed Champion role from ${member.user.tag}`);
+          logger.info("Removed Champion role from", member.user.tag);
           isNewChampion = true;
         }
       }
 
       if (!topMember.roles.cache.has(role.id)) {
         await topMember.roles.add(role).catch(() => {});
-        logger.info(`Gave Champion role to ${topMember.user.tag}`);
+        logger.info("Gave Champion role to", topMember.user.tag);
         isNewChampion = true;
       }
 
@@ -185,7 +185,7 @@ export async function initStatsChampionsBoard(db, client, channelId) {
         }
       }
     } catch (error) {
-      logger.error(`updateLeaderboard failed: ${error}`);
+      logger.error("updateLeaderboard failed:", error);
     }
   }
 

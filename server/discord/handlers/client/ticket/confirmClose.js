@@ -62,7 +62,7 @@ export default async function confirmCloseTicket(interaction, client, db) {
       [adminPanelMessage.id, interaction.channel.id]
     );
   } catch (error) {
-    logger.error(`Failed to close ticket: ${error}`);
+    logger.error("Failed to close ticket:", error);
     await interaction.reply({
       content: "❌ Failed to close ticket.",
       flags: MessageFlags.Ephemeral,

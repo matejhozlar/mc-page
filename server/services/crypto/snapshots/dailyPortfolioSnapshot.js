@@ -39,6 +39,6 @@ export async function snapshotUserPortfolios(db) {
 
     logger.info("Daily user portfolio snapshot recorded.");
   } catch (error) {
-    logger.error(`Failed to record daily snapshots: ${error}`);
+    logger.error("Failed to record daily snapshots:", error);
   }
 }

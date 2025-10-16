@@ -46,6 +46,6 @@ export async function finalizeDailyPlaytime(db) {
 
     logger.info(`Finalized playtime for ${rows.length} users @ 6 AM CET`);
   } catch (error) {
-    logger.error(`Failed to finalize daily playtime:`, error);
+    logger.error("Failed to finalize daily playtime:", error);
   }
 }

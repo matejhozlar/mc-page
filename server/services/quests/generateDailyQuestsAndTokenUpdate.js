@@ -149,7 +149,7 @@ export async function generateDailyQuestsAndTokenUpdate(
       );
 
       if (!userRows.length) {
-        logger.warn(`Could not find discord_id for uuid: ${reward.uuid}`);
+        logger.warn("Could not find discord_id for uuid:", reward.uuid);
         continue;
       }
 
@@ -207,7 +207,7 @@ export async function generateDailyQuestsAndTokenUpdate(
 
     logger.info("Daily quests and token updates complete.");
   } catch (error) {
-    logger.error(`generateDailyQuestsAndTokenUpdate failed: ${error}`);
+    logger.error("generateDailyQuestsAndTokenUpdate failed:", error);
   }
 }
 

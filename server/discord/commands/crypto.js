@@ -87,7 +87,7 @@ export async function execute(interaction, db) {
       await handleSell(interaction, db, userId, token.symbol, amount);
     }
   } catch (error) {
-    logger.error(`/crypto ${subcommand} failed: ${error}`);
+    logger.error(`/crypto ${subcommand} failed:`, error);
     return await interaction.reply({
       content: `⚠️ Failed to ${subcommand} tokens. Please try again later.`,
       flags: MessageFlags.Ephemeral,

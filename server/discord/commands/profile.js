@@ -116,7 +116,7 @@ export async function execute(interaction, db) {
     });
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`/profile command failed: ${error}`);
+    logger.error("/profile failed:", error);
     return await interaction.reply({
       content: "⚠️ Something went wrong while fetching your profile.",
       flags: MessageFlags.Ephemeral,

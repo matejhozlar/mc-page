@@ -43,9 +43,7 @@ export default function registerClientInteractionHandler(
       try {
         await handler(interaction, client, db);
       } catch (error) {
-        logger.error(
-          `Error handling button "${interaction.customId}": ${error}`
-        );
+        logger.error(`Error handling button "${interaction.customId}":`, error);
         await interaction.reply({
           content: "❌ Something went wrong.",
           flags: MessageFlags.Ephemeral,

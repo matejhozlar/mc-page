@@ -147,7 +147,7 @@ export function startPlaytimeTracking(db, serverIP, serverPort) {
   )
 `);
     } catch (error) {
-      logger.error(`Background playtime sync failed: ${error}`);
+      logger.error("Background playtime sync failed:", error);
     }
   }
 

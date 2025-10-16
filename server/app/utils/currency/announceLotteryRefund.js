@@ -21,6 +21,6 @@ export async function announceLotteryRefund(client, participantName, amount) {
       logger.warn(`Channel ${channelId} is not text-based or doesn't exist.`);
     }
   } catch (error) {
-    logger.error(`Failed to send lottery refund message: ${error}`);
+    logger.error("Failed to send lottery refund message:", error);
   }
 }

@@ -32,7 +32,8 @@ export default function formRoutes(db, client) {
       res.json({ success: true, application: result.rows[0] });
     } catch (error) {
       logger.error(
-        `Failed to insert application — MC: ${mcName}, DC: ${dcName}: ${error}`
+        `Failed to insert application — MC: ${mcName}, DC: ${dcName}:`,
+        error
       );
       res.status(500).json({ error: "Error submitting application" });
     }
@@ -102,7 +103,7 @@ export default function formRoutes(db, client) {
       await notifyAdminWaitlist(entry, client);
       res.json({ success: true, entry: result.rows[0] });
     } catch (error) {
-      logger.error(`Failed to insert waitlist entry for ${email}: ${error}`);
+      logger.error(`Failed to insert waitlist entry for ${email}:`, error);
       res.status(500).json({
         error:
           "Error submitting waitlist entry.\nIf you're having trouble, contact admin@create-rington.com",

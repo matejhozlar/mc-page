@@ -90,7 +90,7 @@ export async function execute(interaction, db) {
 
     await interaction.editReply({ embeds: [embed] });
   } catch (error) {
-    logger.error(`/stats-category command failed: ${error}`);
+    logger.error("/stats-category failed:", error);
     await interaction.editReply("⚠️ Something went wrong. Try again later.");
   }
 }

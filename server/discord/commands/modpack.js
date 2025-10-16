@@ -62,7 +62,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/modpack command failed: ${error}`);
+    logger.error("/modpack failed:", error);
     await interaction.reply({
       content: `⚠️ Something went wrong. Try again later.`,
       flags: MessageFlags.Ephemeral,

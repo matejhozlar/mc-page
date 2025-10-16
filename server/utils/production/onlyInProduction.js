@@ -11,7 +11,7 @@ import logger from "../../logger.js";
 export function runOnlyInProduction(fn) {
   if (process.env.NODE_ENV !== "production") {
     const relPath = getCallerRelativePath();
-    logger.info(`🛑 Skipped production-only code from: ${relPath}`);
+    logger.info("🛑 Skipped production-only code from:", relPath);
     return;
   }
   fn();
@@ -25,7 +25,7 @@ export function runOnlyInProduction(fn) {
 export function runOnlyInDevelopment(fn) {
   if (process.env.NODE_ENV === "production") {
     const relPath = getCallerRelativePath();
-    logger.info(`🛑 Skipped development-only code from: ${relPath}`);
+    logger.info("🛑 Skipped development-only code from:", relPath);
     return;
   }
   fn();
@@ -40,7 +40,7 @@ export function runOnlyInDevelopment(fn) {
 export function exitIfNotProduction() {
   if (process.env.NODE_ENV !== "production") {
     const relPath = getCallerRelativePath();
-    logger.info(`🛑 Skipped production-only module from: ${relPath}`);
+    logger.info("🛑 Skipped production-only module from:", relPath);
     return false;
   }
   return true;

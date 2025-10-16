@@ -36,7 +36,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/crypto-alert-remove failed: ${error}`);
+    logger.error("/crypto-alert-remove failed:", error);
     return await interaction.reply({
       content: "⚠️ Something went wrong while removing your alert.",
       flags: MessageFlags.Ephemeral,

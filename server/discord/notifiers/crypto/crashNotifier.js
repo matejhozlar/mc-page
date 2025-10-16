@@ -49,7 +49,7 @@ export async function sendCrashNotification(token) {
       await channel.send({ embeds: [embed] });
       logger.info(`Crash alert sent for ${token.name} (${token.symbol})`);
     } catch (error) {
-      logger.error(`Failed to send crash alert: ${error}`);
+      logger.error("Failed to send crash alert:", error);
     } finally {
       client.destroy();
     }

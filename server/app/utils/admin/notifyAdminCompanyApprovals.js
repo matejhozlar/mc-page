@@ -35,8 +35,8 @@ async function sendAdminNotice({ subject, plain, html, embed, client }) {
   try {
     await transporter.sendMail(mailOptions);
     logger.info(`Admin email sent: ${subject}`);
-  } catch (err) {
-    logger.error(`Failed to send admin email: ${err}`);
+  } catch (error) {
+    logger.error("Failed to send admin email:", error);
   }
 
   try {
@@ -52,8 +52,8 @@ async function sendAdminNotice({ subject, plain, html, embed, client }) {
 
     await channel.send(embed);
     logger.info(`Discord admin channel notified: ${subject}`);
-  } catch (err) {
-    logger.error(`Failed to send Discord notification: ${err}`);
+  } catch (error) {
+    logger.error("Failed to send Discord notification:", error);
   }
 }
 

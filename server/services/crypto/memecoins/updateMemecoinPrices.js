@@ -70,9 +70,10 @@ export async function updateMemecoinPrices(db, clientBot, io) {
             await user.send(
               `Your alert for **${crashedToken.symbol}** has been cancelled — the token has **auto-crashed to $0**.`
             );
-          } catch (err) {
+          } catch (error) {
             logger.warn(
-              `Failed to send crash alert DM to ${alert.discord_id}: ${err}`
+              `Failed to send crash alert DM to ${alert.discord_id}:`,
+              error
             );
           }
         }
@@ -191,9 +192,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
             setTimeout(resolve, ALERT_DM_DELAY_MS)
           );
         } catch (error) {
-          logger.warn(
-            `Failed to send alert DM to ${alert.discord_id}: ${error}`
-          );
+          logger.warn(`Failed to send alert DM to ${alert.discord_id}:`, error);
         }
       }
 
@@ -236,10 +235,10 @@ export async function updateMemecoinPrices(db, clientBot, io) {
            )`,
           [id]
         );
-        logger.info(`Trimmed 20 old history entries for token ID ${id}`);
+        logger.info(`Trimmed 20 old history entries for token ID`, id);
       }
     }
   } catch (error) {
-    logger.error(`Failed to update memecoin prices: ${error}`);
+    logger.error("Failed to update memecoin prices:", error);
   }
 }

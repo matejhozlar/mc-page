@@ -45,8 +45,8 @@ export function createVisitTracker(db) {
         );
         logger.info(`Synced ${visitCounter} visits to DB.`);
         visitCounter = 0;
-      } catch (err) {
-        logger.error(`Failed to sync visits: ${err.message}`);
+      } catch (error) {
+        logger.error("Failed to sync visits:", error);
       }
     }
   }, 60 * 1000);

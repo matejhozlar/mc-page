@@ -97,7 +97,7 @@ export async function execute(interaction) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/stats-guide command failed: ${error}`);
+    logger.error("/stats-guide failed:", error);
     await interaction.reply({
       content: `⚠️ Something went wrong. Try again later.`,
       flags: MessageFlags.Ephemeral,

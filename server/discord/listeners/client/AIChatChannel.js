@@ -61,7 +61,7 @@ export default function setupAIChatListener(client, { db }) {
         [userId, message.content]
       );
     } catch (error) {
-      logger.error(`AI Chat Error: ${error}`);
+      logger.error("AI Chat Error:", error);
       await message.reply("⚠️ The assistant encountered an error.");
     }
   });

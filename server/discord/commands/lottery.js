@@ -102,16 +102,16 @@ export async function execute(interaction, db) {
       content: `🎉 You started a new lottery with $${amount}!`,
     });
 
-    announceLotteryStart(name).catch((err) =>
-      logger.error("announceLotteryStart failed:", err)
+    announceLotteryStart(name).catch((error) =>
+      logger.error("announceLotteryStart failed:", error)
     );
-    startLotteryResolver(db).catch((err) =>
-      logger.error("startLotteryResolver failed:", err)
+    startLotteryResolver(db).catch((error) =>
+      logger.error("startLotteryResolver failed:", error)
     );
     LAST_LOTTERY_TIME = Date.now();
   } catch (error) {
     await client.query("ROLLBACK");
-    logger.error(`/lottery command failed: ${error}`);
+    logger.error("/lottery failed:", error);
     await interaction.editReply({
       content: "⚠️ Something went wrong.",
     });

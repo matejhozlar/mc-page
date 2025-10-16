@@ -21,6 +21,6 @@ export async function deleteCrashedMemecoins(db) {
       );
     }
   } catch (error) {
-    logger.error(`Failed to delete crashed memecoins: ${error}`);
+    logger.error("Failed to delete crashed memecoins:", error);
   }
 }

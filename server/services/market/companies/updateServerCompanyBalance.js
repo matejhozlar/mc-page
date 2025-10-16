@@ -66,8 +66,6 @@ export async function updateServerCompanyBalance(db) {
       )}`
     );
   } catch (error) {
-    logger.error(
-      `Failed to update main server company balance: ${error.message}`
-    );
+    logger.error("Failed to update main server company balance:", error);
   }
 }

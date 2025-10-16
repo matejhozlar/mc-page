@@ -54,7 +54,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     await transporter.sendMail(mailOptions);
     logger.info(`Admin notified of new waitlist entry: ${discord_name}`);
   } catch (error) {
-    logger.error(`Failed to notify admin by email: ${error}`);
+    logger.error("Failed to notify admin by email:", error);
   }
 
   try {
@@ -99,6 +99,6 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     await channel.send({ embeds: [embed], components: [actionRow, linkRow] });
     logger.info(`Discord admin channel notified of waitlist: ${discord_name}`);
   } catch (error) {
-    logger.error(`Failed to send Discord notification: ${error}`);
+    logger.error("Failed to send Discord notification:", error);
   }
 }

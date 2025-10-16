@@ -48,8 +48,8 @@ export default async function chatMessageHandler(socket, data, db, io, webBot) {
       image: null,
       authorType: "web",
     });
-  } catch (err) {
-    logger.error(`Error sending chat message: ${err}`);
+  } catch (error) {
+    logger.error("Error sending chat message:", error);
   }
 }
 

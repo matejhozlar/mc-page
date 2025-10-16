@@ -29,7 +29,7 @@ export default function playersRoutes(
 
       res.json({ count });
     } catch (error) {
-      logger.error(`Error querying server: ${error}`);
+      logger.error("Error querying server:", error);
       res.status(500).json({ err: "Failed to fetch player count" });
     }
   });
@@ -55,7 +55,7 @@ export default function playersRoutes(
             [player.id, player.name]
           );
         } catch (error) {
-          logger.warn(`Failed to insert player ${player.name}: ${error}`);
+          logger.warn(`Failed to insert player ${player.name}:`, error);
         }
       }
 
@@ -68,7 +68,7 @@ export default function playersRoutes(
 
       res.json({ players: result.rows });
     } catch (error) {
-      logger.error(`Error fetching or processing player list: ${error}`);
+      logger.error("Error fetching or processing player list:", error);
       res.status(500).json({ error: "Could not fetch players" });
     }
   });
@@ -83,7 +83,7 @@ export default function playersRoutes(
       const isFull = count >= PLAYER_LIMIT;
       res.json({ isFull });
     } catch (error) {
-      logger.error(`Error checking player limit: ${error}`);
+      logger.error("Error checking player limit:", error);
       res.status(500).json({ error: "Failed to evaluate player limit" });
     }
   });

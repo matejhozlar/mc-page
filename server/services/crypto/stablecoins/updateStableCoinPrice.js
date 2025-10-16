@@ -114,6 +114,6 @@ export async function updateStableCoinPrice(
 
     logger.info(`${interval} snapshot saved for ${tokenSymbol} ($${price})`);
   } catch (error) {
-    logger.error(`Failed to update stablecoin price (${interval}): ${error}`);
+    logger.error(`Failed to update stablecoin price (${interval}):`, error);
   }
 }

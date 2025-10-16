@@ -37,7 +37,7 @@ export function startStatSyncScheduler(db, serverIP, serverPort) {
         }
       }
     } catch (error) {
-      logger.error(`Failed to check player count for sync: ${error}`);
+      logger.error("Failed to check player count for sync:", error);
     }
   }
 

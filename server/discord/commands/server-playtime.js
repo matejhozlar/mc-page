@@ -69,7 +69,7 @@ export async function execute(interaction, db) {
       embeds: [embed],
     });
   } catch (error) {
-    logger.error(`/server-playtime command failed: ${error}`);
+    logger.error("/server-playtime failed:", error);
     return await interaction.reply({
       content: "⚠️ Could not fetch total playtime. Try again later.",
       flags: MessageFlags.Ephemeral,

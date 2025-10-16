@@ -114,7 +114,7 @@ export default function gameDataRoutes(db) {
         offline_earned: data.offline_earned || null,
       });
     } catch (error) {
-      logger.error(`Failed to fetch game data: ${error}`);
+      logger.error("Failed to fetch game data:", error);
       return res.status(500).json({ error: "Failed to load game data" });
     }
   });
@@ -188,7 +188,7 @@ export default function gameDataRoutes(db) {
       );
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`Failed to save game data: ${error}`);
+      logger.error("Failed to save game data:", error);
       return res.status(500).json({ error: "Failed to save game data" });
     }
   });
@@ -210,7 +210,7 @@ export default function gameDataRoutes(db) {
       );
       return res.sendStatus(204);
     } catch (error) {
-      logger.error(`Failed to mark logout: ${error}`);
+      logger.error("Failed to mark logout:", error);
       return res.sendStatus(500);
     }
   });
@@ -235,7 +235,7 @@ export default function gameDataRoutes(db) {
 
       return res.json({ success: true });
     } catch (error) {
-      logger.error(`Failed to add reward balance: ${error}`);
+      logger.error("Failed to add reward balance:", error);
       return res.status(500).json({ error: "Failed to add balance" });
     }
   });

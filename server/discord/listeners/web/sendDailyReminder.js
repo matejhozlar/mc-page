@@ -17,11 +17,11 @@ export async function sendDailyReminder(client) {
     const channel = await client.channels.fetch(channelId);
     if (channel && channel.isTextBased()) {
       await channel.send(message);
-      logger.info(`Sent daily reminder to channel ${channelId}`);
+      logger.info("Sent daily reminder to channel", channelId);
     } else {
       logger.warn(`Channel ${channelId} is not text-based or doesn't exist.`);
     }
   } catch (error) {
-    logger.error(`Failed to send daily reminder: ${error}`);
+    logger.error("Failed to send daily reminder:", error);
   }
 }

@@ -25,6 +25,6 @@ export async function runMobLimitCleaner(db) {
 
     logger.info("job_history updated.");
   } catch (error) {
-    logger.error(`Failed to run mob limit cleaner: ${error}`);
+    logger.error("Failed to run mob limit cleaner:", error);
   }
 }

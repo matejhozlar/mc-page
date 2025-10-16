@@ -35,7 +35,7 @@ export async function execute(interaction, db) {
       flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
-    logger.error(`/crypto-alert-list failed: ${error}`);
+    logger.error("/crypto-alert-list failed:", error);
     return await interaction.reply({
       content: "⚠️ Failed to fetch your alerts. Please try again later.",
       flags: MessageFlags.Ephemeral,

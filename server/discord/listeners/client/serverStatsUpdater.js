@@ -48,7 +48,7 @@ export default function startUpdatingServerStats(client) {
 
       logger.info("Server stats updated.");
     } catch (error) {
-      logger.error(`Failed to update server stats: ${error.message}`);
+      logger.error("Failed to update server stats:", error);
     }
   }
 

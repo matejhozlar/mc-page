@@ -42,7 +42,7 @@ async function captureChartScreenshot(symbol) {
 
     logger.info("Puppeteer launched.");
   } catch (error) {
-    logger.error(`Error launching Puppeteer: ${error}`);
+    logger.error("Error launching Puppeteer:", error);
     return null;
   }
 
@@ -80,7 +80,7 @@ async function captureChartScreenshot(symbol) {
     logger.info("Screenshot captured.");
     return screenshotBuffer;
   } catch (error) {
-    logger.error(`Error during screenshot capture: ${error}`);
+    logger.error("Error during screenshot capture:", error);
     return null;
   } finally {
     if (browser) await browser.close();
@@ -128,7 +128,7 @@ export async function execute(interaction, db) {
 
     logger.info(`Chart for ${symbol} sent to Discord.`);
   } catch (error) {
-    logger.error(`/crypto-token failed: ${error}`);
+    logger.error("/crypto-token failed:", error);
     try {
       await interaction.editReply({
         content: `⚠️ Something went wrong. Try again later.`,

@@ -24,7 +24,7 @@ export function startVote(commandKey, voteDetails, messageChannel, io) {
   if (voteState.active) return false;
 
   if (!commandKey || !voteDetails) {
-    logger.warn(`Invalid vote command used: ${commandKey}`);
+    logger.warn("Invalid vote command used:", commandKey);
     return false;
   }
 
@@ -65,8 +65,8 @@ export function startVote(commandKey, voteDetails, messageChannel, io) {
 
         messageChannel.send(finalMsg).catch(logger.error);
         io.emit("chatMessage", { text: finalMsg, authorType: "web" });
-      } catch (err) {
-        logger.error(`Error during vote resolution: ${err}`);
+      } catch (error) {
+        logger.error("Error during vote resolution:", error);
       } finally {
         voteState.active = false;
         voteState.cooldownUntil = Date.now() + cooldown;

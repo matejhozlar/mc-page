@@ -79,7 +79,7 @@ export default async function transcriptTicket(interaction, client, db) {
       embeds: [transcriptEmbed],
     });
   } catch (error) {
-    logger.error(`❌ Failed to save/send transcript: ${error}`);
+    logger.error("Failed to save/send transcript:", error);
     await interaction.channel.send({
       content: "⚠️ Failed to generate transcript.",
     });

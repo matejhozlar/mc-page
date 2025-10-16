@@ -48,7 +48,7 @@ export default function userRoutes(db) {
       logger.info(`/user/me data sent for: ${id}`);
       res.json(result.rows[0]);
     } catch (error) {
-      logger.error(`Failed to fetch user data: ${error}`);
+      logger.error("Failed to fetch user data:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
@@ -92,7 +92,7 @@ export default function userRoutes(db) {
 
       res.json({ ...user, balance });
     } catch (error) {
-      logger.error(`/user/full-profile error: ${error}`);
+      logger.error("/user/full-profile error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
