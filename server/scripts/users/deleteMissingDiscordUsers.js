@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import { parse } from "path";
 import pg from "pg";
 
 dotenv.config();
@@ -29,6 +28,7 @@ async function deleteForDiscordId(discordId) {
 
   try {
     let clickerDeleted = 0;
+    let alertsDeleted = 0;
     try {
       const res = await db.query(
         `DELETE FROM clicker_game_data WHERE discord_id = $1`,
@@ -39,6 +39,26 @@ async function deleteForDiscordId(discordId) {
       console.warn(
         `[WARN] [${discordId}] Could not delete from clicker_game_data: ${error.message}`
       );
+    }
+
+    try {
+      const res = await db.query(
+        `DELETE FROM token_price_alerts WHERE discord_id = $1`,
+        [discordId]
+      );
+      alertsDeleted = res.rowCount;
+    } catch (error) {
+      console.warn(
+        `WARN [${discordId}] Could not delete from token_price_alerts: ${error.message}`
+      );
+    }
+
+    if (alertsDeleted > 0) {
+      console.log(
+        `[${discordId}] token_price_alerts: deleted ${alertsDeleted} row(s)`
+      );
+    } else {
+      console.log(`[${discordId}] token_price_alerts: nothing to delete (ok)`);
     }
 
     if (clickerDeleted > 0) {
