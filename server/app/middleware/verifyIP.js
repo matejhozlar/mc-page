@@ -1,13 +1,14 @@
 import logger from "../../logger.js";
 
-const allowedIp = process.env.ALLOWED_IP_ADDRESS;
+const allowedIpCogs = process.env.ALLOWED_IP_ADDRESS_COGS_AND_STEAM;
+const allowedIpTechnica = process.env.ALLOWED_IP_ADDRESS_TECHNICA;
 const allowedIpLocal = process.env.ALLOWED_IP_ADDRESS_LOCAL;
 
 /**
  * Express middleware to verify the IP address of incoming requests.
  *
- * - In production: only allows ALLOWED_IP_ADDRESS.
- * - In non-production: allows ALLOWED_IP_ADDRESS and ALLOWED_IP_ADDRESS_LOCAL.
+ * - In production: allows ALLOWED_IP_ADDRESS_COGS_AND_STEAM and ALLOWED_IP_ADDRESS_TECHNICA.
+ * - In non-production: allows ALLOWED_IP_ADDRESS_COGS_AND_STEAM, ALLOWED_IP_ADDRESS_TECHNICA and ALLOWED_IP_ADDRESS_LOCAL.
  *
  * @param {import('express').Request} req - The incoming HTTP request.
  * @param {import('express').Response} res - The HTTP response object.
@@ -21,7 +22,9 @@ export default function verifyIP(req, res, next) {
     .trim();
 
   const isProd = process.env.NODE_ENV === "production";
-  const allowed = isProd ? [allowedIp] : [allowedIp, allowedIpLocal];
+  const allowed = isProd
+    ? [allowedIpCogs, allowedIpTechnica]
+    : [allowedIpCogs, allowedIpTechnica, allowedIpLocal];
 
   if (allowed.includes(normalizedIp)) {
     return next();
