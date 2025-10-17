@@ -7,9 +7,11 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { CLIENT_BOT_TOKEN, DISCORD_ANNOUNCEMENT_CHANNEL_ID } = process.env;
+const { CLIENT_BOT_TOKEN } = process.env;
 
-if (!CLIENT_BOT_TOKEN || !DISCORD_ANNOUNCEMENT_CHANNEL_ID) {
+const publishChannel = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
+
+if (!CLIENT_BOT_TOKEN || !publishChannel) {
   console.error(
     "Missing CLIENT_BOT_TOKEN or DISCORD_ANNOUNCEMENT_CHANNEL_ID env vars."
   );
@@ -20,9 +22,7 @@ client.once("ready", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
   try {
-    const channel = await client.channels.fetch(
-      DISCORD_ANNOUNCEMENT_CHANNEL_ID
-    );
+    const channel = await client.channels.fetch(publishChannel);
 
     if (!channel || !channel.isTextBased()) {
       throw new Error(
@@ -30,13 +30,22 @@ client.once("ready", async () => {
       );
     }
 
-    const updatedMods = ["- AFKStatus", "- Createrington Currency"].join("\n");
+    const updatedMods = [
+      "- Chat Heads",
+      "- Create More: Package Couriers",
+      "- Create: Central Kitchen",
+      "- Create: Dragons Plus",
+      "- Createringon Currency",
+      "- Create: Slice n Dice",
+    ].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
-    const newMods = ["- Create: Shuffle Filters", "- KubeJS", "- Rhino"].join(
-      "\n"
-    );
+    const newMods = [
+      "- Create: Brassworks Missions",
+      "- Create: Cobblestone",
+      "- Create: Diesel Generators",
+    ].join("\n");
 
-    const version = "v0.1.9";
+    const version = "v0.2.1a";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -46,9 +55,19 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "💰 Createrington Currency Changes",
+          name: "💰 Createrington Currency Update",
           value:
-            "The `/deposit` and `/withdraw` commands have been **disabled**. Instead, a new **ATM block** has been introduced, which provides all deposit and withdrawal functionality for your accounts.\n\nThis new system aims to make currency management more intuitive and immersive within the game world. Please if **you encounter any bugs or dupe glitches**, let the administrators know, and don't abuse it!",
+            "Fixed an issue with the ATM Block being wrongly sized on display blocks.",
+        },
+        {
+          name: "✈️ Package Couriers Update",
+          value:
+            "From now on, players need an activated Location Transmitter to recieve Packages via the Cardboard Plane",
+        },
+        {
+          name: "🎯 In-game missions",
+          value:
+            "We’ve added new in-game missions to keep your adventure fresh. Press **H** to open the mission interface or use **/missions** anytime. Missions reset every week, reward you with in-game currency.",
         },
         {
           name: "⬆️ Updated Mods",
