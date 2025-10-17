@@ -102,3 +102,93 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
     logger.error("Failed to send Discord notification:", error);
   }
 }
+
+/**
+ * Auto-sends an invite to the user and notifies admins via a Discord embed
+ * without Accept/Decline buttons—only an Admin Panel link. The embed states
+ * that the user was auto-invited.
+ *
+ * @param {Object} submission
+ * @param {number|string} submission.id
+ * @param {string} submission.email
+ * @param {string} submission.discord_name
+ * @param {import('discord.js').Client} client
+ * @param {any} [db] - Optional DB handle if your sendInviteById signature requires it.
+ * @returns {Promise<{ ok: boolean, msg?: string }>}
+ */
+export async function autoInviteAndNotify(
+  { id, email, discord_name },
+  client,
+  db
+) {
+  let inviteResult = { ok: false, msg: "Unknown error" };
+  try {
+    if (db) {
+      inviteResult = await sendInviteById(db, id, process.env);
+    } else {
+      try {
+        inviteResult = await sendInviteById(id, process.env);
+      } catch {
+        inviteResult = await sendInviteById(id);
+      }
+    }
+  } catch (error) {
+    logger.error("Auto-invite failed:", error);
+    inviteResult = { ok: false, msg: error?.message || "Auto-invite error" };
+  }
+
+  try {
+    const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
+    const channel = await guild.channels.fetch(
+      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID
+    );
+
+    if (!channel?.isTextBased?.()) {
+      logger.warn("Admin channel not text-based or not found.");
+    } else {
+      const success = !!inviteResult?.ok;
+      const embed = new EmbedBuilder()
+        .setTitle("📥 New Waitlist Submission")
+        .setColor(success ? LIME_GREEN : 0xff0000)
+        .addFields(
+          {
+            name: "🆔 Submission ID",
+            value: id?.toString() || "Unknown",
+            inline: false,
+          },
+          {
+            name: "💬 Discord",
+            value: discord_name || "Unknown",
+            inline: false,
+          },
+          { name: "📧 Email", value: email || "Unknown", inline: false }
+        )
+        .setTimestamp();
+
+      const linkRow = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setLabel("Open Admin Panel")
+          .setStyle(ButtonStyle.Link)
+          .setURL("https://create-rington.com/login-admin/")
+      );
+
+      await channel.send({
+        content: success
+          ? "✅ User was auto-invited."
+          : "Auto-invite attempted — please review.",
+        embeds: [embed],
+        components: [linkRow],
+      });
+
+      logger.info(
+        `Admin notified of auto-invite for ${discord_name} (success=${success})`
+      );
+    }
+  } catch (error) {
+    logger.error("Failed to send Discord auto-invite notification:", error);
+  }
+
+  return inviteResult?.ok
+    ? { ok: true, token: inviteResult.token }
+    : { ok: false, msg: inviteResult?.msg || "Unknown error" };
+}

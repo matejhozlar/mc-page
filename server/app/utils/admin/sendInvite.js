@@ -79,5 +79,5 @@ export async function sendInviteById(db, id, env) {
   ]);
 
   logger.info(`Invite sent to ${email} (${discord_name})`);
-  return { ok: true, code: 200 };
+  return { ok: true, code: 200, token: newToken };
 }

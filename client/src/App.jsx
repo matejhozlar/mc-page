@@ -51,6 +51,7 @@ import ShopPage from "./components/market/shops/ShopPage.jsx";
 import EditShopWizard from "./components/market/shops/EditShopWizard.jsx";
 import EditShopReview from "./components/market/shops/EditShopReview.jsx";
 import Marketplace from "./components/market/MarketPlace.jsx";
+import InvitePage from "./components/InvitePage.jsx";
 
 function App() {
   return (
@@ -173,6 +174,7 @@ function AppWithRouter() {
                 path="/market/create-shop/preview"
                 element={<ShopPreviewPage />}
               />
+              <Route path="/invite/:token" element={<InvitePage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
