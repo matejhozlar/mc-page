@@ -5,6 +5,7 @@ import { finalizeDailyPlaytime } from "../../services/daily/finalizeDailyPlaytim
 import { cleanupTokenHistoryTable } from "../../services/crypto/cleanup/cleanupTokenHistory.js";
 import { deleteCrashedMemecoins } from "../../services/crypto/memecoins/deleteCrashedMemecoins.js";
 import { runOnlyInProduction } from "../../utils/production/onlyInProduction.js";
+import { cleanupExpiredInvites } from "../../services/invites/cleanupExpiredInvites.js";
 
 /**
  * Schedules all cleanup and maintenance cron jobs for the application.
@@ -44,6 +45,11 @@ export function scheduleCleanupJobs(db) {
 
   // Every 30 minutes — Delete memecoins that have crashed or expired
   cron.schedule("*/30 * * * *", () => deleteCrashedMemecoins(db), {
+    timezone: "Europe/Berlin",
+  });
+
+  // Every hour at 30 minutes — Clean up expired invites (older than 7 days)
+  cron.schedule("30 * * * *", () => cleanupExpiredInvites(db), {
     timezone: "Europe/Berlin",
   });
 
