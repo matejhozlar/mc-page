@@ -147,6 +147,8 @@ export async function autoInviteAndNotify(
       logger.warn("Admin channel not text-based or not found.");
     } else {
       const success = !!inviteResult?.ok;
+      const botMention =
+        guild.members.me?.toString() || `<@${client.user?.id}>` || "bot";
       const embed = new EmbedBuilder()
         .setTitle("📥 New Waitlist Submission")
         .setColor(success ? LIME_GREEN : 0xff0000)
@@ -174,7 +176,7 @@ export async function autoInviteAndNotify(
 
       await channel.send({
         content: success
-          ? "✅ User was auto-invited."
+          ? `✅ Accepted by ${botMention}`
           : "Auto-invite attempted — please review.",
         embeds: [embed],
         components: [linkRow],
