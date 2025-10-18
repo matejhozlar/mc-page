@@ -37,15 +37,15 @@ client.once("ready", async () => {
       "- Create: Dragons Plus",
       "- Createringon Currency",
       "- Create: Slice n Dice",
+      "- Create: Industrialized Architecture",
     ].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
     const newMods = [
-      "- Create: Brassworks Missions",
       "- Create: Cobblestone",
       "- Create: Diesel Generators",
     ].join("\n");
 
-    const version = "v0.2.1a";
+    const version = "v0.2.1c";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -63,11 +63,6 @@ client.once("ready", async () => {
           name: "✈️ Package Couriers Update",
           value:
             "From now on, players need an activated Location Transmitter to recieve Packages via the Cardboard Plane",
-        },
-        {
-          name: "🎯 In-game missions",
-          value:
-            "We’ve added new in-game missions to keep your adventure fresh. Press **H** to open the mission interface or use **/missions** anytime. Missions reset every week, reward you with in-game currency.",
         },
         {
           name: "⬆️ Updated Mods",
