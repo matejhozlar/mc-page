@@ -1,0 +1,336 @@
+.invite-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: start center;
+  background: var(--background-color);
+  color: var(--foreground-color);
+  position: relative;
+  padding: var(--spacing-16) var(--spacing-4) var(--spacing-8);
+}
+
+.invite-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+      60rem 60rem at 20% 10%,
+      rgba(127, 255, 127, 0.06),
+      transparent 40%
+    ),
+    radial-gradient(
+      40rem 40rem at 80% 20%,
+      rgba(255, 220, 120, 0.06),
+      transparent 50%
+    ),
+    radial-gradient(
+      48rem 48rem at 50% 85%,
+      rgba(120, 180, 255, 0.05),
+      transparent 50%
+    );
+  filter: saturate(1.2);
+  animation: invite-bg-float 18s ease-in-out infinite alternate;
+}
+@keyframes invite-bg-float {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+.invite-wrapper {
+  width: 100%;
+  max-width: 880px;
+  display: grid;
+  gap: var(--spacing-8);
+}
+
+.invite-hero {
+  background: linear-gradient(
+      to bottom right,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.02)
+    ),
+    var(--card-background);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  border-radius: calc(var(--radius) * 2);
+  padding: var(--spacing-10) var(--spacing-8);
+  position: relative;
+  overflow: hidden;
+}
+
+.invite-badge {
+  display: inline-block;
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--success-color);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: var(--spacing-3);
+}
+
+.invite-title {
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  margin-bottom: var(--spacing-3);
+}
+.invite-title span {
+  color: var(--primary-color);
+  filter: drop-shadow(0 0 12px rgba(125, 255, 125, 0.12));
+}
+
+.invite-subtitle {
+  color: var(--muted-foreground);
+  max-width: 60ch;
+}
+
+.invite-card {
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--radius) * 2);
+  padding: var(--spacing-8);
+  box-shadow: var(--card-shadow);
+}
+
+.invite-section-title {
+  font-size: 1.1rem;
+  letter-spacing: 0.4px;
+  color: var(--card-foreground);
+  margin-bottom: var(--spacing-5);
+}
+
+.invite-steps-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-8);
+}
+
+.invite-step {
+  position: relative;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--radius) * 2);
+  box-shadow: var(--card-shadow);
+  padding: var(--spacing-8);
+  overflow: hidden;
+}
+.invite-step::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    60% 60% at 100% 0%,
+    rgba(255, 255, 255, 0.04),
+    transparent 60%
+  );
+  pointer-events: none;
+}
+.invite-step:hover {
+  border-color: var(--primary-color);
+}
+
+.invite-step-num {
+  position: absolute;
+  top: var(--spacing-4);
+  left: var(--spacing-4);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  color: var(--primary-foreground);
+  background: linear-gradient(135deg, var(--primary-color), hsl(90, 44%, 38%));
+  box-shadow: 0 6px 18px rgba(60, 255, 120, 0.15);
+  border: 1px solid hsla(90, 44%, 36%, 0.45);
+}
+
+.invite-step-body {
+  padding-top: calc(var(--spacing-4) + 38px);
+}
+
+.invite-step-title {
+  font-size: 1.1rem;
+  letter-spacing: 0.3px;
+  margin-bottom: var(--spacing-2);
+  color: var(--card-foreground);
+}
+
+.invite-step-desc {
+  color: var(--muted-foreground);
+  margin-bottom: var(--spacing-4);
+}
+
+.invite-token-row {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: stretch;
+  background: var(--popover-color);
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--radius) * 1.5);
+  padding: var(--spacing-3);
+}
+
+.invite-token-text {
+  flex: 1;
+  padding: var(--spacing-4);
+  background: var(--input-background);
+  border: 1px dashed var(--muted-color);
+  border-radius: calc(var(--radius) * 1.2);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
+  font-size: 1.05rem;
+  word-break: break-all;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.invite-token-text:hover {
+  border-color: var(--primary-color);
+  background: hsl(220, 14%, 13%);
+}
+
+.invite-btn {
+  appearance: none;
+  border: 1px solid var(--border-color);
+  border-radius: calc(var(--radius) * 1.2);
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease, background-color 0.2s ease,
+    border-color 0.2s ease;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.invite-btn:hover {
+  transform: translateY(-1px);
+}
+.invite-btn:active {
+  transform: translateY(0px) scale(0.99);
+}
+
+.invite-btn-primary {
+  background: var(--primary-color);
+  color: var(--primary-foreground);
+  border-color: hsla(90, 44%, 36%, 0.6);
+}
+.invite-btn-primary:hover {
+  background: var(--primary-color-hover);
+}
+
+.invite-btn-success {
+  background: var(--success-color) !important;
+  border-color: hsla(90, 44%, 36%, 0.6) !important;
+}
+
+.invite-btn-accent {
+  background: var(--accent-color);
+  color: var(--accent-foreground);
+  border-color: hsla(45, 100%, 42%, 0.6);
+}
+.invite-btn-accent:hover {
+  background: hsl(45, 100%, 56%);
+}
+
+.invite-btn-ghost {
+  background: transparent;
+  color: var(--foreground-color);
+}
+.invite-btn-ghost:hover {
+  background: var(--muted-color);
+}
+
+.invite-cta-row {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-top: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.invite-cta-row .discord-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  background: var(--accent-color);
+  color: var(--accent-foreground);
+  border: 1px solid hsla(45, 100%, 42%, 0.6);
+  border-radius: calc(var(--radius) * 1.2);
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  transition: transform 0.08s ease, background-color 0.2s ease;
+}
+.invite-cta-row .discord-link:hover {
+  background: hsl(45, 100%, 56%);
+}
+.invite-cta-row .discord-link .discord-icon-sidebar {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.invite-steps {
+  margin-left: 1.25rem;
+  display: grid;
+  gap: 0.65rem;
+  color: var(--card-foreground);
+}
+.invite-steps li {
+  line-height: 1.7;
+}
+.invite-steps code {
+  background: var(--input-background);
+  border: 1px solid var(--border-color);
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+}
+
+.invite-steps-list {
+  margin-left: 1.25rem;
+  display: grid;
+  gap: 0.65rem;
+  color: var(--card-foreground);
+}
+.invite-steps-list li {
+  line-height: 1.7;
+}
+.invite-steps-list code {
+  background: var(--input-background);
+  border: 1px solid var(--border-color);
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+}
+
+.invite-help-note {
+  margin-top: var(--spacing-5);
+  color: var(--muted-foreground);
+}
+
+@media (max-width: 900px) {
+  .invite-steps-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .invite-shell {
+    padding-top: var(--spacing-10);
+  }
+  .invite-card {
+    padding: var(--spacing-6);
+  }
+  .invite-token-row {
+    flex-direction: column;
+  }
+  .invite-btn {
+    width: 100%;
+  }
+}

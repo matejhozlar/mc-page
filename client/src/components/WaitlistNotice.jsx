@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./css/WaitlistNotice.css";
+import LoadingSpinner from "./LoadingSpinner";
 
 const WaitlistNotice = () => {
   const [email, setEmail] = useState("");
@@ -7,13 +8,16 @@ const WaitlistNotice = () => {
   const [submissionStatus, setSubmissionStatus] = useState("");
   const [serverFull, setServerFull] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const didRedirectRef = useRef(false);
 
   useEffect(() => {
     const fetchPlayerLimit = async () => {
       try {
         const res = await fetch("/api/playerLimit");
         const data = await res.json();
-        setServerFull(data.isFull);
+        setServerFull(Boolean(data.isFull));
       } catch (error) {
         console.error("Error fetching player limit:", error);
       } finally {
@@ -26,6 +30,7 @@ const WaitlistNotice = () => {
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
+    didRedirectRef.current = false;
 
     if (!email || !discordName) {
       setSubmissionStatus(
@@ -33,6 +38,8 @@ const WaitlistNotice = () => {
       );
       return;
     }
+
+    setSubmitting(true);
 
     try {
       const response = await fetch("/api/wait-list", {
@@ -44,15 +51,21 @@ const WaitlistNotice = () => {
       const data = await response.json();
 
       if (response.ok) {
-        if (serverFull) {
-          setSubmissionStatus(
-            "✅ Thanks! We've added you to the waitlist. We'll contact you when a spot opens up."
-          );
-        } else {
-          setSubmissionStatus(
-            "✅ Your application has been received! Our admins have been notified and will review it shortly."
-          );
+        if (data.autoInvited && data.token) {
+          const url =
+            data.redirectUrl || `/invite/${encodeURIComponent(data.token)}`;
+          didRedirectRef.current = true;
+          window.location.assign(url);
+          return;
         }
+
+        const msg =
+          data.message ||
+          (serverFull
+            ? "✅ Thanks! We've added you to the waitlist. We'll contact you when a spot opens up."
+            : "✅ Your application has been received! Our admins have been notified and will review it shortly.");
+
+        setSubmissionStatus(msg);
         setEmail("");
         setDiscordName("");
       } else {
@@ -66,6 +79,8 @@ const WaitlistNotice = () => {
       setSubmissionStatus(
         "⚠️ Network error. Please try again later.\nIf you're having trouble, contact admin@create-rington.com"
       );
+    } finally {
+      if (!didRedirectRef.current) setSubmitting(false);
     }
   };
 
@@ -104,15 +119,15 @@ const WaitlistNotice = () => {
   );
 
   return (
-    <div className="apply-to-join">
-      <div className="waitlist-notice">
-        {loading ? (
-          <p>Loading server status...</p>
-        ) : serverFull ? (
-          renderClosedNotice()
-        ) : (
-          renderOpenNotice()
-        )}
+    <div className="apply-to-join" aria-busy={loading || submitting}>
+      {loading && <LoadingSpinner message="Checking server status..." />}
+      {submitting && <LoadingSpinner message="Processing your request..." />}
+
+      <div
+        className="waitlist-notice"
+        style={{ opacity: submitting ? 0.6 : 1 }}
+      >
+        {!loading && (serverFull ? renderClosedNotice() : renderOpenNotice())}
 
         <form onSubmit={handleEmailSubmit} className="waitlist-form">
           <input
@@ -122,6 +137,7 @@ const WaitlistNotice = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="waitlist-input form-control"
             required
+            disabled={submitting}
           />
           <input
             type="text"
@@ -130,9 +146,14 @@ const WaitlistNotice = () => {
             onChange={(e) => setDiscordName(e.target.value)}
             className="waitlist-input form-control"
             required
+            disabled={submitting}
           />
-          <button type="submit" className="waitlist-submit">
-            Submit
+          <button
+            type="submit"
+            className="waitlist-submit"
+            disabled={submitting}
+          >
+            {submitting ? "Submitting..." : "Submit"}
           </button>
         </form>
 

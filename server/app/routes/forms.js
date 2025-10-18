@@ -1,6 +1,9 @@
 import express from "express";
 import logger from "../../logger.js";
-import { notifyAdminWaitlist } from "../utils/admin/emailAdminOnWaitlist.js";
+import {
+  notifyAdminWaitlist,
+  autoInviteAndNotify,
+} from "../utils/admin/emailAdminOnWaitlist.js";
 
 export default function formRoutes(db, client) {
   const router = express.Router();
@@ -92,16 +95,95 @@ export default function formRoutes(db, client) {
       }
 
       const insertQuery = `
-        INSERT INTO waitlist_emails (email, discord_name)
-        VALUES ($1, $2)
-        RETURNING *
-      `;
+      INSERT INTO waitlist_emails (email, discord_name)
+      VALUES ($1, $2)
+      RETURNING *
+    `;
       const result = await db.query(insertQuery, [email, discordName]);
       const entry = result.rows[0];
 
-      logger.info(`Waitlist entry added: ${email} (${discordName})`);
-      await notifyAdminWaitlist(entry, client);
-      res.json({ success: true, entry: result.rows[0] });
+      const countRes = await db.query(
+        `SELECT COUNT(*)::int AS count FROM users`
+      );
+      const currentPlayers = countRes?.rows?.[0]?.count ?? 0;
+
+      const limit = parseInt(process.env.PLAYER_LIMIT ?? "0", 10);
+      const hasCapacity = Number.isFinite(limit) && limit > currentPlayers;
+
+      logger.info(
+        `Waitlist entry added: ${email} (${discordName}) — players=${currentPlayers}, limit=${limit}, hasCapacity=${hasCapacity}`
+      );
+
+      if (hasCapacity) {
+        const inviteResult = await autoInviteAndNotify(
+          {
+            id: entry.id,
+            email: entry.email,
+            discord_name: entry.discord_name,
+          },
+          client,
+          db
+        );
+
+        let token = inviteResult?.token;
+
+        if (
+          !inviteResult?.ok &&
+          /already invited/i.test(inviteResult?.msg || "")
+        ) {
+          const tRes = await db.query(
+            `SELECT token FROM waitlist_emails WHERE id = $1`,
+            [entry.id]
+          );
+          token = tRes?.rows?.[0]?.token || null;
+          if (token) {
+            return res.json({
+              success: true,
+              entry,
+              autoInvited: true,
+              token,
+              redirectUrl: `/invite/${encodeURIComponent(token)}`,
+              message:
+                "You were auto-invited earlier. We’ve re-used your token.",
+            });
+          }
+        }
+
+        if (!inviteResult?.ok) {
+          logger.warn(
+            `Auto-invite failed for ${discordName}: ${
+              inviteResult?.msg || "Unknown error"
+            }`
+          );
+          return res.json({
+            success: true,
+            entry,
+            autoInvited: true,
+            message:
+              "We attempted to auto-invite you, but there was an issue. Admins have been notified.",
+          });
+        }
+
+        token = token || inviteResult.token;
+        return res.json({
+          success: true,
+          entry,
+          autoInvited: true,
+          token,
+          redirectUrl: `/invite/${encodeURIComponent(token)}`,
+          message:
+            "You were auto-invited. Check your email for the invite link.",
+        });
+      } else {
+        await notifyAdminWaitlist(entry, client);
+        return res.json({
+          success: true,
+          entry,
+          autoInvited: false,
+          message:
+            "✅ Thanks! We've added you to the waitlist. We'll contact you when a spot opens up.",
+        });
+      }
     } catch (error) {
       logger.error(`Failed to insert waitlist entry for ${email}:`, error);
       res.status(500).json({
