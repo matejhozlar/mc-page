@@ -86,6 +86,9 @@
   /* Online/Offline colors */
   --online-color: #22c55e;
   --offline-color: #ef4444;
+
+  /* Mobile Nav */
+  --mobile-nav-height: 3.25rem;
 }
 
 html.scroll-override,

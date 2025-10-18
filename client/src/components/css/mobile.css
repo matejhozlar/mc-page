@@ -15,7 +15,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 3.25rem;
+    height: var(--mobile-nav-height);
     background-color: #111;
     border-top: 1px solid #333;
     z-index: 9999;
@@ -85,9 +85,11 @@
     background-color: #222;
   }
 
-  .online-players {
-    padding-bottom: 3.25rem;
+  .online-players-list,
+  .rules-warning {
+    margin-bottom: var(--mobile-nav-height) !important;
   }
+
   @keyframes fadeIn {
     from {
       opacity: 0;
