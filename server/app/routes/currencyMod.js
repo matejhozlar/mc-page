@@ -566,7 +566,7 @@ export default function currencyRoutes(db, webBot, io) {
 
   // POST /currency/vote/start
   router.post("/currency/vote/start", async (req, res) => {
-    const { name } = req.user;
+    const { name, uuid } = req.user;
     const { voteType } = req.body;
 
     const voteDetails = voteCommands[voteType];
@@ -599,7 +599,10 @@ export default function currencyRoutes(db, webBot, io) {
           .json({ error: "Discord channel not available." });
       }
 
-      const success = startVote(voteType, voteDetails, channel, io);
+      const success = startVote(voteType, voteDetails, channel, io, {
+        name,
+        uuid,
+      });
 
       if (!success) {
         return res.status(400).json({ error: "Failed to start vote." });

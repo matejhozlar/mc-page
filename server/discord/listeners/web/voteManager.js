@@ -18,7 +18,13 @@ const COOLDOWN_FAIL_MS = 3 * 60_000;
  * @param {SocketIO.Server} io - WebSocket server for broadcasting messages to frontend clients.
  * @returns {boolean} - Whether the vote was successfully started.
  */
-export function startVote(commandKey, voteDetails, messageChannel, io) {
+export function startVote(
+  commandKey,
+  voteDetails,
+  messageChannel,
+  io,
+  initiator
+) {
   if (!exitIfNotProduction()) return;
 
   if (voteState.active) return false;
@@ -35,6 +41,11 @@ export function startVote(commandKey, voteDetails, messageChannel, io) {
   voteState.active = true;
   voteState.counts = { yes: 0, no: 0 };
   voteState.voters.clear();
+
+  if (initiator?.name) {
+    voteState.counts.yes += 1;
+    voteState.voters.add(initiator.name);
+  }
 
   const voteMsg =
     `📢 **Vote to ${voteDetails.description} started!**\n` +
