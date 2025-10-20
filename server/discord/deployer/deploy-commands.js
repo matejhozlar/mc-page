@@ -9,6 +9,15 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("mcprofile")
+    .setDescription("Admin: fetch a player's Minecraft stats file and profile")
+    .addStringOption((option) =>
+      option
+        .setName("query")
+        .setDescription("Discord ID/mention, Minecraft UUID, or Minecraft name")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("message")
     .setDescription("Send a custom message to this channel (owner only)")
     .addStringOption((option) =>
