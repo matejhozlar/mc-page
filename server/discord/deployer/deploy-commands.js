@@ -94,7 +94,7 @@ const commands = [
     ),
   new SlashCommandBuilder()
     .setName("delete")
-    .setDescription("Delete up to 100 recent messages (admin/owner only)")
+    .setDescription("Delete up to 100 recent messages")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addIntegerOption((option) =>
       option

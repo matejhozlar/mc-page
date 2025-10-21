@@ -23,7 +23,7 @@ export default function verifyIP(req, res, next) {
 
   const isProd = process.env.NODE_ENV === "production";
   const allowed = isProd
-    ? [allowedIpCogs, allowedIpTechnica]
+    ? [allowedIpCogs, allowedIpTechnica, allowedIpLocal]
     : [allowedIpCogs, allowedIpTechnica, allowedIpLocal];
 
   if (allowed.includes(normalizedIp)) {

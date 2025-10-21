@@ -40,12 +40,9 @@ client.once("ready", async () => {
       "- Create: Industrialized Architecture",
     ].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
-    const newMods = [
-      "- Create: Cobblestone",
-      "- Create: Diesel Generators",
-    ].join("\n");
+    const newMods = ["- Create: Brassworks Missions"].join("\n");
 
-    const version = "v0.2.1c";
+    const version = "v0.2.2";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -55,19 +52,14 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "💰 Createrington Currency Update",
+          name: "🎯 In-game missions",
           value:
-            "Fixed an issue with the ATM Block being wrongly sized on display blocks.",
+            "We’ve added new in-game missions to keep your adventure fresh. Press **H** to open the mission interface or use **/missions** anytime. Missions reset every week, reward you with in-game currency.",
         },
-        {
-          name: "✈️ Package Couriers Update",
-          value:
-            "From now on, players need an activated Location Transmitter to recieve Packages via the Cardboard Plane",
-        },
-        {
-          name: "⬆️ Updated Mods",
-          value: updatedMods || "—",
-        },
+        // {
+        //   name: "⬆️ Updated Mods",
+        //   value: updatedMods || "—",
+        // },
         {
           name: "🆕 New Mods",
           value: newMods || "—",
