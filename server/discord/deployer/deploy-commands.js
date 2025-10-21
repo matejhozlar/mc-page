@@ -14,6 +14,9 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("server-currency")
+    .setDescription("Show the server-wide currency total with a breakdown"),
+  new SlashCommandBuilder()
     .setName("mcprofile")
     .setDescription("Admin: fetch a player's Minecraft stats file and profile")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
