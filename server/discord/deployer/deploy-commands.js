@@ -1,4 +1,9 @@
-import { REST, Routes, SlashCommandBuilder } from "discord.js";
+import {
+  PermissionFlagsBits,
+  REST,
+  Routes,
+  SlashCommandBuilder,
+} from "discord.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -11,6 +16,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName("mcprofile")
     .setDescription("Admin: fetch a player's Minecraft stats file and profile")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addStringOption((option) =>
       option
         .setName("query")
@@ -89,6 +95,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName("delete")
     .setDescription("Delete up to 100 recent messages (admin/owner only)")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addIntegerOption((option) =>
       option
         .setName("count")
