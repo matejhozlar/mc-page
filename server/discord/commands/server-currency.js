@@ -101,7 +101,7 @@ export async function execute(interaction, db) {
         }
       )
       .setColor(GOLD)
-      .setFooter({ text: "Total circulating currency of all players" });
+      .setFooter({ text: "Total circulating currency of Createrington" });
 
     lastServerCurrencyUse = now;
 

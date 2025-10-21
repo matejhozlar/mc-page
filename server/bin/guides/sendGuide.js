@@ -77,6 +77,7 @@ client.once("ready", async () => {
           `🔗 **/link <mc_name>** — Link your Minecraft name to your Discord account\n` +
           `🕹️ **/playtime** — Check your own playtime\n` +
           `🔍 **/playtime <mc_name>** — Check someone else's playtime\n` +
+          `🏦 **/server-currency** — Check the total currency circulation of Createrington\n` +
           `🕒 **/server-playtime** — Check the total combined playtime of all players\n` +
           `🏆 **/top-playtime** — See the top 10 players with the most hours\n` +
           `🧍 **/list** — Show who’s currently online on the Minecraft Server\n` +
