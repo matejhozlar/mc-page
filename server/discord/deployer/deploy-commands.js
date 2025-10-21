@@ -14,6 +14,23 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("config")
+    .setDescription("Admin: remote config operations")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .addStringOption((option) =>
+      option
+        .setName("option")
+        .setDescription("Which config tool to run")
+        .addChoices({ name: "openpac", value: "openpac" })
+        .setRequired(true)
+    )
+    .addStringOption((option) =>
+      option
+        .setName("query")
+        .setDescription("Discord ID/mention, Minecraft UUID, or Minecraft name")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("server-currency")
     .setDescription("Show the server-wide currency total with a breakdown"),
   new SlashCommandBuilder()

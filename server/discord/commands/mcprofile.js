@@ -14,10 +14,10 @@ const { GREEN } = config.uiColors;
 const ADMIN_ROLE_ID = process.env.DISCORD_ADMIN_ROLE_ID;
 const ADMIN_CHAT_CHANNEL_ID = process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID;
 const SFTP_HOST = process.env.SFTP_HOST;
-const SFTP_PORT = +(process.env.SFTP_PORT || 22);
+const SFTP_PORT = process.env.SFTP_PORT;
 const SFTP_USER = process.env.SFTP_USER;
 const SFTP_PASS = process.env.SFTP_PASS;
-const REMOTE_DIR = process.env.SFTP_STATS_DIR || "/world/stats";
+const REMOTE_DIR = "/world/stats";
 
 function isUuidLike(s) {
   if (!s) return false;
