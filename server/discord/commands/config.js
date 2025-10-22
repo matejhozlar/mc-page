@@ -244,9 +244,7 @@ export async function execute(interaction, db) {
           );
         }
 
-        await interaction.editReply(
-          `✍️ Renaming existing \`Shop\` to \`${newBase}\`…`
-        );
+        await interaction.editReply(`✍️ Renaming existing Shop to ${newBase}…`);
 
         const oldPath = `${remoteDir}/${existingShop.name}`;
         const newName = `${newBase}$${existingShop.serial}.toml`;
