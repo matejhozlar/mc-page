@@ -153,7 +153,7 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 
-export const prodOnly = false;
+export const prodOnly = true;
 
 export async function execute(interaction, db) {
   if (!isAdminInteraction(interaction)) {
