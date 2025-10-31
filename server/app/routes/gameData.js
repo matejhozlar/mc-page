@@ -138,13 +138,26 @@ export default function gameDataRoutes(db) {
     } = req.body;
 
     if (
+      typeof points !== "number" ||
+      typeof auto_click_level !== "number" ||
       typeof furnace_level !== "number" ||
       typeof coal_reserve !== "number" ||
+      typeof offline_earnings_level !== "number" ||
       !Array.isArray(inventory) ||
       !Array.isArray(smelting_queue) ||
-      typeof smelt_amounts !== "object"
+      typeof smelt_amounts !== "object" ||
+      typeof materials !== "object"
     ) {
       return res.status(400).json({ error: "Invalid game data" });
+    }
+
+    if (
+      points < 0 ||
+      auto_click_level < 0 ||
+      furnace_level < 0 ||
+      coal_reserve < 0
+    ) {
+      return res.status(400).json({ error: "Invalid negative values" });
     }
 
     const materialsJson = JSON.stringify(materials);
@@ -152,13 +165,15 @@ export default function gameDataRoutes(db) {
     const smeltAmountsJson = JSON.stringify(smelt_amounts);
 
     try {
-      await db.query(
+      await db.query("BEGIN");
+
+      const result = await db.query(
         `INSERT INTO clicker_game_data
            (discord_id, points, tool, inventory, materials, auto_click_level,
-            furnace_level, coal_reserve, smelting_queue, smelt_amounts, offline_earnings_level, last_logout_at)
+            furnace_level, coal_reserve, smelting_queue, smelt_amounts, offline_earnings_level)
          VALUES
            ($1, $2, $3, $4, $5::jsonb, $6,
-            $7, $8, $9::jsonb, $10::jsonb, $11, now())
+            $7, $8, $9::jsonb, $10::jsonb, $11)
          ON CONFLICT (discord_id) DO UPDATE SET
            points = EXCLUDED.points,
            tool = EXCLUDED.tool,
@@ -171,7 +186,7 @@ export default function gameDataRoutes(db) {
            smelt_amounts = EXCLUDED.smelt_amounts,
            offline_earnings_level = EXCLUDED.offline_earnings_level,
            updated_at = now()
-        `,
+         RETURNING *`,
         [
           discordId,
           points,
@@ -186,8 +201,15 @@ export default function gameDataRoutes(db) {
           offline_earnings_level,
         ]
       );
-      return res.json({ success: true });
+
+      await db.query("COMMIT");
+
+      return res.json({
+        success: true,
+        data: result.rows[0],
+      });
     } catch (error) {
+      await db.query("ROLLBACK");
       logger.error("Failed to save game data:", error);
       return res.status(500).json({ error: "Failed to save game data" });
     }

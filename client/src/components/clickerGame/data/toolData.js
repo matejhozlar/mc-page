@@ -149,7 +149,7 @@ export const offlineEarningsUpgrades = [
       cobble_stone: 500,
       copper_ingot: 5,
     },
-    cap: 30, // minutes
+    cap: 30,
   },
   {
     level: 2,

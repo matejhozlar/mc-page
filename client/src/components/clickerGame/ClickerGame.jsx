@@ -101,15 +101,19 @@ const ClickerGame = () => {
 
   useEffect(() => {
     if (!hydrated) return;
+
     const schedule = () => {
       if (savingRef.current) {
         pendingRef.current = true;
         return;
       }
-      const payload = getPayload();
 
+      const payload = getPayload();
       const body = JSON.stringify(payload);
-      if (body === lastSentRef.current) return;
+
+      if (body === lastSentRef.current) {
+        return;
+      }
 
       savingRef.current = true;
       fetch("/api/game-data", {
@@ -118,16 +122,23 @@ const ClickerGame = () => {
         headers: { "Content-Type": "application/json" },
         body,
       })
-        .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
-        .then(() => {
+        .then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          return r.json();
+        })
+        .then((data) => {
+          if (!data.success) throw new Error("Save rejected");
           lastSentRef.current = body;
         })
-        .catch(() => {})
+        .catch((err) => {
+          console.error("Auto-save failed:", err);
+          lastSentRef.current = null;
+        })
         .finally(() => {
           savingRef.current = false;
           if (pendingRef.current) {
             pendingRef.current = false;
-            schedule();
+            setTimeout(schedule, 100);
           }
         });
     };
