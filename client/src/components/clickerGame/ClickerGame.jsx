@@ -12,8 +12,10 @@ import {
   toolOrder,
   valuePerClick,
   offlineEarningsUpgrades,
-  lootCrateDrops,
+  selectLootCrateItem,
+  RARITY_TIERS,
 } from "./data/toolData";
+import CrateOpening from "./CrateOpening";
 import { SMELTING_RECIPES } from "./data/furnaceData";
 
 // components
@@ -56,19 +58,20 @@ const ClickerGame = () => {
   const [selectedMaterial, setSelectedMaterial] = useState(null);
   const [materialAmounts, setMaterialAmounts] = useState({});
   const [hoverUpgrade, setHoveredUpgrade] = useState(null);
-  const [isCrateOpening, setIsCrateOpening] = useState(null);
-  const [crateItems, setCrateItems] = useState(null);
-  const [finalCrateItem, setFinalCrateItem] = useState(null);
   const materialMenuRef = useRef(null);
-  const [crateScrollX, setCrateScrollX] = useState(0);
-  const [showFinalMessage, setShowFinalMessage] = useState(false);
-  const [crateFinalIndex, setCrateFinalIndex] = useState(null);
   const [isMobileBlocked, setIsMobileBlocked] = useState(false);
   const [initialCheckDone, setInitialCheckDone] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const lastSentRef = useRef(null);
   const savingRef = useRef(false);
   const pendingRef = useRef(false);
+  const [crateState, setCrateState] = useState({
+    isOpen: false,
+    items: null,
+    finalItem: null,
+    finalIndex: null,
+    randomOffset: 0.5,
+  });
 
   const ignoreClickRef = useRef(false);
 
@@ -160,102 +163,6 @@ const ClickerGame = () => {
   }, []);
 
   const crateOnlyTools = new Set(["crimson_iron_pick"]);
-
-  useEffect(() => {
-    if (!isCrateOpening || !crateItems?.length || crateFinalIndex === null)
-      return;
-
-    const scrollContainer = document.querySelector(
-      `.${styles.crateScrollContainer}`
-    );
-    const scrollEl = scrollContainer.querySelector(`.${styles.crateScroll}`);
-    const itemEl = scrollEl.querySelector(`.${styles.crateItem}`);
-    const gap = parseInt(getComputedStyle(scrollEl).gap, 10) || 0;
-    const boxWidth = itemEl.offsetWidth + gap;
-    const scrollContainerWidth = scrollContainer.clientWidth;
-
-    const totalDistance = -(
-      crateFinalIndex * boxWidth -
-      scrollContainerWidth / 2 +
-      boxWidth / 2
-    );
-
-    const pixelsPerSecond = 1000;
-    const distance = Math.abs(totalDistance);
-    const duration = (distance / pixelsPerSecond) * 1000;
-    const startTime = performance.now();
-
-    const easeOutExpo = (t) => 1 - Math.pow(2, -10 * t);
-
-    const animateScroll = (time) => {
-      const elapsed = time - startTime;
-      const t = Math.min(elapsed / duration, 1);
-      const eased = easeOutExpo(t);
-      const currentX = eased * totalDistance;
-
-      setCrateScrollX(currentX);
-
-      if (t < 1) {
-        requestAnimationFrame(animateScroll);
-      } else {
-        setTimeout(() => {
-          if (finalCrateItem) {
-            if (finalCrateItem.name.endsWith("_pick")) {
-              const baseToolKey = finalCrateItem.name.replace(/_pick$/, "");
-              if (!inventory.includes(baseToolKey)) {
-                setInventory((prev) => [...prev, baseToolKey]);
-              } else {
-                setMaterials((prev) => ({
-                  ...prev,
-                  cobble_stone: (prev.cobble_stone || 0) + 500,
-                  netherite_ore: (prev.netherite_ore || 0) + 1,
-                  copper_ore: (prev.copper_ore || 0) + 50,
-                }));
-              }
-
-              setIsCrateOpening(false);
-              setShowFinalMessage(true);
-            } else if (finalCrateItem.name === "$100_bill") {
-              fetch("/api/game-reward/add-balance", {
-                method: "POST",
-                credentials: "include",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ amount: 100 }),
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  if (!data.success) {
-                    console.warn("Failed to add $100 reward to user balance");
-                  }
-                  setIsCrateOpening(false);
-                  setShowFinalMessage(true);
-                })
-                .catch((error) => {
-                  console.error("API error:", error);
-                  setIsCrateOpening(false);
-                  setShowFinalMessage(true);
-                });
-            } else {
-              setMaterials((prev) => ({
-                ...prev,
-                [finalCrateItem.name]:
-                  (prev[finalCrateItem.name] || 0) +
-                  (finalCrateItem.amount || 1),
-              }));
-
-              setIsCrateOpening(false);
-              setShowFinalMessage(true);
-            }
-          }
-        }, 1000);
-      }
-    };
-
-    setCrateScrollX(0);
-    requestAnimationFrame(animateScroll);
-  }, [isCrateOpening, crateItems, finalCrateItem, crateFinalIndex, inventory]);
 
   const upgradeFurnace = () => {
     if (furnaceLevel >= 8) return;
@@ -976,48 +883,93 @@ const ClickerGame = () => {
   const handleOpenLootCrate = () => {
     if (points < 10000 || (materials.copper_ingot || 0) < 50) return;
 
-    const rawEntries = [];
-
-    for (let i = 0; i < 100; i++) {
-      const rand = Math.random();
-      let cumulative = 0;
-      for (const drop of lootCrateDrops) {
-        cumulative += drop.chance;
-        if (rand <= cumulative) {
-          rawEntries.push({ ...drop });
-          break;
-        }
-      }
-    }
-
-    const finalIndexInRaw = Math.floor(Math.random() * rawEntries.length);
-    const finalItem = rawEntries[finalIndexInRaw];
-
-    const boxWidth = 72;
-    const scrollContainerWidth = 300;
-    const visibleItems = Math.floor(scrollContainerWidth / boxWidth);
-    const padding = Math.floor(visibleItems / 2);
-
-    const filler = { name: "coal" };
-    const paddedEntries = [
-      ...Array(padding).fill(filler),
-      ...rawEntries,
-      ...Array(padding).fill(filler),
-    ];
-
-    const finalIndex = padding + finalIndexInRaw;
-
-    setCrateItems(paddedEntries);
-    setFinalCrateItem(finalItem);
-    setCrateFinalIndex(finalIndex);
-    setCrateScrollX(0);
-    setIsCrateOpening(true);
-
     setPoints((p) => p - 10000);
     setMaterials((m) => ({
       ...m,
       copper_ingot: m.copper_ingot - 50,
     }));
+
+    const finalItem = selectLootCrateItem();
+
+    const reelItems = [];
+    for (let i = 0; i < 50; i++) {
+      reelItems.push(selectLootCrateItem());
+    }
+
+    const winningPosition = 35 + Math.floor(Math.random() * 5);
+    reelItems[winningPosition] = finalItem;
+
+    const paddingCount = 10;
+    const paddingStart = Array(paddingCount)
+      .fill(null)
+      .map(() => selectLootCrateItem());
+    const paddingEnd = Array(paddingCount)
+      .fill(null)
+      .map(() => selectLootCrateItem());
+
+    const allItems = [...paddingStart, ...reelItems, ...paddingEnd];
+
+    const finalIndexInArray = paddingCount + winningPosition;
+
+    const randomOffset = Math.random();
+
+    setCrateState({
+      isOpen: true,
+      items: allItems,
+      finalItem: finalItem,
+      finalIndex: finalIndexInArray,
+      randomOffset: randomOffset,
+    });
+  };
+
+  const handleCrateComplete = () => {
+    const { finalItem } = crateState;
+
+    if (!finalItem) return;
+
+    if (finalItem.name.endsWith("_pick")) {
+      const baseToolKey = finalItem.name.replace(/_pick$/, "");
+      if (!inventory.includes(baseToolKey)) {
+        setInventory((prev) => [...prev, baseToolKey]);
+      } else {
+        setMaterials((prev) => ({
+          ...prev,
+          cobble_stone: (prev.cobble_stone || 0) + 500,
+          netherite_ore: (prev.netherite_ore || 0) + 1,
+          copper_ore: (prev.copper_ore || 0) + 50,
+        }));
+      }
+    } else if (finalItem.name === "$100_bill") {
+      fetch("/api/game-reward/add-balance", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: 100 }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (!data.success) {
+            console.warn("Failed to add $100 reward");
+          }
+        })
+        .catch((error) => {
+          console.error("API error:", error);
+        });
+    } else {
+      setMaterials((prev) => ({
+        ...prev,
+        [finalItem.name]: (prev[finalItem.name] || 0) + (finalItem.amount || 1),
+      }));
+    }
+  };
+
+  const handleCrateClose = () => {
+    setCrateState({
+      isOpen: false,
+      items: null,
+      finalItem: null,
+      finalIndex: null,
+    });
   };
 
   useEffect(() => {
@@ -1859,75 +1811,16 @@ const ClickerGame = () => {
           </em>
         </footer>
       </div>
-      {isCrateOpening && (
-        <div className={styles.crateOverlay}>
-          <div className={styles.crateModal}>
-            <div className={styles.crateScrollContainer}>
-              <div className={styles.crateCenterIndicator}></div>{" "}
-              {/* << This line */}
-              <div
-                className={styles.crateScroll}
-                style={{ transform: `translateX(${crateScrollX}px)` }}
-              >
-                {crateItems.map((item, i) => (
-                  <div key={i} className={styles.crateItem}>
-                    <img
-                      src={
-                        item.name.endsWith("_pick")
-                          ? `/assets/clickerGame/models/images/${item.name}.png`
-                          : `/assets/clickerGame/materials/${item.name}.png`
-                      }
-                      alt={item.name}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                setIsCrateOpening(false);
-                setCrateItems([]);
-                setFinalCrateItem(null);
-                setCrateScrollX(0);
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-      {showFinalMessage && finalCrateItem && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            <h2>Loot Crate Opened!</h2>
-            <p>
-              You received:{" "}
-              <strong>
-                {finalCrateItem.amount ? `${finalCrateItem.amount} × ` : ""}
-                {materialNames[finalCrateItem.name] || finalCrateItem.name}
-              </strong>
-            </p>
-            <img
-              src={
-                finalCrateItem.name.endsWith("_pick")
-                  ? `/assets/clickerGame/models/images/${finalCrateItem.name}.png`
-                  : `/assets/clickerGame/materials/${finalCrateItem.name}.png`
-              }
-              alt={finalCrateItem.name}
-              style={{ width: "64px", margin: "12px auto" }}
-            />
-            <button
-              onClick={() => {
-                setShowFinalMessage(false);
-                setCrateItems([]);
-                setFinalCrateItem(null);
-              }}
-            >
-              Awesome!
-            </button>
-          </div>
-        </div>
+      {crateState.isOpen && (
+        <CrateOpening
+          isOpen={crateState.isOpen}
+          items={crateState.items}
+          finalItem={crateState.finalItem}
+          finalIndex={crateState.finalIndex}
+          randomOffset={crateState.randomOffset}
+          onComplete={handleCrateComplete}
+          onClose={handleCrateClose}
+        />
       )}
     </>
   );

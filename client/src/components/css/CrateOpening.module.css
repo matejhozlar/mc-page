@@ -1,0 +1,372 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background: linear-gradient(145deg, #1a1a1a, #242424);
+  border: 2px solid #333;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 900px;
+  width: 90%;
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.8);
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #333;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.closeBtn {
+  background: transparent;
+  border: 2px solid #555;
+  color: #aaa;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.closeBtn:hover:not(:disabled) {
+  background: #333;
+  border-color: #777;
+  color: #fff;
+}
+
+.closeBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.scrollWrapper {
+  position: relative;
+  margin: 0 auto 24px;
+  width: 100%;
+}
+
+.scrollContainer {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: linear-gradient(to bottom, #0a0a0a, #1a1a1a);
+  border: 3px solid #333;
+  border-radius: 12px;
+  position: relative;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+}
+
+.scrollTrack {
+  display: flex;
+  gap: 12px;
+  padding: 20px 0;
+  height: 100%;
+  align-items: center;
+  will-change: transform;
+}
+
+.centerIndicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #fff 20%,
+    #fff 80%,
+    transparent 100%
+  );
+  transform: translateX(-1.5px);
+  z-index: 10;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+.centerGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 140px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.1) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 5;
+}
+
+.item {
+  min-width: 108px;
+  height: 140px;
+  background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+  border: 2px solid #444;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  transition: all 0.2s;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.itemRarity {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-shadow: 0 0 8px currentColor;
+}
+
+.itemImage {
+  width: 56px;
+  height: 56px;
+  image-rendering: pixelated;
+  margin: 4px 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.itemName {
+  font-size: 11px;
+  color: #ccc;
+  text-align: center;
+  margin-top: 4px;
+  font-weight: 500;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemAmount {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.winningItem {
+  transform: scale(1.1);
+  z-index: 100;
+}
+
+.glowing {
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: scale(1.15);
+    filter: brightness(1.4);
+  }
+}
+
+.resultContainer {
+  text-align: center;
+  margin-top: 24px;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.resultLabel {
+  font-size: 16px;
+  font-weight: 700;
+  color: #888;
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.resultItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+  border: 3px solid;
+  border-radius: 16px;
+  padding: 24px 32px;
+  min-width: 220px;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.resultRarity {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  text-shadow: 0 0 15px currentColor;
+}
+
+.resultImage {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+  margin: 8px 0;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.6));
+}
+
+.resultName {
+  font-size: 18px;
+  color: #fff;
+  font-weight: 600;
+  margin-top: 12px;
+  text-align: center;
+}
+
+.resultAmount {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.skipBtn {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.skipBtn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .modal {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .scrollContainer {
+    height: 150px;
+  }
+
+  .item {
+    min-width: 90px;
+    height: 120px;
+  }
+
+  .itemImage {
+    width: 48px;
+    height: 48px;
+  }
+
+  .resultImage {
+    width: 72px;
+    height: 72px;
+  }
+
+  .skipBtn {
+    bottom: 16px;
+    right: 16px;
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+}
+
+.scrollTrack::before,
+.scrollTrack::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100px;
+  pointer-events: none;
+  z-index: 8;
+}
+
+.scrollTrack::before {
+  left: 0;
+  background: linear-gradient(to right, #0a0a0a, transparent);
+}
+
+.scrollTrack::after {
+  right: 0;
+  background: linear-gradient(to left, #0a0a0a, transparent);
+}

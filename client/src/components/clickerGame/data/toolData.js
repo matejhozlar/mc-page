@@ -233,13 +233,178 @@ export const offlineEarningsUpgrades = [
   },
 ];
 
+export const RARITY_TIERS = {
+  COMMON: {
+    name: "Common",
+    color: "#b0c3d9",
+    glowColor: "rgba(176, 195, 217, 0.3)",
+    chance: 0.7992,
+  },
+  UNCOMMON: {
+    name: "Uncommon",
+    color: "#5e98d9",
+    glowColor: "rgba(94, 152, 217, 0.4)",
+    chance: 0.15,
+  },
+  RARE: {
+    name: "Rare",
+    color: "#4b69ff",
+    glowColor: "rgba(75, 105, 255, 0.5)",
+    chance: 0.03,
+  },
+  EPIC: {
+    name: "Epic",
+    color: "#8847ff",
+    glowColor: "rgba(136, 71, 255, 0.6)",
+    chance: 0.016,
+  },
+  LEGENDARY: {
+    name: "Legendary",
+    color: "#d32ce6",
+    glowColor: "rgba(211, 44, 230, 0.7)",
+    chance: 0.004,
+  },
+  EXOTIC: {
+    name: "Exotic",
+    color: "#eb4b4b",
+    glowColor: "rgba(235, 75, 75, 0.8)",
+    chance: 0.0008,
+  },
+};
+
 export const lootCrateDrops = [
-  { name: "crimson_iron_pick", chance: 0.001 },
-  { name: "netherite_ingot", chance: 0.005 },
-  { name: "diamond", chance: 0.01 },
-  { name: "gold_ingot", chance: 0.03 },
-  { name: "iron_ingot", chance: 0.05 },
-  { name: "coal", chance: 0.15, amount: 50 },
-  { name: "cobble_stone", chance: 0.739, amount: 250 },
-  { name: "$100_bill", chance: 0.01 },
+  {
+    name: "cobble_stone",
+    amount: 250,
+    rarity: "COMMON",
+    displayName: "Cobblestone Bundle",
+  },
+  {
+    name: "coal",
+    amount: 50,
+    rarity: "COMMON",
+    displayName: "Coal Bundle",
+  },
+  {
+    name: "copper_ore",
+    amount: 25,
+    rarity: "COMMON",
+    displayName: "Copper Ore Bundle",
+  },
+
+  {
+    name: "copper_ingot",
+    amount: 15,
+    rarity: "UNCOMMON",
+    displayName: "Copper Ingot Pack",
+  },
+  {
+    name: "iron_ore",
+    amount: 10,
+    rarity: "UNCOMMON",
+    displayName: "Iron Ore Pack",
+  },
+  {
+    name: "coal",
+    amount: 100,
+    rarity: "UNCOMMON",
+    displayName: "Large Coal Bundle",
+  },
+
+  {
+    name: "iron_ingot",
+    amount: 10,
+    rarity: "RARE",
+    displayName: "Iron Ingot Pack",
+  },
+  {
+    name: "gold_ore",
+    amount: 5,
+    rarity: "RARE",
+    displayName: "Gold Ore Pack",
+  },
+  {
+    name: "diamond",
+    amount: 1,
+    rarity: "RARE",
+    displayName: "Diamond",
+  },
+
+  {
+    name: "gold_ingot",
+    amount: 5,
+    rarity: "EPIC",
+    displayName: "Gold Ingot Pack",
+  },
+  {
+    name: "diamond",
+    amount: 3,
+    rarity: "EPIC",
+    displayName: "Diamond Pack",
+  },
+  {
+    name: "netherite_ore",
+    amount: 1,
+    rarity: "EPIC",
+    displayName: "Netherite Ore",
+  },
+
+  {
+    name: "netherite_ingot",
+    amount: 1,
+    rarity: "LEGENDARY",
+    displayName: "Netherite Ingot",
+  },
+  {
+    name: "diamond",
+    amount: 10,
+    rarity: "LEGENDARY",
+    displayName: "Diamond Cache",
+  },
+  {
+    name: "$100_bill",
+    amount: 1,
+    rarity: "LEGENDARY",
+    displayName: "$100 Game Money",
+  },
+
+  {
+    name: "crimson_iron_pick",
+    amount: 1,
+    rarity: "EXOTIC",
+    displayName: "Crimson Iron Pickaxe",
+  },
+  {
+    name: "netherite_ingot",
+    amount: 5,
+    rarity: "EXOTIC",
+    displayName: "Netherite Ingot Cache",
+  },
 ];
+
+export function selectLootCrateItem() {
+  const rand = Math.random();
+  let cumulative = 0;
+
+  let selectedRarity = "COMMON";
+  for (const [tier, data] of Object.entries(RARITY_TIERS)) {
+    cumulative += data.chance;
+    if (rand <= cumulative) {
+      selectedRarity = tier;
+      break;
+    }
+  }
+
+  const itemsInRarity = lootCrateDrops.filter(
+    (item) => item.rarity === selectedRarity
+  );
+
+  if (itemsInRarity.length === 0) {
+    const commonItems = lootCrateDrops.filter(
+      (item) => item.rarity === "COMMON"
+    );
+    return commonItems[Math.floor(Math.random() * commonItems.length)];
+  }
+
+  return itemsInRarity[Math.floor(Math.random() * itemsInRarity.length)];
+}
