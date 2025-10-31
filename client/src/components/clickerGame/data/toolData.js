@@ -343,10 +343,10 @@ export const lootCrateDrops = [
     displayName: "Diamond Pack",
   },
   {
-    name: "netherite_ore",
+    name: "$100_bill",
     amount: 1,
     rarity: "EPIC",
-    displayName: "Netherite Ore",
+    displayName: "$100 Game Money",
   },
 
   {
@@ -362,10 +362,10 @@ export const lootCrateDrops = [
     displayName: "Diamond Cache",
   },
   {
-    name: "$100_bill",
+    name: "netherite_ore",
     amount: 1,
     rarity: "LEGENDARY",
-    displayName: "$100 Game Money",
+    displayName: "Netherite Ore",
   },
 
   {
