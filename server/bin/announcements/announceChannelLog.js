@@ -8,7 +8,6 @@ const client = new Client({
 });
 
 const { CLIENT_BOT_TOKEN } = process.env;
-
 const publishChannel = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
 
 if (!CLIENT_BOT_TOKEN || !publishChannel) {
@@ -31,18 +30,21 @@ client.once("ready", async () => {
     }
 
     const updatedMods = [
-      "- Chat Heads",
-      "- Create More: Package Couriers",
-      "- Create: Central Kitchen",
-      "- Create: Dragons Plus",
-      "- Createringon Currency",
-      "- Create: Slice n Dice",
-      "- Create: Industrialized Architecture",
+      "- Createrington Currency",
+      "- Fzzy Config",
+      "- AFKStatus",
     ].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
-    const newMods = ["- Create: Brassworks Missions"].join("\n");
+    const newMods = [
+      "- AFKStatus",
+      "- Adorable Hamsters",
+      "- Create: More Girder",
+      "- EasyAnvils",
+      "- Geckolib",
+      "- Patchouli",
+    ].join("\n");
 
-    const version = "v0.2.2";
+    const version = "v0.2.3";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -52,13 +54,20 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "🎯 In-game missions",
+          name: "💳 Createrington Currency: Bank Card",
           value:
-            "We’ve added new in-game missions to keep your adventure fresh. Press **H** to open the mission interface or use **/missions** anytime. Missions reset every week, reward you with in-game currency.",
+            "Thanks to <@547450242090532874> we now have the **Bank Card** — a new Createrington Currency item that plugs straight into **Create Stock Tickers/Shops**.\n\n" +
+            "**How to use:**\n" +
+            "- Put it in your **offhand** while buying.\n" +
+            "- You pay **directly from your bank balance** — no bills needed.",
+        },
+        {
+          name: "⬆️ Updated Mods",
+          value: updatedMods || "—",
         },
         // {
-        //   name: "⬆️ Updated Mods",
-        //   value: updatedMods || "—",
+        //   name: "🗑️ Removed Mods",
+        //   value: deletedMods || "—",
         // },
         {
           name: "🆕 New Mods",
