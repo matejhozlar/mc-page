@@ -32,12 +32,25 @@ const CrateOpening = ({
     }
 
     if (containerRef.current && finalIndex !== null) {
-      const itemWidth = 120;
-      const containerWidth = containerRef.current.clientWidth;
+      const firstItem = containerRef.current.querySelector(`.${styles.item}`);
+      const itemWidth = firstItem ? firstItem.offsetWidth : 120;
 
-      const itemOffset = (randomOffset - 0.5) * itemWidth;
+      const trackElement = containerRef.current.querySelector(
+        `.${styles.scrollTrack}`
+      );
+      const gap = trackElement
+        ? parseInt(window.getComputedStyle(trackElement).gap) || 12
+        : 12;
+
+      const containerWidth = containerRef.current.clientWidth;
+      const totalItemWidth = itemWidth + gap;
+
+      const itemOffset = (randomOffset - 0.5) * itemWidth * 0.25;
       const targetX =
-        -(finalIndex * itemWidth) + containerWidth / 2 + itemOffset;
+        -(finalIndex * totalItemWidth) +
+        containerWidth / 2 -
+        itemWidth / 2 +
+        itemOffset;
 
       setScrollX(targetX);
     }
@@ -78,12 +91,25 @@ const CrateOpening = ({
         return;
       }
 
-      const itemWidth = 120;
-      const containerWidth = containerRef.current.clientWidth;
+      const firstItem = containerRef.current.querySelector(`.${styles.item}`);
+      const itemWidth = firstItem ? firstItem.offsetWidth : 120;
 
-      const itemOffset = (randomOffset - 0.5) * itemWidth;
+      const trackElement = containerRef.current.querySelector(
+        `.${styles.scrollTrack}`
+      );
+      const gap = trackElement
+        ? parseInt(window.getComputedStyle(trackElement).gap) || 12
+        : 12;
+
+      const containerWidth = containerRef.current.clientWidth;
+      const totalItemWidth = itemWidth + gap;
+
+      const itemOffset = (randomOffset - 0.5) * itemWidth * 0.25;
       const targetX =
-        -(finalIndex * itemWidth) + containerWidth / 2 + itemOffset;
+        -(finalIndex * totalItemWidth) +
+        containerWidth / 2 -
+        itemWidth / 2 +
+        itemOffset;
 
       const duration = 5000;
       const startTime = performance.now();
