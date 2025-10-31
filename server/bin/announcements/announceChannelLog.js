@@ -36,7 +36,6 @@ client.once("ready", async () => {
     ].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
     const newMods = [
-      "- AFKStatus",
       "- Adorable Hamsters",
       "- Create: More Girder",
       "- EasyAnvils",
