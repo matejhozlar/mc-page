@@ -56,6 +56,11 @@ describe("GET /game-data", () => {
           furnace_level: 1,
           last_logout_at: now,
           updated_at: now,
+          auto_click_level: 0,
+          offline_earnings_level: 0,
+          tool: "hand",
+          points: 100,
+          inventory: ["hand"],
         },
       ],
     });
@@ -85,9 +90,15 @@ describe("GET /game-data", () => {
             furnace_level: 1,
             last_logout_at: fiveSecondsAgo,
             updated_at: fiveSecondsAgo,
+            auto_click_level: 0,
+            offline_earnings_level: 0,
+            tool: "hand",
+            points: 100,
+            inventory: ["hand"],
           },
         ],
       })
+      .mockResolvedValueOnce({})
       .mockResolvedValueOnce({});
 
     const res = await request(app)
@@ -127,14 +138,15 @@ describe("POST /api/game-data", () => {
 
   const validPayload = {
     points: 100,
-    tool: "iron_pickaxe",
-    inventory: ["copper_ore", "coal"],
+    tool: "iron",
+    inventory: ["hand", "wooden", "iron"],
     materials: { copper_ore: 2, coal: 1 },
     auto_click_level: 2,
     furnace_level: 1,
     coal_reserve: 2,
     smelting_queue: ["copper_ore"],
     smelt_amounts: { copper_ore: 1 },
+    offline_earnings_level: 0,
   };
 
   it("returns 401 if no session cookie is set", async () => {
@@ -146,7 +158,7 @@ describe("POST /api/game-data", () => {
   it("returns 400 if input is invalid", async () => {
     const invalidPayload = {
       ...validPayload,
-      furnace_level: "not_a_number", // invalid
+      furnace_level: "not_a_number",
     };
 
     const res = await request(app)
@@ -158,8 +170,27 @@ describe("POST /api/game-data", () => {
     expect(res.body.error).toBe("Invalid game data");
   });
 
+  it("returns 400 if negative values are provided", async () => {
+    const negativePayload = {
+      ...validPayload,
+      points: -100,
+    };
+
+    const res = await request(app)
+      .post("/api/game-data")
+      .set("Cookie", "user_session=user123")
+      .send(negativePayload);
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Invalid negative values");
+  });
+
   it("returns success if insert/update succeeds", async () => {
-    db.query.mockResolvedValueOnce({});
+    db.query
+      .mockResolvedValueOnce({})
+      .mockResolvedValueOnce({ rows: [{ discord_id: "user123" }] })
+      .mockResolvedValueOnce({});
+
     const res = await request(app)
       .post("/api/game-data")
       .set("Cookie", "user_session=user123")
@@ -167,11 +198,16 @@ describe("POST /api/game-data", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(db.query).toHaveBeenCalled();
+    expect(res.body.data).toHaveProperty("discord_id", "user123");
+    expect(db.query).toHaveBeenCalledWith("BEGIN");
+    expect(db.query).toHaveBeenCalledWith("COMMIT");
   });
 
-  it("returns 500 if database throws error", async () => {
-    db.query.mockRejectedValueOnce(new Error("DB broken"));
+  it("returns 500 and rolls back if database throws error", async () => {
+    db.query
+      .mockResolvedValueOnce({}) // BEGIN
+      .mockRejectedValueOnce(new Error("DB broken")) // INSERT fails
+      .mockResolvedValueOnce({}); // ROLLBACK
 
     const res = await request(app)
       .post("/api/game-data")
@@ -180,6 +216,7 @@ describe("POST /api/game-data", () => {
 
     expect(res.status).toBe(500);
     expect(res.body.error).toBe("Failed to save game data");
+    expect(db.query).toHaveBeenCalledWith("ROLLBACK");
   });
 });
 
@@ -220,5 +257,76 @@ describe("POST /api/game-logout", () => {
       .set("Cookie", "user_session=user123");
 
     expect(res.status).toBe(500);
+  });
+});
+
+describe("POST /api/game-reward/add-balance", () => {
+  let app;
+  let db;
+
+  beforeEach(() => {
+    db = { query: vi.fn() };
+    app = express();
+    app.use(cookieParser());
+    app.use(unsignedAsSigned(["user_session"]));
+    app.use(express.json());
+    app.use("/api", gameRoutes(db));
+  });
+
+  it("returns 401 if no session cookie", async () => {
+    const res = await request(app)
+      .post("/api/game-reward/add-balance")
+      .send({ amount: 100 });
+
+    expect(res.status).toBe(401);
+    expect(res.body.error).toBe("Unauthorized");
+  });
+
+  it("returns 400 if amount is invalid", async () => {
+    const res = await request(app)
+      .post("/api/game-reward/add-balance")
+      .set("Cookie", "user_session=user123")
+      .send({ amount: "not-a-number" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Invalid amount");
+  });
+
+  it("returns 400 if amount is negative or zero", async () => {
+    const res = await request(app)
+      .post("/api/game-reward/add-balance")
+      .set("Cookie", "user_session=user123")
+      .send({ amount: -50 });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe("Invalid amount");
+  });
+
+  it("returns success if balance update succeeds", async () => {
+    db.query.mockResolvedValueOnce({});
+
+    const res = await request(app)
+      .post("/api/game-reward/add-balance")
+      .set("Cookie", "user_session=user123")
+      .send({ amount: 100 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.success).toBe(true);
+    expect(db.query).toHaveBeenCalledWith(
+      expect.stringContaining("UPDATE user_funds"),
+      ["user123", 100]
+    );
+  });
+
+  it("returns 500 if database update fails", async () => {
+    db.query.mockRejectedValueOnce(new Error("DB error"));
+
+    const res = await request(app)
+      .post("/api/game-reward/add-balance")
+      .set("Cookie", "user_session=user123")
+      .send({ amount: 100 });
+
+    expect(res.status).toBe(500);
+    expect(res.body.error).toBe("Failed to add balance");
   });
 });
