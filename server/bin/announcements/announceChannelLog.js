@@ -35,15 +35,9 @@ client.once("ready", async () => {
       "- AFKStatus",
     ].join("\n");
     const deletedMods = ["- Create: Ender Link"].join("\n");
-    const newMods = [
-      "- Adorable Hamsters",
-      "- Create: More Girder",
-      "- EasyAnvils",
-      "- Geckolib",
-      "- Patchouli",
-    ].join("\n");
+    const newMods = ["- Create Deco"].join("\n");
 
-    const version = "v0.2.3";
+    const version = "v0.2.4";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -52,18 +46,18 @@ client.once("ready", async () => {
         `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`
       )
       .addFields(
-        {
-          name: "💳 Createrington Currency: Bank Card",
-          value:
-            "Thanks to <@547450242090532874> we now have the **Bank Card** — a new Createrington Currency item that plugs straight into **Create Stock Tickers/Shops**.\n\n" +
-            "**How to use:**\n" +
-            "- Put it in your **offhand** while buying.\n" +
-            "- You pay **directly from your bank balance** — no bills needed.",
-        },
-        {
-          name: "⬆️ Updated Mods",
-          value: updatedMods || "—",
-        },
+        // {
+        //   name: "💳 Createrington Currency: Bank Card",
+        //   value:
+        //     "Thanks to <@547450242090532874> we now have the **Bank Card** — a new Createrington Currency item that plugs straight into **Create Stock Tickers/Shops**.\n\n" +
+        //     "**How to use:**\n" +
+        //     "- Put it in your **offhand** while buying.\n" +
+        //     "- You pay **directly from your bank balance** — no bills needed.",
+        // },
+        // {
+        //   name: "⬆️ Updated Mods",
+        //   value: updatedMods || "—",
+        // },
         // {
         //   name: "🗑️ Removed Mods",
         //   value: deletedMods || "—",

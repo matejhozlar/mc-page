@@ -43,7 +43,7 @@ client.once("ready", async () => {
           name: "Manual Installation (Not Recommended)",
           value: [
             "For experienced users who prefer manual installs:",
-            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1i9OM6wa4Wg3fv9BoebOlEO-ycmDmFTg7/view?usp=sharing)",
+            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1-b96xH5ObWndlSL_3GAbZ1vGE745jJVT/view?usp=sharing)",
             "- Use your preferred launcher (Prism, MultiMC, etc)",
             "- Make sure you're using **NeoForge 1.21.1** and match all mod versions exactly",
             "",
