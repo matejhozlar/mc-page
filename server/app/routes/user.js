@@ -97,5 +97,18 @@ export default function userRoutes(db) {
     }
   });
 
+  // router.get("/user/all", async (req, res) => {
+  //   try {
+  //     const result = await db.query(
+  //       `SELECT uuid, name, discord_id FROM users ORDER BY name`
+  //     );
+
+  //     return res.json({ users: result.rows });
+  //   } catch (error) {
+  //     logger.error("Failed to get users:", error);
+  //     res.status(500).json({ error: "Internal server error" });
+  //   }
+  // });
+
   return router;
 }
