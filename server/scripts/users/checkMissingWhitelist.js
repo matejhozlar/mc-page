@@ -185,6 +185,17 @@ async function main() {
     "utf8"
   );
   console.log(chalk.green(`\nExported still-missing to ${remainingPath}`));
+
+  const whitelistPath = path.join(dataDir, "whitelist.json");
+  const whitelist = fileUsers.filter((u) => dbUuidSet.has(u.uuid));
+  await fs.writeFile(
+    whitelistPath,
+    JSON.stringify(whitelist, null, 2),
+    "utf-8"
+  );
+  console.log(
+    chalk.green(`\nExported whitelist (users in DB) to ${whitelistPath}`)
+  );
 }
 
 main().catch((err) => {
