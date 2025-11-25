@@ -116,14 +116,6 @@ export async function execute(interaction, db) {
     await cogs_and_steam_rcon.send(`whitelist add ${correctName}`);
     await cogs_and_steam_rcon.end();
 
-    const technica_rcon = await Rcon.connect({
-      host: process.env.TECHNICA_SERVER_IP,
-      port: parseInt(process.env.TECHNICA_RCON_PORT),
-      password: process.env.TECHNICA_RCON_PASSWORD,
-    });
-    await technica_rcon.send(`whitelist add ${correctName}`);
-    await technica_rcon.end();
-
     await randomDelay();
     await interaction.editReply({
       content: "💾 Saving your information to the database...",
