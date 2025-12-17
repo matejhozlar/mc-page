@@ -14,10 +14,7 @@ const MarketUserProfile = () => {
     <div className="market-user-profile-header">
       <div className="market-profile-left">
         <img
-          src={`https://crafatar.com/avatars/${uuid.replace(
-            /-/g,
-            ""
-          )}?size=80&overlay`}
+          src={`https://mc-heads.net/avatar/${uuid}/80`}
           alt={`${name}'s avatar`}
           className="market-avatar"
         />

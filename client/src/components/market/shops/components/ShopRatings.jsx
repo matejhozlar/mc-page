@@ -167,7 +167,7 @@ export default function ShopReviews({ shopId }) {
                     {rAvatar ? (
                       <img
                         className="review-item-avatar"
-                        src={rAvatar}
+                        src={`https://mc-heads.net/avatar/${r.user_mc_uuid}/28`}
                         alt={`${rName} avatar`}
                         loading="lazy"
                       />

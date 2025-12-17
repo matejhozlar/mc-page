@@ -211,7 +211,7 @@ function CryptoMarket() {
                 <div className="user-top">
                   <img
                     className="user-avatar"
-                    src={`https://crafatar.com/avatars/${profile.uuid}?size=64&overlay`}
+                    src={`https://mc-heads.net/avatar/${profile.uuid}/64`}
                     alt={`${profile.name}'s avatar`}
                   />
                   <div className="user-info">

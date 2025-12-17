@@ -8,40 +8,6 @@ import {
 export default function formRoutes(db, client) {
   const router = express.Router();
 
-  // --- /api/apply ---
-  router.post("/apply", async (req, res) => {
-    const { mcName, dcName, age, howFound, experience, whyJoin } = req.body;
-
-    logger.info(
-      `Application received — MC: ${mcName}, DC: ${dcName}, Age: ${age}`
-    );
-
-    const insertQuery = `
-      INSERT INTO applications (mc_name, dc_name, age, how_found, experience, why_join)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING *
-    `;
-
-    try {
-      const result = await db.query(insertQuery, [
-        mcName,
-        dcName,
-        age,
-        howFound || null,
-        experience || null,
-        whyJoin,
-      ]);
-      logger.info(`Application inserted for ${mcName} (${dcName})`);
-      res.json({ success: true, application: result.rows[0] });
-    } catch (error) {
-      logger.error(
-        `Failed to insert application — MC: ${mcName}, DC: ${dcName}:`,
-        error
-      );
-      res.status(500).json({ error: "Error submitting application" });
-    }
-  });
-
   // --- /api/wait-list ---
   router.post("/wait-list", async (req, res) => {
     const { email, discordName } = req.body;

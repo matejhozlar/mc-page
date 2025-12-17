@@ -472,9 +472,9 @@ const ServerChat = () => {
                         <>
                           <div className="mc-avatar-wrapper">
                             <img
-                              src={`https://crafatar.com/avatars/${getPlayerUUID(
+                              src={`https://mc-heads.net/avatar/${getPlayerUUID(
                                 name
-                              )}?size=32&overlay`}
+                              )}/32`}
                               alt={name}
                               className="avatar"
                             />

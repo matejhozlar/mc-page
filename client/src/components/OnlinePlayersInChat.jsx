@@ -14,7 +14,7 @@ const OnlinePlayersInChat = ({ players }) => {
           {onlinePlayers.map((p) => (
             <li key={p.id} className="d-flex align-items-center gap-2 mb-2">
               <img
-                src={`https://crafatar.com/avatars/${p.id}?size=32&overlay`}
+                src={`https://mc-heads.net/avatar/${p.id}/64`}
                 alt={p.name}
                 width={32}
                 height={32}

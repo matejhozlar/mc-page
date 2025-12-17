@@ -1166,7 +1166,7 @@ export default function shopSubmissionRoutes(db, clientBot) {
       );
 
       const avatarFor = (uuid, size = 64) =>
-        `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+        `https://mc-heads.net/avatar/${uuid}/${size}`;
 
       res.json({
         company: {

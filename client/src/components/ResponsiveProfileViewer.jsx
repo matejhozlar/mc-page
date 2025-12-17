@@ -19,7 +19,7 @@ const ResponsiveProfileViewer = ({ username, uuid }) => {
   ) : (
     <img
       className="user-avatar"
-      src={`https://crafatar.com/avatars/${uuid}?size=64&overlay`}
+      src={`https://mc-heads.net/avatar/${uuid}/64`}
       alt={`${username}'s avatar`}
     />
   );

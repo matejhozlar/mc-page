@@ -23,7 +23,7 @@ const AdminPanel = () => {
   const appendLog = (msg) => setLogs((prev) => [...prev.slice(-49), msg]);
 
   const getAvatarUrl = (uuid, size = 80) =>
-    `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+    `https://mc-heads.net/avatar/${uuid}/${size}`;
 
   useEffect(() => {
     fetch("/api/admin/validate", {

@@ -121,7 +121,7 @@ const CompanyPage = () => {
   const sanitizeUuid = (id = "") => id.toString().trim().replace(/-/g, "");
 
   const getAvatarUrl = (uuid) =>
-    `https://crafatar.com/avatars/${sanitizeUuid(uuid)}?size=40&overlay`;
+    `https://mc-heads.net/avatar/${sanitizeUuid(uuid)}/40`;
 
   return (
     <div className="company-profile-page">

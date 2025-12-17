@@ -59,7 +59,7 @@ const Team = () => {
         {admins.map((admin) => (
           <div className="admin-card" key={admin.uuid}>
             <img
-              src={`https://crafatar.com/avatars/${admin.uuid}?size=128&overlay`}
+              src={`https://mc-heads.net/avatar/${admin.uuid}/128`}
               alt={`${admin.name}'s avatar`}
               className="admin-avatar"
             />

@@ -39,7 +39,7 @@ function CryptoMarketStatsDemo() {
           <div className="user-top">
             <img
               className="user-avatar"
-              src={`https://crafatar.com/avatars/${baseProfile.uuid}?size=64&overlay`}
+              src={`https://mc-heads.net/avatar/${baseProfile.uuid}/64`}
               alt={`${baseProfile.name}'s avatar`}
             />
             <div className="user-info">

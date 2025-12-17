@@ -10,14 +10,13 @@ const MarketUserProfile = () => {
 
   const { name, uuid, balance } = user;
 
+  if (!uuid || !name || !balance) return <p>Invalid</p>;
+
   return (
     <div className="market-user-profile-header">
       <div className="market-profile-left">
         <img
-          src={`https://crafatar.com/avatars/${uuid.replace(
-            /-/g,
-            ""
-          )}?size=80&overlay`}
+          src={`https://mc-heads.net/avatar/${uuid}/64`}
           alt={`${name}'s avatar`}
           className="market-avatar"
         />

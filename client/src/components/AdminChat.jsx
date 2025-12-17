@@ -89,7 +89,7 @@ const AdminServerChat = () => {
   };
 
   const getAvatarUrl = (uuid, size = 32) =>
-    `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+    `https://mc-heads.net/avatar/${uuid}/${size}`;
 
   const getUuidByName = (name) => {
     const match = onlinePlayers.find(

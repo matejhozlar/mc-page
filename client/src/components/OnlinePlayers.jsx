@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./css/OnlinePlayers.css";
 
 const getAvatarUrl = (uuid, size = 64) =>
-  `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+  `https://mc-heads.net/avatar/${uuid}/${size}`;
 
 const OnlinePlayers = () => {
   const [players, setPlayers] = useState([]);
