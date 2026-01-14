@@ -14,6 +14,16 @@ const TOKEN = process.env.CLIENT_BOT_TOKEN;
 
 const commands = [
   new SlashCommandBuilder()
+    .setName("username")
+    .setDescription("Retrieve user's Minecraft username")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .addUserOption((opt) =>
+      opt
+        .setName("user")
+        .setDescription("User to retrieve username for")
+        .setRequired(true)
+    ),
+  new SlashCommandBuilder()
     .setName("config")
     .setDescription("Admin: remote config operations")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
