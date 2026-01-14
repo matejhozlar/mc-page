@@ -30,12 +30,20 @@ client.once("ready", async () => {
     }
 
     const updatedMods = [
-      "- Createrington Currency",
-      "- Fzzy Config",
-      "- AFKStatus",
+      "- [Vanilla Backport](https://www.curseforge.com/minecraft/mc-mods/vanillabackport)",
+      "- [Platform](https://www.curseforge.com/minecraft/mc-mods/platform)",
+      "- [Adorable Hamsters](https://www.curseforge.com/minecraft/mc-mods/adorable-hamster-pets)",
     ].join("\n");
-    const deletedMods = ["- Create: Ender Link"].join("\n");
-    const newMods = ["- Create Deco"].join("\n");
+    const deletedMods = [].join("\n");
+    const newMods = [
+      "- [AstikorCarts Redux](https://www.curseforge.com/minecraft/mc-mods/astikor-carts-redux)",
+      "- [Immersive Melodies](https://www.curseforge.com/minecraft/mc-mods/immersive-melodies)",
+      "- [Create: Stuff n Additions - Tank Fix](https://www.curseforge.com/minecraft/mc-mods/create-stuff-and-addition-tank-fix)",
+      "- [Create: Bits n Bobs](https://www.curseforge.com/minecraft/mc-mods/create-bits-n-bobs)",
+      "- [Create: Configurable Outputs](https://www.curseforge.com/minecraft/mc-mods/create-configurable-crushing-wheel)",
+      "- [Create: Northstar Redux](https://www.curseforge.com/minecraft/mc-mods/northstar-redux)",
+      "- [Lithium](https://www.curseforge.com/minecraft/mc-mods/lithium)",
+    ].join("\n");
 
     const version = "v0.2.4";
 
@@ -46,18 +54,16 @@ client.once("ready", async () => {
         `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`
       )
       .addFields(
-        // {
-        //   name: "💳 Createrington Currency: Bank Card",
-        //   value:
-        //     "Thanks to <@547450242090532874> we now have the **Bank Card** — a new Createrington Currency item that plugs straight into **Create Stock Tickers/Shops**.\n\n" +
-        //     "**How to use:**\n" +
-        //     "- Put it in your **offhand** while buying.\n" +
-        //     "- You pay **directly from your bank balance** — no bills needed.",
-        // },
-        // {
-        //   name: "⬆️ Updated Mods",
-        //   value: updatedMods || "—",
-        // },
+        {
+          name: "🔭 Create: Northstar Redux Highlight",
+          value:
+            "**Northstar Redux** expands Create’s late-game progression with **space-themed technology, materials, and advanced components**.\n\n" +
+            "It introduces new goals for experienced engineers, encouraging **larger factories, deeper automation chains, and long-term progression** while staying true to Create’s mechanical style.",
+        },
+        {
+          name: "⬆️ Updated Mods",
+          value: updatedMods || "—",
+        },
         // {
         //   name: "🗑️ Removed Mods",
         //   value: deletedMods || "—",
