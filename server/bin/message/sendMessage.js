@@ -10,6 +10,7 @@ const client = new Client({
 const {
   DISCORD_ANNOUNCEMENT_CHANNEL_ID,
   DISCORD_PLAYER_ROLE_ID,
+  DISCORD_TEST_CHANNEL_ID,
   DISCORD_WEBSITE_BUGS_CHANNEL_ID,
 } = process.env;
 
@@ -27,43 +28,31 @@ client.once("ready", async () => {
     }
 
     const embed = new EmbedBuilder()
-      .setTitle("🐞 New Bug Report Channel")
-      .setColor(0xffcb05)
+      .setTitle("⚠️ Known Server Crash – Fix in Progress")
+      .setColor(0xffa500)
       .setDescription(
-        `We’ve opened a new channel dedicated to reporting bugs in our **entire environment**. ` +
-          `This includes the **website, mods, Discord server, and more**.\n\n` +
-          `➡️ Head over to <#${DISCORD_WEBSITE_BUGS_CHANNEL_ID}> and help us squash bugs while earning rewards!`
-      )
-      .addFields(
-        {
-          name: "📝 How to Report",
-          value:
-            `1. Go to <#${DISCORD_WEBSITE_BUGS_CHANNEL_ID}>.\n` +
-            `2. Create a post with a clear title (example: *"Login button broken on mobile"*).\n` +
-            `3. Include details: where it happened, steps to reproduce, screenshots if possible.\n\n` +
-            `The clearer your report, the faster we can fix it`,
-        },
-        {
-          name: "Rewards",
-          value:
-            `Each valid bug report earns you **in-game currency** based on severity:\n\n` +
-            `🔹 Minor Severity → +$20\n` +
-            `🔸 Medium Severity → +$50\n` +
-            `💥 Fatal Severity → +$100\n\n` +
-            `Rewards will be delivered **in-game** after verification.`,
-        },
-        {
-          name: "Why?",
-          value:
-            `Because your feedback keeps our environment stable and fun.` +
-            `and we want to reward those who help make it better.`,
-        }
+        `We want to make everyone aware of a **known server crash** that we are actively investigating and fixing.\n\n` +
+          `### What’s happening?\n` +
+          `The server may crash when a **torch is placed on a wall next to flowing water**. ` +
+          `This interaction triggers an internal error during world updates, which can cause the server to stop unexpectedly.\n\n` +
+          `### What are we doing?\n` +
+          `Our team has identified the cause of the issue and is **actively working on a fix**. ` +
+          `We believe this issue will be **fully resolved by tomorrow**.\n\n` +
+          `### What can you do for now?\n` +
+          `Please try to **avoid placing wall torches near flowing water** until the fix is deployed. ` +
+          `This will help prevent additional crashes while we finalize the solution.\n\n` +
+          `### Questions & Answers\n` +
+          `**Q: What should I do if I try to join the server and it crashes, causing me to get kicked?**\n` +
+          `A: Please **do not keep trying to rejoin**. Contact an admin so we can help resolve any spawn-related issues caused by this bug.\n\n` +
+          `**Q: Is this dangerous for the server or world?**\n` +
+          `A: **No.** Nothing should break or corrupt the world. The issue is not dangerous. It’s just **very annoying** and causes temporary crashes.\n\n` +
+          `Thank you for your patience and for helping keep the server stable 💛`
       )
       .setFooter({ text: "Thanks for playing on Createrington!" })
       .setTimestamp();
 
     await channel.send({
-      content: `<@&${DISCORD_PLAYER_ROLE_ID}>`,
+      content: `||<@&${DISCORD_PLAYER_ROLE_ID}>||`,
       embeds: [embed],
     });
 
