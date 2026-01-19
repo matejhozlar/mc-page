@@ -18,14 +18,14 @@ client.once("ready", async () => {
 
   try {
     const channel = await client.channels.fetch(
-      DISCORD_DOWNLOAD_GUIDE_CHANNEL_ID
+      DISCORD_DOWNLOAD_GUIDE_CHANNEL_ID,
     );
 
     const embed = new EmbedBuilder()
       .setTitle("Download & Setup Guide – Createrington: Cogs & Steam")
       .setColor(0x2196f3)
       .setDescription(
-        "Getting started is super easy! We recommend using **CurseForge** for the smoothest experience. It's one-click to install, and everything is pre-configured."
+        "Getting started is super easy! We recommend using **CurseForge** for the smoothest experience. It's one-click to install, and everything is pre-configured.",
       )
       .addFields(
         {
@@ -43,7 +43,7 @@ client.once("ready", async () => {
           name: "Manual Installation (Not Recommended)",
           value: [
             "For experienced users who prefer manual installs:",
-            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1m7DXGVHQYzmrZf4yCNmOy3aph_v1te_y/view?usp=sharing)",
+            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1feE_Yf9X7ZVtruez7LR_gUgvettfn9OB/view?usp=sharing)",
             "- Use your preferred launcher (Prism, MultiMC, etc)",
             "- Make sure you're using **NeoForge 1.21.1** and match all mod versions exactly",
             "",
@@ -60,7 +60,7 @@ client.once("ready", async () => {
         {
           name: "**Need help?**",
           value: `Create a ticket in <#${DISCORD_SUPPORT_TICKET_CHANNEL_ID}>`,
-        }
+        },
       )
       .setFooter({
         text: `Thanks for playing on Createrington!`,

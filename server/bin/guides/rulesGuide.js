@@ -19,10 +19,10 @@ client.once("ready", async () => {
     const channel = await client.channels.fetch(DISCORD_RULES_CHANNEL_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("📜 Server Rules – Creatington Minecraft (Create Mod)")
+      .setTitle("📜 Server Rules – Creatington Minecraft)")
       .setColor(GREEN)
       .setDescription(
-        "Follow these rules to keep the server safe, fair, and fun for everyone."
+        "Follow these rules to keep the server safe, fair, and fun for everyone.",
       )
       .addFields(
         {
@@ -58,13 +58,22 @@ client.once("ready", async () => {
             "13. Avoid **excessive lag** machines. Report runaway contraptions.",
             "14. Respect community resources & trades. No scams.",
             "15. Follow staff guidance on technical builds/issues.",
+            "16. Its strictly forbidden to use a cart assembler (contraption being assembled and disassembled) to break blocks in any kind of Farm.",
+            "17. Any cobble / stone / zulatanite ... Generator needs to be build the following way: (exception the Create: Cobble Gen Generator).",
+            "	- Uses drills to break the blocks.",
+            "	- Got a Lava source block next to it (not flowing lava) generating 'the block'. (Besides the Farms that use the vanilla way, and the vanilla way needs a flowing lava source)",
+            "	- Got a Chute (or Smart Chute) below it (next block) catching the generated block.",
+            "	- Need a automatic switch off, when the inventory it feeds, flows over. (Use a threshold switch and clutch)",
+            '18. The processing or transport of items must happen with methods proving an "inventory" and not be dropped into the world as item.',
+            "	- Belts, Chutes, depos got an internal inventory.",
+            '	- Funnels not in their "Belt stage" do drop items into the world, no matter if something can pick them up. Therefore this should be avoided',
           ].join("\n"),
         },
         {
           name: "⚠️ Enforcement",
           value:
             "Breaking rules may lead to warnings, temp bans, or permanent bans depending on severity. Report violations to staff instead of taking matters into your own hands.",
-        }
+        },
       )
       .setFooter({
         text: "Thanks for keeping Creatington safe & fun!",

@@ -13,7 +13,7 @@ const announcement = {
   title: "🔧 Server Maintenance",
   description:
     "We’re rolling out a modpack and server update to improve stability, performance and add new mods",
-  startsAt: new Date("2026-01-14T16:00:00+02:00"),
+  startsAt: new Date("2026-01-18T15:00:00+02:00"),
   estimatedMinutes: 120,
 };
 
@@ -27,15 +27,15 @@ function formatExactTime(date) {
   return `<t:${timestamp}:f>`;
 }
 
-client.once("ready", async () => {
+client.once("clientReady", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
   try {
     const channel = await client.channels.fetch(
-      DISCORD_ANNOUNCEMENT_CHANNEL_ID
+      DISCORD_ANNOUNCEMENT_CHANNEL_ID,
     );
     const endTime = new Date(
-      announcement.startsAt.getTime() + announcement.estimatedMinutes * 60000
+      announcement.startsAt.getTime() + announcement.estimatedMinutes * 60000,
     );
 
     const embed = new EmbedBuilder()
@@ -46,7 +46,7 @@ client.once("ready", async () => {
         {
           name: "🕒 Starts",
           value: `${formatExactTime(
-            announcement.startsAt
+            announcement.startsAt,
           )} (${formatRelativeTime(announcement.startsAt)})`,
         },
         {
@@ -56,7 +56,7 @@ client.once("ready", async () => {
         {
           name: "🔚 Expected End",
           value: `${formatExactTime(endTime)} (${formatRelativeTime(endTime)})`,
-        }
+        },
       )
       .setFooter({ text: "Thanks for your patience!" })
       .setTimestamp();

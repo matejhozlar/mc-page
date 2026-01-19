@@ -12,7 +12,7 @@ const publishChannel = process.env.DISCORD_ANNOUNCEMENT_CHANNEL_ID;
 
 if (!CLIENT_BOT_TOKEN || !publishChannel) {
   console.error(
-    "Missing CLIENT_BOT_TOKEN or DISCORD_ANNOUNCEMENT_CHANNEL_ID env vars."
+    "Missing CLIENT_BOT_TOKEN or DISCORD_ANNOUNCEMENT_CHANNEL_ID env vars.",
   );
   process.exit(1);
 }
@@ -25,7 +25,7 @@ client.once("ready", async () => {
 
     if (!channel || !channel.isTextBased()) {
       throw new Error(
-        "Provided channel is not text-based or could not be found."
+        "Provided channel is not text-based or could not be found.",
       );
     }
 
@@ -51,7 +51,7 @@ client.once("ready", async () => {
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
       .setColor(0x00b0f4)
       .setDescription(
-        `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`
+        `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`,
       )
       .addFields(
         {
@@ -76,7 +76,7 @@ client.once("ready", async () => {
           name: "📢 Reminder",
           value:
             "Please update the modpack to the latest version.\nIf you encounter any issues or bugs, let the team know immediately!",
-        }
+        },
       )
       .setFooter({ text: "Thanks for playing on Createrington!" })
       .setTimestamp();
