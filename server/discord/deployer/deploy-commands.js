@@ -21,7 +21,7 @@ const commands = [
       opt
         .setName("user")
         .setDescription("User to retrieve username for")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("config")
@@ -32,13 +32,13 @@ const commands = [
         .setName("option")
         .setDescription("Which config tool to run")
         .addChoices({ name: "openpac", value: "openpac" })
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("query")
         .setDescription("Discord ID/mention, Minecraft UUID, or Minecraft name")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("server-currency")
@@ -51,7 +51,7 @@ const commands = [
       option
         .setName("query")
         .setDescription("Discord ID/mention, Minecraft UUID, or Minecraft name")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("message")
@@ -60,7 +60,7 @@ const commands = [
       option
         .setName("content")
         .setDescription("The message to send")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("crypto")
@@ -73,14 +73,14 @@ const commands = [
           option
             .setName("symbol")
             .setDescription("Symbol of the token to buy (e.g. DOGE)")
-            .setRequired(true)
+            .setRequired(true),
         )
         .addNumberOption((option) =>
           option
             .setName("amount")
             .setDescription("Amount of tokens to buy")
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     )
     .addSubcommand((sub) =>
       sub
@@ -90,19 +90,19 @@ const commands = [
           option
             .setName("symbol")
             .setDescription("Symbol of the token to sell (e.g. DOGE)")
-            .setRequired(true)
+            .setRequired(true),
         )
         .addNumberOption((option) =>
           option
             .setName("amount")
             .setDescription("Amount of tokens to sell")
-            .setRequired(true)
-        )
+            .setRequired(true),
+        ),
     ),
   new SlashCommandBuilder()
     .setName("profile")
     .setDescription(
-      "Show your Minecraft profile: balance, playtime, tokens, and more"
+      "Show your Minecraft profile: balance, playtime, tokens, and more",
     ),
   new SlashCommandBuilder()
     .setName("lottery")
@@ -111,7 +111,7 @@ const commands = [
       option
         .setName("amount")
         .setDescription("Amount to start the lottery with (min 10)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("join")
@@ -120,7 +120,7 @@ const commands = [
       option
         .setName("amount")
         .setDescription("Amount to enter into the lottery (min 10)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("delete")
@@ -130,7 +130,7 @@ const commands = [
       option
         .setName("count")
         .setDescription("Number of messages to delete (max 100)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("crypto-portfolio")
@@ -139,7 +139,7 @@ const commands = [
       option
         .setName("username")
         .setDescription("Minecraft username (optional)")
-        .setRequired(false)
+        .setRequired(false),
     ),
   new SlashCommandBuilder()
     .setName("crypto-alert-list")
@@ -151,7 +151,7 @@ const commands = [
       option
         .setName("token")
         .setDescription("Token symbol (e.g. RGC)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("crypto-alert")
@@ -160,13 +160,13 @@ const commands = [
       option
         .setName("token")
         .setDescription("Token symbol (e.g. RGC)")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addNumberOption((option) =>
       option
         .setName("price")
         .setDescription("Target price (e.g. 0.25)")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
@@ -175,8 +175,8 @@ const commands = [
         .setRequired(false)
         .addChoices(
           { name: "Above", value: "above" },
-          { name: "Below", value: "below" }
-        )
+          { name: "Below", value: "below" },
+        ),
     ),
   new SlashCommandBuilder()
     .setName("crypto-token")
@@ -185,7 +185,7 @@ const commands = [
       option
         .setName("symbol")
         .setDescription("Enter the token symbol (e.g., MOO, BTC, ETH)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("daily")
@@ -200,14 +200,14 @@ const commands = [
       option
         .setName("recipient")
         .setDescription("The recipient's Discord mention or Minecraft username")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addIntegerOption((option) =>
       option
         .setName("amount")
         .setDescription("The amount to send")
         .setRequired(true)
-        .setMinValue(1)
+        .setMinValue(1),
     ),
   new SlashCommandBuilder()
     .setName("money")
@@ -218,18 +218,18 @@ const commands = [
   new SlashCommandBuilder()
     .setName("server-playtime")
     .setDescription(
-      "Show the total combined playtime of all players on the server"
+      "Show the total combined playtime of all players on the server",
     ),
   new SlashCommandBuilder()
     .setName("stats-crowns")
     .setDescription(
-      "View how many stats you're 1st place in — and export the details!"
+      "View how many stats you're 1st place in — and export the details!",
     )
     .addStringOption((option) =>
       option
         .setName("mc_name")
         .setDescription("Minecraft username to check (optional)")
-        .setRequired(false)
+        .setRequired(false),
     ),
   new SlashCommandBuilder()
     .setName("stats-guide")
@@ -241,17 +241,17 @@ const commands = [
       option
         .setName("type")
         .setDescription("The stat category (e.g., mined, killed, crafted)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("stats-champions")
     .setDescription(
-      "Show players with the most 1st-places across all Minecraft stats"
+      "Show players with the most 1st-places across all Minecraft stats",
     ),
   new SlashCommandBuilder()
     .setName("stats-info")
     .setDescription(
-      "Export all known Minecraft stat categories and keys (once per 24h)"
+      "Export all known Minecraft stat categories and keys (once per 24h)",
     ),
   new SlashCommandBuilder()
     .setName("stats")
@@ -260,15 +260,15 @@ const commands = [
       option
         .setName("stat_type")
         .setDescription("The stat category (e.g., mined, killed, custom)")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addStringOption((option) =>
       option
         .setName("stat_key")
         .setDescription(
-          "The specific Minecraft stat key (e.g., minecraft:stone)"
+          "The specific Minecraft stat key (e.g., minecraft:stone)",
         )
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("map")
@@ -286,7 +286,7 @@ const commands = [
       option
         .setName("token")
         .setDescription("Verification token from email invite")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("register")
@@ -295,7 +295,7 @@ const commands = [
       option
         .setName("mc_name")
         .setDescription("Your exact Minecraft username (case doesn't matter)")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("top-playtime")
@@ -307,7 +307,7 @@ const commands = [
       option
         .setName("mc_name")
         .setDescription("Minecraft username (optional)")
-        .setRequired(false)
+        .setRequired(false),
     ),
   new SlashCommandBuilder()
     .setName("token")
@@ -320,12 +320,16 @@ const commands = [
       option
         .setName("mc_name")
         .setDescription("Your Minecraft username")
-        .setRequired(true)
+        .setRequired(true),
     ),
   new SlashCommandBuilder()
     .setName("setup-ticket")
     .setDescription("Send the ticket creation message (admin only)")
     .setDefaultMemberPermissions(0),
+  new SlashCommandBuilder()
+    .setName("screenshot-contest")
+    .setDescription("Post the screenshot contest announcement (admin only)")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 ].map((cmd) => cmd.toJSON());
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
@@ -344,7 +348,7 @@ const rest = new REST({ version: "10" }).setToken(TOKEN);
     console.log("📡 Registering slash commands in GUILD:", GUILD_ID);
     const data = await rest.put(
       Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
-      { body: commands }
+      { body: commands },
     );
     console.log("✅ Commands registered:");
     data.forEach((cmd) => console.log(` - /${cmd.name}`));

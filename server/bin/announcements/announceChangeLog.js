@@ -29,23 +29,16 @@ client.once("ready", async () => {
       );
     }
 
-    // const updatedMods = [
-    //   "- [Vanilla Backport](https://www.curseforge.com/minecraft/mc-mods/vanillabackport)",
-    //   "- [Platform](https://www.curseforge.com/minecraft/mc-mods/platform)",
-    //   "- [Adorable Hamsters](https://www.curseforge.com/minecraft/mc-mods/adorable-hamster-pets)",
-    // ].join("\n");
+    const updatedMods = [
+      "- [Create: Blocks & Bogies](https://www.curseforge.com/minecraft/mc-mods/create-blocks-bogies)",
+    ].join("\n");
     // const deletedMods = [].join("\n");
-    // const newMods = [
-    //   "- [AstikorCarts Redux](https://www.curseforge.com/minecraft/mc-mods/astikor-carts-redux)",
-    //   "- [Immersive Melodies](https://www.curseforge.com/minecraft/mc-mods/immersive-melodies)",
-    //   "- [Create: Stuff n Additions - Tank Fix](https://www.curseforge.com/minecraft/mc-mods/create-stuff-and-addition-tank-fix)",
-    //   "- [Create: Bits n Bobs](https://www.curseforge.com/minecraft/mc-mods/create-bits-n-bobs)",
-    //   "- [Create: Configurable Outputs](https://www.curseforge.com/minecraft/mc-mods/create-configurable-crushing-wheel)",
-    //   "- [Create: Northstar Redux](https://www.curseforge.com/minecraft/mc-mods/northstar-redux)",
-    //   "- [Lithium](https://www.curseforge.com/minecraft/mc-mods/lithium)",
-    // ].join("\n");
+    const newMods = [
+      "- [Create: Steam 'n' Rails](https://www.curseforge.com/minecraft/mc-mods/steam-n-rails-neoforge)",
+      "- [Create: Deco](https://www.curseforge.com/minecraft/mc-mods/create-deco)",
+    ].join("\n");
 
-    const version = "v0.2.4a";
+    const version = "v0.2.6";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -54,24 +47,24 @@ client.once("ready", async () => {
         `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`,
       )
       .addFields(
-        {
-          name: "🔭 Create: Northstar Redux Highlight",
-          value:
-            "**Northstar Redux** expands Create’s late-game progression with **space-themed technology, materials, and advanced components**.\n\n" +
-            "It introduces new goals for experienced engineers, encouraging **larger factories, deeper automation chains, and long-term progression** while staying true to Create’s mechanical style.",
-        },
         // {
-        //   name: "⬆️ Updated Mods",
-        //   value: updatedMods || "—",
+        //   name: "🔭 Create: Northstar Redux Highlight",
+        //   value:
+        //     "**Northstar Redux** expands Create’s late-game progression with **space-themed technology, materials, and advanced components**.\n\n" +
+        //     "It introduces new goals for experienced engineers, encouraging **larger factories, deeper automation chains, and long-term progression** while staying true to Create’s mechanical style.",
         // },
+        {
+          name: "⬆️ Updated Mods",
+          value: updatedMods || "—",
+        },
         // {
         //   name: "🗑️ Removed Mods",
         //   value: deletedMods || "—",
         // },
-        // {
-        //   name: "🆕 New Mods",
-        //   value: newMods || "—",
-        // },
+        {
+          name: "🆕 New Mods",
+          value: newMods || "—",
+        },
         {
           name: "📢 Reminder",
           value:
