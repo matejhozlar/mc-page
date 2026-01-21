@@ -10,14 +10,14 @@ import {
 import logger from "../../logger.js";
 import config from "../../config/index.js";
 
-const { DARK_GRAY } = config.uiColors;
+const { BLUE } = config.uiColors;
 
 export const data = new SlashCommandBuilder()
   .setName("screenshot-contest")
   .setDescription("Post the screenshot contest announcement (admin only)")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-export const prodOnly = false;
+export const prodOnly = true;
 
 export async function execute(interaction, db) {
   try {
@@ -26,7 +26,7 @@ export async function execute(interaction, db) {
       .setDescription(
         "Show us your best moments from Createrington! Submit your most creative, impressive, or funny screenshots for a chance to win in-game currency and get featured on our website.",
       )
-      .setColor(DARK_GRAY)
+      .setColor(BLUE)
       .addFields(
         {
           name: "🏆 1st Place",
@@ -44,18 +44,18 @@ export async function execute(interaction, db) {
           inline: true,
         },
         {
-          name: "📋 Rules",
+          name: "Rules",
           value:
             "• Must be from Createrington server\n" +
-            "• Maximum 3 screenshots per person\n" +
+            "• Maximum 5 screenshots per person\n" +
             "• No editing or filters\n" +
             "• Original content only",
           inline: false,
         },
         {
-          name: "🎯 How to Enter",
+          name: "How to Enter",
           value:
-            "Click the **📸 Submit Screenshot** button below. A private thread will be created where you can upload your screenshots and add descriptions.",
+            "Click the **Submit Screenshot** button below. A thread will be created where you can upload your screenshots and add descriptions.",
           inline: false,
         },
       )
@@ -72,6 +72,7 @@ export async function execute(interaction, db) {
     const row = new ActionRowBuilder().addComponents(button);
 
     await interaction.channel.send({
+      content: `<@&${process.env.DISCORD_PLAYER_ROLE_ID}>`,
       embeds: [embed],
       components: [row],
     });
