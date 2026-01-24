@@ -10,16 +10,23 @@ const client = new Client({
   intents: [GatewayIntentBits.Guilds],
 });
 
-const { CLIENT_BOT_TOKEN, DISCORD_RULES_CHANNEL_ID } = process.env;
+const { CLIENT_BOT_TOKEN } = process.env;
 
-client.once("ready", async () => {
+// Hardcoded IDs
+const GUILD_ID = "1224344391125041284";
+const CHANNEL_ID = "1360911343795830795";
+const MESSAGE_ID = "1418190863510671412";
+
+client.once("clientReady", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
   try {
-    const channel = await client.channels.fetch(DISCORD_RULES_CHANNEL_ID);
+    const guild = await client.guilds.fetch(GUILD_ID);
+    const channel = await guild.channels.fetch(CHANNEL_ID);
+    const message = await channel.messages.fetch(MESSAGE_ID);
 
     const embed = new EmbedBuilder()
-      .setTitle("📜 Server Rules – Creatington Minecraft)")
+      .setTitle("📜 Server Rules – Createrington Minecraft")
       .setColor(GREEN)
       .setDescription(
         "Follow these rules to keep the server safe, fair, and fun for everyone.",
@@ -29,7 +36,7 @@ client.once("ready", async () => {
           name: "👥 General Conduct",
           value: [
             "1. **Respect All Players** – No harassment, discrimination, offensive language, or toxic behavior (chat, voice, builds, images).",
-            "2. **No Griefing or Stealing** – Don’t alter/destroy others’ builds or take items that aren’t yours.",
+            "2. **No Griefing or Stealing** – Don't alter/destroy others' builds or take items that aren't yours.",
             "3. **No Cheating or Exploits** – Only use allowed mods. No hacks or unfair advantages.",
             "4. **Build Responsibly** – Keep distance, avoid laggy contraptions, clean up after yourself.",
             "5. **PvP Rules** – Only with consent. No spawn killing, trapping, or tricking.",
@@ -53,20 +60,25 @@ client.once("ready", async () => {
           ].join("\n"),
         },
         {
-          name: "⚙️ Technical & Fair Play",
+          name: "⚙️ Technical & Fair Play (Part 1)",
           value: [
             "13. Avoid **excessive lag** machines. Report runaway contraptions.",
             "14. Respect community resources & trades. No scams.",
             "15. Follow staff guidance on technical builds/issues.",
-            "16. Its strictly forbidden to use a cart assembler (contraption being assembled and disassembled) to break blocks in any kind of Farm.",
-            "17. Any cobble / stone / zulatanite ... Generator needs to be build the following way: (exception the Create: Cobble Gen Generator).",
-            "	- Uses drills to break the blocks.",
-            "	- Got a Lava source block next to it (not flowing lava) generating 'the block'. (Besides the Farms that use the vanilla way, and the vanilla way needs a flowing lava source)",
-            "	- Got a Chute (or Smart Chute) below it (next block) catching the generated block.",
-            "	- Need a automatic switch off, when the inventory it feeds, flows over. (Use a threshold switch and clutch)",
-            '18. The processing or transport of items must happen with methods proving an "inventory" and not be dropped into the world as item.',
-            "	- Belts, Chutes, depos got an internal inventory.",
-            '	- Funnels not in their "Belt stage" do drop items into the world, no matter if something can pick them up. Therefore this should be avoided',
+            "16. It's strictly **forbidden** to use a cart assembler (contraption being assembled and disassembled) to break blocks in any kind of farm.",
+          ].join("\n"),
+        },
+        {
+          name: "⚙️ Technical & Fair Play (Part 2)",
+          value: [
+            "17. Any cobble/stone/zulatanite generator needs to be built the following way (exception: Create Cobble Gen Generator):",
+            "    • Uses drills to break the blocks",
+            "    • Has a lava source block (not flowing) generating the block next to it (except farms using vanilla mechanics with flowing lava)",
+            "    • Has a Chute or Smart Chute below it (next block) catching the generated block",
+            "    • Needs automatic shutoff when the inventory it feeds overflows (use threshold switch and clutch)",
+            "18. The processing or transport of items must happen with methods providing an **inventory**, not dropped into the world as items:",
+            "    • Belts, Chutes, and Depots have internal inventory",
+            "    • Funnels not in their 'Belt stage' drop items into the world and should be avoided",
           ].join("\n"),
         },
         {
@@ -76,14 +88,14 @@ client.once("ready", async () => {
         },
       )
       .setFooter({
-        text: "Thanks for keeping Creatington safe & fun!",
+        text: "Thanks for keeping Createrington safe & fun!",
       })
       .setTimestamp();
 
-    await channel.send({ embeds: [embed] });
-    console.log("Server rules sent!");
+    await message.edit({ embeds: [embed] });
+    console.log("Server rules message updated!");
   } catch (err) {
-    console.error("Failed to send server rules:", err);
+    console.error("Failed to update server rules:", err);
   } finally {
     client.destroy();
     process.exit(0);

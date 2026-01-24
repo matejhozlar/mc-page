@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, EmbedBuilder, time } from "discord.js";
+import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -13,7 +13,7 @@ const announcement = {
   title: "🔧 Server Maintenance",
   description:
     "We’re rolling out a modpack and server update to improve stability, performance and add new mods",
-  startsAt: new Date("2026-01-21T16:00:00+02:00"),
+  startsAt: new Date("2026-01-24T16:00:00+02:00"),
   estimatedMinutes: 120,
 };
 

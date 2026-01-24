@@ -30,15 +30,17 @@ client.once("ready", async () => {
     }
 
     const updatedMods = [
-      "- [Create: Blocks & Bogies](https://www.curseforge.com/minecraft/mc-mods/create-blocks-bogies)",
+      "- [Create 6.0.9](https://www.curseforge.com/minecraft/mc-mods/create)",
+      "- [Create: More Girders](https://www.curseforge.com/minecraft/mc-mods/create-more-girder)",
+      "- [Create: Northstar Redux](https://www.curseforge.com/minecraft/mc-mods/northstar-redux)",
     ].join("\n");
     // const deletedMods = [].join("\n");
     const newMods = [
-      "- [Create: Steam 'n' Rails](https://www.curseforge.com/minecraft/mc-mods/steam-n-rails-neoforge)",
-      "- [Create: Deco](https://www.curseforge.com/minecraft/mc-mods/create-deco)",
+      "- [Create: Broken Bad](https://www.curseforge.com/minecraft/mc-mods/create-broken-bad)",
+      "- [Create: Slice n Dice FIX](https://www.curseforge.com/minecraft/mc-mods/create-6-0-9-slice-and-dice-4-2-2-compat)",
     ].join("\n");
 
-    const version = "v0.2.6";
+    const version = "v0.2.7";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)

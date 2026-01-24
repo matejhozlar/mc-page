@@ -13,7 +13,7 @@ const {
   DISCORD_SUPPORT_TICKET_CHANNEL_ID,
 } = process.env;
 
-client.once("ready", async () => {
+client.once("clientReady", async () => {
   console.log(`Logged in as ${client.user.tag}`);
 
   try {
@@ -43,7 +43,7 @@ client.once("ready", async () => {
           name: "Manual Installation (Not Recommended)",
           value: [
             "For experienced users who prefer manual installs:",
-            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1s_PNW0s5kHvIAY0t7f8V2ybJEIZqzf1d/view?usp=sharing)",
+            "- Download the full mod list: [Google Drive](https://drive.google.com/file/d/1irKfZ9Ex2f2BmXjgdWEU_nmlWXz0AJWy/view?usp=sharing)",
             "- Use your preferred launcher (Prism, MultiMC, etc)",
             "- Make sure you're using **NeoForge 1.21.1** and match all mod versions exactly",
             "",
