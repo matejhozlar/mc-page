@@ -21,5 +21,8 @@
   "homepage": "https://github.com/matejhozlar/mc-server#readme",
   "dependencies": {
     "archiver": "^7.0.1"
+  },
+  "overrides": {
+    "minimatch": "^10.2.1"
   }
 }
