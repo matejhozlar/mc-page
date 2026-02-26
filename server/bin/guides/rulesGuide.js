@@ -65,7 +65,7 @@ client.once("clientReady", async () => {
             "13. Avoid **excessive lag** machines. Report runaway contraptions.",
             "14. Respect community resources & trades. No scams.",
             "15. Follow staff guidance on technical builds/issues.",
-            "16. It's strictly **forbidden** to use a contraption being **assembled and disassembled in short intervalls** to break blocks in any kind of farm. -> Use drills or deployers with pickaxes",
+            "16. It's strictly **forbidden** to use a contraption being **assembled and disassembled in short intervals** to break blocks in any kind of farm. -> Use drills or deployers with pickaxes",
           ].join("\n"),
         },
         {
