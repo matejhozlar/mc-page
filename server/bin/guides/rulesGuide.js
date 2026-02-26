@@ -65,7 +65,7 @@ client.once("clientReady", async () => {
             "13. Avoid **excessive lag** machines. Report runaway contraptions.",
             "14. Respect community resources & trades. No scams.",
             "15. Follow staff guidance on technical builds/issues.",
-            "16. It's strictly **forbidden** to use a cart assembler (contraption being assembled and disassembled) to break blocks in any kind of farm.",
+            "16. It's strictly **forbidden** to use a contraption being **assembled and disassembled in short intervalls** to break blocks in any kind of farm. -> Use drills or deployers with pickaxes",
           ].join("\n"),
         },
         {
@@ -73,7 +73,6 @@ client.once("clientReady", async () => {
           value: [
             "17. Any cobble/stone/zulatanite generator needs to be built the following way (exception: Create Cobble Gen Generator):",
             "    • Uses drills to break the blocks",
-            "    • Has a lava source block (not flowing) generating the block next to it (except farms using vanilla mechanics with flowing lava)",
             "    • Has a Chute or Smart Chute below it (next block) catching the generated block",
             "    • Needs automatic shutoff when the inventory it feeds overflows (use threshold switch and clutch)",
             "18. The processing or transport of items must happen with methods providing an **inventory**, not dropped into the world as items:",
