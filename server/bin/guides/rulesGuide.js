@@ -81,6 +81,13 @@ client.once("clientReady", async () => {
           ].join("\n"),
         },
         {
+          name: "⚙️ Technical & Fair Play (Part 3)",
+          value: [
+            "19. The maximum allowed lenght for Hypertubes is 100 Blocks. Chaining of Hypertubes to exeed this Limit and allow for automatic further traveling is forbidden",
+          ].join("\n"),
+        },
+
+        {
           name: "⚠️ Enforcement",
           value:
             "Breaking rules may lead to warnings, temp bans, or permanent bans depending on severity. Report violations to staff instead of taking matters into your own hands.",

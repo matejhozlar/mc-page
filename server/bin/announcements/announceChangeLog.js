@@ -30,17 +30,28 @@ client.once("ready", async () => {
     }
 
     const updatedMods = [
-      "- [Create 6.0.9](https://www.curseforge.com/minecraft/mc-mods/create)",
-      "- [Create: More Girders](https://www.curseforge.com/minecraft/mc-mods/create-more-girder)",
-      "- [Create: Northstar Redux](https://www.curseforge.com/minecraft/mc-mods/northstar-redux)",
+      "- [AFKStatus](https://www.curseforge.com/minecraft/mc-mods/afkstatus)",
+      "- [Create Shuffle Filters](https://www.curseforge.com/minecraft/mc-mods/create-shuffle-filter)",
+      "- [Create: Train Parts](https://www.curseforge.com/minecraft/mc-mods/create-train-parts)",
+      "- [Create: Bits n Bobs](https://www.curseforge.com/minecraft/mc-mods/create-bits-n-bobs)",
+      "- [Create: More Girder](https://www.curseforge.com/minecraft/mc-mods/create-more-girder)",
+      "- [Lootr](https://www.curseforge.com/minecraft/mc-mods/lootr)",
     ].join("\n");
     // const deletedMods = [].join("\n");
     const newMods = [
-      "- [Create: Broken Bad](https://www.curseforge.com/minecraft/mc-mods/create-broken-bad)",
-      "- [Create: Slice n Dice FIX](https://www.curseforge.com/minecraft/mc-mods/create-6-0-9-slice-and-dice-4-2-2-compat)",
+      "- [Clavis](https://www.curseforge.com/minecraft/mc-mods/clavis)",
+      "- [Create: Hypertubes](https://www.curseforge.com/minecraft/mc-mods/hypertubes)",
+      "- [Create: Transmission](https://www.curseforge.com/minecraft/mc-mods/create-transmission)",
+      "- [Create: Winery](https://www.curseforge.com/minecraft/mc-mods/create-winery)",
+      "- [Create: Pattern Schematics](https://www.curseforge.com/minecraft/mc-mods/create-pattern-schematics)",
+      "- [Create: Drill Drain](https://www.curseforge.com/minecraft/mc-mods/create-drill-drain)",
+      "- [Ben's Sharks](https://www.curseforge.com/minecraft/mc-mods/bens-sharks)",
+      "- [Ribbits](https://www.curseforge.com/minecraft/mc-mods/ribbits)",
+      "- [Another Furniture Mod](https://www.curseforge.com/minecraft/mc-mods/another-furniture)",
+      "- [Simple Hats](https://www.curseforge.com/minecraft/mc-mods/simplehats)",
     ].join("\n");
 
-    const version = "v0.2.7";
+    const version = "v0.2.8";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
@@ -49,12 +60,11 @@ client.once("ready", async () => {
         `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`,
       )
       .addFields(
-        // {
-        //   name: "🔭 Create: Northstar Redux Highlight",
-        //   value:
-        //     "**Northstar Redux** expands Create’s late-game progression with **space-themed technology, materials, and advanced components**.\n\n" +
-        //     "It introduces new goals for experienced engineers, encouraging **larger factories, deeper automation chains, and long-term progression** while staying true to Create’s mechanical style.",
-        // },
+        {
+          name: "🔭 Create: Shuffle Filter Highlight",
+          value:
+            "As the Mod has major internal changes, All shuffle filter items need to be reconfigured with their blocks.",
+        },
         {
           name: "⬆️ Updated Mods",
           value: updatedMods || "—",
