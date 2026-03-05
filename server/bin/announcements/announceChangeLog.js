@@ -45,7 +45,7 @@ client.once("ready", async () => {
       )
       .addFields(
         {
-          name: "🔭 Create: Shuffle Filter — Highlight",
+          name: "🔭 Create: Shuffle Filter Highlight",
           value: [
             "• Filter stack size has been set back to **64** (was incorrectly 1)",
             "• Copying of filters has been **re-enabled**",
