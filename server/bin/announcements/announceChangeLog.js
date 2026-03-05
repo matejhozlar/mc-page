@@ -30,40 +30,26 @@ client.once("ready", async () => {
     }
 
     const updatedMods = [
-      "- [AFKStatus](https://www.curseforge.com/minecraft/mc-mods/afkstatus)",
-      "- [Create Shuffle Filters](https://www.curseforge.com/minecraft/mc-mods/create-shuffle-filter)",
-      "- [Create: Train Parts](https://www.curseforge.com/minecraft/mc-mods/create-train-parts)",
-      "- [Create: Bits n Bobs](https://www.curseforge.com/minecraft/mc-mods/create-bits-n-bobs)",
-      "- [Create: More Girder](https://www.curseforge.com/minecraft/mc-mods/create-more-girder)",
-      "- [Lootr](https://www.curseforge.com/minecraft/mc-mods/lootr)",
+      "- [Create: Shuffle Filters](https://www.curseforge.com/minecraft/mc-mods/create-shuffle-filter)",
     ].join("\n");
     // const deletedMods = [].join("\n");
-    const newMods = [
-      "- [Clavis](https://www.curseforge.com/minecraft/mc-mods/clavis)",
-      "- [Create: Hypertubes](https://www.curseforge.com/minecraft/mc-mods/hypertubes)",
-      "- [Create: Transmission](https://www.curseforge.com/minecraft/mc-mods/create-transmission)",
-      "- [Create: Winery](https://www.curseforge.com/minecraft/mc-mods/create-winery)",
-      "- [Create: Pattern Schematics](https://www.curseforge.com/minecraft/mc-mods/create-pattern-schematics)",
-      "- [Create: Drill Drain](https://www.curseforge.com/minecraft/mc-mods/create-drill-drain)",
-      "- [Ben's Sharks](https://www.curseforge.com/minecraft/mc-mods/bens-sharks)",
-      "- [Ribbits](https://www.curseforge.com/minecraft/mc-mods/ribbits)",
-      "- [Another Furniture Mod](https://www.curseforge.com/minecraft/mc-mods/another-furniture)",
-      "- [Simple Hats](https://www.curseforge.com/minecraft/mc-mods/simplehats)",
-    ].join("\n");
+    // const newMods = [].join("\n");
 
-    const version = "v0.2.8";
+    const version = "v0.2.8a";
 
     const embed = new EmbedBuilder()
       .setTitle(`🛠️ Createrington: Cogs & Steam ${version} Modpack Update`)
       .setColor(0x00b0f4)
       .setDescription(
-        `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements, fixes, and features.`,
+        `A new version of the modpack is now available! Please update to **${version}** to receive the latest improvements and fixes.`,
       )
       .addFields(
         {
-          name: "🔭 Create: Shuffle Filter Highlight",
-          value:
-            "As the Mod has major internal changes, All shuffle filter items need to be reconfigured with their blocks.",
+          name: "🔭 Create: Shuffle Filter — Highlight",
+          value: [
+            "• Filter stack size has been set back to **64** (was incorrectly 1)",
+            "• Copying of filters has been **re-enabled**",
+          ].join("\n"),
         },
         {
           name: "⬆️ Updated Mods",
@@ -73,10 +59,10 @@ client.once("ready", async () => {
         //   name: "🗑️ Removed Mods",
         //   value: deletedMods || "—",
         // },
-        {
-          name: "🆕 New Mods",
-          value: newMods || "—",
-        },
+        // {
+        //   name: "🆕 New Mods",
+        //   value: newMods || "—",
+        // },
         {
           name: "📢 Reminder",
           value:
