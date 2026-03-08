@@ -53,6 +53,11 @@ export async function execute(interaction, db) {
           inline: false,
         },
         {
+          name: "Deadline",
+          value: `Submissions close <t:1774223999:R> (<t:1774223999:F>)`,
+          inline: false,
+        },
+        {
           name: "How to Enter",
           value:
             "Click the **Submit Screenshot** button below. A thread will be created where you can upload your screenshots and add descriptions.",
