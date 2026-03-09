@@ -17,12 +17,12 @@ export const data = new SlashCommandBuilder()
   .setDescription("Post the screenshot contest announcement (admin only)")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator);
 
-export const prodOnly = true;
+export const prodOnly = false;
 
 export async function execute(interaction, db) {
   try {
     const embed = new EmbedBuilder()
-      .setTitle("📸 Screenshot Contest")
+      .setTitle("📸 Screenshot Contest V2")
       .setDescription(
         "Show us your best moments from Createrington! Submit your most creative, impressive, or funny screenshots for a chance to win in-game currency and get featured on our website.",
       )
