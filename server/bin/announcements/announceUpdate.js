@@ -14,7 +14,7 @@ const announcement = {
   description:
     "We’re rolling out a modpack and server update to improve stability, performance and add new mods",
   startsAt: new Date("2026-03-17T10:00:00+02:00"),
-  estimatedMinutes: 360,
+  estimatedMinutes: 540,
 };
 
 function formatRelativeTime(date) {
