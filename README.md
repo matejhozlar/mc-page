@@ -9,6 +9,8 @@
 
 Welcome to **Createrington**, a full‑stack community portal that unifies a Minecraft server, Discord community and browser‑based web client into one seamless experience. The project not only provides traditional features like play‑time tracking and whitelist management but also incorporates a novel **memecoin market**, a **wait‑list/application system**, an **OpenAI‑powered assistant** and extensive **role automation** across Discord and fun web games. This README explains the purpose of the project, its architectural components, how to set up and run your own instance, and gives an overview of the REST API.
 
+# This project is outdated and has moved to [Createrington](https://github.com/matejhozlar/createrington)
+
 ## Project Goals
 
 Createrington was designed to unify fragmented community platforms. Instead of having separate tools for Minecraft, Discord, and user onboarding, this project merges them into a single, feature-rich portal. The goal is to foster deeper engagement, community fun (via memecoins/games), and smooth server administration.
@@ -127,7 +129,6 @@ Admin features:
 
 - **Node.js + Express** (`server.js`): configures middleware, WebSockets, database, routes, services.
 - **Routes**: `server/routes/`
-
   - `/api/playerCount`, `/api/players`
   - `/api/verify-token`
   - `/api/apply`, `/api/wait-list`
@@ -135,7 +136,6 @@ Admin features:
   - `/api/currency`, `/api/market`
 
 - **Services**: `server/services/`
-
   - `assignPlaytimeRoles.js`, `marketBoard.js`, `updateMemecoinPrices.js`
 
 - **Cron Jobs**: Scheduled via `jobs/cronJobs.js`
