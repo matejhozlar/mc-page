@@ -80,11 +80,13 @@ export async function notifyAdminPendingCompany(data, client) {
     <p><strong>New company submission pending approval</strong></p>
     <ul>
       <li><strong>ID:</strong> ${id}</li>
-      <li><strong>Name:</strong> ${name}</li>
-      <li><strong>Founder UUID:</strong> ${founder_uuid}</li>
+      <li><strong>Name:</strong> ${escapeHtml(name)}</li>
+      <li><strong>Founder UUID:</strong> ${escapeHtml(founder_uuid)}</li>
       ${
         short_description
-          ? `<li><strong>Short Description:</strong> ${short_description}</li>`
+          ? `<li><strong>Short Description:</strong> ${escapeHtml(
+              short_description
+            )}</li>`
           : ""
       }
     </ul>
@@ -140,11 +142,13 @@ export async function notifyAdminCompanyEdit(data, client) {
     <ul>
       <li><strong>Edit ID:</strong> ${edit_id}</li>
       <li><strong>Company ID:</strong> ${company_id}</li>
-      ${name ? `<li><strong>Proposed Name:</strong> ${name}</li>` : ""}
-      <li><strong>Editor UUID:</strong> ${editor_uuid}</li>
+      ${name ? `<li><strong>Proposed Name:</strong> ${escapeHtml(name)}</li>` : ""}
+      <li><strong>Editor UUID:</strong> ${escapeHtml(editor_uuid)}</li>
       ${
         short_description
-          ? `<li><strong>Short Description:</strong> ${short_description}</li>`
+          ? `<li><strong>Short Description:</strong> ${escapeHtml(
+              short_description
+            )}</li>`
           : ""
       }
     </ul>
