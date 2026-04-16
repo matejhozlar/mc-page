@@ -23,6 +23,7 @@ validateEnv(); // Ensure all required env vars are set
 import http from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import rateLimit from "express-rate-limit";
 
 // ─── Application Setup ───────────────────────────────────
 import { createApp } from "./app/index.js";
@@ -101,7 +102,11 @@ httpServer.listen(PORT, () => {
 app.use(createVisitTracker(db));
 
 // ─── Serve React SPA Fallback ────────────────────────────
-app.get("/*", (req, res) => {
+const spaFallbackLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
+});
+app.get("/*", spaFallbackLimiter, (req, res) => {
   res.sendFile(path.join(reactBuildPath, "index.html"));
 });
 
