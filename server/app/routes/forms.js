@@ -23,7 +23,8 @@ export default function formRoutes(db, client) {
     }
 
     const isValidEmail = (email) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (typeof email !== "string" || email.length > 254) return false;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@.]+$/;
       return emailRegex.test(email);
     };
 
