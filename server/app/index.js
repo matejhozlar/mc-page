@@ -37,7 +37,11 @@ export function createApp() {
   app.use(express.static(reactBuildPath));
 
   runOnlyInDevelopment(() => {
-    app.use(cors({ origin: true, credentials: true }));
+    const devOrigins = [
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
+    ];
+    app.use(cors({ origin: devOrigins, credentials: true }));
   });
 
   return app;
