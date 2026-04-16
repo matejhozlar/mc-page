@@ -9,6 +9,9 @@ on:
     paths:
       - "client/**"
 
+permissions:
+  contents: read
+
 jobs:
   client:
     runs-on: ubuntu-latest

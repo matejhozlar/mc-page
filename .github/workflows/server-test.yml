@@ -5,6 +5,9 @@ on:
     paths:
       - "server/**"
 
+permissions:
+  contents: read
+
 jobs:
   test-server:
     runs-on: ubuntu-latest
