@@ -20,6 +20,13 @@ if (!ENV_VAR) {
   process.exit(1);
 }
 
+if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(ENV_VAR)) {
+  console.error(
+    `❌ Invalid environment variable name "${ENV_VAR}". Expected /^[A-Za-z_][A-Za-z0-9_]*$/.`
+  );
+  process.exit(1);
+}
+
 const SEARCH_DIR = path.resolve(".");
 const IGNORE_DIRS = ["node_modules", "dist", "build", "client", ".git"];
 const SUPPORTED_EXTENSIONS = ["js", "ts", "mjs", "cjs"];
@@ -33,6 +40,7 @@ const files = glob.sync(pattern, {
 });
 
 const results = [];
+const regex = new RegExp(`process\\.env\\.?${ENV_VAR}\\b`);
 
 for (const file of files) {
   const lines = fs.readFileSync(file, "utf-8").split("\n");
@@ -42,7 +50,6 @@ for (const file of files) {
       .replace(/\/\/.*$/g, "")
       .replace(/\/\*[\s\S]*?\*\//g, "");
 
-    const regex = new RegExp(`process\\.env\\.?${ENV_VAR}\\b`);
     if (regex.test(cleanLine)) {
       results.push({ file, line: i + 1, content: line.trim() });
     }

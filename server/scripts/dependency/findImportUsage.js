@@ -46,11 +46,9 @@ for (const file of files) {
     .replace(/\/\/.*$/gm, "")
     .replace(/\/\*[\s\S]*?\*\//gm, "");
 
+  const escapedFilename = targetFilename.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(
-    `(?:import\\s.+?from\\s+|require\\()(['"\`].*?${targetFilename.replace(
-      ".",
-      "\\."
-    )}['"\`])`,
+    `(?:import\\s.+?from\\s+|require\\()(['"\`].*?${escapedFilename}['"\`])`,
     "g"
   );
 
