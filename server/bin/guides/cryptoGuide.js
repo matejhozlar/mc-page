@@ -19,13 +19,13 @@ client.once("ready", async () => {
       .setTitle("🪙 Createrington Crypto Guide")
       .setColor(0xffcb05)
       .setDescription(
-        "Welcome to the **Createrington Crypto** — trade tokens using your Minecraft balance and grow your wealth!"
+        "Welcome to the **Createrington Crypto** — trade tokens using your Minecraft balance and grow your wealth!",
       )
       .addFields(
         {
           name: "🔐 Getting Started",
           value: [
-            "- Log in on the website [Here](https://create-rington.com)",
+            "- Log in on the website [Here](https://createrington.com)",
             "- Go to the **Crypto** tab to begin trading.",
             "- Click on a token to buy or sell.",
           ].join("\n"),
@@ -68,7 +68,7 @@ client.once("ready", async () => {
         {
           name: "🎮 Games",
           value: [
-            "- Visit the **Games** tab to play the [Clicker Game](https://create-rington.com/game).",
+            "- Visit the **Games** tab to play the [Clicker Game](https://createrington.com/game).",
             "- Each game will have ways to get currency in the future (not yet).",
             "- More games coming soon!",
           ].join("\n"),
@@ -85,7 +85,7 @@ client.once("ready", async () => {
           name: "📣 Reminder",
           value:
             "All trades are final. Make sure you're confident before confirming any transaction!",
-        }
+        },
       )
       .setFooter({ text: "Thanks for playing on Createrington!" })
       .setTimestamp();

@@ -11,7 +11,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName("token")
       .setDescription("Your unique verification token")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export const prodOnly = true;
@@ -22,7 +22,7 @@ export async function execute(interaction, db) {
   const member = interaction.member;
 
   const hasUnverified = member.roles.cache.has(
-    process.env.DISCORD_UNVERIFIED_ROLE_ID
+    process.env.DISCORD_UNVERIFIED_ROLE_ID,
   );
 
   if (!hasUnverified) {
@@ -35,13 +35,13 @@ export async function execute(interaction, db) {
   try {
     const result = await db.query(
       `SELECT * FROM waitlist_emails WHERE token = $1`,
-      [token]
+      [token],
     );
 
     if (result.rowCount === 0) {
       return await interaction.reply({
         content:
-          "❌ Invalid or expired token.\n📧 If you're stuck, email **admin@create-rington.com** for help.",
+          "❌ Invalid or expired token.\n📧 If you're stuck, email **admin@createrington.com** for help.",
         flags: MessageFlags.Ephemeral,
       });
     }
@@ -52,7 +52,7 @@ export async function execute(interaction, db) {
       `INSERT INTO verified_discords (discord_id)
        VALUES ($1)
        ON CONFLICT (discord_id) DO NOTHING`,
-      [discordId]
+      [discordId],
     );
 
     return await interaction.reply({

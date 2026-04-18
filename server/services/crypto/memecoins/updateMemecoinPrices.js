@@ -30,7 +30,7 @@ const ALERT_DM_DELAY_MS = 300;
 export async function updateMemecoinPrices(db, clientBot, io) {
   try {
     const { rows: tokens } = await db.query(
-      `SELECT id, price_per_unit FROM crypto_tokens WHERE is_memecoin = true AND price_per_unit > 0`
+      `SELECT id, price_per_unit FROM crypto_tokens WHERE is_memecoin = true AND price_per_unit > 0`,
     );
 
     for (const token of tokens) {
@@ -45,7 +45,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
       if (price < CRASH_PRICE_THRESHOLD) {
         await db.query(
           `UPDATE crypto_tokens SET price_per_unit = 0, crashed = NOW() WHERE id = $1`,
-          [id]
+          [id],
         );
         logger.info(`Token ID ${id} auto-crashed due to price below $0.002`);
 
@@ -55,32 +55,32 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           `SELECT name, symbol, description, price_per_unit, total_supply
            FROM crypto_tokens
            WHERE id = $1`,
-          [id]
+          [id],
         );
 
         const { rows: alerts } = await db.query(
           `SELECT id, discord_id FROM token_price_alerts
            WHERE token_symbol = $1`,
-          [crashedToken.symbol]
+          [crashedToken.symbol],
         );
 
         for (const alert of alerts) {
           try {
             const user = await clientBot.users.fetch(alert.discord_id);
             await user.send(
-              `Your alert for **${crashedToken.symbol}** has been cancelled — the token has **auto-crashed to $0**.`
+              `Your alert for **${crashedToken.symbol}** has been cancelled — the token has **auto-crashed to $0**.`,
             );
           } catch (error) {
             logger.warn(
               `Failed to send crash alert DM to ${alert.discord_id}:`,
-              error
+              error,
             );
           }
         }
 
         await db.query(
           `DELETE FROM token_price_alerts WHERE token_symbol = $1`,
-          [crashedToken.symbol]
+          [crashedToken.symbol],
         );
 
         if (crashedToken) {
@@ -114,7 +114,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
 
       await db.query(
         `UPDATE crypto_tokens SET price_per_unit = $1 WHERE id = $2`,
-        [newPrice.toFixed(PRICE_DECIMALS), id]
+        [newPrice.toFixed(PRICE_DECIMALS), id],
       );
 
       if (newPrice.toFixed(PRICE_DECIMALS) !== price.toFixed(PRICE_DECIMALS)) {
@@ -124,7 +124,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           `SELECT id, name, symbol, price_per_unit, available_supply, crashed
      FROM crypto_tokens
      WHERE id = $1`,
-          [id]
+          [id],
         );
         io.emit("token:update", updatedToken);
       }
@@ -132,7 +132,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
       await db.query(
         `INSERT INTO token_price_history_minutes (token_id, price, recorded_at)
          VALUES ($1, $2, NOW())`,
-        [id, newPrice.toFixed(PRICE_DECIMALS)]
+        [id, newPrice.toFixed(PRICE_DECIMALS)],
       );
 
       const { rows: alerts } = await db.query(
@@ -140,7 +140,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
          WHERE token_symbol = (
            SELECT symbol FROM crypto_tokens WHERE id = $1
          )`,
-        [id]
+        [id],
       );
 
       const triggeredAlerts = alerts.filter((alert) => {
@@ -162,8 +162,8 @@ export async function updateMemecoinPrices(db, clientBot, io) {
               `**${
                 alert.token_symbol
               }** has ${triggerDirectionText} your target of **$${newPrice.toFixed(
-                PRICE_DECIMALS
-              )}**!\n\nYou have been automatically unsubscribed from this alert.`
+                PRICE_DECIMALS,
+              )}**!\n\nYou have been automatically unsubscribed from this alert.`,
             )
             .setColor(LIME_GREEN)
             .setFooter({ text: "Createrington Market Alert System" })
@@ -173,7 +173,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
             new ButtonBuilder()
               .setLabel("View Market")
               .setStyle(ButtonStyle.Link)
-              .setURL("https://create-rington.com/market")
+              .setURL("https://createrington.com/market"),
           );
 
           await user.send({
@@ -186,10 +186,10 @@ export async function updateMemecoinPrices(db, clientBot, io) {
           ]);
 
           logger.info(
-            `Sent alert to ${alert.discord_id} for ${alert.token_symbol}`
+            `Sent alert to ${alert.discord_id} for ${alert.token_symbol}`,
           );
           await new Promise((resolve) =>
-            setTimeout(resolve, ALERT_DM_DELAY_MS)
+            setTimeout(resolve, ALERT_DM_DELAY_MS),
           );
         } catch (error) {
           logger.warn(`Failed to send alert DM to ${alert.discord_id}:`, error);
@@ -201,25 +201,25 @@ export async function updateMemecoinPrices(db, clientBot, io) {
          WHERE token_id = $1
          ORDER BY recorded_at ASC
          LIMIT 1 OFFSET 99`,
-        [id]
+        [id],
       );
 
       const { rowCount } = await db.query(
         `SELECT 1 FROM token_price_history_hourly
          WHERE token_id = $1 AND recorded_at > NOW() - INTERVAL '55 minutes'`,
-        [id]
+        [id],
       );
 
       if (rowCount === 0) {
         await db.query(
           `INSERT INTO token_price_history_hourly (token_id, price, recorded_at)
            VALUES ($1, $2, NOW())`,
-          [id, newPrice.toFixed(PRICE_DECIMALS)]
+          [id, newPrice.toFixed(PRICE_DECIMALS)],
         );
         logger.info(
           `Hourly snapshot added for memecoin ID ${id}: $${newPrice.toFixed(
-            PRICE_DECIMALS
-          )}`
+            PRICE_DECIMALS,
+          )}`,
         );
       }
 
@@ -233,7 +233,7 @@ export async function updateMemecoinPrices(db, clientBot, io) {
              ORDER BY recorded_at ASC
              LIMIT 20
            )`,
-          [id]
+          [id],
         );
         logger.info(`Trimmed 20 old history entries for token ID`, id);
       }

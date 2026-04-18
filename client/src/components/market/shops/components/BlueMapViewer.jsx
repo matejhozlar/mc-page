@@ -36,7 +36,7 @@ function buildBlueMapUrl(base, { dimension, x, y, z }, opts = {}) {
 }
 
 const BlueMapViewer = ({
-  base = "https://create-rington.com/bluemap",
+  base = "https://createrington.com/bluemap",
   location,
   camera = {},
   style,

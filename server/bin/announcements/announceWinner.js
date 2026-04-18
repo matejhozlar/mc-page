@@ -39,7 +39,7 @@ const PRIZE_4 = "$500 in-game currency";
 // Styling
 const EMBED_COLOR = 0x00b0f4;
 const FOOTER_TEXT =
-  "Winners will be featured on create-rington.com in the future!";
+  "Winners will be featured on createrington.com in the future!";
 
 const mention = (id) => `<@${id}>`;
 const maybeLinkLine = (url) => (url && url.trim().length ? `\n🔗 ${url}` : "");

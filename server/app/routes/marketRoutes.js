@@ -24,7 +24,7 @@ async function isFounderOfShop(db, userUuid, shopId) {
   const ok = await db.query(
     `SELECT 1 FROM company_members
       WHERE user_uuid=$1 AND company_id=$2 AND role='Founder' LIMIT 1`,
-    [userUuid, shop.company_id]
+    [userUuid, shop.company_id],
   );
   return ok.rowCount > 0;
 }
@@ -39,7 +39,7 @@ const r2 = new S3Client({
 });
 
 const { GOLD } = config.uiColors;
-const PUBLIC_BASE = "https://market-assets.create-rington.com/";
+const PUBLIC_BASE = "https://market-assets.createrington.com/";
 const BUCKET = process.env.R2_BUCKET_NAME;
 
 function keyFromPublicUrl(publicUrl) {
@@ -80,7 +80,7 @@ async function deleteByPrefix(prefix) {
         Bucket: BUCKET,
         Prefix: prefix,
         ContinuationToken,
-      })
+      }),
     );
     (resp.Contents || []).forEach((o) => o?.Key && keys.push(o.Key));
     ContinuationToken = resp.IsTruncated
@@ -94,8 +94,8 @@ async function deleteByPrefix(prefix) {
       slice.map((Key) =>
         r2
           .send(new DeleteObjectCommand({ Bucket: BUCKET, Key }))
-          .catch(() => {})
-      )
+          .catch(() => {}),
+      ),
     );
   }
 }
@@ -115,14 +115,14 @@ async function moveR2Object(srcUrl, destKey) {
       CacheControl: "public, max-age=60, s-maxage=300, must-revalidate",
       ContentType: contentType,
       MetadataDirective: "REPLACE",
-    })
+    }),
   );
 
   await r2.send(
     new DeleteObjectCommand({
       Bucket: BUCKET,
       Key: srcKey,
-    })
+    }),
   );
 
   return `${PUBLIC_BASE}${destKey}`;
@@ -144,7 +144,7 @@ export default function marketRoutes(db, clientBot) {
          FROM users
          WHERE discord_id = $1
          LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       if (userResult.rowCount === 0) {
@@ -155,7 +155,7 @@ export default function marketRoutes(db, clientBot) {
 
       const fundsResult = await db.query(
         `SELECT balance FROM user_funds WHERE uuid = $1 LIMIT 1`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const balance = fundsResult.rows[0]?.balance ?? 0;
@@ -183,7 +183,7 @@ export default function marketRoutes(db, clientBot) {
          FROM companies c
          JOIN company_members cm ON cm.company_id = c.id
          WHERE cm.user_uuid = $1`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const company_count = companiesResult.rowCount;
@@ -212,7 +212,7 @@ export default function marketRoutes(db, clientBot) {
         FROM shops s
         JOIN companies c ON s.company_id = c.id
         WHERE s.company_id = ANY($1::int[])`,
-          [companyIds]
+          [companyIds],
         );
 
         shops = shopsResult.rows;
@@ -246,7 +246,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await db.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       const {
@@ -255,18 +255,18 @@ export default function marketRoutes(db, clientBot) {
         `INSERT INTO companies (founder_uuid, name, description)
        VALUES ($1, $2, $3)
        RETURNING *`,
-        [user.uuid, name.trim(), description || ""]
+        [user.uuid, name.trim(), description || ""],
       );
 
       await db.query(
         `INSERT INTO company_members (user_uuid, company_id, role)
        VALUES ($1, $2, 'Founder')`,
-        [user.uuid, company.id]
+        [user.uuid, company.id],
       );
 
       await db.query(
         `INSERT INTO company_funds (company_id, balance) VALUES ($1, 0)`,
-        [company.id]
+        [company.id],
       );
 
       res.status(201).json(company);
@@ -322,7 +322,7 @@ export default function marketRoutes(db, clientBot) {
       JOIN users u ON c.founder_uuid = u.uuid
       WHERE c.id = $1
       LIMIT 1`,
-        [companyId]
+        [companyId],
       );
 
       if (!company) {
@@ -349,7 +349,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [row],
       } = await db.query(
         `SELECT balance FROM company_funds WHERE company_id = $1`,
-        [companyId]
+        [companyId],
       );
 
       if (!row) {
@@ -377,7 +377,7 @@ export default function marketRoutes(db, clientBot) {
          FROM company_balance_history
          WHERE company_id = $1
          ORDER BY recorded_at ASC`,
-        [companyId]
+        [companyId],
       );
 
       res.json({
@@ -390,7 +390,7 @@ export default function marketRoutes(db, clientBot) {
     } catch (error) {
       logger.error(
         `Failed to fetch balance history for company ${companyId}:`,
-        error
+        error,
       );
       res.status(500).json({ error: "Internal server error" });
     }
@@ -416,7 +416,7 @@ export default function marketRoutes(db, clientBot) {
        JOIN users u ON cm.user_uuid = u.uuid
        WHERE cm.company_id = $1
        ORDER BY cm.role = 'Founder' DESC, cm.joined_at ASC`,
-        [companyId]
+        [companyId],
       );
 
       res.json({
@@ -498,7 +498,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await db.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -512,21 +512,21 @@ export default function marketRoutes(db, clientBot) {
          FROM pending_companies
          WHERE founder_uuid = $1 AND status = 'pending'
          ORDER BY created_at DESC`,
-          [user.uuid]
+          [user.uuid],
         ),
         db.query(
           `SELECT id, name, status, created_at, fee_required
          FROM pending_companies
          WHERE founder_uuid = $1 AND status = 'awaiting_funds'
          ORDER BY created_at DESC`,
-          [user.uuid]
+          [user.uuid],
         ),
         db.query(
           `SELECT id, name, status, created_at
          FROM pending_companies
          WHERE founder_uuid = $1 AND status = 'approved'
          ORDER BY created_at DESC`,
-          [user.uuid]
+          [user.uuid],
         ),
       ]);
 
@@ -535,7 +535,7 @@ export default function marketRoutes(db, clientBot) {
        FROM rejected_companies
        WHERE founder_uuid = $1
        ORDER BY rejected_at DESC`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const [
@@ -548,21 +548,21 @@ export default function marketRoutes(db, clientBot) {
          FROM pending_shops
          WHERE founder_uuid = $1 AND status = 'pending'
          ORDER BY created_at DESC`,
-          [user.uuid]
+          [user.uuid],
         ),
         db.query(
           `SELECT id, name, status, created_at, fee_required
          FROM pending_shops
          WHERE founder_uuid = $1 AND status = 'awaiting_funds'
          ORDER BY created_at DESC`,
-          [user.uuid]
+          [user.uuid],
         ),
         db.query(
           `SELECT id, name, status, created_at
          FROM pending_shops
          WHERE founder_uuid = $1 AND status = 'approved'
          ORDER BY created_at DESC`,
-          [user.uuid]
+          [user.uuid],
         ),
       ]);
 
@@ -571,7 +571,7 @@ export default function marketRoutes(db, clientBot) {
        FROM rejected_shops
        WHERE founder_uuid = $1
        ORDER BY rejected_at DESC`,
-        [user.uuid]
+        [user.uuid],
       );
 
       res.json({
@@ -603,13 +603,13 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await db.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       const { rowCount } = await db.query(
         `DELETE FROM rejected_companies
        WHERE id = $1 AND founder_uuid = $2`,
-        [companyId, user.uuid]
+        [companyId, user.uuid],
       );
 
       if (rowCount === 0) {
@@ -640,7 +640,7 @@ export default function marketRoutes(db, clientBot) {
         pc.logo_url
       FROM pending_companies pc
       JOIN users u ON pc.founder_uuid = u.uuid
-      ORDER BY pc.created_at ASC`
+      ORDER BY pc.created_at ASC`,
       );
 
       res.json(rows);
@@ -665,7 +665,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) {
         await client.query("ROLLBACK");
@@ -678,7 +678,7 @@ export default function marketRoutes(db, clientBot) {
         `SELECT * FROM pending_companies
        WHERE id = $1 AND founder_uuid = $2 AND status = 'awaiting_funds'
        FOR UPDATE`,
-        [id, user.uuid]
+        [id, user.uuid],
       );
       if (!pending) {
         await client.query("ROLLBACK");
@@ -693,7 +693,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [funds],
       } = await client.query(
         `SELECT balance FROM user_funds WHERE uuid = $1 FOR UPDATE`,
-        [user.uuid]
+        [user.uuid],
       );
       const balance = Number(funds?.balance ?? 0);
       if (balance < fee) {
@@ -718,7 +718,7 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
-        [fee, user.uuid]
+        [fee, user.uuid],
       );
 
       await client.query(
@@ -728,7 +728,7 @@ export default function marketRoutes(db, clientBot) {
              fee_required = NULL,
              fee_checked_at = NULL
        WHERE id = $1`,
-        [id]
+        [id],
       );
 
       try {
@@ -742,7 +742,7 @@ export default function marketRoutes(db, clientBot) {
             pending.description,
             pending.short_description,
             pending.created_at,
-          ]
+          ],
         );
       } catch (error) {
         if (error?.code === "23505") {
@@ -754,15 +754,15 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `INSERT INTO company_funds (company_id, balance) VALUES ($1, 0)`,
-        [pending.id]
+        [pending.id],
       );
       await client.query(
         `INSERT INTO company_balance_history (company_id, balance) VALUES ($1, 0)`,
-        [pending.id]
+        [pending.id],
       );
       await client.query(
         `INSERT INTO company_members (user_uuid, company_id, role) VALUES ($1,$2,'Founder')`,
-        [pending.founder_uuid, pending.id]
+        [pending.founder_uuid, pending.id],
       );
 
       const imageInserts = [];
@@ -771,16 +771,16 @@ export default function marketRoutes(db, clientBot) {
           client.query(
             `INSERT INTO company_images (company_id, url, type, position)
            VALUES ($1,$2,'logo',0)`,
-            [pending.id, pending.logo_url]
-          )
+            [pending.id, pending.logo_url],
+          ),
         );
       if (pending.banner_url)
         imageInserts.push(
           client.query(
             `INSERT INTO company_images (company_id, url, type, position)
            VALUES ($1,$2,'banner',0)`,
-            [pending.id, pending.banner_url]
-          )
+            [pending.id, pending.banner_url],
+          ),
         );
       (pending.gallery_urls ?? []).forEach((u, i) => {
         if (u)
@@ -788,8 +788,8 @@ export default function marketRoutes(db, clientBot) {
             client.query(
               `INSERT INTO company_images (company_id, url, type, position)
              VALUES ($1,$2,'gallery',$3)`,
-              [pending.id, u, i]
-            )
+              [pending.id, u, i],
+            ),
           );
       });
       await Promise.all(imageInserts);
@@ -805,7 +805,7 @@ export default function marketRoutes(db, clientBot) {
         (async () => {
           try {
             const channel = await clientBot.channels.fetch(
-              process.env.DISCORD_COMPANIES_CHANNEL_ID
+              process.env.DISCORD_COMPANIES_CHANNEL_ID,
             );
             if (!channel?.isTextBased?.()) {
               logger.warn("Companies channel is not text-based or not found.");
@@ -827,13 +827,13 @@ export default function marketRoutes(db, clientBot) {
                 {
                   name: "Created At",
                   value: new Date(pending.created_at).toISOString(),
-                }
+                },
               )
               .setTimestamp();
 
             await channel.send({ embeds: [embed] });
             logger.info(
-              `Posted new company to Discord: ${pending.name} (${pending.id})`
+              `Posted new company to Discord: ${pending.name} (${pending.id})`,
             );
           } catch (error) {
             logger.warn("Failed to post new company embed:", error);
@@ -875,14 +875,14 @@ export default function marketRoutes(db, clientBot) {
           rows: [user],
         } = await db.query(
           `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-          [discordId]
+          [discordId],
         );
         if (!user) return res.status(404).json({ error: "User not found" });
 
         const founderCheck = await db.query(
           `SELECT 1 FROM company_members
          WHERE user_uuid = $1 AND company_id = $2 AND role = 'Founder' LIMIT 1`,
-          [user.uuid, companyId]
+          [user.uuid, companyId],
         );
         if (founderCheck.rowCount === 0) {
           return res.status(403).json({ error: "Insufficient permissions" });
@@ -890,7 +890,7 @@ export default function marketRoutes(db, clientBot) {
 
         const existingEdit = await db.query(
           `SELECT id FROM company_edits WHERE company_id = $1 LIMIT 1`,
-          [companyId]
+          [companyId],
         );
         if (existingEdit.rowCount > 0) {
           return res.status(400).json({
@@ -942,7 +942,7 @@ export default function marketRoutes(db, clientBot) {
             gallery_paths.map((gf, i) => {
               const ext = path.extname(gf.originalname) || ".png";
               return uploadImageToR2(gf, galleryBase, `gallery-${i}${ext}`);
-            })
+            }),
           );
         }
 
@@ -963,7 +963,7 @@ export default function marketRoutes(db, clientBot) {
             logo_path,
             banner_path,
             galleryPathsSaved?.length ? galleryPathsSaved : null,
-          ]
+          ],
         );
         runOnlyInProduction(async () => {
           try {
@@ -975,12 +975,12 @@ export default function marketRoutes(db, clientBot) {
                 name: name || undefined,
                 short_description: short_description || undefined,
               },
-              clientBot
+              clientBot,
             );
           } catch (error) {
             logger.error(
               `Failed to notify admins about company edit ${companyId}:`,
-              error
+              error,
             );
           }
         });
@@ -990,7 +990,7 @@ export default function marketRoutes(db, clientBot) {
         logger.error(`Failed to create company edit for ${companyId}:`, error);
         return res.status(500).json({ error: "Internal server error" });
       }
-    }
+    },
   );
 
   // GET /api/market/company-edits
@@ -1003,7 +1003,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await db.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -1014,7 +1014,7 @@ export default function marketRoutes(db, clientBot) {
        WHERE e.editor_uuid = $1
        AND e.status IN ('pending','awaiting_funds')
        ORDER BY e.created_at DESC`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const { rows: rejectedEdits } = await db.query(
@@ -1026,7 +1026,7 @@ export default function marketRoutes(db, clientBot) {
        WHERE e.editor_uuid = $1
        AND e.status = 'rejected'
        ORDER BY r.rejected_at DESC`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const { rows: approvedEdits } = await db.query(
@@ -1036,7 +1036,7 @@ export default function marketRoutes(db, clientBot) {
        WHERE e.editor_uuid = $1
        AND e.status = 'approved'
        ORDER BY e.created_at DESC`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const tag = (rows) => rows.map((r) => ({ ...r, type: "edit" }));
@@ -1044,7 +1044,7 @@ export default function marketRoutes(db, clientBot) {
       return res.json({
         pending_edits: tag(openEdits.filter((e) => e.status === "pending")),
         awaiting_funds_edits: tag(
-          openEdits.filter((e) => e.status === "awaiting_funds")
+          openEdits.filter((e) => e.status === "awaiting_funds"),
         ),
         rejected_edits: tag(rejectedEdits),
         approved_edits: tag(approvedEdits),
@@ -1068,7 +1068,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await db.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -1079,7 +1079,7 @@ export default function marketRoutes(db, clientBot) {
          AND e.editor_uuid = $2
          AND e.status = 'rejected'
        LIMIT 1`,
-        [editId, user.uuid]
+        [editId, user.uuid],
       );
       if (!owned.length) {
         return res
@@ -1114,7 +1114,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) {
         await client.query("ROLLBACK");
@@ -1125,7 +1125,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [edit],
       } = await client.query(
         `SELECT * FROM company_edits WHERE id=$1 AND status='awaiting_funds' FOR UPDATE`,
-        [id]
+        [id],
       );
       if (!edit) {
         await client.query("ROLLBACK");
@@ -1136,7 +1136,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [founderRow],
       } = await client.query(
         `SELECT 1 FROM company_members WHERE company_id=$1 AND user_uuid=$2 AND role='Founder'`,
-        [edit.company_id, user.uuid]
+        [edit.company_id, user.uuid],
       );
       if (!founderRow) {
         await client.query("ROLLBACK");
@@ -1149,7 +1149,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [funds],
       } = await client.query(
         `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
-        [edit.company_id]
+        [edit.company_id],
       );
       const balance = Number(funds?.balance ?? 0);
       if (balance < fee) {
@@ -1163,7 +1163,7 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `UPDATE company_funds SET balance = balance - $1 WHERE company_id = $2`,
-        [fee, edit.company_id]
+        [fee, edit.company_id],
       );
 
       if (edit.name) {
@@ -1175,7 +1175,7 @@ export default function marketRoutes(db, clientBot) {
       if (edit.short_description) {
         await client.query(
           `UPDATE companies SET short_description=$1 WHERE id=$2`,
-          [edit.short_description, edit.company_id]
+          [edit.short_description, edit.company_id],
         );
       }
       if (edit.description !== null) {
@@ -1197,7 +1197,7 @@ export default function marketRoutes(db, clientBot) {
         const ext = srcKey ? extFromKey(srcKey) : ".png";
         newLogoUrl = await moveR2Object(
           edit.logo_path,
-          `${assetBase}/logo${ext}`
+          `${assetBase}/logo${ext}`,
         );
       }
 
@@ -1207,14 +1207,14 @@ export default function marketRoutes(db, clientBot) {
         const ext = srcKey ? extFromKey(srcKey) : ".png";
         newBannerUrl = await moveR2Object(
           edit.banner_path,
-          `${assetBase}/banner${ext}`
+          `${assetBase}/banner${ext}`,
         );
       }
 
       if (Array.isArray(edit.gallery_paths) && edit.gallery_paths.length) {
         await client.query(
           `DELETE FROM company_images WHERE company_id=$1 AND type='gallery'`,
-          [edit.company_id]
+          [edit.company_id],
         );
 
         const moved = [];
@@ -1238,26 +1238,26 @@ export default function marketRoutes(db, clientBot) {
       if (newLogoUrl) {
         await client.query(
           `DELETE FROM company_images WHERE company_id=$1 AND type='logo'`,
-          [edit.company_id]
+          [edit.company_id],
         );
         upserts.push(
           client.query(
             `INSERT INTO company_images (company_id, url, type, position) VALUES ($1,$2,'logo',0)`,
-            [edit.company_id, newLogoUrl]
-          )
+            [edit.company_id, newLogoUrl],
+          ),
         );
       }
 
       if (newBannerUrl) {
         await client.query(
           `DELETE FROM company_images WHERE company_id=$1 AND type='banner'`,
-          [edit.company_id]
+          [edit.company_id],
         );
         upserts.push(
           client.query(
             `INSERT INTO company_images (company_id, url, type, position) VALUES ($1,$2,'banner',0)`,
-            [edit.company_id, newBannerUrl]
-          )
+            [edit.company_id, newBannerUrl],
+          ),
         );
       }
 
@@ -1266,8 +1266,8 @@ export default function marketRoutes(db, clientBot) {
           upserts.push(
             client.query(
               `INSERT INTO company_images (company_id, url, type, position) VALUES ($1,$2,'gallery',$3)`,
-              [edit.company_id, url, i]
-            )
+              [edit.company_id, url, i],
+            ),
           );
         });
       }
@@ -1308,7 +1308,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) {
         await client.query("ROLLBACK");
@@ -1318,7 +1318,7 @@ export default function marketRoutes(db, clientBot) {
       const { rowCount: isFounder } = await client.query(
         `SELECT 1 FROM company_members
        WHERE company_id=$1 AND user_uuid=$2 AND role='Founder' LIMIT 1`,
-        [companyId, user.uuid]
+        [companyId, user.uuid],
       );
       if (!isFounder) {
         await client.query("ROLLBACK");
@@ -1329,7 +1329,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [userFunds],
       } = await client.query(
         `SELECT balance FROM user_funds WHERE uuid=$1 FOR UPDATE`,
-        [user.uuid]
+        [user.uuid],
       );
       const userBal = Number(userFunds?.balance ?? 0);
       if (userBal < amt) {
@@ -1343,12 +1343,12 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
-        [companyId]
+        [companyId],
       );
 
       await client.query(
         `UPDATE user_funds SET balance = balance - $1 WHERE uuid = $2`,
-        [amt, user.uuid]
+        [amt, user.uuid],
       );
 
       const {
@@ -1356,7 +1356,7 @@ export default function marketRoutes(db, clientBot) {
       } = await client.query(
         `UPDATE company_funds SET balance = balance + $1 WHERE company_id = $2
        RETURNING balance`,
-        [amt, companyId]
+        [amt, companyId],
       );
 
       await client.query("COMMIT");
@@ -1395,7 +1395,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) {
         await client.query("ROLLBACK");
@@ -1405,7 +1405,7 @@ export default function marketRoutes(db, clientBot) {
       const { rowCount: isFounder } = await client.query(
         `SELECT 1 FROM company_members
        WHERE company_id=$1 AND user_uuid=$2 AND role='Founder' LIMIT 1`,
-        [companyId, user.uuid]
+        [companyId, user.uuid],
       );
       if (!isFounder) {
         await client.query("ROLLBACK");
@@ -1416,7 +1416,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [companyFunds],
       } = await client.query(
         `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
-        [companyId]
+        [companyId],
       );
       const companyBal = Number(companyFunds?.balance ?? 0);
       if (companyBal < amt) {
@@ -1430,7 +1430,7 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `SELECT balance FROM user_funds WHERE uuid=$1 FOR UPDATE`,
-        [user.uuid]
+        [user.uuid],
       );
 
       const {
@@ -1438,17 +1438,17 @@ export default function marketRoutes(db, clientBot) {
       } = await client.query(
         `UPDATE company_funds SET balance = balance - $1 WHERE company_id = $2
        RETURNING balance`,
-        [amt, companyId]
+        [amt, companyId],
       );
       await client.query(
         `UPDATE user_funds SET balance = balance + $1 WHERE uuid = $2`,
-        [amt, user.uuid]
+        [amt, user.uuid],
       );
 
       await client.query(
         `INSERT INTO company_balance_history (company_id, balance, recorded_at)
        VALUES ($1, $2, NOW())`,
-        [companyId, updatedCompany.balance]
+        [companyId, updatedCompany.balance],
       );
 
       await client.query("COMMIT");
@@ -1493,7 +1493,7 @@ export default function marketRoutes(db, clientBot) {
       WHERE s.company_id = $1
       ORDER BY s.created_at DESC
       `,
-        [companyId]
+        [companyId],
       );
 
       res.json({ shops: rows });
@@ -1518,7 +1518,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [user],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!user) {
         await client.query("ROLLBACK");
@@ -1529,7 +1529,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [edit],
       } = await client.query(
         `SELECT * FROM shop_edits WHERE id=$1 AND status='awaiting_funds' FOR UPDATE`,
-        [id]
+        [id],
       );
       if (!edit) {
         await client.query("ROLLBACK");
@@ -1540,7 +1540,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [shop],
       } = await client.query(
         `SELECT s.id, s.company_id FROM shops s WHERE s.id=$1 LIMIT 1`,
-        [edit.shop_id]
+        [edit.shop_id],
       );
       if (!shop) {
         await client.query("ROLLBACK");
@@ -1550,7 +1550,7 @@ export default function marketRoutes(db, clientBot) {
       const { rowCount: founderOk } = await client.query(
         `SELECT 1 FROM company_members
         WHERE user_uuid=$1 AND company_id=$2 AND role='Founder' LIMIT 1`,
-        [user.uuid, shop.company_id]
+        [user.uuid, shop.company_id],
       );
       if (!founderOk) {
         await client.query("ROLLBACK");
@@ -1563,7 +1563,7 @@ export default function marketRoutes(db, clientBot) {
         rows: [funds],
       } = await client.query(
         `SELECT balance FROM company_funds WHERE company_id=$1 FOR UPDATE`,
-        [shop.company_id]
+        [shop.company_id],
       );
       const balance = Number(funds?.balance ?? 0);
       if (balance < fee) {
@@ -1577,7 +1577,7 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `UPDATE company_funds SET balance = balance - $1 WHERE company_id = $2`,
-        [fee, shop.company_id]
+        [fee, shop.company_id],
       );
 
       if (edit.name) {
@@ -1589,7 +1589,7 @@ export default function marketRoutes(db, clientBot) {
       if (edit.short_description) {
         await client.query(
           `UPDATE shops SET short_description=$1 WHERE id=$2`,
-          [edit.short_description, edit.shop_id]
+          [edit.short_description, edit.shop_id],
         );
       }
       if (edit.description !== null) {
@@ -1611,7 +1611,7 @@ export default function marketRoutes(db, clientBot) {
         const ext = srcKey ? extFromKey(srcKey) : ".png";
         newLogoUrl = await moveR2Object(
           edit.logo_path,
-          `${assetBase}/logo${ext}`
+          `${assetBase}/logo${ext}`,
         );
       }
 
@@ -1621,14 +1621,14 @@ export default function marketRoutes(db, clientBot) {
         const ext = srcKey ? extFromKey(srcKey) : ".png";
         newBannerUrl = await moveR2Object(
           edit.banner_path,
-          `${assetBase}/banner${ext}`
+          `${assetBase}/banner${ext}`,
         );
       }
 
       if (Array.isArray(edit.gallery_paths) && edit.gallery_paths.length) {
         await client.query(
           `DELETE FROM shop_images WHERE shop_id=$1 AND type='gallery'`,
-          [edit.shop_id]
+          [edit.shop_id],
         );
 
         const moved = [];
@@ -1652,26 +1652,26 @@ export default function marketRoutes(db, clientBot) {
       if (newLogoUrl) {
         await client.query(
           `DELETE FROM shop_images WHERE shop_id=$1 AND type='logo'`,
-          [edit.shop_id]
+          [edit.shop_id],
         );
         upserts.push(
           client.query(
             `INSERT INTO shop_images (shop_id, url, type, position) VALUES ($1,$2,'logo',0)`,
-            [edit.shop_id, newLogoUrl]
-          )
+            [edit.shop_id, newLogoUrl],
+          ),
         );
       }
 
       if (newBannerUrl) {
         await client.query(
           `DELETE FROM shop_images WHERE shop_id=$1 AND type='banner'`,
-          [edit.shop_id]
+          [edit.shop_id],
         );
         upserts.push(
           client.query(
             `INSERT INTO shop_images (shop_id, url, type, position) VALUES ($1,$2,'banner',0)`,
-            [edit.shop_id, newBannerUrl]
-          )
+            [edit.shop_id, newBannerUrl],
+          ),
         );
       }
 
@@ -1679,8 +1679,8 @@ export default function marketRoutes(db, clientBot) {
         upserts.push(
           client.query(
             `INSERT INTO shop_images (shop_id, url, type, position) VALUES ($1,$2,'gallery',$3)`,
-            [edit.shop_id, newGalleryUrls[i], i]
-          )
+            [edit.shop_id, newGalleryUrls[i], i],
+          ),
         );
       }
 
@@ -1688,7 +1688,7 @@ export default function marketRoutes(db, clientBot) {
 
       await client.query(
         `UPDATE shop_edits SET status='approved', reviewed_at=NOW() WHERE id=$1`,
-        [id]
+        [id],
       );
 
       await client.query("COMMIT");
@@ -1713,7 +1713,7 @@ export default function marketRoutes(db, clientBot) {
          FROM item_categories
         WHERE shop_id IS NULL OR shop_id=$1
         ORDER BY (shop_id IS NULL) DESC, name ASC`,
-        [shopId]
+        [shopId],
       );
       res.json({ categories: rows });
     } catch (error) {
@@ -1751,7 +1751,7 @@ export default function marketRoutes(db, clientBot) {
        VALUES ($1, $2)
        ON CONFLICT (shop_id, lower(name)) DO NOTHING
        RETURNING id, name, shop_id`,
-        [shopId, String(name).trim()]
+        [shopId, String(name).trim()],
       );
       if (!row)
         return res.status(409).json({ error: "Category already exists" });
@@ -1781,7 +1781,7 @@ export default function marketRoutes(db, clientBot) {
           rows: [user],
         } = await db.query(
           `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
-          [discordId]
+          [discordId],
         );
         if (!user) return res.status(404).json({ error: "User not found" });
         const can = await isFounderOfShop(db, user.uuid, shopId);
@@ -1792,7 +1792,7 @@ export default function marketRoutes(db, clientBot) {
           rows: [cat],
         } = await db.query(
           `SELECT id, shop_id FROM item_categories WHERE id=$1 LIMIT 1`,
-          [categoryId]
+          [categoryId],
         );
         if (!cat) return res.status(404).json({ error: "Category not found" });
         if (cat.shop_id !== shopId)
@@ -1803,14 +1803,14 @@ export default function marketRoutes(db, clientBot) {
         } = await db.query(
           `UPDATE item_categories SET name=$1 WHERE id=$2
        RETURNING id, name, shop_id`,
-          [String(name).trim(), categoryId]
+          [String(name).trim(), categoryId],
         );
         res.json({ category: row });
       } catch (error) {
         logger.error(`rename category ${categoryId} shop ${shopId}:`, error);
         res.status(500).json({ error: "Internal server error" });
       }
-    }
+    },
   );
 
   // DELETE --- /api/market/shop/:shopId/categories/:categoryId ---
@@ -1829,7 +1829,7 @@ export default function marketRoutes(db, clientBot) {
           rows: [user],
         } = await db.query(
           `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
-          [discordId]
+          [discordId],
         );
         if (!user) return res.status(404).json({ error: "User not found" });
         const can = await isFounderOfShop(db, user.uuid, shopId);
@@ -1840,7 +1840,7 @@ export default function marketRoutes(db, clientBot) {
           rows: [cat],
         } = await db.query(
           `SELECT id, shop_id FROM item_categories WHERE id=$1 LIMIT 1`,
-          [categoryId]
+          [categoryId],
         );
         if (!cat) return res.status(404).json({ error: "Category not found" });
         if (cat.shop_id !== shopId)
@@ -1850,7 +1850,7 @@ export default function marketRoutes(db, clientBot) {
           rows: [cnt],
         } = await db.query(
           `SELECT COUNT(*)::int AS n FROM item_category_map WHERE category_id=$1`,
-          [categoryId]
+          [categoryId],
         );
         if (cnt.n > 0)
           return res.status(409).json({ error: "Category has items" });
@@ -1861,7 +1861,7 @@ export default function marketRoutes(db, clientBot) {
         logger.error(`delete category ${categoryId} shop ${shopId}:`, error);
         res.status(500).json({ error: "Internal server error" });
       }
-    }
+    },
   );
 
   return router;

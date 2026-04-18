@@ -26,12 +26,12 @@ export default function setupAIChatListener(client, { db }) {
     try {
       const userResult = await db.query(
         `SELECT discord_id FROM users WHERE discord_id = $1 LIMIT 1`,
-        [userId]
+        [userId],
       );
 
       if (userResult.rows.length === 0) {
         return message.reply(
-          "❌ You are not registered with Createrington. Please apply at <https://create-rington.com>."
+          "❌ You are not registered with Createrington. Please apply at <https://createrington.com>.",
         );
       }
 
@@ -40,14 +40,14 @@ export default function setupAIChatListener(client, { db }) {
         SELECT COUNT(*) FROM ai_message_log
         WHERE discord_id = $1 AND created_at::date = CURRENT_DATE
         `,
-        [userId]
+        [userId],
       );
 
       const messageCount = parseInt(countResult.rows[0].count, 10);
 
       if (messageCount >= DAILY_LIMIT) {
         return message.reply(
-          `⛔ You've reached the **daily limit of ${DAILY_LIMIT} AI messages**. Try again tomorrow.`
+          `⛔ You've reached the **daily limit of ${DAILY_LIMIT} AI messages**. Try again tomorrow.`,
         );
       }
 
@@ -58,7 +58,7 @@ export default function setupAIChatListener(client, { db }) {
       await db.query(
         `INSERT INTO ai_message_log (discord_id, message, created_at)
          VALUES ($1, $2, NOW())`,
-        [userId, message.content]
+        [userId, message.content],
       );
     } catch (error) {
       logger.error("AI Chat Error:", error);

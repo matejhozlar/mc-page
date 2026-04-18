@@ -27,7 +27,7 @@ async function deleteR2Object(key) {
       new DeleteObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
         Key: key,
-      })
+      }),
     );
   } catch (error) {
     logger.warn("Failed to delete R2 object ${key}:", error);
@@ -35,7 +35,7 @@ async function deleteR2Object(key) {
 }
 
 function keyFromPublicUrl(url) {
-  const prefix = "https://market-assets.create-rington.com/";
+  const prefix = "https://market-assets.createrington.com/";
   return url?.startsWith(prefix) ? url.slice(prefix.length) : null;
 }
 
@@ -97,7 +97,7 @@ export default function adminRoutes(db, clientBot) {
 
       const result = await db.query(
         `SELECT * FROM users WHERE discord_id = $1`,
-        [discordId]
+        [discordId],
       );
 
       if (result.rows.length === 0) {
@@ -132,7 +132,7 @@ export default function adminRoutes(db, clientBot) {
 
       const userRes = await db.query(
         `SELECT name FROM users WHERE discord_id = $1`,
-        [discordId]
+        [discordId],
       );
 
       const adminMcName = userRes.rows[0]?.name || "unknown";
@@ -140,7 +140,7 @@ export default function adminRoutes(db, clientBot) {
 
       if (!isSilentCommand) {
         rconLogger.info(
-          `🔐 RCON command received from ${adminMcName} (${discordId}): ${command}`
+          `🔐 RCON command received from ${adminMcName} (${discordId}): ${command}`,
         );
       }
 
@@ -156,7 +156,7 @@ export default function adminRoutes(db, clientBot) {
       if (!isSilentCommand) {
         await db.query(
           `INSERT INTO rcon_logs (discord_id, mc_name, command) VALUES ($1, $2, $3)`,
-          [discordId, adminMcName, command]
+          [discordId, adminMcName, command],
         );
 
         rconLogger.info(`✅ RCON command executed successfully: ${command}`);
@@ -186,7 +186,7 @@ export default function adminRoutes(db, clientBot) {
       }
 
       const result = await db.query(
-        `SELECT uuid, name, play_time_seconds, last_seen, online FROM users ORDER BY name ASC`
+        `SELECT uuid, name, play_time_seconds, last_seen, online FROM users ORDER BY name ASC`,
       );
 
       logger.info(`Admin ${discordId} fetched user list.`);
@@ -215,7 +215,7 @@ export default function adminRoutes(db, clientBot) {
 
       const result = await db.query(
         `SELECT vanished FROM admins WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       if (result.rows.length === 0) {
@@ -297,7 +297,7 @@ export default function adminRoutes(db, clientBot) {
 
       const result = await db.query(
         `SELECT email, discord_name, token FROM waitlist_emails WHERE id = $1`,
-        [id]
+        [id],
       );
 
       if (result.rowCount === 0) {
@@ -323,7 +323,7 @@ export default function adminRoutes(db, clientBot) {
       });
 
       const mailOptions = {
-        from: "admin@create-rington.com",
+        from: "admin@createrington.com",
         to: email,
         subject: "🎉 Your Invitation to Createrington is Ready!",
         html: `
@@ -359,7 +359,7 @@ export default function adminRoutes(db, clientBot) {
         <p>Best regards,<br />
         <strong>saunhardy</strong><br />
         Server Admin – Createrington<br />
-        <a href="https://create-rington.com/">create-rington.com</a></p>
+        <a href="https://createrington.com/">createrington.com</a></p>
       
         <p><img src="cid:createrington-logo" alt="Createrington Logo" style="width: 200px; margin-top: 1rem;" /></p>
       `,
@@ -396,7 +396,7 @@ export default function adminRoutes(db, clientBot) {
       if (!isAdminUser) return res.status(403).json({ error: "Not an admin" });
 
       const result = await db.query(
-        `SELECT id, email, discord_name, token, submitted_at FROM waitlist_emails ORDER BY submitted_at ASC`
+        `SELECT id, email, discord_name, token, submitted_at FROM waitlist_emails ORDER BY submitted_at ASC`,
       );
       logger.info(`Admin ${discordId} fetched waitlist list.`);
       res.json({ entries: result.rows });
@@ -432,7 +432,7 @@ export default function adminRoutes(db, clientBot) {
       FROM pending_companies pc
       JOIN users u ON pc.founder_uuid = u.uuid
       WHERE pc.id = $1`,
-        [id]
+        [id],
       );
 
       if (!rows.length) {
@@ -464,7 +464,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [adminUser],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       const {
@@ -473,7 +473,7 @@ export default function adminRoutes(db, clientBot) {
         `SELECT * FROM pending_companies
          WHERE id = $1 AND status IN ('pending','awaiting_funds')
          FOR UPDATE`,
-        [id]
+        [id],
       );
       if (!pending) {
         await client.query("ROLLBACK");
@@ -486,14 +486,14 @@ export default function adminRoutes(db, clientBot) {
         rows: [founderUser],
       } = await client.query(
         `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
-        [pending.founder_uuid]
+        [pending.founder_uuid],
       );
 
       const {
         rows: [cnt],
       } = await client.query(
         `SELECT COUNT(*)::int AS n FROM companies WHERE founder_uuid = $1`,
-        [pending.founder_uuid]
+        [pending.founder_uuid],
       );
       const alreadyOwned = cnt?.n ?? 0;
 
@@ -507,7 +507,7 @@ export default function adminRoutes(db, clientBot) {
              reviewed_at = NOW(),
              reviewed_by = $2
        WHERE id = $3`,
-        [fee, adminUser.uuid, id]
+        [fee, adminUser.uuid, id],
       );
 
       await client.query("COMMIT");
@@ -525,7 +525,10 @@ export default function adminRoutes(db, clientBot) {
           ];
           await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
         })().catch((error) =>
-          logger.warn(`post-commit DM failed for pending company ${id}:`, error)
+          logger.warn(
+            `post-commit DM failed for pending company ${id}:`,
+            error,
+          ),
         );
       });
 
@@ -561,7 +564,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [pending],
       } = await db.query(
         `SELECT * FROM pending_companies WHERE id = $1 AND status = 'pending'`,
-        [id]
+        [id],
       );
 
       if (!pending) {
@@ -574,11 +577,11 @@ export default function adminRoutes(db, clientBot) {
         rows: [founderUser],
       } = await db.query(
         `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
-        [pending.founder_uuid]
+        [pending.founder_uuid],
       );
 
       const extractKey = (url) => {
-        const prefix = "https://market-assets.create-rington.com/";
+        const prefix = "https://market-assets.createrington.com/";
         return url?.startsWith(prefix) ? url.substring(prefix.length) : null;
       };
 
@@ -593,7 +596,7 @@ export default function adminRoutes(db, clientBot) {
       await db.query(
         `INSERT INTO rejected_companies (id, founder_uuid, name, reason, rejected_at)
        VALUES ($1, $2, $3, $4, NOW())`,
-        [pending.id, pending.founder_uuid, pending.name, reason.trim()]
+        [pending.id, pending.founder_uuid, pending.name, reason.trim()],
       );
 
       await db.query(`DELETE FROM pending_companies WHERE id = $1`, [id]);
@@ -611,7 +614,10 @@ export default function adminRoutes(db, clientBot) {
           ];
           await sendDm(founderUser.discord_id, lines.join("\n"), clientBot);
         })().catch((error) =>
-          logger.warn(`post-reject DM failed for pending company ${id}:`, error)
+          logger.warn(
+            `post-reject DM failed for pending company ${id}:`,
+            error,
+          ),
         );
       });
 
@@ -663,7 +669,7 @@ export default function adminRoutes(db, clientBot) {
         WHERE ce.status = 'pending'
 
         ORDER BY created_at ASC
-      `
+      `,
       );
 
       res.json({ companies: rows });
@@ -692,7 +698,7 @@ export default function adminRoutes(db, clientBot) {
       JOIN users u ON u.uuid = ce.editor_uuid
       WHERE ce.id = $1 AND ce.status = 'pending'
       `,
-        [editId]
+        [editId],
       );
       if (!edits.length) {
         return res
@@ -703,7 +709,7 @@ export default function adminRoutes(db, clientBot) {
 
       const { rows: originals } = await db.query(
         `SELECT * FROM companies WHERE id = $1`,
-        [edit.company_id]
+        [edit.company_id],
       );
       if (!originals.length) {
         return res.status(404).json({ error: "Original company not found" });
@@ -734,14 +740,14 @@ export default function adminRoutes(db, clientBot) {
         rows: [adminUser],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id = $1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       const {
         rows: [edit],
       } = await client.query(
         `SELECT * FROM company_edits WHERE id = $1 AND status = 'pending' FOR UPDATE`,
-        [id]
+        [id],
       );
       if (!edit) {
         await client.query("ROLLBACK");
@@ -752,7 +758,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [editorUser],
       } = await client.query(
         `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
-        [edit.editor_uuid]
+        [edit.editor_uuid],
       );
 
       const fee = 20;
@@ -765,7 +771,7 @@ export default function adminRoutes(db, clientBot) {
              reviewed_at = NOW(),
              reviewed_by = $2
        WHERE id = $3`,
-        [fee, adminUser.uuid, id]
+        [fee, adminUser.uuid, id],
       );
 
       await client.query("COMMIT");
@@ -784,7 +790,7 @@ export default function adminRoutes(db, clientBot) {
           ];
           await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
         })().catch((error) =>
-          logger.warn(`post-commit DM failed for company edit ${id}:`, error)
+          logger.warn(`post-commit DM failed for company edit ${id}:`, error),
         );
       });
 
@@ -821,7 +827,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [edit],
       } = await db.query(
         `SELECT * FROM company_edits WHERE id = $1 AND status = 'pending'`,
-        [id]
+        [id],
       );
       if (!edit) {
         return res.status(404).json({ error: "Edit not found or processed" });
@@ -831,7 +837,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [editorUser],
       } = await db.query(
         `SELECT discord_id FROM users WHERE uuid = $1 LIMIT 1`,
-        [edit.editor_uuid]
+        [edit.editor_uuid],
       );
 
       const keys = [
@@ -847,26 +853,26 @@ export default function adminRoutes(db, clientBot) {
               new DeleteObjectCommand({
                 Bucket: process.env.R2_BUCKET_NAME,
                 Key,
-              })
+              }),
             )
             .catch((error) =>
-              logger.warn(`R2 delete failed for ${Key}:`, error)
-            )
-        )
+              logger.warn(`R2 delete failed for ${Key}:`, error),
+            ),
+        ),
       );
 
       await db.query(
         `INSERT INTO rejected_company_edits (id, company_id, editor_uuid, reason)
        VALUES ($1,$2,$3,$4)
        ON CONFLICT (id) DO NOTHING`,
-        [edit.id, edit.company_id, edit.editor_uuid, reason.trim()]
+        [edit.id, edit.company_id, edit.editor_uuid, reason.trim()],
       );
 
       await db.query(
         `UPDATE company_edits
          SET status='rejected', reason=$1, reviewed_at=NOW()
        WHERE id=$2`,
-        [reason.trim(), id]
+        [reason.trim(), id],
       );
 
       runOnlyInProduction(async () => {
@@ -883,7 +889,7 @@ export default function adminRoutes(db, clientBot) {
           ];
           await sendDm(editorUser.discord_id, lines.join("\n"), clientBot);
         })().catch((error) =>
-          logger.warn(`post-reject DM failed for company edit ${id}:`, error)
+          logger.warn(`post-reject DM failed for company edit ${id}:`, error),
         );
       });
 
@@ -921,7 +927,7 @@ export default function adminRoutes(db, clientBot) {
       JOIN companies c ON c.id = ps.company_id
       WHERE ps.status = 'pending'
       ORDER BY ps.created_at ASC
-      `
+      `,
       );
 
       const { rows: editRows } = await db.query(
@@ -943,11 +949,11 @@ export default function adminRoutes(db, clientBot) {
       JOIN users u      ON u.uuid = se.editor_uuid
       WHERE se.status = 'pending'
       ORDER BY se.created_at ASC
-      `
+      `,
       );
 
       const shops = [...newRows, ...editRows].sort(
-        (a, b) => new Date(a.created_at) - new Date(b.created_at)
+        (a, b) => new Date(a.created_at) - new Date(b.created_at),
       );
 
       res.json({ shops });
@@ -990,7 +996,7 @@ export default function adminRoutes(db, clientBot) {
         JOIN users u ON ps.founder_uuid = u.uuid
         WHERE ps.id = $1
         `,
-        [id]
+        [id],
       );
 
       if (!rows.length) {
@@ -1025,7 +1031,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [adminUser],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
       if (!adminUser) {
         await client.query("ROLLBACK");
@@ -1042,7 +1048,7 @@ export default function adminRoutes(db, clientBot) {
         WHERE id=$1 AND status IN ('pending','awaiting_funds')
         FOR UPDATE
         `,
-        [id]
+        [id],
       );
       if (!pending) {
         await client.query("ROLLBACK");
@@ -1056,7 +1062,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [cnt],
       } = await client.query(
         `SELECT COUNT(*)::int AS n FROM shops WHERE company_id=$1`,
-        [pending.company_id]
+        [pending.company_id],
       );
       const fee = getShopCreationFee(cnt?.n ?? 0);
 
@@ -1070,7 +1076,7 @@ export default function adminRoutes(db, clientBot) {
             reviewed_by=$2
         WHERE id=$3
         `,
-        [fee, adminUser.uuid, id]
+        [fee, adminUser.uuid, id],
       );
 
       await client.query("COMMIT");
@@ -1080,7 +1086,7 @@ export default function adminRoutes(db, clientBot) {
           rows: [founderUser],
         } = await db.query(
           `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
-          [pending.founder_uuid]
+          [pending.founder_uuid],
         );
         if (!founderUser?.discord_id) return;
 
@@ -1136,7 +1142,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [pending],
       } = await client.query(
         `SELECT * FROM pending_shops WHERE id=$1 AND status='pending' FOR UPDATE`,
-        [id]
+        [id],
       );
       if (!pending) {
         await client.query("ROLLBACK");
@@ -1147,7 +1153,7 @@ export default function adminRoutes(db, clientBot) {
       }
 
       const extractKey = (url) => {
-        const prefix = "https://market-assets.create-rington.com/";
+        const prefix = "https://market-assets.createrington.com/";
         return url?.startsWith(prefix) ? url.substring(prefix.length) : null;
       };
       const keys = [
@@ -1168,14 +1174,14 @@ export default function adminRoutes(db, clientBot) {
           pending.founder_uuid,
           pending.name,
           reason.trim(),
-        ]
+        ],
       );
 
       await client.query(
         `UPDATE pending_shops
            SET status='rejected', reviewed_at=NOW()
          WHERE id=$1`,
-        [id]
+        [id],
       );
 
       await client.query("COMMIT");
@@ -1185,7 +1191,7 @@ export default function adminRoutes(db, clientBot) {
           rows: [founderUser],
         } = await db.query(
           `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
-          [pending.founder_uuid]
+          [pending.founder_uuid],
         );
         if (!founderUser?.discord_id) return;
 
@@ -1236,7 +1242,7 @@ export default function adminRoutes(db, clientBot) {
       WHERE se.id = $1
       LIMIT 1
       `,
-        [editId]
+        [editId],
       );
       if (!edit) return res.status(404).json({ error: "Edit not found" });
 
@@ -1256,7 +1262,7 @@ export default function adminRoutes(db, clientBot) {
       WHERE s.id=$1
       LIMIT 1
       `,
-        [edit.shop_id]
+        [edit.shop_id],
       );
 
       return res.json({ edit, original: originals[0] || null });
@@ -1284,14 +1290,14 @@ export default function adminRoutes(db, clientBot) {
         rows: [adminUser],
       } = await client.query(
         `SELECT uuid FROM users WHERE discord_id=$1 LIMIT 1`,
-        [discordId]
+        [discordId],
       );
 
       const {
         rows: [edit],
       } = await client.query(
         `SELECT * FROM shop_edits WHERE id=$1 AND status='pending' FOR UPDATE`,
-        [id]
+        [id],
       );
       if (!edit) {
         await client.query("ROLLBACK");
@@ -1302,7 +1308,7 @@ export default function adminRoutes(db, clientBot) {
         rows: [editorUser],
       } = await client.query(
         `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
-        [edit.editor_uuid]
+        [edit.editor_uuid],
       );
 
       const fee = 20;
@@ -1315,7 +1321,7 @@ export default function adminRoutes(db, clientBot) {
               reviewed_at=NOW(),
               reviewed_by=$2
         WHERE id=$3`,
-        [fee, adminUser.uuid, id]
+        [fee, adminUser.uuid, id],
       );
 
       await client.query("COMMIT");
@@ -1367,20 +1373,20 @@ export default function adminRoutes(db, clientBot) {
         rows: [edit],
       } = await db.query(
         `SELECT * FROM shop_edits WHERE id=$1 AND status='pending'`,
-        [id]
+        [id],
       );
       if (!edit)
         return res.status(404).json({ error: "Edit not found or processed" });
 
       await db.query(
         `UPDATE shop_edits SET status='rejected', reviewed_at=NOW() WHERE id=$1`,
-        [id]
+        [id],
       );
       await db.query(
         `INSERT INTO rejected_shop_edits (id, shop_id, editor_uuid, reason)
          VALUES ($1,$2,$3,$4)
          ON CONFLICT (id) DO NOTHING`,
-        [id, edit.shop_id, edit.editor_uuid, reason]
+        [id, edit.shop_id, edit.editor_uuid, reason],
       );
 
       runOnlyInProduction(async () => {
@@ -1389,7 +1395,7 @@ export default function adminRoutes(db, clientBot) {
             rows: [editorUser],
           } = await db.query(
             `SELECT discord_id FROM users WHERE uuid=$1 LIMIT 1`,
-            [edit.editor_uuid]
+            [edit.editor_uuid],
           );
           if (!editorUser?.discord_id) return;
 

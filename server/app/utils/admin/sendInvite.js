@@ -11,7 +11,7 @@ export async function sendInviteById(db, id, env) {
 
   const result = await db.query(
     `SELECT email, discord_name, token FROM waitlist_emails WHERE id = $1`,
-    [id]
+    [id],
   );
   if (result.rowCount === 0) return { ok: false, code: 404, msg: "Not found" };
 
@@ -27,7 +27,7 @@ export async function sendInviteById(db, id, env) {
   });
 
   const mailOptions = {
-    from: "admin@create-rington.com",
+    from: "admin@createrington.com",
     to: email,
     subject: "🎉 Your Invitation to Createrington is Ready!",
     html: `
@@ -63,7 +63,7 @@ export async function sendInviteById(db, id, env) {
         <p>Best regards,<br />
         <strong>saunhardy</strong><br />
         Server Admin – Createrington<br />
-        <a href="https://create-rington.com/">create-rington.com</a></p>
+        <a href="https://createrington.com/">createrington.com</a></p>
       
         <p><img src="cid:createrington-logo" alt="Createrington Logo" style="width: 200px; margin-top: 1rem;" /></p>
       `,

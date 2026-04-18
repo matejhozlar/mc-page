@@ -18,7 +18,7 @@ export default function formRoutes(db, client) {
       logger.warn(`Missing email or Discord name in waitlist form.`);
       return res.status(400).json({
         error:
-          "Email and Discord username are required.\nIf you're having trouble, contact admin@create-rington.com",
+          "Email and Discord username are required.\nIf you're having trouble, contact admin@createrington.com",
       });
     }
 
@@ -32,32 +32,32 @@ export default function formRoutes(db, client) {
       logger.warn(`Invalid email format: ${email}`);
       return res.status(400).json({
         error:
-          "Invalid email format.\nIf you're having trouble, contact admin@create-rington.com",
+          "Invalid email format.\nIf you're having trouble, contact admin@createrington.com",
       });
     }
 
     try {
       const emailExists = await db.query(
         `SELECT 1 FROM waitlist_emails WHERE LOWER(email) = LOWER($1)`,
-        [email]
+        [email],
       );
       if (emailExists.rowCount > 0) {
         logger.warn(`Duplicate email on waitlist: ${email}`);
         return res.status(409).json({
           error:
-            "This email is already on the waitlist.\nIf you're having trouble, contact admin@create-rington.com",
+            "This email is already on the waitlist.\nIf you're having trouble, contact admin@createrington.com",
         });
       }
 
       const discordExists = await db.query(
         `SELECT 1 FROM waitlist_emails WHERE LOWER(discord_name) = LOWER($1)`,
-        [discordName]
+        [discordName],
       );
       if (discordExists.rowCount > 0) {
         logger.warn(`Duplicate Discord name on waitlist: ${discordName}`);
         return res.status(409).json({
           error:
-            "This Discord username is already registered.\nIf you're having trouble, contact admin@create-rington.com",
+            "This Discord username is already registered.\nIf you're having trouble, contact admin@createrington.com",
         });
       }
 
@@ -70,7 +70,7 @@ export default function formRoutes(db, client) {
       const entry = result.rows[0];
 
       const countRes = await db.query(
-        `SELECT COUNT(*)::int AS count FROM users`
+        `SELECT COUNT(*)::int AS count FROM users`,
       );
       const currentPlayers = countRes?.rows?.[0]?.count ?? 0;
 
@@ -78,7 +78,7 @@ export default function formRoutes(db, client) {
       const hasCapacity = Number.isFinite(limit) && limit > currentPlayers;
 
       logger.info(
-        `Waitlist entry added: ${email} (${discordName}) — players=${currentPlayers}, limit=${limit}, hasCapacity=${hasCapacity}`
+        `Waitlist entry added: ${email} (${discordName}) — players=${currentPlayers}, limit=${limit}, hasCapacity=${hasCapacity}`,
       );
 
       if (hasCapacity) {
@@ -89,7 +89,7 @@ export default function formRoutes(db, client) {
             discord_name: entry.discord_name,
           },
           client,
-          db
+          db,
         );
 
         let token = inviteResult?.token;
@@ -100,7 +100,7 @@ export default function formRoutes(db, client) {
         ) {
           const tRes = await db.query(
             `SELECT token FROM waitlist_emails WHERE id = $1`,
-            [entry.id]
+            [entry.id],
           );
           token = tRes?.rows?.[0]?.token || null;
           if (token) {
@@ -120,7 +120,7 @@ export default function formRoutes(db, client) {
           logger.warn(
             `Auto-invite failed for ${discordName}: ${
               inviteResult?.msg || "Unknown error"
-            }`
+            }`,
           );
           return res.json({
             success: true,
@@ -155,7 +155,7 @@ export default function formRoutes(db, client) {
       logger.error(`Failed to insert waitlist entry for ${email}:`, error);
       res.status(500).json({
         error:
-          "Error submitting waitlist entry.\nIf you're having trouble, contact admin@create-rington.com",
+          "Error submitting waitlist entry.\nIf you're having trouble, contact admin@createrington.com",
       });
     }
   });

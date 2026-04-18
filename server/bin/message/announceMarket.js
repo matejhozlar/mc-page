@@ -24,13 +24,13 @@ client.once("ready", async () => {
       .setTitle("🪙 New Crypto Market is Live!")
       .setColor(0x00aeff)
       .setDescription(
-        "The **Createrington Crypto Market** is now open! Trade tokens, check live prices, and grow your wealth directly from your Minecraft balance."
+        "The **Createrington Crypto Market** is now open! Trade tokens, check live prices, and grow your wealth directly from your Minecraft balance.",
       )
       .addFields(
         {
           name: "🔗 Get Started",
           value:
-            "[Visit the Market](https://create-rington.com/market) to begin trading.",
+            "[Visit the Market](https://createrington.com/market) to begin trading.",
         },
         {
           name: "📈 Live Prices",
@@ -43,7 +43,7 @@ client.once("ready", async () => {
           value:
             "- Use `/money` in-game to check your balance.\n" +
             "- Look for dips to buy low, then sell high!",
-        }
+        },
       )
       .setFooter({ text: "Happy trading on Createrington!" })
       .setTimestamp();

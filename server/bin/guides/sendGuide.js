@@ -31,7 +31,7 @@ client.once("ready", async () => {
       botCommandsChannel.type !== ChannelType.GuildText
     ) {
       console.log(
-        `No valid text channel with ID '${TARGET_CHANNEL_ID}' found in ${guild.name}`
+        `No valid text channel with ID '${TARGET_CHANNEL_ID}' found in ${guild.name}`,
       );
       continue;
     }
@@ -81,7 +81,7 @@ client.once("ready", async () => {
           `🕒 **/server-playtime** — Check the total combined playtime of all players\n` +
           `🏆 **/top-playtime** — See the top 10 players with the most hours\n` +
           `🧍 **/list** — Show who’s currently online on the Minecraft Server\n` +
-          `🔑 **/token** — Generate a web chat token for [Createrington](https://create-rington.com/) (30 days)\n\n` +
+          `🔑 **/token** — Generate a web chat token for [Createrington](https://createrington.com/) (30 days)\n\n` +
           `⛏️ **Playtime Roles** — Level up by playing more on the server!\n` +
           `🪨 Stone — 0–20h\n🥉 Copper — 20–40h\n⛓️ Iron — 40–60h\n🥇 Gold — 60–100h\n` +
           `💎 Diamond — 100–200h\n🟥 Crimson — 200–300h\n⚪ Silver — 300–400h\n` +
@@ -95,11 +95,11 @@ client.once("ready", async () => {
           `🏆 **The Sleepless** — Awarded to the player with the most total playtime!\n` +
           `👑 **One Above All** — Awarded to the player with most 1st-place stat finishes!\n\n` +
           `🎮 Grind and show off your rank in Discord!\n\n` +
-          `🖱️ **New! Server Clicker Game** — ▶️ [Play here](https://create-rington.com/discord-login)\n` +
+          `🖱️ **New! Server Clicker Game** — ▶️ [Play here](https://createrington.com/discord-login)\n` +
           `A fun browser-based clicker game is now live!\n` +
           `**Log in with the same Discord account that's in this server!**\n` +
           `🚧 *The game is still in development — expect bugs and lots of new features in upcoming updates!*\n\n` +
-          `💡 Need help? Type **/** and scroll through available commands.`
+          `💡 Need help? Type **/** and scroll through available commands.`,
       )
       .setColor(0x5865f2);
 
@@ -107,7 +107,7 @@ client.once("ready", async () => {
       await botCommandsChannel.send({ embeds: [embed] });
 
       console.log(
-        `Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`
+        `Guide message sent to channel ID ${TARGET_CHANNEL_ID} in ${guild.name}`,
       );
     } catch (error) {
       console.error(`Failed to send guide in ${guild.name}:`, error);

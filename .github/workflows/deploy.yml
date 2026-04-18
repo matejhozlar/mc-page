@@ -17,7 +17,7 @@ jobs:
       - name: Download and Unzip Assets
         run: |
           echo "Downloading assets.zip..."
-          curl -L "https://create-rington.com/api/download/assets?code=${{ secrets.DOWNLOAD_ACCESS_CODE }}" -o assets.zip
+          curl -L "https://createrington.com/api/download/assets?code=${{ secrets.DOWNLOAD_ACCESS_CODE }}" -o assets.zip
 
           echo "Copying assets.zip to server/app/routes/download/"
           mkdir -p server/app/routes/download

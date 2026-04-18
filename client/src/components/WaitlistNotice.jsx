@@ -34,7 +34,7 @@ const WaitlistNotice = () => {
 
     if (!email || !discordName) {
       setSubmissionStatus(
-        "Please fill out both fields.\nIf you're having trouble, contact admin@create-rington.com"
+        "Please fill out both fields.\nIf you're having trouble, contact admin@createrington.com",
       );
       return;
     }
@@ -71,13 +71,13 @@ const WaitlistNotice = () => {
       } else {
         setSubmissionStatus(
           data.error ||
-            "⚠️ Error submitting form. Please try again.\nIf you're having trouble, contact admin@create-rington.com"
+            "⚠️ Error submitting form. Please try again.\nIf you're having trouble, contact admin@createrington.com",
         );
       }
     } catch (error) {
       console.error("Error submitting form:", error);
       setSubmissionStatus(
-        "⚠️ Network error. Please try again later.\nIf you're having trouble, contact admin@create-rington.com"
+        "⚠️ Network error. Please try again later.\nIf you're having trouble, contact admin@createrington.com",
       );
     } finally {
       if (!didRedirectRef.current) setSubmitting(false);
@@ -90,9 +90,8 @@ const WaitlistNotice = () => {
         Server is currently <span style={{ color: "red" }}>Closed</span>
       </h2>
       <p>
-        Hey! Thanks for your interest in joining Create-Rington. Right now,
-        we're at full capacity while we test server limits with our current
-        community.
+        Hey! Thanks for your interest in joining createrington. Right now, we're
+        at full capacity while we test server limits with our current community.
       </p>
       <p>
         We’ll reopen applications as space becomes available — most players
@@ -109,7 +108,7 @@ const WaitlistNotice = () => {
       </h2>
       <p>
         Great news — we’re currently accepting new members into the
-        Create-Rington community!
+        createrington community!
       </p>
       <p>
         Fill out the form below, and we’ll review your submission shortly. We're

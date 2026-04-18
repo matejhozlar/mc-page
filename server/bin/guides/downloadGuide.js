@@ -53,7 +53,7 @@ client.once("clientReady", async () => {
         {
           name: "Server Info",
           value: [
-            "- **IP Address**: `create-rington.mcserv.fun`",
+            "- **IP Address**: `createrington.mcserv.fun`",
             "- **Seed**: `9151016444323366715` *(For seed tools, select **Large Biomes**)*",
           ].join("\n"),
         },

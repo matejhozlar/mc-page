@@ -65,7 +65,7 @@ export async function execute(interaction, db) {
         },
       )
       .setFooter({
-        text: "Winners' photos will be featured on create-rington.com!",
+        text: "Winners' photos will be featured on createrington.com!",
       })
       .setTimestamp();
 

@@ -26,7 +26,7 @@ export default async function createTicket(interaction, client, db) {
 
     const existing = await db.query(
       `SELECT * FROM tickets WHERE discord_id = $1 AND status != 'deleted' LIMIT 1`,
-      [user.id]
+      [user.id],
     );
 
     if (existing.rows.length > 0) {
@@ -39,12 +39,12 @@ export default async function createTicket(interaction, client, db) {
 
     const { rows } = await db.query(
       `SELECT name FROM users WHERE discord_id = $1 LIMIT 1`,
-      [user.id]
+      [user.id],
     );
     const mcName = rows[0]?.name || "Unknown";
 
     const result = await db.query(
-      `SELECT last_number FROM ticket_counter WHERE id = 1`
+      `SELECT last_number FROM ticket_counter WHERE id = 1`,
     );
     let ticketNumber = result.rows[0].last_number + 1;
 
@@ -84,7 +84,7 @@ export default async function createTicket(interaction, client, db) {
 
     await db.query(
       `INSERT INTO tickets (ticket_number, discord_id, mc_name, channel_id) VALUES ($1, $2, $3, $4)`,
-      [ticketNumber, user.id, mcName, ticketChannel.id]
+      [ticketNumber, user.id, mcName, ticketChannel.id],
     );
 
     const adminRoleId = process.env.DISCORD_ADMIN_ROLE_ID;
@@ -93,12 +93,12 @@ export default async function createTicket(interaction, client, db) {
         `👋 Welcome <@${user.id}> (Minecraft: **${mcName}**)
         \nPlease describe your issue in detail and include any screenshots or videos.
         \nSupport will be with you shortly <@&${adminRoleId}>
-        \nTo close this ticket, press the **Close** button below.`
+        \nTo close this ticket, press the **Close** button below.`,
       )
       .setColor(0x2f3136)
       .addFields({
         name: " ",
-        value: "[Createrington](https://create-rington.com)",
+        value: "[Createrington](https://createrington.com)",
       });
 
     const closeButton = new ButtonBuilder()

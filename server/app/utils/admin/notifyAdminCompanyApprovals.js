@@ -42,7 +42,7 @@ async function sendAdminNotice({ subject, plain, html, embed, client }) {
   try {
     const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
     const channel = await guild.channels.fetch(
-      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID
+      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID,
     );
 
     if (!channel?.isTextBased?.()) {
@@ -85,7 +85,7 @@ export async function notifyAdminPendingCompany(data, client) {
       ${
         short_description
           ? `<li><strong>Short Description:</strong> ${escapeHtml(
-              short_description
+              short_description,
             )}</li>`
           : ""
       }
@@ -100,7 +100,7 @@ export async function notifyAdminPendingCompany(data, client) {
       { name: "Founder UUID", value: founder_uuid || "Unknown" },
       ...(short_description
         ? [{ name: "Short Description", value: short_description }]
-        : [])
+        : []),
     )
     .setColor(BLUE)
     .setTimestamp();
@@ -109,7 +109,7 @@ export async function notifyAdminPendingCompany(data, client) {
     new ButtonBuilder()
       .setLabel("Open Admin Panel")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com/login-admin/")
+      .setURL("https://createrington.com/login-admin/"),
   );
 
   const embed = { embeds: [embedBuilder], components: [row] };
@@ -147,7 +147,7 @@ export async function notifyAdminCompanyEdit(data, client) {
       ${
         short_description
           ? `<li><strong>Short Description:</strong> ${escapeHtml(
-              short_description
+              short_description,
             )}</li>`
           : ""
       }
@@ -163,7 +163,7 @@ export async function notifyAdminCompanyEdit(data, client) {
       { name: "Editor UUID", value: editor_uuid || "Unknown" },
       ...(short_description
         ? [{ name: "Short Description", value: short_description }]
-        : [])
+        : []),
     )
     .setColor(BLUE)
     .setTimestamp();
@@ -172,7 +172,7 @@ export async function notifyAdminCompanyEdit(data, client) {
     new ButtonBuilder()
       .setLabel("Open Admin Panel")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com/login-admin/")
+      .setURL("https://createrington.com/login-admin/"),
   );
 
   const embed = { embeds: [embedBuilder], components: [row] };
@@ -224,7 +224,7 @@ export async function notifyAdminPendingShop(data, client) {
       ${
         company_name
           ? `<li><strong>Company Name:</strong> ${escapeHtml(
-              company_name
+              company_name,
             )}</li>`
           : ""
       }
@@ -232,7 +232,7 @@ export async function notifyAdminPendingShop(data, client) {
       ${
         short_description
           ? `<li><strong>Short Description:</strong> ${escapeHtml(
-              short_description
+              short_description,
             )}</li>`
           : ""
       }
@@ -249,7 +249,7 @@ export async function notifyAdminPendingShop(data, client) {
       { name: "Founder UUID", value: founder_uuid || "Unknown" },
       ...(short_description
         ? [{ name: "Short Description", value: short_description }]
-        : [])
+        : []),
     )
     .setColor(BLUE)
     .setTimestamp();
@@ -258,7 +258,7 @@ export async function notifyAdminPendingShop(data, client) {
     new ButtonBuilder()
       .setLabel("Open Admin Panel")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com/login-admin/")
+      .setURL("https://createrington.com/login-admin/"),
   );
 
   const embed = { embeds: [embedBuilder], components: [row] };
@@ -319,7 +319,7 @@ export async function notifyAdminShopEdit(data, client) {
       ${
         short_description
           ? `<li><strong>Short Description:</strong> ${escapeHtml(
-              short_description
+              short_description,
             )}</li>`
           : ""
       }
@@ -336,7 +336,7 @@ export async function notifyAdminShopEdit(data, client) {
       { name: "Editor UUID", value: editor_uuid || "Unknown" },
       ...(short_description
         ? [{ name: "Short Description", value: short_description }]
-        : [])
+        : []),
     )
     .setColor(BLUE)
     .setTimestamp();
@@ -345,7 +345,7 @@ export async function notifyAdminShopEdit(data, client) {
     new ButtonBuilder()
       .setLabel("Open Admin Panel")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com/login-admin/")
+      .setURL("https://createrington.com/login-admin/"),
   );
 
   const embed = { embeds: [embedBuilder], components: [row] };

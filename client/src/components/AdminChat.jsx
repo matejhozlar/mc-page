@@ -81,10 +81,10 @@ const AdminServerChat = () => {
         const safeY = y === "~" ? "64" : y;
         const safeZ = z === "~" ? "0" : z;
 
-        const url = `https://create-rington.com/bluemap/#${world}:${safeX}:${safeY}:${safeZ}:1500:0:0:0:0:perspective`;
+        const url = `https://createrington.com/bluemap/#${world}:${safeX}:${safeY}:${safeZ}:1500:0:0:0:0:perspective`;
 
         return `${badge} <a href="${url}" target="_blank" rel="noopener noreferrer">${name} (${safeX}, ${safeY}, ${safeZ})</a>`;
-      }
+      },
     );
   };
 
@@ -93,7 +93,7 @@ const AdminServerChat = () => {
 
   const getUuidByName = (name) => {
     const match = onlinePlayers.find(
-      (p) => p.name.toLowerCase() === name.toLowerCase()
+      (p) => p.name.toLowerCase() === name.toLowerCase(),
     );
     return match?.id || STEVE_UUID;
   };
@@ -110,7 +110,8 @@ const AdminServerChat = () => {
 
   useEffect(() => {
     const handleChatMessage = (message) => {
-      const text = typeof message === "string" ? message : message?.text ?? "";
+      const text =
+        typeof message === "string" ? message : (message?.text ?? "");
       const image = message?.image || null;
 
       const strippedText = text.replace(/^\[Createrington\]:\s*/, "").trim();

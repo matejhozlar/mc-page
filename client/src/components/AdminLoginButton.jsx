@@ -8,7 +8,7 @@ const AdminLoginButton = () => {
     const redirectUri = encodeURIComponent(
       isDev
         ? "http://localhost:3000/callback"
-        : "https://create-rington.com/callback"
+        : "https://createrington.com/callback",
     );
     const scope = "identify";
     const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&prompt=consent`;

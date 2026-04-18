@@ -22,13 +22,13 @@ client.once("ready", async () => {
       .setTitle("🏢 Createrington Market – Early Access Guide")
       .setColor(BLUE)
       .setDescription(
-        "Welcome to the **Createrington Market** – our brand new economy system for creating, managing, and growing companies!\n\n⚠️ **This is an EARLY version** — expect bugs, missing features, and big changes as we test everything."
+        "Welcome to the **Createrington Market** – our brand new economy system for creating, managing, and growing companies!\n\n⚠️ **This is an EARLY version** — expect bugs, missing features, and big changes as we test everything.",
       )
       .addFields(
         {
           name: "Getting Started",
           value: [
-            "- [Click Here](https://create-rington.com)",
+            "- [Click Here](https://createrington.com)",
             "- Go to the **Market** tab in the navigation menu.",
             "- From your dashboard, you can create a company, view existing companies, or manage your requests.",
           ].join("\n"),
@@ -106,7 +106,7 @@ client.once("ready", async () => {
           name: "📣 Reminder",
           value:
             "This is **not the final version** of the Market. All balances, interest rates, and mechanics may change during testing!",
-        }
+        },
       )
       .setFooter({
         text: "Thanks for playing on Createrington!",

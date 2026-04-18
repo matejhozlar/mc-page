@@ -41,10 +41,10 @@ export async function execute(interaction) {
     const embed = new EmbedBuilder()
       .setTitle("🛠 Createrington modpack")
       .setDescription(
-        "Download the Createrington modpack through CurseForge with just 1 click."
+        "Download the Createrington modpack through CurseForge with just 1 click.",
       )
       .setColor(DARK_GRAY)
-      .setURL("https://www.curseforge.com/minecraft/modpacks/create-rington")
+      .setURL("https://www.curseforge.com/minecraft/modpacks/createrington")
       .setFooter({
         text: "Requires CurseForge installed on your device",
       });
@@ -52,7 +52,7 @@ export async function execute(interaction) {
     const button = new ButtonBuilder()
       .setLabel("Open CurseForge")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://www.curseforge.com/minecraft/modpacks/create-rington");
+      .setURL("https://www.curseforge.com/minecraft/modpacks/createrington");
 
     const row = new ActionRowBuilder().addComponents(button);
 

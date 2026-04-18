@@ -145,7 +145,7 @@ const ShopPage = () => {
               ...(edits?.awaiting_funds_edits || []),
             ];
             const mineForThisShop = all.find(
-              (e) => String(e.shop_id) === String(shopId)
+              (e) => String(e.shop_id) === String(shopId),
             );
             if (mineForThisShop) {
               setEditStatus({
@@ -185,7 +185,7 @@ const ShopPage = () => {
 
   const isFounder =
     visitor?.companies?.some(
-      (c) => c.id === shop.company_id && c.role === "Founder"
+      (c) => c.id === shop.company_id && c.role === "Founder",
     ) ?? false;
 
   const createdStr = shop.created_at
@@ -354,13 +354,13 @@ const ShopPage = () => {
                     <a
                       className="shop-page-button"
                       href={buildBlueMapUrl(
-                        "https://create-rington.com/bluemap",
+                        "https://createrington.com/bluemap",
                         {
                           dimension: location.dimension,
                           x: location.x,
                           y: location.y,
                           z: location.z,
-                        }
+                        },
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -373,7 +373,7 @@ const ShopPage = () => {
               ) : (
                 <>
                   <BlueMapViewer
-                    base="https://create-rington.com/bluemap"
+                    base="https://createrington.com/bluemap"
                     location={{
                       dimension: location.dimension,
                       x: location.x,
@@ -414,13 +414,13 @@ const ShopPage = () => {
                     <a
                       className="shop-page-button"
                       href={buildBlueMapUrl(
-                        "https://create-rington.com/bluemap",
+                        "https://createrington.com/bluemap",
                         {
                           dimension: location.dimension,
                           x: location.x,
                           y: location.y,
                           z: location.z,
-                        }
+                        },
                       )}
                       target="_blank"
                       rel="noopener noreferrer"

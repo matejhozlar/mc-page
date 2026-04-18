@@ -60,7 +60,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
   try {
     const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
     const channel = await guild.channels.fetch(
-      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID
+      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID,
     );
 
     if (!channel?.isTextBased?.()) {
@@ -73,7 +73,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
       .addFields(
         { name: "🆔 Submission ID", value: id?.toString() || "Unknown" },
         { name: "💬 Discord", value: discord_name || "Unknown" },
-        { name: "📧 Email", value: email || "Unknown" }
+        { name: "📧 Email", value: email || "Unknown" },
       )
       .setColor(LIME_GREEN)
       .setTimestamp();
@@ -86,14 +86,14 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
       new ButtonBuilder()
         .setCustomId(`waitlist:decline:${id}`)
         .setLabel("Decline")
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
     );
 
     const linkRow = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setLabel("Open Admin Panel")
         .setStyle(ButtonStyle.Link)
-        .setURL("https://create-rington.com/login-admin/")
+        .setURL("https://createrington.com/login-admin/"),
     );
 
     await channel.send({ embeds: [embed], components: [actionRow, linkRow] });
@@ -119,7 +119,7 @@ export async function notifyAdminWaitlist({ id, email, discord_name }, client) {
 export async function autoInviteAndNotify(
   { id, email, discord_name },
   client,
-  db
+  db,
 ) {
   let inviteResult = { ok: false, msg: "Unknown error" };
   try {
@@ -140,7 +140,7 @@ export async function autoInviteAndNotify(
   try {
     const guild = await client.guilds.fetch(process.env.DISCORD_GUILD_ID);
     const channel = await guild.channels.fetch(
-      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID
+      process.env.DISCORD_ADMIN_CHAT_CHANNEL_ID,
     );
 
     if (!channel?.isTextBased?.()) {
@@ -163,7 +163,7 @@ export async function autoInviteAndNotify(
             value: discord_name || "Unknown",
             inline: false,
           },
-          { name: "📧 Email", value: email || "Unknown", inline: false }
+          { name: "📧 Email", value: email || "Unknown", inline: false },
         )
         .setTimestamp();
 
@@ -171,7 +171,7 @@ export async function autoInviteAndNotify(
         new ButtonBuilder()
           .setLabel("Open Admin Panel")
           .setStyle(ButtonStyle.Link)
-          .setURL("https://create-rington.com/login-admin/")
+          .setURL("https://createrington.com/login-admin/"),
       );
 
       await channel.send({
@@ -183,7 +183,7 @@ export async function autoInviteAndNotify(
       });
 
       logger.info(
-        `Admin notified of auto-invite for ${discord_name} (success=${success})`
+        `Admin notified of auto-invite for ${discord_name} (success=${success})`,
       );
     }
   } catch (error) {

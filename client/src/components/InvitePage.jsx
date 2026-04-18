@@ -117,7 +117,7 @@ const InvitePage = () => {
           <ol className="invite-steps-list">
             <li>
               Check your inbox for an email from{" "}
-              <em>admin@create-rington.com</em> with your invite link.
+              <em>admin@createrington.com</em> with your invite link.
             </li>
             <li>
               Join our Discord via the button above (or the email) and complete

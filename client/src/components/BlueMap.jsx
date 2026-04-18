@@ -7,7 +7,7 @@ const BlueMapViewer = () => {
       style={{ height: "100%", width: "100%" }}
     >
       <iframe
-        src="https://create-rington.com/bluemap"
+        src="https://createrington.com/bluemap"
         title="BlueMap Viewer"
         style={{ width: "100%", height: "100%", border: "none" }}
       ></iframe>

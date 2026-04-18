@@ -36,7 +36,7 @@ export async function execute(interaction) {
   const embed = new EmbedBuilder()
     .setTitle("🎟️ Support Ticket")
     .setDescription(
-      "To create a ticket, click the **Create ticket** button below."
+      "To create a ticket, click the **Create ticket** button below.",
     )
     .setColor(DARK_GRAY)
     .addFields({
@@ -45,7 +45,7 @@ export async function execute(interaction) {
     })
     .addFields({
       name: " ",
-      value: "[Createrington](https://create-rington.com)",
+      value: "[Createrington](https://createrington.com)",
     });
 
   const createButton = new ButtonBuilder()

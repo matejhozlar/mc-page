@@ -391,7 +391,7 @@ Authentication via JWT and sessions for protected routes.
 Here are some companion tools and related repositories that work well with or expand on the Createrington ecosystem:
 
 - [**Createrington Currency**](https://github.com/matejhozlar/createrington-currency) – Minecraft Mod integrated with the website.
-- [**Createrington Live Site**](https://create-rington.com) – Deployed version of the portal, connected to the live Minecraft server.
+- [**Createrington Live Site**](https://createrington.com) – Deployed version of the portal, connected to the live Minecraft server.
 
 ---
 

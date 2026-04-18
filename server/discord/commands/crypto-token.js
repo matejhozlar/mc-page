@@ -19,7 +19,7 @@ export const data = new SlashCommandBuilder()
     option
       .setName("symbol")
       .setDescription("Enter the token symbol (e.g., MOO, BTC, ETH)")
-      .setRequired(true)
+      .setRequired(true),
   );
 
 export const prodOnly = true;
@@ -47,8 +47,8 @@ async function captureChartScreenshot(symbol) {
   }
 
   const page = await browser.newPage();
-  const chartPageUrl = `https://create-rington.com/chart/${encodeURIComponent(
-    symbol
+  const chartPageUrl = `https://createrington.com/chart/${encodeURIComponent(
+    symbol,
   )}`;
 
   try {
@@ -65,7 +65,7 @@ async function captureChartScreenshot(symbol) {
     });
     await page.waitForSelector(".chart-container", { timeout: 10000 });
     await page.evaluate(
-      () => new Promise((resolve) => setTimeout(resolve, 2000))
+      () => new Promise((resolve) => setTimeout(resolve, 2000)),
     );
 
     const chartDiv = await page.$(".chart-container");
@@ -93,7 +93,7 @@ export async function execute(interaction, db) {
 
     const { rows } = await db.query(
       `SELECT price_per_unit FROM crypto_tokens WHERE LOWER(symbol) = LOWER($1) LIMIT 1`,
-      [symbol]
+      [symbol],
     );
 
     const tokenInfo = rows[0];

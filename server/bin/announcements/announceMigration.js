@@ -40,7 +40,7 @@ client.once("ready", async () => {
         "**What's carrying over?**\n" +
         "- Your balance, playtime, stats, and leaderboard data\n" +
         "- Server IP and modpack remain the same\n" +
-        "- Website stays at **create-rington.com**\n" +
+        "- Website stays at **createrington.com**\n" +
         "- You don't need to re-verify on the new server\n\n" +
         "**What's changing?**\n" +
         "- Companies have been removed — all crypto and company funds were transferred to your balances\n" +

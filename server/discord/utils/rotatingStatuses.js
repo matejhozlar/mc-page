@@ -1,5 +1,5 @@
 const rotatingStatuses = [
-  "🌐 create-rington.com",
+  "🌐 createrington.com",
   "📊 Fetching dashboard...",
   "📊 Dashboard: Active",
   "🧠 Analyzing player data...",

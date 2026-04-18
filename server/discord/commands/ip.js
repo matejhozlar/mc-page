@@ -47,7 +47,7 @@ export async function execute(interaction) {
       .addFields(
         {
           name: "🖥️ Server IP",
-          value: "`create-rington.mcserv.fun`",
+          value: "`createrington.mcserv.fun`",
         },
         {
           name: "🎮 Version",
@@ -56,14 +56,14 @@ export async function execute(interaction) {
         {
           name: "❓ Need Help?",
           value: `[Open a support ticket](https://discord.com/channels/${interaction.guild.id}/${process.env.DISCORD_TICKET_MESSAGE_CHANNEL_ID})`,
-        }
+        },
       )
       .setFooter({ text: "See you in-game!" });
 
     const connectButton = new ButtonBuilder()
       .setLabel("Visit Server Site")
       .setStyle(ButtonStyle.Link)
-      .setURL("https://create-rington.com");
+      .setURL("https://createrington.com");
 
     const row = new ActionRowBuilder().addComponents(connectButton);
 

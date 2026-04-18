@@ -39,6 +39,6 @@ export async function uploadImageToR2(file, destinationPath, filename = null) {
 
   await s3.send(command);
 
-  const publicUrl = `https://market-assets.create-rington.com/${key}`;
+  const publicUrl = `https://market-assets.createrington.com/${key}`;
   return publicUrl;
 }

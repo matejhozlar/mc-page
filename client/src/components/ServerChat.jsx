@@ -126,16 +126,16 @@ const ServerChat = () => {
         const safeY = y === "~" ? "64" : y;
         const safeZ = z === "~" ? "0" : z;
 
-        const url = `https://create-rington.com/bluemap/#${world}:${safeX}:${safeY}:${safeZ}:1500:0:0:0:0:perspective`;
+        const url = `https://createrington.com/bluemap/#${world}:${safeX}:${safeY}:${safeZ}:1500:0:0:0:0:perspective`;
 
         return `${badge} <a href="${url}" target="_blank" rel="noopener noreferrer">${name} (${safeX}, ${safeY}, ${safeZ})</a>`;
-      }
+      },
     );
   };
 
   const getPlayerUUID = (name) => {
     const key = Object.keys(playerStatuses).find(
-      (n) => n.toLowerCase() === name.toLowerCase()
+      (n) => n.toLowerCase() === name.toLowerCase(),
     );
     return key && playerStatuses[key]?.uuid
       ? playerStatuses[key].uuid
@@ -178,7 +178,8 @@ const ServerChat = () => {
 
   useEffect(() => {
     const handleChatMessage = (message) => {
-      const text = typeof message === "string" ? message : message?.text ?? "";
+      const text =
+        typeof message === "string" ? message : (message?.text ?? "");
       const image = message?.image || null;
 
       const strippedText = text.replace(/^\[Createrington\]:\s*/, "").trim();
@@ -473,7 +474,7 @@ const ServerChat = () => {
                           <div className="mc-avatar-wrapper">
                             <img
                               src={`https://mc-heads.net/avatar/${getPlayerUUID(
-                                name
+                                name,
                               )}/32`}
                               alt={name}
                               className="avatar"
